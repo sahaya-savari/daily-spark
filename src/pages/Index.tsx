@@ -15,7 +15,9 @@ const Index = () => {
     streaks, 
     isLoading, 
     addStreak, 
-    completeStreak, 
+    completeStreak,
+    undoStreak,
+    canUndoAction,
     getStats 
   } = useStreaks();
   
@@ -35,6 +37,10 @@ const Index = () => {
   const handleAddStreak = useCallback((name: string, emoji: string) => {
     addStreak(name, emoji);
   }, [addStreak]);
+
+  const handleUndoStreak = useCallback((id: string) => {
+    undoStreak(id);
+  }, [undoStreak]);
 
   // Sort streaks: pending first, then completed, then at-risk
   const sortedStreaks = [...streaks].sort((a, b) => {
@@ -82,15 +88,20 @@ const Index = () => {
           <EmptyState hasStreaks={streaks.length > 0} />
 
           <div className="space-y-3">
-            {sortedStreaks.map((streak, index) => (
-              <StreakCard
-                key={streak.id}
-                streak={streak}
-                status={getStreakStatus(streak)}
-                onComplete={() => handleCompleteStreak(streak.id)}
-                index={index}
-              />
-            ))}
+            {sortedStreaks.map((streak, index) => {
+              const undoCheck = canUndoAction(streak.id);
+              return (
+                <StreakCard
+                  key={streak.id}
+                  streak={streak}
+                  status={getStreakStatus(streak)}
+                  onComplete={() => handleCompleteStreak(streak.id)}
+                  onUndo={() => handleUndoStreak(streak.id)}
+                  canUndo={undoCheck.canUndo}
+                  index={index}
+                />
+              );
+            })}
           </div>
         </section>
 

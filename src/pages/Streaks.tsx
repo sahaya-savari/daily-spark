@@ -4,7 +4,7 @@ import { StreakCard } from '@/components/StreakCard';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
 
 const StreaksPage = () => {
-  const { streaks, completeStreak } = useStreaks();
+  const { streaks, completeStreak, undoStreak, canUndoAction } = useStreaks();
 
   // Sort by status
   const sortedStreaks = [...streaks].sort((a, b) => {
@@ -62,15 +62,20 @@ const StreaksPage = () => {
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedStreaks.map((streak, index) => (
-              <StreakCard
-                key={streak.id}
-                streak={streak}
-                status={getStreakStatus(streak)}
-                onComplete={() => completeStreak(streak.id)}
-                index={index}
-              />
-            ))}
+            {sortedStreaks.map((streak, index) => {
+              const undoCheck = canUndoAction(streak.id);
+              return (
+                <StreakCard
+                  key={streak.id}
+                  streak={streak}
+                  status={getStreakStatus(streak)}
+                  onComplete={() => completeStreak(streak.id)}
+                  onUndo={() => undoStreak(streak.id)}
+                  canUndo={undoCheck.canUndo}
+                  index={index}
+                />
+              );
+            })}
           </div>
         )}
       </main>

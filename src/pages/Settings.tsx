@@ -1,10 +1,32 @@
-import { ArrowLeft, Bell, Shield, Moon, Sun, Smartphone } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ArrowLeft, Bell, Shield, Moon, Sun, Smartphone, Download, Upload, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { 
+  downloadBackup, 
+  readBackupFile, 
+  validateBackup, 
+  restoreBackup,
+  getBackupStats,
+  getLastBackupDate,
+  type BackupData 
+} from '@/services/backupService';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const Settings = () => {
   const { streaks } = useStreaks();
@@ -15,6 +37,19 @@ const Settings = () => {
     permissionStatus,
     isEnabled,
   } = useNotifications(streaks);
+  const { toast } = useToast();
+  
+  // Backup/Restore state
+  const [isImporting, setIsImporting] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [backupToImport, setBackupToImport] = useState<BackupData | null>(null);
+  const [lastBackupDate, setLastBackupDate] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Load last backup date on mount
+  useState(() => {
+    setLastBackupDate(getLastBackupDate());
+  });
 
   const handleToggleNotifications = async () => {
     if (permissionStatus.permission !== 'granted') {
@@ -26,6 +61,101 @@ const Settings = () => {
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     updateSettings({ ...settings, defaultTime: e.target.value });
+  };
+  
+  // Export backup
+  const handleExport = () => {
+    try {
+      downloadBackup();
+      // Update last backup date immediately
+      setLastBackupDate(getLastBackupDate());
+      toast({
+        title: 'Backup created',
+        description: 'Your data has been exported successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Export failed',
+        description: error instanceof Error ? error.message : 'Failed to create backup',
+        variant: 'destructive',
+      });
+    }
+  };
+  
+  // Handle file selection
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsImporting(true);
+    
+    try {
+      // Read and parse file
+      const backup = await readBackupFile(file);
+      
+      // Validate
+      const validation = validateBackup(backup);
+      
+      if (!validation.valid) {
+        toast({
+          title: 'Invalid backup file',
+          description: validation.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Show warnings if any
+      if (validation.warnings && validation.warnings.length > 0) {
+        console.warn('Backup warnings:', validation.warnings);
+      }
+      
+      // Store backup and show confirmation dialog
+      setBackupToImport(backup);
+      setImportDialogOpen(true);
+      
+    } catch (error) {
+      toast({
+        title: 'Failed to read file',
+        description: error instanceof Error ? error.message : 'Could not read backup file',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+  
+  // Confirm and restore backup
+  const handleConfirmImport = () => {
+    if (!backupToImport) return;
+    
+    try {
+      restoreBackup(backupToImport);
+      
+      toast({
+        title: 'Backup restored',
+        description: 'Your data has been imported. Reloading app...',
+      });
+      
+      // Reload app after 1 second
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } catch (error) {
+      toast({
+        title: 'Import failed',
+        description: error instanceof Error ? error.message : 'Failed to restore backup',
+        variant: 'destructive',
+      });
+    } finally {
+      setImportDialogOpen(false);
+      setBackupToImport(null);
+    }
   };
 
   return (
@@ -119,6 +249,86 @@ const Settings = () => {
           </div>
         </section>
 
+        {/* Backup & Restore Section */}
+        <section className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Backup & Restore
+              </h2>
+              {lastBackupDate && (
+                <span className="text-xs text-muted-foreground">
+                  Last backup: {lastBackupDate}
+                </span>
+              )}
+              {!lastBackupDate && (
+                <span className="text-xs text-muted-foreground">
+                  Last backup: Never
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="px-4 py-4 space-y-4">
+            {/* Warning message */}
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20">
+              <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Keep your backup file safe.</span> It contains your complete streak history and settings.
+              </p>
+            </div>
+
+            {/* Export button */}
+            <div className="space-y-2">
+              <Button
+                onClick={handleExport}
+                className="w-full"
+                variant="outline"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export Data
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Download all your data as a JSON file
+              </p>
+            </div>
+
+            {/* Import button */}
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isImporting}
+                className="w-full"
+                variant="outline"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {isImporting ? 'Reading file...' : 'Import Data'}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Restore from a previous backup
+              </p>
+            </div>
+
+            {/* Info */}
+            <div className="pt-2 border-t border-border space-y-2">
+              <p className="text-xs text-muted-foreground text-center">
+                💡 Backups keep your streaks safe across devices
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Your data is stored locally on this device. Export regularly to keep a backup.
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* Privacy Section */}
         <section className="bg-card border border-border rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-border bg-muted/30">
@@ -177,6 +387,46 @@ const Settings = () => {
           <p className="text-xs text-muted-foreground mt-2">Version 1.0.0</p>
         </section>
       </main>
+
+      {/* Import Confirmation Dialog */}
+      <AlertDialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Import Backup?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {backupToImport && (
+                <div className="space-y-3">
+                  <p>
+                    This will replace all your current data with the backup.
+                  </p>
+                  
+                  <div className="bg-muted rounded-lg p-3 space-y-1">
+                    <p className="text-sm font-medium text-foreground">Backup contains:</p>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• {getBackupStats(backupToImport).streakCount} streaks</li>
+                      <li>• Exported on {getBackupStats(backupToImport).exportDate}</li>
+                    </ul>
+                  </div>
+                  
+                  <p className="text-destructive font-medium">
+                    ⚠️ This action cannot be undone!
+                  </p>
+                  
+                  <p className="text-sm">
+                    Consider exporting your current data first as a safety backup.
+                  </p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmImport}>
+              Import and Replace
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <BottomNav />
     </div>

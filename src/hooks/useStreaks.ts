@@ -7,6 +7,11 @@ import {
   isToday, 
   isYesterday 
 } from '@/lib/dateUtils';
+import { 
+  recordAction, 
+  canUndoAction, 
+  initializeActionHistory 
+} from '@/services/actionHistory';
 
 const STORAGE_KEY = 'streakflame_streaks';
 
@@ -34,6 +39,9 @@ export const useStreaks = () => {
   useEffect(() => {
     const loadStreaks = () => {
       try {
+        // Initialize action history (finalize old actions, cleanup)
+        initializeActionHistory();
+        
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored) as Streak[];
@@ -114,6 +122,14 @@ export const useStreaks = () => {
       wasCompleted = true;
       const yesterday = getYesterdayDate();
       
+      // RECORD ACTION: Save current state before modifying
+      recordAction('complete', streak.id, {
+        currentStreak: streak.currentStreak,
+        lastCompletedDate: streak.lastCompletedDate,
+        completedDates: [...streak.completedDates],
+        bestStreak: streak.bestStreak,
+      });
+      
       // Calculate new streak count
       let newCurrentStreak: number;
       if (streak.lastCompletedDate === yesterday || streak.lastCompletedDate === null) {
@@ -141,6 +157,41 @@ export const useStreaks = () => {
   // Delete a streak
   const deleteStreak = useCallback((id: string) => {
     setStreaks(prev => prev.filter(streak => streak.id !== id));
+  }, []);
+
+  // Undo today's completion for a streak
+  const undoStreak = useCallback((id: string): boolean => {
+    const undoCheck = canUndoAction(id);
+    
+    if (!undoCheck.canUndo || !undoCheck.action) {
+      console.warn('Cannot undo:', undoCheck.reason);
+      return false;
+    }
+    
+    const { action } = undoCheck;
+    
+    // Restore the previous state
+    setStreaks(prev => prev.map(streak => {
+      if (streak.id !== id) return streak;
+      
+      // RECORD UNDO: Record this as an uncomplete action
+      recordAction('uncomplete', streak.id, {
+        currentStreak: streak.currentStreak,
+        lastCompletedDate: streak.lastCompletedDate,
+        completedDates: [...streak.completedDates],
+        bestStreak: streak.bestStreak,
+      });
+      
+      return {
+        ...streak,
+        currentStreak: action.previousState.currentStreak,
+        lastCompletedDate: action.previousState.lastCompletedDate,
+        completedDates: [...action.previousState.completedDates],
+        bestStreak: action.previousState.bestStreak,
+      };
+    }));
+    
+    return true;
   }, []);
 
   // Edit a streak
@@ -194,10 +245,12 @@ export const useStreaks = () => {
     isLoading,
     addStreak,
     completeStreak,
+    undoStreak,
     deleteStreak,
     editStreak,
     getStats,
     getStreakStatus,
+    canUndoAction,
   };
 };
 
