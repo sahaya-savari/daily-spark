@@ -1,4 +1,4 @@
-# StreakFlame Testing Checklist
+# Daily Spark Testing Checklist
 
 Pre-publish testing checklist to ensure app quality and reliability.
 

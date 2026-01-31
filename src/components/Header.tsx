@@ -14,7 +14,7 @@ export const Header = ({ totalStreak }: HeaderProps) => {
             <div className="w-9 h-9 rounded-xl fire-gradient flex items-center justify-center">
               <Flame className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-lg font-bold text-foreground">StreakFlame</h1>
+            <h1 className="text-lg font-bold text-foreground">Daily Spark</h1>
           </div>
 
           {/* Total streak counter */}

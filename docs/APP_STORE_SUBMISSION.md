@@ -1,4 +1,4 @@
-# StreakFlame App Store Submission Checklist
+# Daily Spark App Store Submission Checklist
 
 Complete checklist for submitting to Google Play Store and Apple App Store.
 
@@ -8,7 +8,7 @@ Complete checklist for submitting to Google Play Store and Apple App Store.
 
 ### App Identity
 - [ ] **App Icon**: 1024x1024px, simple design, high contrast, no text
-- [ ] **App Name**: "StreakFlame" (max 30 characters)
+- [ ] **App Name**: "Daily Spark" (max 30 characters)
 - [ ] **Short Description**: "Build habits with streak motivation" (max 80 chars)
 - [ ] **Full Description**: Compelling, keyword-rich (see template below)
 
@@ -132,7 +132,7 @@ Data handling:
 
 ### Review Notes Template
 ```
-StreakFlame is a habit tracking app focused on maintaining daily streaks.
+Daily Spark is a habit tracking app focused on maintaining daily streaks.
 
 Key Features:
 1. Create daily habits with emoji icons
@@ -149,7 +149,7 @@ Testing Instructions:
 The app is completely free with no subscriptions, ads, or in-app purchases.
 
 Note: Home screen widgets require the native app to be installed.
-Widgets can be added via: Long press home screen → Add Widget → StreakFlame
+Widgets can be added via: Long press home screen → Add Widget → Daily Spark
 ```
 
 ### Widgets (iOS)
@@ -181,9 +181,9 @@ Build unbreakable habits with streak motivation. Free forever, no ads.
 
 ### Full Description
 ```
-🔥 StreakFlame - Your Daily Habit Companion
+🔥 Daily Spark - Your Daily Habit Companion
 
-Build habits that stick with the power of streaks! StreakFlame makes daily consistency fun and motivating.
+Build habits that stick with the power of streaks! Daily Spark makes daily consistency fun and motivating.
 
 ✨ FEATURES
 
@@ -210,7 +210,7 @@ Perfect for:
 • Drinking water
 • Any daily goal!
 
-Start building unbreakable habits today. Download StreakFlame! 🔥
+Start building unbreakable habits today. Download Daily Spark! 🔥
 ```
 
 ---

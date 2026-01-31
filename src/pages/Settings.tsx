@@ -104,16 +104,16 @@ const Settings = () => {
 
           <div className="px-4 py-4">
             <p className="text-sm text-muted-foreground mb-3">
-              Add StreakFlame widgets to your home screen:
+              Add Daily Spark widgets to your home screen:
             </p>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-foreground">iOS:</span>
-                <span>Long-press home screen → Add Widget → StreakFlame</span>
+                <span>Long-press home screen → Add Widget → Daily Spark</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-foreground">Android:</span>
-                <span>Long-press home screen → Widgets → StreakFlame</span>
+                <span>Long-press home screen → Widgets → Daily Spark</span>
               </li>
             </ul>
           </div>
@@ -169,7 +169,7 @@ const Settings = () => {
 
         {/* About Section */}
         <section className="bg-card border border-border rounded-xl p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-2">About StreakFlame</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-2">About Daily Spark</h2>
           <p className="text-sm text-muted-foreground">
             100% free forever. No ads, no subscriptions, no in-app purchases. 
             Your data belongs to you.
