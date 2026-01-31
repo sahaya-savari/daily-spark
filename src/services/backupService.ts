@@ -115,7 +115,7 @@ export const downloadBackup = (): void => {
     // Save timestamp of successful backup
     saveLastBackupTimestamp();
     
-    console.log('Backup downloaded:', filename);
+    // Backup downloaded successfully
   } catch (error) {
     console.error('Failed to download backup:', error);
     throw new Error('Failed to create backup file. Please try again.');
@@ -212,7 +212,7 @@ export const restoreBackup = (backup: BackupData): void => {
         }
       });
       
-      console.log('Backup restored successfully');
+      // Backup restored successfully
     } catch (error) {
       // Restore failed, rollback to previous state
       console.error('Restore failed, rolling back:', error);

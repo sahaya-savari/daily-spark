@@ -141,7 +141,7 @@ export const finalizeOldActions = (): number => {
   
   if (finalizedCount > 0) {
     saveActions(updatedActions);
-    console.log(`Finalized ${finalizedCount} actions from previous days`);
+    // Finalized old actions
   }
   
   return finalizedCount;
@@ -165,7 +165,7 @@ export const cleanupOldActions = (): number => {
   
   if (removedCount > 0) {
     saveActions(filteredActions);
-    console.log(`Cleaned up ${removedCount} old actions`);
+    // Cleaned up old actions
   }
   
   return removedCount;

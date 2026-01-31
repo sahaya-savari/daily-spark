@@ -43,6 +43,11 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // Force layout reflow after initial render to fix desktop bottom bar visibility
+  useEffect(() => {
+    requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+  }, []);
+
   return <>{children}</>;
 };
 

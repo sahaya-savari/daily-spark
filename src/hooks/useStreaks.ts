@@ -256,5 +256,4 @@ export const useStreaks = () => {
 
 // Re-export date utilities for backward compatibility
 export { getTodayDate, getYesterdayDate, isToday, isYesterday } from '@/lib/dateUtils';
-export { getStreakStatus };
 

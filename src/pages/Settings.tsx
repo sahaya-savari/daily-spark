@@ -206,6 +206,7 @@ const Settings = () => {
                 value={settings.defaultTime}
                 onChange={handleTimeChange}
                 className="bg-muted border-0 rounded-lg px-3 py-2 text-foreground text-sm"
+                aria-label="Reminder time"
               >
                 <option value="09:00">9:00 AM</option>
                 <option value="12:00">12:00 PM</option>
@@ -302,6 +303,7 @@ const Settings = () => {
                 accept=".json,application/json"
                 onChange={handleFileSelect}
                 className="hidden"
+                aria-label="Import backup file"
               />
               <Button
                 onClick={() => fileInputRef.current?.click()}

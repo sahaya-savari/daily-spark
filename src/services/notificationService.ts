@@ -90,7 +90,7 @@ export const wasReminderSentToday = (streakId: string): boolean => {
 export const cancelPendingReminder = (streakId: string): void => {
   // In a real implementation, this would cancel native notifications
   // For web, we just mark it as handled
-  console.log(`Cancelled pending reminder for streak: ${streakId}`);
+  // Cancelled pending reminder for streak
 };
 
 // Check if streak needs a reminder
@@ -121,7 +121,7 @@ export const shouldSendReminder = (streak: Streak): boolean => {
 // Request notification permission (for web)
 export const requestNotificationPermission = async (): Promise<boolean> => {
   if (!('Notification' in window)) {
-    console.log('This browser does not support notifications');
+    // Browser does not support notifications
     return false;
   }
   

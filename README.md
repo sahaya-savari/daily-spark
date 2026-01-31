@@ -15,12 +15,12 @@ Build and maintain daily habits with a beautiful, intuitive streak tracker.
 
 - **Frontend**: React + TypeScript
 - **Styling**: Tailwind CSS
-- **UI Components**: shadcn-ui
+- **UI Components**: shadcn/ui + Radix UI
 - **Build Tool**: Vite
-- **Database**: Supabase
-- **State Management**: TanStack Query (React Query)
-- **Forms**: React Hook Form
+- **Storage**: localStorage (local-first, no backend)
+- **State Management**: React hooks + Context
 - **Testing**: Vitest
+- **PWA**: vite-plugin-pwa
 
 ## Getting Started
 
