@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* StreakFlame - Mobile-First Streak Motivation App
+   Design System: Simple, solid backgrounds, system fonts
+   USABILITY > FEATURES > DESIGN
+*/
+
+@layer base {
+  :root {
+    /* Base colors - Clean light theme */
+    --background: 0 0% 98%;
+    --foreground: 220 15% 15%;
+
+    /* Cards - solid backgrounds */
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    /* Fire primary - Orange */
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Teal */
+    --secondary: 174 50% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted backgrounds */
+    --muted: 220 10% 94%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent - Purple */
+    --accent: 280 60% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive - Red */
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* UI Elements */
+    --border: 220 10% 88%;
+    --input: 220 10% 88%;
+    --ring: 25 95% 53%;
+    --radius: 0.75rem;
+
+    /* Fire gradient */
+    --fire-start: 25 100% 50%;
+    --fire-mid: 35 100% 55%;
+    --fire-end: 45 100% 60%;
+
+    /* Success green */
+    --success: 142 60% 40%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning amber */
+    --warning: 45 95% 50%;
+    --warning-foreground: 220 15% 15%;
+
+    /* Sidebar - not used but required */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 15% 15%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 10% 94%;
+    --sidebar-accent-foreground: 220 15% 15%;
+    --sidebar-border: 220 10% 88%;
+    --sidebar-ring: 25 95% 53%;
+  }
+
+  .dark {
+    /* Dark theme - Deep background */
+    --background: 220 20% 10%;
+    --foreground: 220 10% 95%;
+
+    --card: 220 15% 15%;
+    --card-foreground: 220 10% 95%;
+
+    --popover: 220 15% 15%;
+    --popover-foreground: 220 10% 95%;
+
+    /* Fire primary stays vibrant */
+    --primary: 25 95% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Teal secondary */
+    --secondary: 174 50% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 20%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 280 60% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 25 95% 55%;
+
+    --success: 142 55% 45%;
+    --warning: 45 90% 55%;
+
+    --sidebar-background: 220 20% 12%;
+    --sidebar-foreground: 220 10% 95%;
+    --sidebar-primary: 25 95% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 20%;
+    --sidebar-accent-foreground: 220 10% 95%;
+    --sidebar-border: 220 15% 25%;
+    --sidebar-ring: 25 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+}
+
+@layer components {
+  /* Simple card - no blur, solid background */
+  .card-simple {
+    @apply bg-card border border-border rounded-xl shadow-sm;
+  }
+
+  /* Fire gradient text */
+  .fire-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r;
+    background-image: linear-gradient(
+      135deg,
+      hsl(var(--fire-start)) 0%,
+      hsl(var(--fire-mid)) 50%,
+      hsl(var(--fire-end)) 100%
+    );
+  }
+
+  /* Fire gradient background */
+  .fire-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--fire-start)) 0%,
+      hsl(var(--fire-mid)) 50%,
+      hsl(var(--fire-end)) 100%
+    );
+  }
+
+  /* Minimum touch target */
+  .touch-target {
+    @apply min-h-[48px] min-w-[44px];
+  }
+
+  /* Loading skeleton */
+  .skeleton {
+    @apply bg-muted animate-pulse rounded;
+  }
+}
+
+@layer utilities {
+  /* Safe area padding for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+  }
+  
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Content max width - mobile first */
+  .content-width {
+    @apply max-w-[720px] mx-auto w-full;
+  }
+}
+
+/* Simple scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full;
+}
+
+/* Prevent overscroll bounce on iOS */
+html, body {
+  overscroll-behavior: none;
+}
