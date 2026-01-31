@@ -4,6 +4,55 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
+const modalStyles = `
+  .modal-container {
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    display: flex;
+    align-items: flex-end;
+    z-index: 50;
+  }
+  
+  @media (min-width: 768px) {
+    .modal-container {
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+  }
+  
+  .modal-card {
+    display: flex;
+    flex-direction: column;
+    max-height: 100dvh;
+    overflow: visible;
+  }
+  
+  @media (min-width: 768px) {
+    .modal-card {
+      max-height: 85vh;
+      overflow: visible;
+    }
+  }
+  
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .modal-footer {
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--card-background);
+    z-index: 10;
+  }
+`;
+
 interface RenameStreakDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -54,18 +103,16 @@ export const RenameStreakDialog = ({
       return;
     }
     
-    try {
-      onRename(trimmedName);
-      onClose();
-    } catch (error) {
-      console.error('Error renaming streak:', error);
-    }
+    onRename(trimmedName);
+    onClose();
   }, [name, isDuplicate, onRename, onClose]);
 
   if (!isOpen) return null;
 
   return (
     <>
+      <style>{modalStyles}</style>
+      
       {/* Backdrop - dismisses modal */}
       <div
         className="fixed inset-0 bg-black/50 z-40 modal-backdrop"
@@ -74,19 +121,21 @@ export const RenameStreakDialog = ({
         aria-hidden="true"
       />
 
-      {/* Dialog Container - responsive: full width mobile, centered desktop */}
+      {/* Dialog Container - MANDATORY: fixed, inset-0, 100dvh */}
       <div 
-        className="fixed inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center z-50 p-0 md:p-4" 
+        className="modal-container md:p-4 p-0"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="rename-dialog-title"
-        style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            onClose();
+          }
         }}
       >
-        {/* Modal Card - 3-part structure (header, body, footer) */}
-        <div className="bg-card rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[520px] md:max-w-[90vw] max-h-[85dvh] md:max-h-[85vh] flex flex-col overflow-hidden">
+        {/* Modal Card - 3-part structure: header (fixed), body (scrollable), footer (sticky) */}
+        <div className="modal-card bg-card rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[520px] md:max-w-[90vw] flex flex-col">
           
           {/* Part 1: Modal Header - Fixed, non-scrollable */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0 border-b border-border/50">
@@ -106,8 +155,8 @@ export const RenameStreakDialog = ({
           {/* Part 2: Form Body */}
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
             
-            {/* Modal Body - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 py-6">
+            {/* Modal Body - MANDATORY: flex-1, overflow-y-auto */}
+            <div className="modal-body px-6 py-6">
               <div className="space-y-6">
                 
                 {/* Name input */}
@@ -143,8 +192,8 @@ export const RenameStreakDialog = ({
               </div>
             </div>
 
-            {/* Part 3: Modal Footer - Sticky at bottom, always visible */}
-            <div className="sticky bottom-0 flex-shrink-0 px-6 py-4 md:py-5 border-t border-border bg-card/95 backdrop-blur-sm" style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}>
+            {/* Part 3: Modal Footer - MANDATORY: sticky, bottom-0, solid background, always visible */}
+            <div className="modal-footer px-6 py-4 md:py-5" style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}>
               <Button
                 type="submit"
                 disabled={!name.trim() || isDuplicate || name.length > 50 || name.trim() === currentName.trim()}

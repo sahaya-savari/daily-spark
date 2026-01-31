@@ -107,7 +107,7 @@ const Settings = () => {
       
       // Show warnings if any
       if (validation.warnings && validation.warnings.length > 0) {
-        console.warn('Backup warnings:', validation.warnings);
+        // Backup loaded with warnings - they are displayed in the UI
       }
       
       // Store backup and show confirmation dialog

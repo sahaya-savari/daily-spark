@@ -238,20 +238,40 @@ export const restoreBackup = (backup: BackupData): void => {
  */
 export const readBackupFile = (file: File): Promise<BackupData> => {
   return new Promise((resolve, reject) => {
+    // Validate file type
+    if (!file.type.includes('json') && !file.name.endsWith('.json')) {
+      reject(new Error('Invalid file type. Please select a JSON backup file.'));
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      reject(new Error('File is too large. Maximum size is 5MB.'));
+      return;
+    }
+
     const reader = new FileReader();
     
     reader.onload = (event) => {
       try {
         const content = event.target?.result as string;
+        if (!content) {
+          reject(new Error('Backup file is empty.'));
+          return;
+        }
         const backup = JSON.parse(content);
         resolve(backup);
       } catch (error) {
-        reject(new Error('Failed to parse backup file. File may be corrupted.'));
+        if (error instanceof SyntaxError) {
+          reject(new Error('Invalid JSON format. This may not be a valid backup file.'));
+        } else {
+          reject(new Error('Failed to parse backup file. File may be corrupted.'));
+        }
       }
     };
     
     reader.onerror = () => {
-      reject(new Error('Failed to read backup file.'));
+      reject(new Error('Failed to read backup file. Please try again.'));
     };
     
     reader.readAsText(file);
