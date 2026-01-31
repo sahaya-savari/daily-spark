@@ -123,6 +123,7 @@ const Index = () => {
         isOpen={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onAdd={handleAddStreak}
+        existingStreakNames={streaks.map(s => s.name)}
       />
 
       {/* Celebration animation */}

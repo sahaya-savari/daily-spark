@@ -9,14 +9,28 @@ interface AddStreakDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (name: string, emoji: string) => void;
+  existingStreakNames: string[]; // For duplicate validation
 }
 
-export const AddStreakDialog = ({ isOpen, onClose, onAdd }: AddStreakDialogProps) => {
+export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }: AddStreakDialogProps) => {
   const [name, setName] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('🔥');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiGridRef = useRef<HTMLDivElement>(null);
+
+  // Validate for duplicate names (case-insensitive, trimmed)
+  useEffect(() => {
+    const trimmedName = name.trim().toLowerCase();
+    if (trimmedName && existingStreakNames.some(existingName => 
+      existingName.toLowerCase() === trimmedName
+    )) {
+      setIsDuplicate(true);
+    } else {
+      setIsDuplicate(false);
+    }
+  }, [name, existingStreakNames]);
 
   // Close emoji picker when clicking outside (UX improvement)
   useEffect(() => {
@@ -42,21 +56,32 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd }: AddStreakDialogProps
     };
   }, [showEmojiPicker]);
 
+  // Reset form when dialog opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setName('');
+      setSelectedEmoji('🔥');
+      setShowEmojiPicker(false);
+      setIsDuplicate(false);
+    }
+  }, [isOpen]);
+
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim()) {
-      try {
-        onAdd(name.trim(), selectedEmoji);
-        // Reset form state
-        setName('');
-        setSelectedEmoji('🔥');
-        setShowEmojiPicker(false);
-        onClose();
-      } catch (error) {
-        console.error('Error adding streak:', error);
-      }
+    const trimmedName = name.trim();
+    
+    // Prevent submission if invalid
+    if (!trimmedName || isDuplicate || trimmedName.length > 50) {
+      return;
     }
-  }, [name, selectedEmoji, onAdd, onClose]);
+    
+    try {
+      onAdd(trimmedName, selectedEmoji);
+      onClose();
+    } catch (error) {
+      console.error('Error adding streak:', error);
+    }
+  }, [name, selectedEmoji, isDuplicate, onAdd, onClose]);
 
   const handleEmojiSelect = useCallback((emoji: string) => {
     setSelectedEmoji(emoji);
@@ -86,9 +111,13 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd }: AddStreakDialogProps
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
       >
         {/* Modal Card - 3-part structure (header, scrollable body, sticky footer) */}
-        <div className="bg-card rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[520px] md:max-w-[90vw] h-screen md:h-auto max-h-[90vh] md:max-h-[85vh] flex flex-col overflow-hidden">
+        {/* Mobile: max-h uses dvh for better mobile support, accounting for keyboard */}
+        <div className="bg-card rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[520px] md:max-w-[90vw] max-h-[85dvh] md:max-h-[85vh] flex flex-col overflow-hidden">
           
           {/* Part 1: Modal Header - Fixed, non-scrollable */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0 border-b border-border/50">
@@ -143,7 +172,7 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd }: AddStreakDialogProps
                         <div 
                           id="emoji-grid"
                           ref={emojiGridRef}
-                          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl p-3 z-50 max-h-52 overflow-y-auto"
+                          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl p-3 z-[60] max-h-48 overflow-y-auto"
                           role="listbox"
                           aria-label="Emoji selection"
                         >
@@ -160,7 +189,7 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd }: AddStreakDialogProps
                                 )}
                                 onClick={() => handleEmojiSelect(emoji)}
                                 role="option"
-                                aria-selected={selectedEmoji === emoji}
+                                aria-selected={selectedEmoji === emoji ? "true" : "false"}
                                 aria-label={`Select ${emoji}`}
                               >
                                 {emoji}
@@ -184,23 +213,35 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd }: AddStreakDialogProps
                     placeholder="e.g., Morning workout"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="h-14 rounded-xl bg-muted border-0 text-base px-4"
+                    className={cn(
+                      "h-14 rounded-xl bg-muted border-0 text-base px-4",
+                      isDuplicate && "border-2 border-destructive bg-destructive/5"
+                    )}
                     autoFocus
                     aria-label="Streak name"
+                    aria-invalid={isDuplicate}
+                    aria-describedby={isDuplicate ? "name-error" : "name-counter"}
                     maxLength={50}
                   />
-                  <p className="text-xs text-muted-foreground mt-2">{name.length}/50</p>
+                  {isDuplicate ? (
+                    <p id="name-error" className="text-xs text-destructive mt-2 font-medium">
+                      A streak with this name already exists
+                    </p>
+                  ) : (
+                    <p id="name-counter" className="text-xs text-muted-foreground mt-2">{name.length}/50</p>
+                  )}
                 </div>
                 
               </div>
             </div>
 
             {/* Part 3: Modal Footer - Sticky at bottom, always visible */}
-            <div className="sticky bottom-0 flex-shrink-0 px-6 py-5 border-t border-border bg-card backdrop-blur-sm rounded-b-t-2xl md:rounded-b-2xl">
+            <div className="sticky bottom-0 flex-shrink-0 px-6 py-4 md:py-5 border-t border-border bg-card/95 backdrop-blur-sm" style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}>
               <Button
                 type="submit"
-                disabled={!name.trim()}
-                className="w-full h-14 rounded-xl fire-gradient text-white font-semibold text-base disabled:opacity-50 shadow-lg hover:shadow-xl transition-shadow"
+                disabled={!name.trim() || isDuplicate || name.length > 50}
+                className="w-full h-12 md:h-14 rounded-xl fire-gradient text-white font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-shadow touch-manipulation"
+                aria-label={isDuplicate ? "Cannot create streak - duplicate name" : "Create streak"}
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Create Streak
