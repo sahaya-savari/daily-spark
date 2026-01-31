@@ -5,6 +5,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { useStreaks } from '@/hooks/useStreaks';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { formatLocalDate, getTodayDate } from '@/lib/dateUtils';
 
 const CalendarPage = () => {
   const { streaks } = useStreaks();
@@ -41,7 +42,7 @@ const CalendarPage = () => {
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
-      const dateString = date.toISOString().split('T')[0];
+      const dateString = formatLocalDate(date);
       const completions = allCompletions.get(dateString) || 0;
       days.push({ date, day, completions });
     }
@@ -59,7 +60,7 @@ const CalendarPage = () => {
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getTodayDate();
 
   return (
     <div className="min-h-screen bg-background pb-nav">
@@ -118,7 +119,7 @@ const CalendarPage = () => {
                 return <div key={`empty-${index}`} className="aspect-square" />;
               }
 
-              const dateString = dayInfo.date.toISOString().split('T')[0];
+              const dateString = formatLocalDate(dayInfo.date);
               const isToday = dateString === today;
               const hasCompletions = dayInfo.completions > 0;
               const maxStreaks = streaks.length || 1;

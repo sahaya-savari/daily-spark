@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useStreaks } from '@/hooks/useStreaks';
 import { BottomNav } from '@/components/BottomNav';
 import { cn } from '@/lib/utils';
+import { formatLocalDate, getDaysAgo } from '@/lib/dateUtils';
 
 const Insights = () => {
   const { streaks, getStats } = useStreaks();
@@ -17,7 +18,7 @@ const Insights = () => {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = formatLocalDate(date);
       
       const completions = streaks.filter(s => 
         s.completedDates.includes(dateStr)

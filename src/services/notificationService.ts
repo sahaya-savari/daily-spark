@@ -1,5 +1,5 @@
 import { Streak } from '@/types/streak';
-import { getTodayDate, isToday } from '@/hooks/useStreaks';
+import { getTodayDate, isToday } from '@/lib/dateUtils';
 
 const NOTIFICATION_STORAGE_KEY = 'streakflame_notifications';
 const SENT_REMINDERS_KEY = 'streakflame_sent_reminders';

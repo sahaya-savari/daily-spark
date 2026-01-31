@@ -1,32 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Streak, StreakStats, StreakStatus } from '@/types/streak';
+import { 
+  getTodayDate, 
+  getYesterdayDate, 
+  getDaysAgo, 
+  isToday, 
+  isYesterday 
+} from '@/lib/dateUtils';
 
 const STORAGE_KEY = 'streakflame_streaks';
-
-// Get today's date in YYYY-MM-DD format (local timezone)
-export const getTodayDate = (): string => {
-  const now = new Date();
-  return now.toISOString().split('T')[0];
-};
-
-// Get yesterday's date in YYYY-MM-DD format
-export const getYesterdayDate = (): string => {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  return yesterday.toISOString().split('T')[0];
-};
-
-// Check if a date string is today
-export const isToday = (dateString: string | null): boolean => {
-  if (!dateString) return false;
-  return dateString === getTodayDate();
-};
-
-// Check if a date string is yesterday
-export const isYesterday = (dateString: string | null): boolean => {
-  if (!dateString) return false;
-  return dateString === getYesterdayDate();
-};
 
 // Get streak status
 export const getStreakStatus = (streak: Streak): StreakStatus => {
@@ -176,9 +158,7 @@ export const useStreaks = () => {
     const longestStreak = Math.max(0, ...streaks.map(s => s.bestStreak));
     
     // Calculate weekly completion rate
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekAgoStr = weekAgo.toISOString().split('T')[0];
+    const weekAgoStr = getDaysAgo(7);
     
     const weeklyCompletions = streaks.reduce((sum, s) => {
       return sum + s.completedDates.filter(d => d >= weekAgoStr).length;
@@ -189,9 +169,7 @@ export const useStreaks = () => {
       : 0;
     
     // Calculate monthly completion rate
-    const monthAgo = new Date();
-    monthAgo.setDate(monthAgo.getDate() - 30);
-    const monthAgoStr = monthAgo.toISOString().split('T')[0];
+    const monthAgoStr = getDaysAgo(30);
     
     const monthlyCompletions = streaks.reduce((sum, s) => {
       return sum + s.completedDates.filter(d => d >= monthAgoStr).length;
@@ -222,4 +200,8 @@ export const useStreaks = () => {
     getStreakStatus,
   };
 };
+
+// Re-export date utilities for backward compatibility
+export { getTodayDate, getYesterdayDate, isToday, isYesterday } from '@/lib/dateUtils';
+export { getStreakStatus };
 
