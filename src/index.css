@@ -177,7 +177,7 @@
   }
   
   .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom), 16px);
+    padding-bottom: max(env(safe-area-inset-bottom), 24px);
   }
   
   .safe-x {
@@ -188,6 +188,11 @@
   /* Content max width - mobile first */
   .content-width {
     @apply max-w-[720px] mx-auto w-full;
+  }
+  
+  /* Bottom padding to prevent content from being hidden behind bottom nav */
+  .pb-nav {
+    padding-bottom: calc(64px + max(env(safe-area-inset-bottom), 16px));
   }
 }
 

@@ -62,7 +62,7 @@ const CalendarPage = () => {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-nav">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card border-b border-border safe-top">
         <div className="content-width px-4 py-3">

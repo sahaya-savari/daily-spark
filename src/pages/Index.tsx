@@ -56,7 +56,7 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-nav">
       <Header totalStreak={totalStreakDays} />
       
       <main className="content-width px-4 py-4">
