@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="flame" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8c42"/>
+      <stop offset="100%" style="stop-color:#f97316"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Dark background for contrast -->
+  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+  
+  <!-- Simplified flame - optimized for 16x16, 32x32 -->
+  <path d="M 16 6 C 16 6, 13 10, 13 13 C 13 15, 14 16, 16 18 C 16 16, 17 15, 18 13 C 18.5 12, 19 11, 19 10 C 19 8, 18 7, 16 6 Z" 
+        fill="url(#flame)"/>
+  <path d="M 16 18 C 15 19, 12 21, 12 24 C 12 26.5, 13.5 28, 16 28.5 C 18.5 28, 20 26.5, 20 24 C 20 21, 17 19, 16 18 Z" 
+        fill="url(#flame)"/>
+  
+  <!-- Yellow highlight -->
+  <path d="M 16 10 C 16 10, 15 11.5, 15 13 C 15 14, 15.5 14.5, 16 15 C 16.5 14.5, 17 14, 17 13 C 17 11.5, 16 10, 16 10 Z" 
+        fill="#ffd700" 
+        opacity="0.7"/>
+  <ellipse cx="16" cy="23" rx="2.5" ry="3" fill="#ffe680" opacity="0.5"/>
+</svg>

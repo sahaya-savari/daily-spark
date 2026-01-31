@@ -3,12 +3,24 @@ import { Plus, Flame } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { StreakCard } from '@/components/StreakCard';
 import { AddStreakDialog } from '@/components/AddStreakDialog';
+import { RenameStreakDialog } from '@/components/RenameStreakDialog';
 import { StatsCards } from '@/components/StatsCards';
 import { EmptyState } from '@/components/EmptyState';
 import { Celebration } from '@/components/Celebration';
 import { BottomNav } from '@/components/BottomNav';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const Index = () => {
   const { 
@@ -17,12 +29,17 @@ const Index = () => {
     addStreak, 
     completeStreak,
     undoStreak,
+    deleteStreak,
+    editStreak,
     canUndoAction,
     getStats 
   } = useStreaks();
+  const { toast } = useToast();
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [renameDialogState, setRenameDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
   const [showCelebration, setShowCelebration] = useState(false);
+  const [streakToDelete, setStreakToDelete] = useState<string | null>(null);
 
   const stats = getStats();
   const totalStreakDays = streaks.reduce((sum, s) => sum + s.currentStreak, 0);
@@ -41,6 +58,73 @@ const Index = () => {
   const handleUndoStreak = useCallback((id: string) => {
     undoStreak(id);
   }, [undoStreak]);
+
+  const handleDeleteStreak = useCallback((id: string) => {
+    setStreakToDelete(id);
+  }, []);
+
+  const confirmDelete = useCallback(() => {
+    if (streakToDelete) {
+      deleteStreak(streakToDelete);
+      setStreakToDelete(null);
+    }
+  }, [streakToDelete, deleteStreak]);
+
+  const cancelDelete = useCallback(() => {
+    setStreakToDelete(null);
+  }, []);
+
+  const handleOpenRenameDialog = useCallback((streakId: string) => {
+    setRenameDialogState({ isOpen: true, streakId });
+  }, []);
+
+  const handleCloseRenameDialog = useCallback(() => {
+    setRenameDialogState({ isOpen: false, streakId: null });
+  }, []);
+
+  const handleRenameStreak = useCallback((newName: string) => {
+    if (renameDialogState.streakId) {
+      editStreak(renameDialogState.streakId, { name: newName });
+      toast({
+        title: 'Streak renamed',
+        description: `Updated to "${newName}"`,
+        duration: 2000,
+      });
+      handleCloseRenameDialog();
+    }
+  }, [renameDialogState.streakId, editStreak, toast, handleCloseRenameDialog]);
+
+  const handleShareStreak = useCallback((streakId: string) => {
+    const streak = streaks.find(s => s.id === streakId);
+    if (!streak) return;
+
+    const shareText = `🔥 ${streak.currentStreak}-day streak!\nHabit: ${streak.name}\nBuilt with Daily Spark`;
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'My Streak on Daily Spark',
+        text: shareText,
+      }).catch(() => {
+        // User cancelled share, no error needed
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(shareText).then(() => {
+        toast({
+          title: 'Copied to clipboard',
+          description: 'Share text is ready to paste',
+          duration: 2000,
+        });
+      }).catch(() => {
+        toast({
+          title: 'Failed to copy',
+          description: 'Please try again',
+          variant: 'destructive',
+          duration: 2000,
+        });
+      });
+    }
+  }, [streaks, toast]);
 
   // Sort streaks: pending first, then completed, then at-risk
   const sortedStreaks = [...streaks].sort((a, b) => {
@@ -97,6 +181,9 @@ const Index = () => {
                   status={getStreakStatus(streak)}
                   onComplete={() => handleCompleteStreak(streak.id)}
                   onUndo={() => handleUndoStreak(streak.id)}
+                  onDelete={() => handleDeleteStreak(streak.id)}
+                  onRename={() => handleOpenRenameDialog(streak.id)}
+                  onShare={() => handleShareStreak(streak.id)}
                   canUndo={undoCheck.canUndo}
                   index={index}
                 />
@@ -131,6 +218,40 @@ const Index = () => {
         isVisible={showCelebration}
         onComplete={() => setShowCelebration(false)}
       />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={streakToDelete !== null} onOpenChange={cancelDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete streak?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove this streak and all its progress. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDelete}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Rename streak dialog */}
+      {renameDialogState.streakId && (
+        <RenameStreakDialog
+          isOpen={renameDialogState.isOpen}
+          onClose={handleCloseRenameDialog}
+          onRename={handleRenameStreak}
+          currentName={streaks.find(s => s.id === renameDialogState.streakId)?.name || ''}
+          existingStreakNames={streaks
+            .filter(s => s.id !== renameDialogState.streakId)
+            .map(s => s.name)}
+        />
+      )}
 
       {/* Bottom navigation */}
       <BottomNav />

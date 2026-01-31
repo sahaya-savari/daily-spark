@@ -8,6 +8,7 @@ export interface Streak {
   lastCompletedDate: string | null;
   completedDates: string[];
   color?: string;
+  notes?: string; // Editable description/notes for the streak
   // New fields for pause and notification support
   isPaused?: boolean;
   pausedAt?: string | null;

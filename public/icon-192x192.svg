@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
+  <defs>
+    <linearGradient id="flameGrad192" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8c42"/>
+      <stop offset="50%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background with rounded corners -->
+  <rect width="192" height="192" rx="42" fill="#0a0a0a"/>
+  
+  <!-- Main flame body -->
+  <path d="M 96 36 
+           C 96 36, 78 54, 78 72
+           C 78 90, 87 99, 96 111
+           C 96 99, 102 90, 108 81
+           C 111 75, 114 69, 114 63
+           C 114 51, 108 42, 96 36 Z"
+        fill="url(#flameGrad192)" 
+        filter="url(#shadow)"/>
+  
+  <path d="M 96 111
+           C 87 120, 66 132, 66 156
+           C 66 174, 78 189, 96 192
+           C 114 189, 126 174, 126 156
+           C 126 132, 105 120, 96 111 Z"
+        fill="url(#flameGrad192)" 
+        filter="url(#shadow)"/>
+  
+  <!-- Inner highlights -->
+  <path d="M 96 54
+           C 96 54, 90 63, 90 72
+           C 90 81, 93 87, 96 93
+           C 99 87, 102 81, 102 72
+           C 102 63, 96 54, 96 54 Z"
+        fill="#ffd700" 
+        opacity="0.6"/>
+  
+  <ellipse cx="96" cy="150" rx="15" ry="21" fill="#ffe680" opacity="0.5"/>
+</svg>

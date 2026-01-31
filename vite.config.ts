@@ -15,32 +15,8 @@ export default defineConfig(({ mode }) => ({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt'],
-      manifest: {
-        name: 'Daily Spark',
-        short_name: 'DailySpark',
-        description: 'Build lasting habits with daily streak tracking',
-        theme_color: '#f97316',
-        background_color: '#fafafa',
-        display: 'standalone',
-        scope: '/',
-        start_url: '/',
-        orientation: 'portrait',
-        icons: [
-          {
-            src: '/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      },
+      includeAssets: ['favicon.ico', 'favicon.svg', 'apple-touch-icon.svg', 'robots.txt'],
+      manifest: false, // Use external manifest.json file
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         runtimeCaching: [

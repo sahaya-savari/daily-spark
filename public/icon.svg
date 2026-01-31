@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle for better visibility on dark/light themes -->
+  <circle cx="256" cy="256" r="240" fill="#1a1a1a"/>
+  
+  <!-- Flame shape - modern, minimal, centered -->
+  <path d="M 256 96 
+           C 256 96, 220 140, 220 180
+           C 220 220, 240 240, 256 260
+           C 256 240, 268 220, 280 200
+           C 285 190, 290 180, 290 170
+           C 290 140, 280 120, 256 96 Z
+           M 256 260
+           C 240 280, 200 300, 200 340
+           C 200 380, 220 410, 256 420
+           C 292 410, 312 380, 312 340
+           C 312 300, 272 280, 256 260 Z"
+        fill="url(#flameGradient)" 
+        filter="url(#glow)"/>
+  
+  <!-- Inner highlight for depth -->
+  <path d="M 256 140
+           C 256 140, 244 160, 244 180
+           C 244 200, 250 210, 256 220
+           C 262 210, 268 200, 268 180
+           C 268 160, 256 140, 256 140 Z
+           M 256 220
+           C 250 230, 230 245, 230 270
+           C 230 295, 240 315, 256 320
+           C 272 315, 282 295, 282 270
+           C 282 245, 262 230, 256 220 Z"
+        fill="#ffd700" 
+        opacity="0.6"/>
+</svg>

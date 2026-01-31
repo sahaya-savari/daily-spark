@@ -195,7 +195,7 @@ export const useStreaks = () => {
   }, []);
 
   // Edit a streak
-  const editStreak = useCallback((id: string, updates: Partial<Pick<Streak, 'name' | 'emoji' | 'color'>>) => {
+  const editStreak = useCallback((id: string, updates: Partial<Pick<Streak, 'name' | 'emoji' | 'color' | 'notes'>>) => {
     setStreaks(prev => prev.map(streak => 
       streak.id === id ? { ...streak, ...updates } : streak
     ));

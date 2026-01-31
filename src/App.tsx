@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import Streaks from "./pages/Streaks";
+import StreakDetail from "./pages/StreakDetail";
 import Calendar from "./pages/Calendar";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
@@ -99,6 +100,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/streaks" element={<Streaks />} />
+            <Route path="/streak/:id" element={<StreakDetail />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/settings" element={<Settings />} />
