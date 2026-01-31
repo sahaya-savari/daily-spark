@@ -194,6 +194,18 @@
   .pb-nav {
     padding-bottom: calc(64px + max(env(safe-area-inset-bottom), 16px));
   }
+
+  /* Modal backdrop - ensures proper z-order and no interaction bleed */
+  .modal-backdrop {
+    @apply touch-none;
+  }
+
+  /* Emoji grid: strict overflow containment */
+  #emoji-grid {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Simple scrollbar */

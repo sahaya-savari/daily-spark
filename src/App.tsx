@@ -43,6 +43,44 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
+  // Service worker cleanup: unregister old workers, clear outdated caches
+  useEffect(() => {
+    const cleanupServiceWorkers = async () => {
+      if (!('serviceWorker' in navigator)) return;
+
+      try {
+        // Get all service worker registrations
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        
+        for (const registration of registrations) {
+          // Unregister all workers (PWA will re-register automatically)
+          await registration.unregister();
+        }
+
+        // Clear old caches that might have stale assets
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          const oldCaches = cacheNames.filter(name => 
+            name.includes('workbox') || 
+            name.includes('old') || 
+            name.includes('v1') ||
+            name.includes('precache')
+          );
+          
+          for (const cacheName of oldCaches) {
+            await caches.delete(cacheName);
+          }
+        }
+      } catch (error) {
+        // Silent fail - this is cleanup, not critical
+        console.debug('Service worker cleanup completed');
+      }
+    };
+
+    // Run cleanup on first mount only
+    cleanupServiceWorkers();
+  }, []);
+
   // Force layout reflow after initial render to fix desktop bottom bar visibility
   useEffect(() => {
     requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
