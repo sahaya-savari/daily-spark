@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { Plus, Flame } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { StreakCard } from '@/components/StreakCard';
-import { AddStreakDialog } from '@/components/AddStreakDialog';
 import { RenameStreakDialog } from '@/components/RenameStreakDialog';
 import { StatsCards } from '@/components/StatsCards';
 import { EmptyState } from '@/components/EmptyState';
@@ -10,6 +9,7 @@ import { Celebration } from '@/components/Celebration';
 import { BottomNav } from '@/components/BottomNav';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
+import { useModal } from '@/contexts/ModalContext';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -26,7 +26,6 @@ const Index = () => {
   const { 
     streaks, 
     isLoading, 
-    addStreak, 
     completeStreak,
     undoStreak,
     deleteStreak,
@@ -35,8 +34,8 @@ const Index = () => {
     getStats 
   } = useStreaks();
   const { toast } = useToast();
+  const { openAddStreak, isAddStreakOpen } = useModal();
   
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [renameDialogState, setRenameDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
   const [showCelebration, setShowCelebration] = useState(false);
   const [streakToDelete, setStreakToDelete] = useState<string | null>(null);
@@ -50,10 +49,6 @@ const Index = () => {
       setShowCelebration(true);
     }
   }, [completeStreak]);
-
-  const handleAddStreak = useCallback((name: string, emoji: string) => {
-    addStreak(name, emoji);
-  }, [addStreak]);
 
   const handleUndoStreak = useCallback((id: string) => {
     undoStreak(id);
@@ -197,21 +192,13 @@ const Index = () => {
           <Button
             size="lg"
             className="w-full h-14 text-base font-medium fire-gradient text-white rounded-xl shadow-md"
-            onClick={() => setIsAddDialogOpen(true)}
+            onClick={openAddStreak}
           >
             <Plus className="w-5 h-5 mr-2" />
             Add New Streak
           </Button>
         </div>
       </main>
-
-      {/* Add streak dialog */}
-      <AddStreakDialog
-        isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
-        onAdd={handleAddStreak}
-        existingStreakNames={streaks.map(s => s.name)}
-      />
 
       {/* Celebration animation */}
       <Celebration
@@ -253,8 +240,8 @@ const Index = () => {
         />
       )}
 
-      {/* Bottom navigation */}
-      <BottomNav />
+      {/* Bottom navigation - Hidden when modal is open */}
+      {!isAddStreakOpen && <BottomNav />}
     </div>
   );
 };

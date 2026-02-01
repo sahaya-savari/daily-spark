@@ -5,60 +5,11 @@ import { Input } from '@/components/ui/input';
 import { EMOJI_OPTIONS } from '@/types/streak';
 import { cn } from '@/lib/utils';
 
-const modalStyles = `
-  .modal-container {
-    position: fixed;
-    inset: 0;
-    height: 100dvh;
-    display: flex;
-    align-items: flex-end;
-    z-index: 50;
-  }
-  
-  @media (min-width: 768px) {
-    .modal-container {
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-  }
-  
-  .modal-card {
-    display: flex;
-    flex-direction: column;
-    max-height: 100dvh;
-    overflow: visible;
-  }
-  
-  @media (min-width: 768px) {
-    .modal-card {
-      max-height: 85vh;
-      overflow: visible;
-    }
-  }
-  
-  .modal-body {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  .modal-footer {
-    flex-shrink: 0;
-    position: sticky;
-    bottom: 0;
-    border-top: 1px solid var(--border-color);
-    background-color: var(--card-background);
-    z-index: 10;
-  }
-`;
-
 interface AddStreakDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (name: string, emoji: string) => void;
-  existingStreakNames: string[]; // For duplicate validation
+  existingStreakNames: string[];
 }
 
 export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }: AddStreakDialogProps) => {
@@ -69,7 +20,6 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiGridRef = useRef<HTMLDivElement>(null);
 
-  // Validate for duplicate names (case-insensitive, trimmed)
   useEffect(() => {
     const trimmedName = name.trim().toLowerCase();
     if (trimmedName && existingStreakNames.some(existingName => 
@@ -81,7 +31,6 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
     }
   }, [name, existingStreakNames]);
 
-  // Close emoji picker when clicking outside (UX improvement)
   useEffect(() => {
     if (!showEmojiPicker) return;
 
@@ -105,7 +54,6 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
     };
   }, [showEmojiPicker]);
 
-  // Reset form when dialog opens/closes
   useEffect(() => {
     if (!isOpen) {
       setName('');
@@ -119,7 +67,6 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
     e.preventDefault();
     const trimmedName = name.trim();
     
-    // Prevent submission if invalid
     if (!trimmedName || isDuplicate || trimmedName.length > 50) {
       return;
     }
@@ -137,37 +84,33 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
     setShowEmojiPicker(prev => !prev);
   }, []);
 
+
   if (!isOpen) return null;
 
   return (
     <>
-      <style>{modalStyles}</style>
-      
-      {/* Backdrop - dismisses modal */}
+      {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/50 z-40 modal-backdrop"
+        className="fixed inset-0 bg-black/60 z-[100] animate-in fade-in duration-200"
         onClick={onClose}
         role="presentation"
         aria-hidden="true"
       />
 
-      {/* Dialog Container - MANDATORY: fixed, inset-0, 100dvh */}
+      {/* Modal Container */}
       <div 
-        className="modal-container md:p-4 p-0"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-[101] flex items-end md:items-center md:justify-center p-0 md:p-4"
+        onClick={onClose}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            onClose();
-          }
-        }}
       >
-        {/* Modal Card - 3-part structure: header (fixed), body (scrollable), footer (sticky) */}
-        <div className="modal-card bg-card rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[520px] md:max-w-[90vw] flex flex-col">
-          
-          {/* Part 1: Modal Header - Fixed, non-scrollable */}
+        {/* Modal Panel */}
+        <div 
+          className="bg-card w-full md:w-[520px] md:max-w-[90vw] rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-300"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0 border-b border-border/50">
             <h2 id="dialog-title" className="text-xl font-bold text-foreground">New Streak</h2>
             <Button
@@ -182,25 +125,21 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
             </Button>
           </div>
 
-          {/* Part 2: Form with scrollable body + sticky footer */}
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
-            
-            {/* Modal Body - MANDATORY: flex-1, overflow-y-auto */}
-            <div className="modal-body px-6 py-6">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 -webkit-overflow-scrolling-touch">
               <div className="space-y-6">
-                
-                {/* Emoji selector - contained within scrollable body */}
+                {/* Emoji selector */}
                 <div>
                   <label htmlFor="emoji-button" className="text-sm font-medium text-muted-foreground mb-3 block">
                     Choose an icon
                   </label>
                   <div className="flex items-center gap-3">
-                    {/* Current emoji display - fixed size */}
                     <div className="w-16 h-16 rounded-xl fire-gradient flex items-center justify-center text-4xl flex-shrink-0" aria-live="polite" aria-label={`Selected emoji: ${selectedEmoji}`}>
                       {selectedEmoji}
                     </div>
                     
-                    {/* Emoji picker container - relative positioning keeps picker inside scrollable body */}
                     <div className="relative flex-1 min-w-0" ref={emojiPickerRef}>
                       <Button
                         id="emoji-button"
@@ -215,12 +154,11 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
                         <span className="truncate">Choose emoji</span>
                       </Button>
                       
-                      {/* Emoji grid popover - contained with max-height and internal scroll */}
                       {showEmojiPicker && (
                         <div 
                           id="emoji-grid"
                           ref={emojiGridRef}
-                          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl p-3 z-[60] max-h-48 overflow-y-auto"
+                          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl p-3 z-[102] max-h-48 overflow-y-auto"
                           role="listbox"
                           aria-label="Emoji selection"
                         >
@@ -250,7 +188,7 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
                   </div>
                 </div>
 
-                {/* Name input - inside scrollable body */}
+                {/* Name input */}
                 <div>
                   <label htmlFor="streak-name" className="text-sm font-medium text-muted-foreground mb-3 block">
                     Streak name
@@ -279,23 +217,24 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames }:
                     <p id="name-counter" className="text-xs text-muted-foreground mt-2">{name.length}/50</p>
                   )}
                 </div>
-                
               </div>
             </div>
 
-            {/* Part 3: Modal Footer - MANDATORY: sticky, bottom-0, solid background, always visible */}
-            <div className="modal-footer px-6 py-4 md:py-5" style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}>
+            {/* Sticky Footer */}
+            <div 
+              className="flex-shrink-0 px-6 py-4 md:py-5 border-t border-border/50 bg-card"
+              style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
+            >
               <Button
                 type="submit"
                 disabled={!name.trim() || isDuplicate || name.length > 50}
-                className="w-full h-12 md:h-14 rounded-xl fire-gradient text-white font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-shadow touch-manipulation"
+                className="w-full h-12 md:h-14 rounded-xl fire-gradient text-white font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-shadow"
                 aria-label={isDuplicate ? "Cannot create streak - duplicate name" : "Create streak"}
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Create Streak
               </Button>
             </div>
-            
           </form>
         </div>
       </div>

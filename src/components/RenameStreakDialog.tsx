@@ -8,7 +8,7 @@ const modalStyles = `
   .modal-container {
     position: fixed;
     inset: 0;
-    height: 100dvh;
+    height: calc(var(--app-vh, 1vh) * 100);
     display: flex;
     align-items: flex-end;
     z-index: 50;
@@ -25,7 +25,7 @@ const modalStyles = `
   .modal-card {
     display: flex;
     flex-direction: column;
-    max-height: 100dvh;
+    max-height: calc(var(--app-vh, 1vh) * 90);
     overflow: visible;
   }
   
@@ -41,6 +41,7 @@ const modalStyles = `
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    min-height: 0;
   }
   
   .modal-footer {
@@ -48,7 +49,7 @@ const modalStyles = `
     position: sticky;
     bottom: 0;
     border-top: 1px solid var(--border-color);
-    background-color: var(--card-background);
+    background-color: hsl(var(--card));
     z-index: 10;
   }
 `;

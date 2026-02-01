@@ -4,6 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { useViewportHeight } from "@/hooks/useViewportHeight";
+import { ModalProvider } from "@/contexts/ModalContext";
+import { AddStreakDialog } from "@/components/AddStreakDialog";
+import { useStreaks } from "@/hooks/useStreaks";
+import { useModal } from "@/contexts/ModalContext";
 import Index from "./pages/Index";
 import Streaks from "./pages/Streaks";
 import StreakDetail from "./pages/StreakDetail";
@@ -16,6 +21,9 @@ const queryClient = new QueryClient();
 
 // Apply system theme on load
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  // Track viewport height for mobile keyboard handling
+  useViewportHeight();
+  
   useEffect(() => {
     const root = window.document.documentElement;
     const savedTheme = localStorage.getItem('theme') || 'system';
@@ -90,23 +98,47 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AppContent = () => {
+  const { isAddStreakOpen, closeAddStreak } = useModal();
+  const { streaks, addStreak } = useStreaks();
+
+  const handleAddStreak = (name: string, emoji: string) => {
+    addStreak(name, emoji);
+  };
+
+  return (
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/streaks" element={<Streaks />} />
+          <Route path="/streak/:id" element={<StreakDetail />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/insights" element={<Insights />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+
+      <AddStreakDialog
+        isOpen={isAddStreakOpen}
+        onClose={closeAddStreak}
+        onAdd={handleAddStreak}
+        existingStreakNames={streaks.map(s => s.name)}
+      />
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/streaks" element={<Streaks />} />
-            <Route path="/streak/:id" element={<StreakDetail />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/insights" element={<Insights />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <ModalProvider>
+          <AppContent />
+        </ModalProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
