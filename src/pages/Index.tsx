@@ -1,16 +1,18 @@
-import { useState, useCallback } from 'react';
-import { Plus, Flame } from 'lucide-react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { Plus, Flame, Star, ChevronDown } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { StreakCard } from '@/components/StreakCard';
-import { RenameStreakDialog } from '@/components/RenameStreakDialog';
+import { EditStreakDialog } from '@/components/EditStreakDialog';
 import { StatsCards } from '@/components/StatsCards';
 import { EmptyState } from '@/components/EmptyState';
 import { Celebration } from '@/components/Celebration';
 import { BottomNav } from '@/components/BottomNav';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
+import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { useModal } from '@/contexts/ModalContext';
 import { Button } from '@/components/ui/button';
+import { DEFAULT_LIST_ID } from '@/types/streak';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,24 +23,55 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Index = () => {
   const { 
     streaks, 
+    lists,
     isLoading, 
     completeStreak,
     undoStreak,
     deleteStreak,
     editStreak,
+    toggleStar,
+    moveStreakToList,
+    createList,
+    renameList,
+    deleteList,
     canUndoAction,
     getStats 
   } = useStreaks();
   const { toast } = useToast();
-  const { openAddStreak, isAddStreakOpen } = useModal();
+  const { openAddStreak, isAddStreakOpen, setAddStreakOpen } = useModal();
   
-  const [renameDialogState, setRenameDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
+  const [activeListId, setActiveListId] = useState<string>(DEFAULT_LIST_ID);
+  const [editDialogState, setEditDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
   const [showCelebration, setShowCelebration] = useState(false);
   const [streakToDelete, setStreakToDelete] = useState<string | null>(null);
+
+  // BUG FIX 2: Reset activeListId if current list is deleted
+  useEffect(() => {
+    const listExists = lists.some(l => l.id === activeListId);
+    if (!listExists) {
+      setActiveListId(DEFAULT_LIST_ID);
+    }
+  }, [lists, activeListId]);
+
+  // BUG FIX 2: Close edit dialog if streak is deleted
+  useEffect(() => {
+    if (editDialogState.streakId) {
+      const streakExists = streaks.some(s => s.id === editDialogState.streakId);
+      if (!streakExists) {
+        setEditDialogState({ isOpen: false, streakId: null });
+      }
+    }
+  }, [streaks, editDialogState.streakId]);
 
   const stats = getStats();
   const totalStreakDays = streaks.reduce((sum, s) => sum + s.currentStreak, 0);
@@ -69,25 +102,37 @@ const Index = () => {
     setStreakToDelete(null);
   }, []);
 
-  const handleOpenRenameDialog = useCallback((streakId: string) => {
-    setRenameDialogState({ isOpen: true, streakId });
+  const handleOpenEditDialog = useCallback((streakId: string) => {
+    setEditDialogState({ isOpen: true, streakId });
   }, []);
 
-  const handleCloseRenameDialog = useCallback(() => {
-    setRenameDialogState({ isOpen: false, streakId: null });
+  const handleCloseEditDialog = useCallback(() => {
+    setEditDialogState({ isOpen: false, streakId: null });
   }, []);
 
-  const handleRenameStreak = useCallback((newName: string) => {
-    if (renameDialogState.streakId) {
-      editStreak(renameDialogState.streakId, { name: newName });
+  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
+    if (editDialogState.streakId) {
+      editStreak(editDialogState.streakId, updates);
+      if (updates.reminder) {
+        const reminder = updates.reminder;
+        saveReminder(editDialogState.streakId, reminder);
+        if (reminder.enabled) {
+          const streak = streaks.find(s => s.id === editDialogState.streakId);
+          if (streak) {
+            scheduleReminder(editDialogState.streakId, updates.name, updates.emoji, reminder, () => {});
+          }
+        } else {
+          unscheduleReminder(editDialogState.streakId);
+        }
+      }
       toast({
-        title: 'Streak renamed',
-        description: `Updated to "${newName}"`,
+        title: 'Streak updated',
+        description: 'Changes saved successfully',
         duration: 2000,
       });
-      handleCloseRenameDialog();
+      handleCloseEditDialog();
     }
-  }, [renameDialogState.streakId, editStreak, toast, handleCloseRenameDialog]);
+  }, [editDialogState.streakId, editStreak, streaks, toast, handleCloseEditDialog]);
 
   const handleShareStreak = useCallback((streakId: string) => {
     const streak = streaks.find(s => s.id === streakId);
@@ -121,11 +166,32 @@ const Index = () => {
     }
   }, [streaks, toast]);
 
-  // Sort streaks: pending first, then completed, then at-risk
-  const sortedStreaks = [...streaks].sort((a, b) => {
-    const statusOrder = { pending: 0, completed: 1, 'at-risk': 2 };
-    return statusOrder[getStreakStatus(a)] - statusOrder[getStreakStatus(b)];
-  });
+  const activeList = lists.find(l => l.id === activeListId);
+  
+  // Single derived structure - computed once per render
+  const derivedStreaks = useMemo(() => {
+    // Sort function for streaks
+    const sortStreaks = (streakList: typeof streaks) => {
+      return [...streakList].sort((a, b) => {
+        if (a.isStarred !== b.isStarred) {
+          return (b.isStarred ? 1 : 0) - (a.isStarred ? 1 : 0);
+        }
+        const statusOrder = { pending: 0, completed: 1, 'at-risk': 2 };
+        return statusOrder[getStreakStatus(a)] - statusOrder[getStreakStatus(b)];
+      });
+    };
+
+    // Today's streaks (all streaks, sorted)
+    const today = sortStreaks(streaks);
+
+    // List-filtered streaks
+    const filtered = streaks.filter(
+      s => s.listId === activeListId || (!s.listId && activeListId === DEFAULT_LIST_ID)
+    );
+    const list = sortStreaks(filtered);
+
+    return { today, list };
+  }, [streaks, activeListId]);
 
   if (isLoading) {
     return (
@@ -153,41 +219,111 @@ const Index = () => {
           </section>
         )}
 
-        {/* Streaks section */}
-        <section>
-          {streaks.length > 0 && (
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-foreground">Today's Streaks</h2>
-              <span className="text-sm text-muted-foreground">
-                {stats.activeStreaks}/{stats.totalStreaks} active
-              </span>
+        {/* Today's Streaks Section */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold text-foreground">Today's Streaks</h2>
+            <span className="text-sm text-muted-foreground">
+              {stats.activeStreaks}/{stats.totalStreaks} active
+            </span>
+          </div>
+
+          {derivedStreaks.today.length === 0 ? (
+            <EmptyState hasStreaks={false} />
+          ) : (
+            <div className="space-y-3">
+              {derivedStreaks.today.map((streak, index) => {
+                const undoCheck = canUndoAction(streak.id);
+                return (
+                  <StreakCard
+                    key={streak.id}
+                    streak={streak}
+                    status={getStreakStatus(streak)}
+                    onComplete={() => handleCompleteStreak(streak.id)}
+                    onUndo={() => handleUndoStreak(streak.id)}
+                    onDelete={() => handleDeleteStreak(streak.id)}
+                    onEdit={() => handleOpenEditDialog(streak.id)}
+                    onToggleStar={() => toggleStar(streak.id)}
+                    canUndo={undoCheck.canUndo}
+                    index={index}
+                  />
+                );
+              })}
             </div>
           )}
-
-          <EmptyState hasStreaks={streaks.length > 0} />
-
-          <div className="space-y-3">
-            {sortedStreaks.map((streak, index) => {
-              const undoCheck = canUndoAction(streak.id);
-              return (
-                <StreakCard
-                  key={streak.id}
-                  streak={streak}
-                  status={getStreakStatus(streak)}
-                  onComplete={() => handleCompleteStreak(streak.id)}
-                  onUndo={() => handleUndoStreak(streak.id)}
-                  onDelete={() => handleDeleteStreak(streak.id)}
-                  onRename={() => handleOpenRenameDialog(streak.id)}
-                  onShare={() => handleShareStreak(streak.id)}
-                  canUndo={undoCheck.canUndo}
-                  index={index}
-                />
-              );
-            })}
-          </div>
         </section>
 
-        {/* Add streak button - always visible at bottom of content */}
+        {/* All Streaks Section with List Filter */}
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold text-foreground">All Streaks</h2>
+            {lists && lists.length > 1 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm font-medium">
+                    <span>{activeList?.name || 'My Streaks'}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {lists.map(list => (
+                    <DropdownMenuItem
+                      key={list.id}
+                      onClick={() => setActiveListId(list.id)}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        <div
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{
+                            backgroundColor: list.color === 'fire' ? '#ff6b35' :
+                                           list.color === 'ocean' ? '#0ea5e9' :
+                                           list.color === 'forest' ? '#22c55e' :
+                                           list.color === 'sunset' ? '#f97316' :
+                                           list.color === 'purple' ? '#a855f7' :
+                                           list.color === 'rose' ? '#ec4899' : '#ff6b35'
+                          }}
+                        />
+                        <span>{list.name}</span>
+                      </div>
+                      {list.id === activeListId && (
+                        <span className="ml-auto text-primary">✓</span>
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+
+          {derivedStreaks.list.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              No streaks in this list
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {derivedStreaks.list.map((streak, index) => {
+                const undoCheck = canUndoAction(streak.id);
+                return (
+                  <StreakCard
+                    key={streak.id}
+                    streak={streak}
+                    status={getStreakStatus(streak)}
+                    onComplete={() => handleCompleteStreak(streak.id)}
+                    onUndo={() => handleUndoStreak(streak.id)}
+                    onDelete={() => handleDeleteStreak(streak.id)}
+                    onEdit={() => handleOpenEditDialog(streak.id)}
+                    onToggleStar={() => toggleStar(streak.id)}
+                    canUndo={undoCheck.canUndo}
+                    index={index}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* Add streak button - single primary CTA */}
         <div className="mt-6 pb-4">
           <Button
             size="lg"
@@ -227,21 +363,22 @@ const Index = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Rename streak dialog */}
-      {renameDialogState.streakId && (
-        <RenameStreakDialog
-          isOpen={renameDialogState.isOpen}
-          onClose={handleCloseRenameDialog}
-          onRename={handleRenameStreak}
-          currentName={streaks.find(s => s.id === renameDialogState.streakId)?.name || ''}
+      {/* Edit streak dialog */}
+      {editDialogState.streakId && (
+        <EditStreakDialog
+          isOpen={editDialogState.isOpen}
+          onClose={handleCloseEditDialog}
+          onSave={handleEditStreak}
+          streak={streaks.find(s => s.id === editDialogState.streakId)!}
+          lists={lists}
           existingStreakNames={streaks
-            .filter(s => s.id !== renameDialogState.streakId)
+            .filter(s => s.id !== editDialogState.streakId)
             .map(s => s.name)}
         />
       )}
 
       {/* Bottom navigation - Hidden when modal is open */}
-      {!isAddStreakOpen && <BottomNav />}
+      <BottomNav />
     </div>
   );
 };

@@ -15,7 +15,28 @@ export interface Streak {
   reminderEnabled?: boolean;
   reminderTime?: string; // HH:MM format
   archivedAt?: string | null;
+  // Google Tasks-like customization
+  description?: string; // Long-form streak description
+  isStarred?: boolean; // Whether streak is starred (pinned to top)
+  listId?: string; // Which list this streak belongs to (default: 'default')
+  scheduledDate?: string; // YYYY-MM-DD format, if streak is scheduled for specific date
+  scheduledTime?: string; // HH:MM format, if streak is scheduled for specific time
 }
+
+export interface StreakList {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: string;
+}
+
+export const DEFAULT_LIST_ID = 'default';
+export const DEFAULT_LIST: StreakList = {
+  id: DEFAULT_LIST_ID,
+  name: 'My Streaks',
+  color: 'fire',
+  createdAt: new Date().toISOString().split('T')[0],
+};
 
 export interface StreakStats {
   totalStreaks: number;

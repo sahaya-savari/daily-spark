@@ -78,8 +78,7 @@ export const createBackup = (): BackupData => {
         backup.data[key] = null;
       }
     } catch (error) {
-      console.error(`Failed to export ${name}:`, error);
-      // Store the raw value if JSON parse fails
+      // Silently fail - store the raw value if JSON parse fails
       backup.data[key] = localStorage.getItem(key);
     }
   });
@@ -117,7 +116,6 @@ export const downloadBackup = (): void => {
     
     // Backup downloaded successfully
   } catch (error) {
-    console.error('Failed to download backup:', error);
     throw new Error('Failed to create backup file. Please try again.');
   }
 };
@@ -214,8 +212,7 @@ export const restoreBackup = (backup: BackupData): void => {
       
       // Backup restored successfully
     } catch (error) {
-      // Restore failed, rollback to previous state
-      console.error('Restore failed, rolling back:', error);
+      // Restore failed, rollback to previous state (silently)
       Object.entries(currentBackup).forEach(([key, value]) => {
         if (value === null) {
           localStorage.removeItem(key);
@@ -313,7 +310,7 @@ const saveLastBackupTimestamp = (): void => {
     const timestamp = new Date().toISOString();
     localStorage.setItem(LAST_BACKUP_KEY, timestamp);
   } catch (error) {
-    console.error('Failed to save backup timestamp:', error);
+    // Silently fail - backup timestamp is optional
   }
 };
 
@@ -333,7 +330,7 @@ export const getLastBackupDate = (): string | null => {
       day: 'numeric'
     });
   } catch (error) {
-    console.error('Failed to read backup timestamp:', error);
+    // Silently fail - return null
     return null;
   }
 };

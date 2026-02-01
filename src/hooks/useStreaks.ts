@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Streak, StreakStats, StreakStatus } from '@/types/streak';
+import { Streak, StreakStats, StreakStatus, StreakList, DEFAULT_LIST_ID, DEFAULT_LIST } from '@/types/streak';
+import { Reminder } from '@/types/reminder';
 import { 
   getTodayDate, 
   getYesterdayDate, 
@@ -12,8 +13,16 @@ import {
   canUndoAction, 
   initializeActionHistory 
 } from '@/services/actionHistory';
+import {
+  saveReminder,
+  getReminder,
+  deleteReminder,
+  scheduleReminder,
+  unscheduleReminder,
+} from '@/services/reminderService';
 
 const STORAGE_KEY = 'streakflame_streaks';
+const LISTS_STORAGE_KEY = 'streakflame_lists';
 
 // Get streak status
 export const getStreakStatus = (streak: Streak): StreakStatus => {
@@ -33,30 +42,51 @@ const generateId = (): string => {
 
 export const useStreaks = () => {
   const [streaks, setStreaks] = useState<Streak[]>([]);
+  const [lists, setLists] = useState<StreakList[]>([DEFAULT_LIST]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load streaks from localStorage
+  // Load streaks and lists from localStorage
   useEffect(() => {
     const loadStreaks = () => {
       try {
         // Initialize action history (finalize old actions, cleanup)
         initializeActionHistory();
         
+        // Load or initialize lists
+        const storedLists = localStorage.getItem(LISTS_STORAGE_KEY);
+        if (storedLists) {
+          setLists(JSON.parse(storedLists) as StreakList[]);
+        } else {
+          setLists([DEFAULT_LIST]);
+          localStorage.setItem(LISTS_STORAGE_KEY, JSON.stringify([DEFAULT_LIST]));
+        }
+        
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored) as Streak[];
+          // Migrate old streaks: ensure they have default listId
+          const migrated = parsed.map(streak => ({
+            ...streak,
+            listId: streak.listId || DEFAULT_LIST_ID,
+          }));
           // Recalculate current streaks based on dates
-          const updated = parsed.map(streak => recalculateStreak(streak));
+          const updated = migrated.map(streak => recalculateStreak(streak));
           setStreaks(updated);
         }
       } catch (error) {
-        console.error('Failed to load streaks:', error);
       } finally {
         setIsLoading(false);
       }
     };
     loadStreaks();
   }, []);
+
+  // Save lists to localStorage whenever they change
+  useEffect(() => {
+    if (!isLoading) {
+      localStorage.setItem(LISTS_STORAGE_KEY, JSON.stringify(lists));
+    }
+  }, [lists, isLoading]);
 
   // Save streaks to localStorage whenever they change
   useEffect(() => {
@@ -90,7 +120,7 @@ export const useStreaks = () => {
   };
 
   // Add a new streak
-  const addStreak = useCallback((name: string, emoji: string, color?: string) => {
+  const addStreak = useCallback((name: string, emoji: string, reminder?: Reminder, color?: string, description?: string, listId?: string) => {
     const newStreak: Streak = {
       id: generateId(),
       name,
@@ -101,8 +131,23 @@ export const useStreaks = () => {
       lastCompletedDate: null,
       completedDates: [],
       color,
+      description,
+      listId: listId || DEFAULT_LIST_ID,
+      isStarred: false,
     };
     setStreaks(prev => [...prev, newStreak]);
+    
+    if (reminder && reminder.enabled) {
+      saveReminder(newStreak.id, reminder);
+      scheduleReminder(
+        newStreak.id,
+        name,
+        emoji,
+        reminder,
+        () => {}
+      );
+    }
+    
     return newStreak;
   }, []);
 
@@ -156,6 +201,8 @@ export const useStreaks = () => {
 
   // Delete a streak
   const deleteStreak = useCallback((id: string) => {
+    unscheduleReminder(id);
+    deleteReminder(id);
     setStreaks(prev => prev.filter(streak => streak.id !== id));
   }, []);
 
@@ -164,7 +211,6 @@ export const useStreaks = () => {
     const undoCheck = canUndoAction(id);
     
     if (!undoCheck.canUndo || !undoCheck.action) {
-      console.warn('Cannot undo:', undoCheck.reason);
       return false;
     }
     
@@ -195,10 +241,52 @@ export const useStreaks = () => {
   }, []);
 
   // Edit a streak
-  const editStreak = useCallback((id: string, updates: Partial<Pick<Streak, 'name' | 'emoji' | 'color' | 'notes'>>) => {
+  const editStreak = useCallback((id: string, updates: Partial<Pick<Streak, 'name' | 'emoji' | 'color' | 'notes' | 'description' | 'isStarred' | 'listId' | 'scheduledDate' | 'scheduledTime'>>) => {
     setStreaks(prev => prev.map(streak => 
       streak.id === id ? { ...streak, ...updates } : streak
     ));
+  }, []);
+
+  // Toggle star on a streak
+  const toggleStar = useCallback((id: string) => {
+    setStreaks(prev => prev.map(streak =>
+      streak.id === id ? { ...streak, isStarred: !streak.isStarred } : streak
+    ));
+  }, []);
+
+  // Move streak to different list
+  const moveStreakToList = useCallback((id: string, newListId: string) => {
+    setStreaks(prev => prev.map(streak =>
+      streak.id === id ? { ...streak, listId: newListId } : streak
+    ));
+  }, []);
+
+  // Create a new list
+  const createList = useCallback((name: string, color: string) => {
+    const newList: StreakList = {
+      id: generateId(),
+      name,
+      color,
+      createdAt: getTodayDate(),
+    };
+    setLists(prev => [...prev, newList]);
+    return newList;
+  }, []);
+
+  // Rename a list
+  const renameList = useCallback((id: string, newName: string) => {
+    setLists(prev => prev.map(list =>
+      list.id === id ? { ...list, name: newName } : list
+    ));
+  }, []);
+
+  // Delete a list and move all streaks to default list
+  const deleteList = useCallback((id: string) => {
+    if (id === DEFAULT_LIST_ID) return; // Cannot delete default list
+    setStreaks(prev => prev.map(streak =>
+      streak.listId === id ? { ...streak, listId: DEFAULT_LIST_ID } : streak
+    ));
+    setLists(prev => prev.filter(list => list.id !== id));
   }, []);
 
   // Get stats
@@ -242,18 +330,25 @@ export const useStreaks = () => {
 
   return {
     streaks,
+    lists,
     isLoading,
     addStreak,
     completeStreak,
     undoStreak,
     deleteStreak,
     editStreak,
+    toggleStar,
+    moveStreakToList,
+    createList,
+    renameList,
+    deleteList,
     getStats,
     getStreakStatus,
     canUndoAction,
+    getReminder,
+    saveReminder,
   };
 };
 
-// Re-export date utilities for backward compatibility
 export { getTodayDate, getYesterdayDate, isToday, isYesterday } from '@/lib/dateUtils';
 

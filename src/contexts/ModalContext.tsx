@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
 interface ModalContextType {
   isAddStreakOpen: boolean;
   openAddStreak: () => void;
   closeAddStreak: () => void;
+  setAddStreakOpen: (open: boolean) => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -11,11 +12,12 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [isAddStreakOpen, setIsAddStreakOpen] = useState(false);
 
-  const openAddStreak = () => setIsAddStreakOpen(true);
-  const closeAddStreak = () => setIsAddStreakOpen(false);
+  const openAddStreak = useCallback(() => setIsAddStreakOpen(true), []);
+  const closeAddStreak = useCallback(() => setIsAddStreakOpen(false), []);
+  const setAddStreakOpen = useCallback((open: boolean) => setIsAddStreakOpen(open), []);
 
   return (
-    <ModalContext.Provider value={{ isAddStreakOpen, openAddStreak, closeAddStreak }}>
+    <ModalContext.Provider value={{ isAddStreakOpen, openAddStreak, closeAddStreak, setAddStreakOpen }}>
       {children}
     </ModalContext.Provider>
   );

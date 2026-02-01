@@ -30,7 +30,7 @@ export const getNotificationSettings = (): NotificationSettings => {
       return JSON.parse(stored);
     }
   } catch (e) {
-    console.error('Failed to load notification settings:', e);
+    // Silently fail - return defaults
   }
   return {
     enabled: false,
@@ -55,7 +55,7 @@ const getSentReminders = (): SentReminder[] => {
       return reminders.filter(r => r.date === today);
     }
   } catch (e) {
-    console.error('Failed to load sent reminders:', e);
+    // Silently fail - return empty array
   }
   return [];
 };

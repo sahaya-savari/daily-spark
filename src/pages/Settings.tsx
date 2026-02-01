@@ -1,12 +1,13 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Bell, Shield, Moon, Sun, Smartphone, Download, Upload, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Bell, Shield, Smartphone, Download, Upload, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
-import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
+import { useStreaks } from '@/hooks/useStreaks';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { APP_VERSION, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
 import { 
   downloadBackup, 
   readBackupFile, 
@@ -429,6 +430,100 @@ const Settings = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* App Version Footer */}
+      <div className="mt-12 py-6 px-4 border-t border-border/50 text-center text-sm text-muted-foreground">
+        <p>{APP_NAME} v{APP_VERSION}</p>
+        <p className="text-xs mt-1">© 2026 Daily Spark</p>
+      </div>
+
+      {/* About Section */}
+      <section className="mt-8 px-4 pb-4 space-y-6">
+        <div className="bg-card border border-border rounded-xl p-6 space-y-6">
+          <div className="text-center space-y-3">
+            <div className="w-16 h-16 mx-auto rounded-2xl fire-gradient flex items-center justify-center">
+              <span className="text-3xl">🔥</span>
+            </div>
+            <h2 className="text-xl font-bold text-foreground">{APP_NAME}</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {APP_DESCRIPTION}
+            </p>
+          </div>
+
+          <div className="space-y-3 border-t border-border pt-4">
+            <h3 className="font-semibold text-foreground">Features</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Track multiple streaks simultaneously</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>View calendar with habit history</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Works completely offline</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Backup and restore your data</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Customizable reminders and themes</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-3 border-t border-border pt-4">
+            <h3 className="font-semibold text-foreground">Built With</h3>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="font-medium text-foreground mb-1">Frontend</p>
+                <ul className="text-muted-foreground space-y-0.5">
+                  <li>React 18</li>
+                  <li>TypeScript</li>
+                  <li>Vite</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-medium text-foreground mb-1">UI & PWA</p>
+                <ul className="text-muted-foreground space-y-0.5">
+                  <li>Tailwind CSS</li>
+                  <li>shadcn/ui</li>
+                  <li>Vite PWA</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              Made with ❤️ by{' '}
+              <a
+                href="https://github.com/sahaya-savari"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Sahaya Savari
+              </a>
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Open source under{' '}
+              <a
+                href="https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                MIT License
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
 
       <BottomNav />
     </div>

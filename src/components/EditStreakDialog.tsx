@@ -1,26 +1,36 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, X, Smile, Bell, Calendar } from 'lucide-react';
+import { X, Smile, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { EMOJI_OPTIONS } from '@/types/streak';
+import { EMOJI_OPTIONS, Streak, StreakList } from '@/types/streak';
 import { Reminder } from '@/types/reminder';
-import { requestNotificationPermission, saveReminder } from '@/services/reminderService';
+import { requestNotificationPermission, getReminder } from '@/services/reminderService';
 import { cn } from '@/lib/utils';
 
-interface AddStreakDialogProps {
+interface EditStreakDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (name: string, emoji: string, reminder?: Reminder, color?: string, description?: string, listId?: string) => void;
+  onSave: (updates: {
+    name: string;
+    emoji: string;
+    description: string;
+    listId: string;
+    isStarred: boolean;
+    reminder?: Reminder;
+  }) => void;
+  streak: Streak;
+  lists: StreakList[];
   existingStreakNames: string[];
-  listId?: string;
 }
 
-export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, listId }: AddStreakDialogProps) => {
-  const [name, setName] = useState('');
-  const [selectedEmoji, setSelectedEmoji] = useState('🔥');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+export const EditStreakDialog = ({ isOpen, onClose, onSave, streak, lists, existingStreakNames }: EditStreakDialogProps) => {
+  const [name, setName] = useState(streak.name);
   const [isDuplicate, setIsDuplicate] = useState(false);
-  const [description, setDescription] = useState('');
+  const [selectedEmoji, setSelectedEmoji] = useState(streak.emoji);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [description, setDescription] = useState(streak.description || '');
+  const [selectedListId, setSelectedListId] = useState(streak.listId || 'default');
+  const [isStarred, setIsStarred] = useState(streak.isStarred || false);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState('09:00');
   const [repeatType, setRepeatType] = useState<'daily' | 'custom'>('daily');
@@ -31,14 +41,37 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
 
   useEffect(() => {
     const trimmedName = name.trim().toLowerCase();
-    if (trimmedName && existingStreakNames.some(existingName => 
+    if (trimmedName && trimmedName !== streak.name.toLowerCase() && existingStreakNames.some(existingName => 
       existingName.toLowerCase() === trimmedName
     )) {
       setIsDuplicate(true);
     } else {
       setIsDuplicate(false);
     }
-  }, [name, existingStreakNames]);
+  }, [name, existingStreakNames, streak.name]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const reminder = getReminder(streak.id);
+      if (reminder) {
+        setReminderEnabled(reminder.enabled);
+        setReminderTime(reminder.time);
+        setRepeatType(reminder.repeatType);
+        setRepeatDays(reminder.repeatDays);
+      } else {
+        setReminderEnabled(false);
+        setReminderTime('09:00');
+        setRepeatType('daily');
+        setRepeatDays([true, true, true, true, true, true, true]);
+      }
+      setName(streak.name);
+      setIsDuplicate(false);
+      setSelectedEmoji(streak.emoji);
+      setDescription(streak.description || '');
+      setSelectedListId(streak.listId || 'default');
+      setIsStarred(streak.isStarred || false);
+    }
+  }, [isOpen, streak]);
 
   useEffect(() => {
     if (!showEmojiPicker) return;
@@ -63,20 +96,6 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
     };
   }, [showEmojiPicker]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setName('');
-      setSelectedEmoji('🔥');
-      setShowEmojiPicker(false);
-      setIsDuplicate(false);
-      setDescription('');
-      setReminderEnabled(false);
-      setReminderTime('09:00');
-      setRepeatType('daily');
-      setRepeatDays([true, true, true, true, true, true, true]);
-    }
-  }, [isOpen]);
-
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = name.trim();
@@ -97,13 +116,27 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
       const hasPermission = await requestNotificationPermission();
       if (!hasPermission) {
         setReminderEnabled(false);
-        onAdd(trimmedName, selectedEmoji, { ...reminder, enabled: false }, undefined, description, listId);
+        onSave({
+          name: trimmedName,
+          emoji: selectedEmoji,
+          description,
+          listId: selectedListId,
+          isStarred,
+          reminder: { ...reminder, enabled: false },
+        });
         return;
       }
     }
 
-    onAdd(trimmedName, selectedEmoji, reminder, undefined, description, listId);
-  }, [name, selectedEmoji, isDuplicate, reminderEnabled, reminderTime, repeatType, repeatDays, description, onAdd, listId]);
+    onSave({
+      name: trimmedName,
+      emoji: selectedEmoji,
+      description,
+      listId: selectedListId,
+      isStarred,
+      reminder,
+    });
+  }, [name, isDuplicate, selectedEmoji, description, selectedListId, isStarred, reminderEnabled, reminderTime, repeatType, repeatDays, onSave]);
 
   const handleEmojiSelect = useCallback((emoji: string) => {
     setSelectedEmoji(emoji);
@@ -113,7 +146,6 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
   const handleEmojiPickerToggle = useCallback(() => {
     setShowEmojiPicker(prev => !prev);
   }, []);
-
 
   if (!isOpen) return null;
 
@@ -142,7 +174,7 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0 border-b border-border/50">
-            <h2 id="dialog-title" className="text-xl font-bold text-foreground">New Streak</h2>
+            <h2 id="dialog-title" className="text-xl font-bold text-foreground">Edit Streak</h2>
             <Button
               variant="ghost"
               size="icon"
@@ -160,6 +192,36 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
             {/* Scrollable Body */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-6 -webkit-overflow-scrolling-touch">
               <div className="space-y-6">
+                {/* Name field - Editable */}
+                <div>
+                  <label htmlFor="streak-name" className="text-sm font-medium text-muted-foreground mb-3 block">
+                    Streak name
+                  </label>
+                  <Input
+                    id="streak-name"
+                    type="text"
+                    placeholder="e.g., Morning workout"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className={cn(
+                      "h-14 rounded-xl bg-muted border-0 text-base px-4",
+                      isDuplicate && "border-2 border-destructive bg-destructive/5"
+                    )}
+                    autoFocus
+                    aria-label="Streak name"
+                    aria-invalid={isDuplicate}
+                    aria-describedby={isDuplicate ? "name-error" : "name-counter"}
+                    maxLength={50}
+                  />
+                  {isDuplicate ? (
+                    <p id="name-error" className="text-xs text-destructive mt-2 font-medium">
+                      A streak with this name already exists
+                    </p>
+                  ) : (
+                    <p id="name-counter" className="text-xs text-muted-foreground mt-2">{name.length}/50</p>
+                  )}
+                </div>
+
                 {/* Emoji selector */}
                 <div>
                   <label htmlFor="emoji-button" className="text-sm font-medium text-muted-foreground mb-3 block">
@@ -218,40 +280,10 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
                   </div>
                 </div>
 
-                {/* Name input */}
-                <div>
-                  <label htmlFor="streak-name" className="text-sm font-medium text-muted-foreground mb-3 block">
-                    Streak name
-                  </label>
-                  <Input
-                    id="streak-name"
-                    type="text"
-                    placeholder="e.g., Morning workout"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className={cn(
-                      "h-14 rounded-xl bg-muted border-0 text-base px-4",
-                      isDuplicate && "border-2 border-destructive bg-destructive/5"
-                    )}
-                    autoFocus
-                    aria-label="Streak name"
-                    aria-invalid={isDuplicate}
-                    aria-describedby={isDuplicate ? "name-error" : "name-counter"}
-                    maxLength={50}
-                  />
-                  {isDuplicate ? (
-                    <p id="name-error" className="text-xs text-destructive mt-2 font-medium">
-                      A streak with this name already exists
-                    </p>
-                  ) : (
-                    <p id="name-counter" className="text-xs text-muted-foreground mt-2">{name.length}/50</p>
-                  )}
-                </div>
-
                 {/* Description */}
                 <div>
                   <label htmlFor="description" className="text-sm font-medium text-muted-foreground mb-3 block">
-                    Description (optional)
+                    Description
                   </label>
                   <textarea
                     id="description"
@@ -263,6 +295,40 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
                     className="w-full h-24 rounded-xl bg-muted border-0 text-base px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <p className="text-xs text-muted-foreground mt-2">{description.length}/200</p>
+                </div>
+
+                {/* List Selection */}
+                <div>
+                  <label htmlFor="list-select" className="text-sm font-medium text-muted-foreground mb-3 block">
+                    List
+                  </label>
+                  <select
+                    id="list-select"
+                    value={selectedListId}
+                    onChange={(e) => setSelectedListId(e.target.value)}
+                    className="w-full h-12 rounded-xl bg-muted border-0 text-base px-4 focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    {lists.map(list => (
+                      <option key={list.id} value={list.id}>
+                        {list.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Star Toggle */}
+                <div>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isStarred}
+                      onChange={(e) => setIsStarred(e.target.checked)}
+                      className="w-5 h-5 rounded border-border bg-muted"
+                    />
+                    <span className="text-sm font-medium text-foreground">
+                      Star this streak (pin to top)
+                    </span>
+                  </label>
                 </div>
 
                 {/* Reminder Section */}
@@ -362,6 +428,13 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
                     </div>
                   )}
                 </div>
+
+                {/* Warning */}
+                <div className="bg-muted/50 border border-border rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground">
+                    ⓘ Editing will not affect your streak count, progress, or history
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -373,11 +446,9 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
               <Button
                 type="submit"
                 disabled={!name.trim() || isDuplicate || name.length > 50}
-                className="w-full h-12 md:h-14 rounded-xl fire-gradient text-white font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-shadow"
-                aria-label={isDuplicate ? "Cannot create streak - duplicate name" : "Create streak"}
+                className="w-full h-12 md:h-14 rounded-xl fire-gradient text-white font-semibold text-base shadow-lg hover:shadow-xl transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Plus className="w-5 h-5 mr-2" />
-                Create Streak
+                Save Changes
               </Button>
             </div>
           </form>

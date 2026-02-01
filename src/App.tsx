@@ -9,6 +9,8 @@ import { ModalProvider } from "@/contexts/ModalContext";
 import { AddStreakDialog } from "@/components/AddStreakDialog";
 import { useStreaks } from "@/hooks/useStreaks";
 import { useModal } from "@/contexts/ModalContext";
+import { Reminder } from "@/types/reminder";
+import { initializeAllReminders } from "@/services/reminderService";
 import Index from "./pages/Index";
 import Streaks from "./pages/Streaks";
 import StreakDetail from "./pages/StreakDetail";
@@ -81,8 +83,6 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
       } catch (error) {
-        // Silent fail - this is cleanup, not critical
-        console.debug('Service worker cleanup completed');
       }
     };
 
@@ -102,8 +102,13 @@ const AppContent = () => {
   const { isAddStreakOpen, closeAddStreak } = useModal();
   const { streaks, addStreak } = useStreaks();
 
-  const handleAddStreak = (name: string, emoji: string) => {
-    addStreak(name, emoji);
+  useEffect(() => {
+    initializeAllReminders(streaks, () => {});
+  }, [streaks]);
+
+  const handleAddStreak = (name: string, emoji: string, reminder?: Reminder, color?: string, description?: string, listId?: string) => {
+    addStreak(name, emoji, reminder, color, description, listId);
+    closeAddStreak();
   };
 
   return (

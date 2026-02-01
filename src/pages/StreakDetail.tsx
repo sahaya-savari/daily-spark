@@ -1,12 +1,16 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar as CalendarIcon, Clock, CheckCircle2, Circle, MoreVertical, Trash2, Edit2, Share2 } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Clock, CheckCircle2, Circle, MoreVertical, Trash2, Edit2, Share2, Bell, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { RenameStreakDialog } from '@/components/RenameStreakDialog';
+import { Input } from '@/components/ui/input';
+import { EditStreakDialog } from '@/components/EditStreakDialog';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
+import { getReminder } from '@/services/reminderService';
 import { useToast } from '@/hooks/use-toast';
+import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
+import { getRepeatModeDisplay, getNextReminderTime } from '@/lib/reminderUtils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,20 +31,32 @@ import {
 const StreakDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { streaks, editStreak, completeStreak, undoStreak, deleteStreak, getStreakStatus: getStatus, canUndoAction } = useStreaks();
+  const { streaks, lists, editStreak, completeStreak, undoStreak, deleteStreak, toggleStar, getStreakStatus: getStatus, canUndoAction } = useStreaks();
   const { toast } = useToast();
   
   const streak = streaks.find(s => s.id === id);
   const [notes, setNotes] = useState('');
+  const [description, setDescription] = useState('');
+  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [renameDialogState, setRenameDialogState] = useState({ isOpen: false, streakId: null as string | null });
+  const [editDialogState, setEditDialogState] = useState({ isOpen: false, streakId: null as string | null });
 
   useEffect(() => {
     if (streak?.notes) {
       setNotes(streak.notes);
     }
-  }, [streak?.notes]);
+    if (streak?.description) {
+      setDescription(streak.description);
+    }
+    if (streak?.scheduledDate) {
+      setScheduledDate(streak.scheduledDate);
+    }
+    if (streak?.scheduledTime) {
+      setScheduledTime(streak.scheduledTime);
+    }
+  }, [streak?.notes, streak?.description, streak?.scheduledDate, streak?.scheduledTime]);
 
   if (!streak) {
     return (
@@ -62,9 +78,14 @@ const StreakDetail = () => {
   const isCompleted = status === 'completed';
 
   const handleNotesBlur = () => {
-    if (notes !== streak.notes) {
+    if (notes !== streak.notes || description !== streak.description || scheduledDate !== streak.scheduledDate || scheduledTime !== streak.scheduledTime) {
       setIsSavingNotes(true);
-      editStreak(streak.id, { notes: notes.trim() });
+      editStreak(streak.id, { 
+        notes: notes.trim(),
+        description: description.trim(),
+        scheduledDate,
+        scheduledTime,
+      });
       setTimeout(() => setIsSavingNotes(false), 500);
     }
   };
@@ -78,25 +99,37 @@ const StreakDetail = () => {
     navigate('/');
   };
 
-  const handleOpenRenameDialog = useCallback(() => {
-    setRenameDialogState({ isOpen: true, streakId: streak.id });
+  const handleOpenEditDialog = useCallback(() => {
+    setEditDialogState({ isOpen: true, streakId: streak.id });
   }, [streak.id]);
 
-  const handleCloseRenameDialog = useCallback(() => {
-    setRenameDialogState({ isOpen: false, streakId: null });
+  const handleCloseEditDialog = useCallback(() => {
+    setEditDialogState({ isOpen: false, streakId: null });
   }, []);
 
-  const handleRenameStreak = useCallback((newName: string) => {
-    if (renameDialogState.streakId) {
-      editStreak(renameDialogState.streakId, { name: newName });
+  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
+    if (editDialogState.streakId) {
+      editStreak(editDialogState.streakId, updates);
+      if (updates.reminder) {
+        const reminder = updates.reminder;
+        saveReminder(editDialogState.streakId, reminder);
+        if (reminder.enabled) {
+          const currentStreak = streaks.find(s => s.id === editDialogState.streakId);
+          if (currentStreak) {
+            scheduleReminder(editDialogState.streakId, updates.name, updates.emoji, reminder, () => {});
+          }
+        } else {
+          unscheduleReminder(editDialogState.streakId);
+        }
+      }
       toast({
-        title: 'Streak renamed',
-        description: `Updated to "${newName}"`,
+        title: 'Streak updated',
+        description: 'Changes saved successfully',
         duration: 2000,
       });
-      handleCloseRenameDialog();
+      handleCloseEditDialog();
     }
-  }, [renameDialogState.streakId, editStreak, toast, handleCloseRenameDialog]);
+  }, [editDialogState.streakId, editStreak, streaks, toast, handleCloseEditDialog]);
 
   const handleShareStreak = useCallback(() => {
     if (!streak) return;
@@ -190,7 +223,14 @@ const StreakDetail = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem
-                onClick={handleOpenRenameDialog}
+                onClick={() => toggleStar(streak.id)}
+                className="cursor-pointer"
+              >
+                <Star className={cn("w-4 h-4 mr-2", streak.isStarred && "fill-current")} />
+                {streak.isStarred ? 'Unstar' : 'Star'}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                  onClick={handleOpenEditDialog}
                 className="cursor-pointer"
               >
                 <Edit2 className="w-4 h-4 mr-2" />
@@ -316,6 +356,49 @@ const StreakDetail = () => {
           </div>
         </div>
 
+        {/* Reminder Section */}
+        {streak.reminderEnabled && (
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <div className="flex items-center gap-2 mb-4">
+              <Bell className="w-5 h-5 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Reminder</h3>
+            </div>
+            
+            <div className="space-y-3">
+              {(() => {
+                const reminder = getReminder(streak.id);
+                const repeatMode = getRepeatModeDisplay(reminder);
+                const nextReminder = getNextReminderTime(reminder);
+                
+                return (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Repeat pattern:</span>
+                      <span className="text-sm font-medium text-foreground">{repeatMode}</span>
+                    </div>
+                    
+                    {reminder?.time && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Time:</span>
+                        <span className="text-sm font-medium text-foreground">{reminder.time}</span>
+                      </div>
+                    )}
+                    
+                    {nextReminder && (
+                      <div className="flex justify-between items-center pt-2 border-t border-border">
+                        <span className="text-sm text-muted-foreground">Next reminder:</span>
+                        <span className="text-sm font-medium text-primary">
+                          {nextReminder.date} at {nextReminder.time}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
         {/* Notes Section */}
         <div className="bg-card rounded-xl p-4 border border-border">
           <label htmlFor="streak-notes" className="text-sm font-medium text-muted-foreground mb-3 block">
@@ -335,6 +418,53 @@ const StreakDetail = () => {
             {isSavingNotes && (
               <span className="text-xs text-emerald-600 dark:text-emerald-400">Saved</span>
             )}
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="bg-card rounded-xl p-4 border border-border">
+          <label htmlFor="streak-description" className="text-sm font-medium text-muted-foreground mb-3 block">
+            Description
+          </label>
+          <Textarea
+            id="streak-description"
+            placeholder="What is this streak about? What are you trying to achieve?"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={handleNotesBlur}
+            className="min-h-24 resize-none bg-muted border-0 rounded-lg"
+            maxLength={300}
+          />
+          <div className="text-xs text-muted-foreground mt-2">{description.length}/300</div>
+        </div>
+
+        {/* Schedule/Reschedule */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <label htmlFor="scheduled-date" className="text-sm font-medium text-muted-foreground mb-3 block">
+              Scheduled Date (optional)
+            </label>
+            <Input
+              id="scheduled-date"
+              type="date"
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+              onBlur={handleNotesBlur}
+              className="bg-muted border-0 h-10"
+            />
+          </div>
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <label htmlFor="scheduled-time" className="text-sm font-medium text-muted-foreground mb-3 block">
+              Scheduled Time (optional)
+            </label>
+            <Input
+              id="scheduled-time"
+              type="time"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
+              onBlur={handleNotesBlur}
+              className="bg-muted border-0 h-10"
+            />
           </div>
         </div>
 
@@ -400,15 +530,16 @@ const StreakDetail = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Rename streak dialog */}
-      {renameDialogState.streakId && (
-        <RenameStreakDialog
-          isOpen={renameDialogState.isOpen}
-          onClose={handleCloseRenameDialog}
-          onRename={handleRenameStreak}
-          currentName={streak?.name || ''}
+      {/* Edit streak dialog */}
+      {editDialogState.streakId && (
+        <EditStreakDialog
+          isOpen={editDialogState.isOpen}
+          onClose={handleCloseEditDialog}
+          onSave={handleEditStreak}
+          streak={streak!}
+          lists={lists}
           existingStreakNames={streaks
-            .filter(s => s.id !== renameDialogState.streakId)
+            .filter(s => s.id !== editDialogState.streakId)
             .map(s => s.name)}
         />
       )}

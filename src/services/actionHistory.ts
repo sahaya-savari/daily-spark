@@ -30,7 +30,7 @@ const loadActions = (): DailyAction[] => {
       return JSON.parse(stored) as DailyAction[];
     }
   } catch (error) {
-    console.error('Failed to load action history:', error);
+    // Silently fail - return empty array
   }
   return [];
 };
@@ -42,7 +42,7 @@ const saveActions = (actions: DailyAction[]): void => {
   try {
     localStorage.setItem(ACTIONS_STORAGE_KEY, JSON.stringify(actions));
   } catch (error) {
-    console.error('Failed to save action history:', error);
+    // Silently fail - action history is cached in memory
   }
 };
 

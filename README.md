@@ -1,63 +1,144 @@
-# Daily Spark
+# Daily Spark 🔥
 
-Build and maintain daily habits with a beautiful, intuitive streak tracker.
+**Build lasting habits with Daily Spark. Track daily streaks, celebrate consistency, and never break the chain.**
+
+## About
+
+Daily Spark is a minimal, offline-first Progressive Web App (PWA) for tracking daily habits and streaks. It's designed to be simple, fast, and works completely offline—making it the perfect companion for building lasting habits.
+
+Whether you want to track exercise, reading, meditation, or any daily habit, Daily Spark gives you a visual way to see your progress and stay motivated.
 
 ## Features
 
-- **Streak Tracking** - Create and monitor multiple habit streaks with visual progress indicators
-- **Daily Notifications** - Customizable reminders to help you stay consistent
-- **Calendar View** - See your habit history at a glance
-- **Statistics Dashboard** - Track your progress with detailed insights and charts
-- **Responsive Design** - Works seamlessly on desktop and mobile devices
-- **Dark Mode Support** - Comfortable viewing in any lighting condition
+- ✅ **Track Multiple Streaks** - Create custom habits with emojis and track them all in one place
+- ✅ **Streak Calendar** - View your habit history on a beautiful calendar interface
+- ✅ **Completely Offline** - Works without internet—your data stays on your device
+- ✅ **Data Backup** - Export and import your data anytime
+- ✅ **Share Your Progress** - Share your streaks with friends and stay accountable
+- ✅ **Customizable Reminders** - Get notified daily (with daily/custom repeat schedules)
+- ✅ **Dark Mode** - Easy on the eyes, anytime
+- ✅ **PWA** - Install as an app on iOS, Android, or desktop
 
 ## Tech Stack
 
-- **Frontend**: React + TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: shadcn/ui + Radix UI
-- **Build Tool**: Vite
-- **Storage**: localStorage (local-first, no backend)
-- **State Management**: React hooks + Context
-- **Testing**: Vitest
-- **PWA**: vite-plugin-pwa
+**Frontend:**
+- React 18 + TypeScript
+- Vite (lightning-fast builds)
+- Tailwind CSS (styling)
+- shadcn/ui (accessible components)
+
+**PWA & Storage:**
+- Vite PWA Plugin (service worker, manifest)
+- localStorage (persistent data storage)
+- Notification API (reminders)
+
+**Development:**
+- ESLint (code quality)
+- Vitest (unit testing)
 
 ## Getting Started
 
 ### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or bun
+- Node.js 18+ and npm/bun
 
 ### Installation
 
-1. Clone the repository:
-```sh
-git clone <repository-url>
+```bash
+git clone https://github.com/sahaya-savari/daily-spark.git
 cd daily-spark
-```
-
-2. Install dependencies:
-```sh
 npm install
 ```
 
-3. Start the development server:
-```sh
+### Development Server
+
+```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`
+Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+### Production Build
+
+```bash
+npm run build
+npm run preview
+```
 
 ### Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm test` - Run tests
+- `npm run dev` - Start development server with HMR
+- `npm run build` - Build for production with PWA support
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint for code quality
+- `npm test` - Run unit tests
 - `npm run test:watch` - Run tests in watch mode
+
+## How to Use
+
+1. **Create a Streak** - Click "Add New Streak" and choose an emoji, name, and optional reminder
+2. **Complete Daily** - Tap the streak card to mark it as done for the day
+3. **View History** - Check the Calendar tab to see your habit history
+4. **Track Progress** - See your stats (active streaks, completion rates, longest streaks)
+5. **Backup Data** - Export your data in Settings to keep it safe
+
+## PWA Installation
+
+### On Mobile (iOS/Android)
+1. Open Daily Spark in your browser
+2. Tap "Share" → "Add to Home Screen"
+3. Daily Spark appears as a native app
+
+### On Desktop (Windows/Mac/Linux)
+1. Open Daily Spark in Chrome/Edge
+2. Click the "Install" button in the address bar
+3. Daily Spark launches as a standalone window
+
+## Project Structure
+
+```
+daily-spark/
+├── src/
+│   ├── pages/              # Page components (Home, Settings, About, etc.)
+│   ├── components/         # Reusable UI components
+│   ├── hooks/              # Custom React hooks
+│   ├── services/           # Business logic (reminders, backups, etc.)
+│   ├── types/              # TypeScript interfaces
+│   ├── lib/                # Utilities and constants
+│   ├── contexts/           # React context for state management
+│   └── App.tsx             # Main app component
+├── public/                 # Static assets (icons, manifest, favicon)
+├── index.html              # HTML entry point
+├── package.json            # Dependencies and scripts
+├── vite.config.ts          # Vite configuration
+└── README.md               # This file
+```
+
+## Roadmap (Phase 2)
+
+- 🎯 **Social Features** - Share streaks, comment on friends' progress, leaderboards
+- 📊 **Advanced Analytics** - Charts, weekly/monthly trends, insights
+- 🎨 **Customization** - Custom colors, themes, achievement badges
+- 🔄 **Cloud Sync** - Optional cloud backup and cross-device sync
+- 📱 **Native Apps** - Android & iOS native apps via Capacitor
+- 🌍 **Internationalization** - Multi-language support
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to Daily Spark.
 
 ## License
 
-MIT
+Daily Spark is open source and available under the [MIT License](LICENSE). See the LICENSE file for details.
+
+## Author
+
+**Sahaya Savari**
+- Full Stack Developer & Student
+- GitHub: [@sahaya-savari](https://github.com/sahaya-savari)
+- Project Repository: [daily-spark](https://github.com/sahaya-savari/daily-spark)
+
+Passionate about building practical, user-friendly tools that solve real problems. Daily Spark is a passion project demonstrating full-stack web development capabilities.
+
+---
+
+**Built with ❤️ to help you build habits that last.**

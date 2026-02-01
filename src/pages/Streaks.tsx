@@ -1,10 +1,13 @@
 import { useState, useCallback } from 'react';
-import { Flame } from 'lucide-react';
+import { Flame, List } from 'lucide-react';
 import { BottomNav } from '@/components/BottomNav';
 import { StreakCard } from '@/components/StreakCard';
-import { RenameStreakDialog } from '@/components/RenameStreakDialog';
+import { EditStreakDialog } from '@/components/EditStreakDialog';
+import { StreakListManager } from '@/components/StreakListManager';
 import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
+import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
+import { DEFAULT_LIST_ID } from '@/types/streak';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,10 +20,11 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const StreaksPage = () => {
-  const { streaks, completeStreak, undoStreak, deleteStreak, editStreak, canUndoAction } = useStreaks();
+  const { streaks, lists, completeStreak, undoStreak, deleteStreak, editStreak, toggleStar, createList, renameList, deleteList, canUndoAction } = useStreaks();
   const { toast } = useToast();
   const [streakToDelete, setStreakToDelete] = useState<string | null>(null);
-  const [renameDialogState, setRenameDialogState] = useState({ isOpen: false, streakId: null as string | null });
+  const [editDialogState, setEditDialogState] = useState({ isOpen: false, streakId: null as string | null });
+  const [activeListId, setActiveListId] = useState<string>(DEFAULT_LIST_ID);
 
   // Sort by status
   const sortedStreaks = [...streaks].sort((a, b) => {
@@ -46,25 +50,37 @@ const StreaksPage = () => {
     setStreakToDelete(null);
   }, []);
 
-  const handleOpenRenameDialog = useCallback((streakId: string) => {
-    setRenameDialogState({ isOpen: true, streakId });
+  const handleOpenEditDialog = useCallback((streakId: string) => {
+    setEditDialogState({ isOpen: true, streakId });
   }, []);
 
-  const handleCloseRenameDialog = useCallback(() => {
-    setRenameDialogState({ isOpen: false, streakId: null });
+  const handleCloseEditDialog = useCallback(() => {
+    setEditDialogState({ isOpen: false, streakId: null });
   }, []);
 
-  const handleRenameStreak = useCallback((newName: string) => {
-    if (renameDialogState.streakId) {
-      editStreak(renameDialogState.streakId, { name: newName });
+  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
+    if (editDialogState.streakId) {
+      editStreak(editDialogState.streakId, updates);
+      if (updates.reminder) {
+        const reminder = updates.reminder;
+        saveReminder(editDialogState.streakId, reminder);
+        if (reminder.enabled) {
+          const streak = streaks.find(s => s.id === editDialogState.streakId);
+          if (streak) {
+            scheduleReminder(editDialogState.streakId, updates.name, updates.emoji, reminder, () => {});
+          }
+        } else {
+          unscheduleReminder(editDialogState.streakId);
+        }
+      }
       toast({
-        title: 'Streak renamed',
-        description: `Updated to "${newName}"`,
+        title: 'Streak updated',
+        description: 'Changes saved successfully',
         duration: 2000,
       });
-      handleCloseRenameDialog();
+      handleCloseEditDialog();
     }
-  }, [renameDialogState.streakId, editStreak, toast, handleCloseRenameDialog]);
+  }, [editDialogState.streakId, editStreak, streaks, toast, handleCloseEditDialog]);
 
   const handleShareStreak = useCallback((streakId: string) => {
     const streak = streaks.find(s => s.id === streakId);
@@ -118,6 +134,30 @@ const StreaksPage = () => {
       </header>
 
       <main className="content-width px-4 py-4">
+        {/* List Management Section */}
+        <section className="bg-card border border-border rounded-xl overflow-hidden mb-4">
+          <div className="px-4 py-3 border-b border-border bg-muted/30">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <List className="w-4 h-4" />
+              Organize Your Streaks
+            </h2>
+          </div>
+
+          <div className="p-4">
+            <p className="text-sm text-muted-foreground mb-4">
+              Create lists to organize your streaks (e.g., Work, Personal, Health).
+            </p>
+            <StreakListManager
+              lists={lists}
+              activeListId={activeListId}
+              onListChange={setActiveListId}
+              onCreateList={createList}
+              onRenameList={renameList}
+              onDeleteList={deleteList}
+            />
+          </div>
+        </section>
+
         {/* Status summary */}
         <div className="grid grid-cols-3 gap-2 mb-4">
           <div className="bg-card border border-border rounded-xl p-3 text-center">
@@ -155,8 +195,9 @@ const StreaksPage = () => {
                   onComplete={() => completeStreak(streak.id)}
                   onUndo={() => undoStreak(streak.id)}
                   onDelete={() => handleDeleteStreak(streak.id)}
-                  onRename={() => handleOpenRenameDialog(streak.id)}
+                  onEdit={() => handleOpenEditDialog(streak.id)}
                   onShare={() => handleShareStreak(streak.id)}
+                  onToggleStar={() => toggleStar(streak.id)}
                   canUndo={undoCheck.canUndo}
                   index={index}
                 />
@@ -187,15 +228,16 @@ const StreaksPage = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Rename streak dialog */}
-      {renameDialogState.streakId && (
-        <RenameStreakDialog
-          isOpen={renameDialogState.isOpen}
-          onClose={handleCloseRenameDialog}
-          onRename={handleRenameStreak}
-          currentName={streaks.find(s => s.id === renameDialogState.streakId)?.name || ''}
+      {/* Edit streak dialog */}
+      {editDialogState.streakId && (
+        <EditStreakDialog
+          isOpen={editDialogState.isOpen}
+          onClose={handleCloseEditDialog}
+          onSave={handleEditStreak}
+          streak={streaks.find(s => s.id === editDialogState.streakId)!}
+          lists={lists}
           existingStreakNames={streaks
-            .filter(s => s.id !== renameDialogState.streakId)
+            .filter(s => s.id !== editDialogState.streakId)
             .map(s => s.name)}
         />
       )}
