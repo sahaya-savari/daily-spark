@@ -41,7 +41,7 @@ const About = () => {
         <section className="space-y-3 bg-muted/50 rounded-xl p-4">
           <h3 className="font-semibold text-foreground">Why Daily Spark?</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Building habits is hard. Daily Spark makes it simple by giving you a visual way to track your daily streaks and celebrate your consistency. Never break the chain.
+            Build consistency, one day at a time. Daily Spark makes habit tracking simple with visual streaks that celebrate your progress. Never break the chain.
           </p>
         </section>
 
@@ -59,7 +59,11 @@ const About = () => {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">✓</span>
-              <span>Works completely offline</span>
+              <span>Works offline - no internet required</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-1">✓</span>
+              <span>Install like an app for quick daily access</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-1">✓</span>
@@ -87,7 +91,7 @@ const About = () => {
             </div>
 
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Passionate about building practical, user-friendly tools that solve real problems. Currently exploring React, PWAs, and modern web development. Daily Spark is a passion project demonstrating full-stack capabilities.
+              Passionate about building practical, user-friendly tools that solve real problems. Daily Spark demonstrates modern web development with React, TypeScript, and Progressive Web App capabilities.
             </p>
 
             <div className="flex flex-wrap gap-2 pt-2">

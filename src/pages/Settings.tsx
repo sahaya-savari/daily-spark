@@ -230,22 +230,26 @@ const Settings = () => {
           <div className="px-4 py-3 border-b border-border bg-muted/30">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Smartphone className="w-4 h-4" />
-              Widgets
+              Install Daily Spark
             </h2>
           </div>
 
-          <div className="px-4 py-4">
-            <p className="text-sm text-muted-foreground mb-3">
-              Add Daily Spark widgets to your home screen:
+          <div className="px-4 py-4 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Install Daily Spark for quick daily access. Works like a native app on your device.
             </p>
             <ul className="text-sm text-muted-foreground space-y-2">
               <li className="flex items-start gap-2">
-                <span className="text-foreground">iOS:</span>
-                <span>Long-press home screen → Add Widget → Daily Spark</span>
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Tap “Add to Home Screen” in your browser menu</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-foreground">Android:</span>
-                <span>Long-press home screen → Widgets → Daily Spark</span>
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Open from your home screen like any app</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span>Works offline after install</span>
               </li>
             </ul>
           </div>
@@ -384,8 +388,8 @@ const Settings = () => {
         <section className="bg-card border border-border rounded-xl p-4">
           <h2 className="text-sm font-semibold text-foreground mb-2">About Daily Spark</h2>
           <p className="text-sm text-muted-foreground">
-            100% free forever. No ads, no subscriptions, no in-app purchases. 
-            Your data belongs to you.
+            Build consistency, one day at a time. Track your habits with visual streaks. 
+            100% free forever - no ads, no subscriptions, no purchases.
           </p>
           <p className="text-xs text-muted-foreground mt-2">Version 1.0.0</p>
         </section>
@@ -463,11 +467,11 @@ const Settings = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Works completely offline</span>
+                <span>Works offline - no internet required</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
-                <span>Backup and restore your data</span>
+                <span>Installable like a native app</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
