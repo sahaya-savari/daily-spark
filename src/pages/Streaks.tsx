@@ -4,7 +4,8 @@ import { BottomNav } from '@/components/BottomNav';
 import { StreakCard } from '@/components/StreakCard';
 import { EditStreakDialog } from '@/components/EditStreakDialog';
 import { StreakListManager } from '@/components/StreakListManager';
-import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
+import { useStreaksContext } from '@/contexts/StreaksContext';
+import { getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { DEFAULT_LIST_ID } from '@/types/streak';
@@ -20,7 +21,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const StreaksPage = () => {
-  const { streaks, lists, completeStreak, undoStreak, deleteStreak, editStreak, toggleStar, createList, renameList, deleteList, canUndoAction } = useStreaks();
+  const { streaks, lists, completeStreak, undoStreak, deleteStreak, editStreak, toggleStar, createList, renameList, deleteList, canUndoAction } = useStreaksContext();
   const { toast } = useToast();
   const [streakToDelete, setStreakToDelete] = useState<string | null>(null);
   const [editDialogState, setEditDialogState] = useState({ isOpen: false, streakId: null as string | null });

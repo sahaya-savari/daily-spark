@@ -4,25 +4,21 @@ import {
   NotificationSettings,
   getNotificationSettings,
   saveNotificationSettings,
-  requestNotificationPermission,
-  scheduleNotificationCheck,
-  onStreakCompleted,
-  getNotificationStatus,
+  checkNotificationPermission,
+  enableNotifications as enableNotificationsService,
+  disableNotifications as disableNotificationsService,
+  scheduleNotifications,
+  type NotificationPermissionStatus,
 } from '@/services/notificationService';
 
 export const useNotifications = (streaks: Streak[]) => {
   const [settings, setSettings] = useState<NotificationSettings>(getNotificationSettings);
-  const [permissionStatus, setPermissionStatus] = useState(getNotificationStatus);
-
-  // Request permission
-  const requestPermission = useCallback(async () => {
-    const granted = await requestNotificationPermission();
-    setPermissionStatus(getNotificationStatus());
-    if (granted) {
-      updateSettings({ ...settings, enabled: true });
-    }
-    return granted;
-  }, [settings]);
+  const [permissionStatus, setPermissionStatus] = useState<NotificationPermissionStatus>({
+    supported: true,
+    permission: 'prompt',
+    platform: 'web',
+  });
+  const [isBusy, setIsBusy] = useState(false);
 
   // Update settings
   const updateSettings = useCallback((newSettings: NotificationSettings) => {
@@ -30,27 +26,87 @@ export const useNotifications = (streaks: Streak[]) => {
     saveNotificationSettings(newSettings);
   }, []);
 
-  // Handle streak completion
-  const handleStreakCompleted = useCallback((streakId: string) => {
-    onStreakCompleted(streakId);
-  }, []);
-
-  // Set up notification scheduler
+  // Initial permission check on mount
   useEffect(() => {
-    if (!settings.enabled || permissionStatus.permission !== 'granted') {
+    let isMounted = true;
+    const hydratePermission = async () => {
+      const status = await checkNotificationPermission();
+      if (!isMounted) {
+        return;
+      }
+      setPermissionStatus(status);
+      // Sync settings with actual permission state
+      if (status.permission !== 'granted' && settings.enabled) {
+        updateSettings({ ...settings, enabled: false });
+      }
+    };
+
+    hydratePermission();
+    return () => {
+      isMounted = false;
+    };
+  }, [settings, updateSettings]);
+
+  const enableNotifications = useCallback(async () => {
+    if (isBusy) {
+      return false;
+    }
+    setIsBusy(true);
+    try {
+      const granted = await enableNotificationsService(streaks, settings);
+      const status = await checkNotificationPermission();
+      setPermissionStatus(status);
+      if (granted) {
+        updateSettings({ ...settings, enabled: true });
+      } else {
+        updateSettings({ ...settings, enabled: false });
+      }
+      return granted;
+    } finally {
+      setIsBusy(false);
+    }
+  }, [isBusy, settings, streaks, updateSettings]);
+
+  const disableNotifications = useCallback(async () => {
+    if (isBusy) {
       return;
     }
+    setIsBusy(true);
+    try {
+      await disableNotificationsService();
+      updateSettings({ ...settings, enabled: false });
+    } finally {
+      setIsBusy(false);
+    }
+  }, [isBusy, settings, updateSettings]);
 
-    const cleanup = scheduleNotificationCheck(streaks, settings);
-    return cleanup;
+  // When time or enabled state changes, reschedule
+  useEffect(() => {
+    let isMounted = true;
+
+    const reschedule = async () => {
+      if (!isMounted || !settings.enabled || permissionStatus.permission !== 'granted') {
+        return;
+      }
+      // Reschedule with updated settings
+      await scheduleNotifications(streaks, settings);
+    };
+
+    reschedule();
+
+    return () => {
+      isMounted = false;
+    };
   }, [streaks, settings, permissionStatus.permission]);
 
-  // Listen for visibility changes to re-check notifications
+  // Listen for visibility changes to re-check permissions
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Re-check notification status when app becomes visible
-        setPermissionStatus(getNotificationStatus());
+        void (async () => {
+          const status = await checkNotificationPermission();
+          setPermissionStatus(status);
+        })();
       }
     };
 
@@ -61,9 +117,10 @@ export const useNotifications = (streaks: Streak[]) => {
   return {
     settings,
     updateSettings,
-    requestPermission,
     permissionStatus,
-    handleStreakCompleted,
     isEnabled: settings.enabled && permissionStatus.permission === 'granted',
+    enableNotifications,
+    disableNotifications,
+    isBusy,
   };
 };

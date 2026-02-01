@@ -3,13 +3,20 @@ import { Plus, Flame, Star, ChevronDown } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { StreakCard } from '@/components/StreakCard';
 import { EditStreakDialog } from '@/components/EditStreakDialog';
+import { SnoozeDialog } from '@/components/SnoozeDialog';
+import { GraceDialog } from '@/components/GraceDialog';
 import { StatsCards } from '@/components/StatsCards';
 import { EmptyState } from '@/components/EmptyState';
 import { Celebration } from '@/components/Celebration';
 import { BottomNav } from '@/components/BottomNav';
-import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
+import { useStreaksContext } from '@/contexts/StreaksContext';
+import { getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
+import { snoozeStreak } from '@/services/snoozeService';
+import { useWeeklyGrace, useMonthlyGrace, getGraceStatus } from '@/services/graceService';
+import { getTodayFocusEnabled, shouldShowStreakInTodayFocus } from '@/services/focusService';
+import { triggerHapticLight } from '@/services/hapticService';
 import { useModal } from '@/contexts/ModalContext';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_LIST_ID } from '@/types/streak';
@@ -46,7 +53,7 @@ const Index = () => {
     deleteList,
     canUndoAction,
     getStats 
-  } = useStreaks();
+  } = useStreaksContext();
   const { toast } = useToast();
   const { openAddStreak, isAddStreakOpen, setAddStreakOpen } = useModal();
   
@@ -54,6 +61,15 @@ const Index = () => {
   const [editDialogState, setEditDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
   const [showCelebration, setShowCelebration] = useState(false);
   const [streakToDelete, setStreakToDelete] = useState<string | null>(null);
+  const [snoozeDialogState, setSnoozeDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
+  const [graceDialogState, setGraceDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
+  const [todayFocusEnabled, setTodayFocusEnabled] = useState(getTodayFocusEnabled());
+
+  useEffect(() => {
+    const handler = () => setTodayFocusEnabled(getTodayFocusEnabled());
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   // BUG FIX 2: Reset activeListId if current list is deleted
   useEffect(() => {
@@ -109,6 +125,67 @@ const Index = () => {
   const handleCloseEditDialog = useCallback(() => {
     setEditDialogState({ isOpen: false, streakId: null });
   }, []);
+
+  const handleSnooze = useCallback((streakId: string) => {
+    setSnoozeDialogState({ isOpen: true, streakId });
+  }, []);
+
+  const handleConfirmSnooze = useCallback((until: number) => {
+    if (snoozeDialogState.streakId) {
+      snoozeStreak(snoozeDialogState.streakId, until);
+      toast({
+        title: 'Reminder Snoozed',
+        description: 'You\'ll be reminded later',
+        duration: 2000,
+      });
+      setSnoozeDialogState({ isOpen: false, streakId: null });
+    }
+  }, [snoozeDialogState.streakId, toast]);
+
+  const handleUseGrace = useCallback((streakId: string) => {
+    setGraceDialogState({ isOpen: true, streakId });
+  }, []);
+
+  const handleGraceWeekly = useCallback(() => {
+    if (graceDialogState.streakId) {
+      const success = useWeeklyGrace(graceDialogState.streakId);
+      if (success) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        editStreak(graceDialogState.streakId, { lastCompletedDate: yesterdayStr });
+        toast({
+          title: 'Weekly Grace Used',
+          description: 'Streak restored to yesterday',
+          duration: 2000,
+        });
+      }
+      setGraceDialogState({ isOpen: false, streakId: null });
+    }
+  }, [graceDialogState.streakId, editStreak, toast]);
+
+  const handleGraceMonthly = useCallback(() => {
+    if (graceDialogState.streakId) {
+      const success = useMonthlyGrace(graceDialogState.streakId);
+      if (success) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        editStreak(graceDialogState.streakId, { lastCompletedDate: yesterdayStr });
+        toast({
+          title: 'Monthly Grace Used',
+          description: 'Full streak restored',
+          duration: 2000,
+        });
+      }
+      setGraceDialogState({ isOpen: false, streakId: null });
+    }
+  }, [graceDialogState.streakId, editStreak, toast]);
+
+  const handleToggleStar = useCallback((streakId: string) => {
+    toggleStar(streakId);
+    triggerHapticLight();
+  }, [toggleStar]);
 
   const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
     if (editDialogState.streakId) {
@@ -181,17 +258,26 @@ const Index = () => {
       });
     };
 
+    let baseStreaks = streaks;
+    
+    // Apply today focus filter if enabled
+    if (todayFocusEnabled) {
+      baseStreaks = streaks.filter(s => 
+        shouldShowStreakInTodayFocus(s.lastCompletedDate, s.scheduledDate)
+      );
+    }
+
     // Today's streaks (all streaks, sorted)
-    const today = sortStreaks(streaks);
+    const today = sortStreaks(baseStreaks);
 
     // List-filtered streaks
-    const filtered = streaks.filter(
+    const filtered = baseStreaks.filter(
       s => s.listId === activeListId || (!s.listId && activeListId === DEFAULT_LIST_ID)
     );
     const list = sortStreaks(filtered);
 
     return { today, list };
-  }, [streaks, activeListId]);
+  }, [streaks, activeListId, todayFocusEnabled]);
 
   if (isLoading) {
     return (
@@ -234,6 +320,10 @@ const Index = () => {
             <div className="space-y-3">
               {derivedStreaks.today.map((streak, index) => {
                 const undoCheck = canUndoAction(streak.id);
+                const graceStatus = getGraceStatus(streak.id);
+                const showGrace = getStreakStatus(streak) === 'at-risk' && 
+                                  (graceStatus.weeklyAvailable || graceStatus.monthlyAvailable);
+                
                 return (
                   <StreakCard
                     key={streak.id}
@@ -243,7 +333,9 @@ const Index = () => {
                     onUndo={() => handleUndoStreak(streak.id)}
                     onDelete={() => handleDeleteStreak(streak.id)}
                     onEdit={() => handleOpenEditDialog(streak.id)}
-                    onToggleStar={() => toggleStar(streak.id)}
+                    onToggleStar={() => handleToggleStar(streak.id)}
+                    onSnooze={() => handleSnooze(streak.id)}
+                    onUseGrace={showGrace ? () => handleUseGrace(streak.id) : undefined}
                     canUndo={undoCheck.canUndo}
                     index={index}
                   />
@@ -313,7 +405,8 @@ const Index = () => {
                     onUndo={() => handleUndoStreak(streak.id)}
                     onDelete={() => handleDeleteStreak(streak.id)}
                     onEdit={() => handleOpenEditDialog(streak.id)}
-                    onToggleStar={() => toggleStar(streak.id)}
+                    onToggleStar={() => handleToggleStar(streak.id)}
+                    onSnooze={() => handleSnooze(streak.id)}
                     canUndo={undoCheck.canUndo}
                     index={index}
                   />
@@ -374,6 +467,29 @@ const Index = () => {
           existingStreakNames={streaks
             .filter(s => s.id !== editDialogState.streakId)
             .map(s => s.name)}
+        />
+      )}
+
+      {/* Snooze dialog */}
+      {snoozeDialogState.streakId && (
+        <SnoozeDialog
+          isOpen={snoozeDialogState.isOpen}
+          onClose={() => setSnoozeDialogState({ isOpen: false, streakId: null })}
+          onSnooze={handleConfirmSnooze}
+          streakName={streaks.find(s => s.id === snoozeDialogState.streakId)?.name || ''}
+        />
+      )}
+
+      {/* Grace dialog */}
+      {graceDialogState.streakId && (
+        <GraceDialog
+          isOpen={graceDialogState.isOpen}
+          onClose={() => setGraceDialogState({ isOpen: false, streakId: null })}
+          onUseWeekly={handleGraceWeekly}
+          onUseMonthly={handleGraceMonthly}
+          weeklyAvailable={getGraceStatus(graceDialogState.streakId).weeklyAvailable}
+          monthlyAvailable={getGraceStatus(graceDialogState.streakId).monthlyAvailable}
+          streakName={streaks.find(s => s.id === graceDialogState.streakId)?.name || ''}
         />
       )}
 

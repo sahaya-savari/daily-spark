@@ -1,12 +1,12 @@
 import { ArrowLeft, Flame, Calendar, TrendingUp, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useStreaks } from '@/hooks/useStreaks';
+import { useStreaksContext } from '@/contexts/StreaksContext';
 import { BottomNav } from '@/components/BottomNav';
 import { cn } from '@/lib/utils';
 import { formatLocalDate, getDaysAgo } from '@/lib/dateUtils';
 
 const Insights = () => {
-  const { streaks, getStats } = useStreaks();
+  const { streaks, getStats } = useStreaksContext();
   const stats = getStats();
 
   // Calculate weekly data for the chart

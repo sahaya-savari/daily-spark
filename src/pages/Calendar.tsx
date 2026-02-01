@@ -2,13 +2,13 @@ import { useState, useMemo } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
-import { useStreaks } from '@/hooks/useStreaks';
+import { useStreaksContext } from '@/contexts/StreaksContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { formatLocalDate, getTodayDate } from '@/lib/dateUtils';
 
 const CalendarPage = () => {
-  const { streaks } = useStreaks();
+  const { streaks } = useStreaksContext();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const year = currentDate.getFullYear();

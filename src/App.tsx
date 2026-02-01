@@ -6,8 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useViewportHeight } from "@/hooks/useViewportHeight";
 import { ModalProvider } from "@/contexts/ModalContext";
+import { StreaksProvider, useStreaksContext } from "@/contexts/StreaksContext";
 import { AddStreakDialog } from "@/components/AddStreakDialog";
-import { useStreaks } from "@/hooks/useStreaks";
 import { useModal } from "@/contexts/ModalContext";
 import { Reminder } from "@/types/reminder";
 import { initializeAllReminders } from "@/services/reminderService";
@@ -100,7 +100,7 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
 const AppContent = () => {
   const { isAddStreakOpen, closeAddStreak } = useModal();
-  const { streaks, addStreak } = useStreaks();
+  const { streaks, addStreak } = useStreaksContext();
 
   useEffect(() => {
     initializeAllReminders(streaks, () => {});
@@ -142,7 +142,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <ModalProvider>
-          <AppContent />
+          <StreaksProvider>
+            <AppContent />
+          </StreaksProvider>
         </ModalProvider>
       </TooltipProvider>
     </ThemeProvider>

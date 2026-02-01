@@ -38,6 +38,9 @@ Whether you want to track exercise, reading, meditation, or any daily habit, Dai
 
 ## Getting Started
 
+For the best experience, install the Android APK.
+The web version is for preview only.
+
 ### Prerequisites
 - Node.js 18+ and npm/bun
 
@@ -129,6 +132,11 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ## License
 
 Daily Spark is open source and available under the [MIT License](LICENSE). See the LICENSE file for details.
+
+## Legal
+
+- [Terms & Conditions](TERMS.md)
+- [Privacy Policy](PRIVACY.md)
 
 ## Author
 

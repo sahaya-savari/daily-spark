@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Bell, Shield, Smartphone, Download, Upload, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Bell, Shield, Download, Upload, AlertTriangle, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Capacitor } from '@capacitor/core';
 import { BottomNav } from '@/components/BottomNav';
-import { useStreaks } from '@/hooks/useStreaks';
+import { useStreaksContext } from '@/contexts/StreaksContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -30,15 +31,22 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const Settings = () => {
-  const { streaks } = useStreaks();
+  const { streaks } = useStreaksContext();
+  const isNative = Capacitor.isNativePlatform();
   const {
-    settings,
-    updateSettings,
-    requestPermission,
     permissionStatus,
     isEnabled,
+    enableNotifications,
+    disableNotifications,
+    isBusy,
   } = useNotifications(streaks);
   const { toast } = useToast();
+  
+  // Today Focus Mode state
+  const [todayFocusEnabled, setTodayFocusEnabled] = useState(() => {
+    const stored = localStorage.getItem('streakflame_todayFocus');
+    return stored ? JSON.parse(stored) : false;
+  });
   
   // Backup/Restore state
   const [isImporting, setIsImporting] = useState(false);
@@ -47,17 +55,48 @@ const Settings = () => {
   const [lastBackupDate, setLastBackupDate] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  const handleToggleTodayFocus = (checked: boolean) => {
+    setTodayFocusEnabled(checked);
+    localStorage.setItem('streakflame_todayFocus', JSON.stringify(checked));
+    toast({
+      title: checked ? 'Today Focus Enabled' : 'Today Focus Disabled',
+      description: checked ? 'Showing only today\'s tasks' : 'Showing all tasks',
+    });
+  };
+  
   // Load last backup date on mount
   useState(() => {
     setLastBackupDate(getLastBackupDate());
   });
 
   const handleToggleNotifications = async () => {
-    if (permissionStatus.permission !== 'granted') {
-      await requestPermission();
-    } else {
-      updateSettings({ ...settings, enabled: !settings.enabled });
+    if (isBusy) {
+      return;
     }
+
+    if (isEnabled) {
+      await disableNotifications();
+      toast({
+        title: 'Notifications off',
+        description: 'Daily reminders have been disabled. To fully disable notifications, turn them off in Android system settings.',
+      });
+      return;
+    }
+
+    const granted = await enableNotifications();
+    if (!granted) {
+      toast({
+        title: 'Notifications disabled',
+        description: 'Notifications are disabled. Please enable them in Android Settings → Apps → Daily Spark → Notifications.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    toast({
+      title: 'Notifications on',
+      description: 'Daily reminders are enabled.',
+    });
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -184,7 +223,7 @@ const Settings = () => {
           </div>
 
           {/* Enable Notifications */}
-          <div className="flex items-center justify-between px-4 py-4 touch-target">
+          <div className="flex items-center justify-between px-4 py-4 touch-target border-b border-border">
             <div>
               <p className="font-medium text-foreground">Daily Reminders</p>
               <p className="text-sm text-muted-foreground">Get reminded to complete streaks</p>
@@ -192,68 +231,63 @@ const Settings = () => {
             <Switch
               checked={isEnabled}
               onCheckedChange={handleToggleNotifications}
-              disabled={permissionStatus.permission === 'denied'}
+              disabled={isBusy}
             />
           </div>
 
-          {/* Reminder Time */}
-          {isEnabled && (
-            <div className="flex items-center justify-between px-4 py-4 border-t border-border touch-target">
-              <div>
-                <p className="font-medium text-foreground">Reminder Time</p>
-                <p className="text-sm text-muted-foreground">When to send reminders</p>
-              </div>
-              <select
-                value={settings.defaultTime}
-                onChange={handleTimeChange}
-                className="bg-muted border-0 rounded-lg px-3 py-2 text-foreground text-sm"
-                aria-label="Reminder time"
-              >
-                <option value="09:00">9:00 AM</option>
-                <option value="12:00">12:00 PM</option>
-                <option value="18:00">6:00 PM</option>
-                <option value="20:00">8:00 PM</option>
-                <option value="21:00">9:00 PM</option>
-              </select>
+          {/* Today Focus Mode */}
+          <div className="flex items-center justify-between px-4 py-4 touch-target">
+            <div>
+              <p className="font-medium text-foreground flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Today Focus Mode
+              </p>
+              <p className="text-sm text-muted-foreground">Show only today's tasks</p>
+            </div>
+            <Switch
+              checked={todayFocusEnabled}
+              onCheckedChange={handleToggleTodayFocus}
+            />
+          </div>
+
+          {permissionStatus.permission === 'unsupported' && (
+            <div className="px-4 py-3 bg-muted text-sm text-muted-foreground">
+              Notifications are not available on this device.
             </div>
           )}
 
           {permissionStatus.permission === 'denied' && (
             <div className="px-4 py-3 bg-destructive/10 text-sm text-destructive">
-              Notifications are blocked. Enable them in your browser settings.
+              Notifications are disabled. Please enable them in Android Settings → Apps → Daily Spark → Notifications.
             </div>
           )}
         </section>
 
-        {/* Widgets Section */}
-        <section className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-border bg-muted/30">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Smartphone className="w-4 h-4" />
-              Install Daily Spark
-            </h2>
-          </div>
+        {!isNative && (
+          <section className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-border bg-muted/30">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                App Install
+              </h2>
+            </div>
 
-          <div className="px-4 py-4 space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Install Daily Spark for quick daily access. Works like a native app on your device.
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>Tap “Add to Home Screen” in your browser menu</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>Open from your home screen like any app</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>Works offline after install</span>
-              </li>
-            </ul>
-          </div>
-        </section>
+            <div className="px-4 py-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Install Daily Spark for quick access and offline support.
+              </p>
+              <ul className="text-sm text-muted-foreground space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Open from your home screen like any app</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Works offline after install</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+        )}
 
         {/* Backup & Restore Section */}
         <section className="bg-card border border-border rounded-xl overflow-hidden">
@@ -469,10 +503,12 @@ const Settings = () => {
                 <span className="text-primary mt-0.5">✓</span>
                 <span>Works offline - no internet required</span>
               </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>Installable like a native app</span>
-              </li>
+              {!isNative && (
+                <li className="flex items-start gap-2">
+                  <span className="text-primary mt-0.5">✓</span>
+                  <span>Installable like a native app</span>
+                </li>
+              )}
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
                 <span>Customizable reminders and themes</span>
@@ -492,11 +528,11 @@ const Settings = () => {
                 </ul>
               </div>
               <div>
-                <p className="font-medium text-foreground mb-1">UI & PWA</p>
+                <p className="font-medium text-foreground mb-1">UI</p>
                 <ul className="text-muted-foreground space-y-0.5">
                   <li>Tailwind CSS</li>
                   <li>shadcn/ui</li>
-                  <li>Vite PWA</li>
+                  {!isNative && <li>Vite PWA</li>}
                 </ul>
               </div>
             </div>

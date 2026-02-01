@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { EMOJI_OPTIONS } from '@/types/streak';
 import { Reminder } from '@/types/reminder';
-import { requestNotificationPermission, saveReminder } from '@/services/reminderService';
+import { saveReminder } from '@/services/reminderService';
+import { requestNotificationPermission } from '@/services/notificationService';
 import { cn } from '@/lib/utils';
 
 interface AddStreakDialogProps {

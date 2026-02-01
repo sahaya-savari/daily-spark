@@ -21,6 +21,15 @@ export interface Streak {
   listId?: string; // Which list this streak belongs to (default: 'default')
   scheduledDate?: string; // YYYY-MM-DD format, if streak is scheduled for specific date
   scheduledTime?: string; // HH:MM format, if streak is scheduled for specific time
+  // Display customization
+  fontSize?: 'small' | 'medium' | 'large';
+  textAlign?: 'left' | 'center' | 'right';
+  // Snooze feature
+  snoozedUntil?: number; // Unix timestamp
+  // Grace system
+  graceUsedThisWeek?: boolean;
+  graceUsedThisMonth?: string; // ISO date of last monthly grace use
+  lastGraceWeek?: string; // ISO week identifier (YYYY-Www)
 }
 
 export interface StreakList {

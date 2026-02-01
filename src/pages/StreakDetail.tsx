@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { EditStreakDialog } from '@/components/EditStreakDialog';
-import { useStreaks, getStreakStatus } from '@/hooks/useStreaks';
+import { useStreaksContext } from '@/contexts/StreaksContext';
+import { getStreakStatus } from '@/hooks/useStreaks';
 import { getReminder } from '@/services/reminderService';
 import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
@@ -31,7 +32,7 @@ import {
 const StreakDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { streaks, lists, editStreak, completeStreak, undoStreak, deleteStreak, toggleStar, getStreakStatus: getStatus, canUndoAction } = useStreaks();
+  const { streaks, lists, editStreak, completeStreak, undoStreak, deleteStreak, toggleStar, getStreakStatus: getStatus, canUndoAction } = useStreaksContext();
   const { toast } = useToast();
   
   const streak = streaks.find(s => s.id === id);

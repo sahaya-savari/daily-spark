@@ -20,6 +20,7 @@ import {
   scheduleReminder,
   unscheduleReminder,
 } from '@/services/reminderService';
+import { triggerHapticLight, triggerHapticSuccess } from '@/services/hapticService';
 
 const STORAGE_KEY = 'streakflame_streaks';
 const LISTS_STORAGE_KEY = 'streakflame_lists';
@@ -165,6 +166,8 @@ export const useStreaks = () => {
       }
       
       wasCompleted = true;
+      triggerHapticSuccess(); // Haptic feedback on completion
+      
       const yesterday = getYesterdayDate();
       
       // RECORD ACTION: Save current state before modifying
@@ -241,7 +244,7 @@ export const useStreaks = () => {
   }, []);
 
   // Edit a streak
-  const editStreak = useCallback((id: string, updates: Partial<Pick<Streak, 'name' | 'emoji' | 'color' | 'notes' | 'description' | 'isStarred' | 'listId' | 'scheduledDate' | 'scheduledTime'>>) => {
+  const editStreak = useCallback((id: string, updates: Partial<Pick<Streak, 'name' | 'emoji' | 'color' | 'notes' | 'description' | 'isStarred' | 'listId' | 'scheduledDate' | 'scheduledTime' | 'fontSize' | 'textAlign'>>) => {
     setStreaks(prev => prev.map(streak => 
       streak.id === id ? { ...streak, ...updates } : streak
     ));

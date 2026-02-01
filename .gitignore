@@ -27,3 +27,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android
+.gradle
+android/app/build
+android/build
+android/local.properties
+
+# Android Signing (SENSITIVE - NEVER COMMIT)
+*.jks
+*.keystore
+android/keystore.properties
+android/app/release-key.jks
+android/release-key.jks
+
+# APKs (built artifacts only)
+*.apk
+*.aab
+android/app/build/outputs/

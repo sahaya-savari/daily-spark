@@ -1,32 +1,49 @@
+import { Capacitor } from '@capacitor/core';
 import { Reminder } from '@/types/reminder';
 
 const REMINDERS_KEY = 'streakflame_reminders';
-const REMINDER_PERMISSION_KEY = 'streakflame_reminder_permission_requested';
 
 let scheduledReminders = new Map<string, NodeJS.Timeout>();
 
-export const requestNotificationPermission = async (): Promise<boolean> => {
-  if (!('Notification' in window)) {
+const getPlatform = () => Capacitor.getPlatform();
+const isNativePlatform = () => getPlatform() !== 'web';
+const isAndroid = () => getPlatform() === 'android';
+
+const getGlobalNotificationsEnabled = (): boolean => {
+  try {
+    const stored = localStorage.getItem('streakflame_notifications');
+    if (!stored) {
+      return false;
+    }
+    const parsed = JSON.parse(stored) as { enabled?: boolean };
+    return Boolean(parsed.enabled);
+  } catch (error) {
     return false;
   }
-
-  if (Notification.permission === 'granted') {
-    return true;
-  }
-
-  if (Notification.permission === 'denied') {
-    return false;
-  }
-
-  const permission = await Notification.requestPermission();
-  return permission === 'granted';
 };
 
-export const hasNotificationPermission = (): boolean => {
-  if (!('Notification' in window)) {
-    return false;
+// Cancel native notifications for a specific streak
+const cancelNativeNotificationsForStreak = async (streakId: string): Promise<void> => {
+  if (!isAndroid()) {
+    return;
   }
-  return Notification.permission === 'granted';
+
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications');
+    const pending = await LocalNotifications.getPending();
+    const toCancel = pending.notifications.filter(n => n.extra?.streakId === streakId);
+    
+    if (toCancel.length === 0) {
+      return;
+    }
+
+    await LocalNotifications.cancel({
+      notifications: toCancel.map(n => ({ id: n.id }))
+    });
+    console.log('[Reminder] Cancelled', toCancel.length, 'notifications for streak:', streakId);
+  } catch (error) {
+    console.error('[Reminder] Failed to cancel notifications:', error);
+  }
 };
 
 export const calculateNextReminderTime = (
@@ -63,12 +80,17 @@ export const calculateNextReminderTime = (
   return nextDate.getTime();
 };
 
+// Fire web notification (web platform only)
 export const fireNotification = (
   streakName: string,
   streakEmoji: string,
   description: string
 ): void => {
-  if (!hasNotificationPermission()) {
+  if (isNativePlatform()) {
+    return; // Native notifications are handled by notificationService
+  }
+
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
     return;
   }
 
@@ -92,6 +114,8 @@ export const fireNotification = (
   }
 };
 
+// Schedule reminder - only for web platform
+// Android reminders are handled by notificationService.scheduleNotifications()
 export const scheduleReminder = (
   streakId: string,
   streakName: string,
@@ -100,6 +124,16 @@ export const scheduleReminder = (
   onFire: () => void
 ): void => {
   if (!reminder.enabled) {
+    return;
+  }
+
+  if (!getGlobalNotificationsEnabled()) {
+    return;
+  }
+
+  if (isAndroid()) {
+    // Android notifications are handled by notificationService
+    // This function is only for web platform timers
     return;
   }
 
@@ -137,7 +171,14 @@ export const scheduleReminder = (
   scheduledReminders.set(streakId, timeoutId);
 };
 
+// Unschedule reminder
 export const unscheduleReminder = (streakId: string): void => {
+  if (isAndroid()) {
+    // Cancel via Capacitor
+    void cancelNativeNotificationsForStreak(streakId);
+    return;
+  }
+
   const timeoutId = scheduledReminders.get(streakId);
   if (timeoutId) {
     clearTimeout(timeoutId);
@@ -145,14 +186,17 @@ export const unscheduleReminder = (streakId: string): void => {
   }
 };
 
+// Save reminder to localStorage
 export const saveReminder = (streakId: string, reminder: Reminder): void => {
   const reminders: Record<string, Reminder> = JSON.parse(
     localStorage.getItem(REMINDERS_KEY) || '{}'
   );
   reminders[streakId] = reminder;
   localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
+  console.log('[Reminder] Saved reminder for streak:', streakId);
 };
 
+// Get reminder from localStorage
 export const getReminder = (streakId: string): Reminder | null => {
   const reminders: Record<string, Reminder> = JSON.parse(
     localStorage.getItem(REMINDERS_KEY) || '{}'
@@ -160,6 +204,7 @@ export const getReminder = (streakId: string): Reminder | null => {
   return reminders[streakId] || null;
 };
 
+// Delete reminder from localStorage
 export const deleteReminder = (streakId: string): void => {
   const reminders: Record<string, Reminder> = JSON.parse(
     localStorage.getItem(REMINDERS_KEY) || '{}'
@@ -167,17 +212,23 @@ export const deleteReminder = (streakId: string): void => {
   delete reminders[streakId];
   localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
   unscheduleReminder(streakId);
+  console.log('[Reminder] Deleted reminder for streak:', streakId);
 };
 
+// Initialize all reminders (web platform only)
 export const initializeAllReminders = (
   streaks: Array<{
     id: string;
     name: string;
     emoji: string;
-    currentStreak?: number;
   }>,
   onReminderFire: (streakId: string) => void
 ): void => {
+  if (isAndroid()) {
+    // Android reminders are initialized by notificationService
+    return;
+  }
+
   const reminders: Record<string, Reminder> = JSON.parse(
     localStorage.getItem(REMINDERS_KEY) || '{}'
   );
@@ -196,9 +247,15 @@ export const initializeAllReminders = (
   });
 };
 
+// Clear all reminders
 export const clearAllReminders = (): void => {
+  // Cancel web platform timers
   scheduledReminders.forEach((timeoutId) => {
     clearTimeout(timeoutId);
   });
   scheduledReminders.clear();
+
+  // Note: Android notifications are cancelled by notificationService
+  console.log('[Reminder] Cleared all reminders');
 };
+

@@ -13,4 +13,7 @@ export interface ScheduledReminder {
   description: string;
   nextFireTime: number;
   timeoutId: NodeJS.Timeout | null;
+  isSnoozed?: boolean;
 }
+
+export type SnoozeOption = '30min' | '1hour' | 'tomorrow' | 'custom';

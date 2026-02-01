@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { EMOJI_OPTIONS, Streak, StreakList } from '@/types/streak';
 import { Reminder } from '@/types/reminder';
-import { requestNotificationPermission, getReminder } from '@/services/reminderService';
+import { getReminder } from '@/services/reminderService';
+import { requestNotificationPermission } from '@/services/notificationService';
 import { cn } from '@/lib/utils';
 
 interface EditStreakDialogProps {
@@ -16,6 +17,8 @@ interface EditStreakDialogProps {
     description: string;
     listId: string;
     isStarred: boolean;
+    fontSize?: 'small' | 'medium' | 'large';
+    textAlign?: 'left' | 'center' | 'right';
     reminder?: Reminder;
   }) => void;
   streak: Streak;
@@ -31,6 +34,8 @@ export const EditStreakDialog = ({ isOpen, onClose, onSave, streak, lists, exist
   const [description, setDescription] = useState(streak.description || '');
   const [selectedListId, setSelectedListId] = useState(streak.listId || 'default');
   const [isStarred, setIsStarred] = useState(streak.isStarred || false);
+  const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>(streak.fontSize || 'medium');
+  const [textAlign, setTextAlign] = useState<'left' | 'center' | 'right'>(streak.textAlign || 'left');
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState('09:00');
   const [repeatType, setRepeatType] = useState<'daily' | 'custom'>('daily');
@@ -70,6 +75,8 @@ export const EditStreakDialog = ({ isOpen, onClose, onSave, streak, lists, exist
       setDescription(streak.description || '');
       setSelectedListId(streak.listId || 'default');
       setIsStarred(streak.isStarred || false);
+      setFontSize(streak.fontSize || 'medium');
+      setTextAlign(streak.textAlign || 'left');
     }
   }, [isOpen, streak]);
 
@@ -132,11 +139,11 @@ export const EditStreakDialog = ({ isOpen, onClose, onSave, streak, lists, exist
       name: trimmedName,
       emoji: selectedEmoji,
       description,
-      listId: selectedListId,
-      isStarred,
+      fontSize,
+      textAlign,
       reminder,
     });
-  }, [name, isDuplicate, selectedEmoji, description, selectedListId, isStarred, reminderEnabled, reminderTime, repeatType, repeatDays, onSave]);
+  }, [name, isDuplicate, selectedEmoji, description, selectedListId, isStarred, fontSize, textAlign, reminderEnabled, reminderTime, repeatType, repeatDays, onSave]);
 
   const handleEmojiSelect = useCallback((emoji: string) => {
     setSelectedEmoji(emoji);
@@ -329,6 +336,54 @@ export const EditStreakDialog = ({ isOpen, onClose, onSave, streak, lists, exist
                       Star this streak (pin to top)
                     </span>
                   </label>
+                </div>
+
+                {/* Font Size */}
+                <div>
+                  <label htmlFor="font-size" className="text-sm font-medium text-muted-foreground mb-3 block">
+                    Font Size
+                  </label>
+                  <div className="flex gap-2">
+                    {(['small', 'medium', 'large'] as const).map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => setFontSize(size)}
+                        className={cn(
+                          "flex-1 h-12 rounded-xl text-sm font-medium transition-all",
+                          fontSize === size
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        )}
+                      >
+                        {size.charAt(0).toUpperCase() + size.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Text Alignment */}
+                <div>
+                  <label htmlFor="text-align" className="text-sm font-medium text-muted-foreground mb-3 block">
+                    Text Alignment
+                  </label>
+                  <div className="flex gap-2">
+                    {(['left', 'center', 'right'] as const).map((align) => (
+                      <button
+                        key={align}
+                        type="button"
+                        onClick={() => setTextAlign(align)}
+                        className={cn(
+                          "flex-1 h-12 rounded-xl text-sm font-medium transition-all",
+                          textAlign === align
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        )}
+                      >
+                        {align.charAt(0).toUpperCase() + align.slice(1)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Reminder Section */}
