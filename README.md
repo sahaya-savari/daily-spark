@@ -1,10 +1,17 @@
 # 🌟 Daily Spark 🔥  
 ### Build habits. Stay consistent. Spark progress every day.
 
-🌐 **Live App:** https://daily-spark-app-da74b.web.app
-🔓 **Open Source:** Yes (MIT License)  
-📱 **Type:** Progressive Web App (PWA)  
-🤖 **Built with AI assistance + human decision-making**
+🌐 **Live App:**  
+https://daily-spark-app-da74b.web.app
+
+📦 **Type:**  
+Progressive Web App (PWA)
+
+🔓 **Open Source:**  
+Yes (MIT License)
+
+🤖 **Built with:**  
+AI assistance + human decision-making
 
 ---
 
