@@ -53,7 +53,7 @@ Perfect for tracking:
 
 Try it now (no signup required):
 
-👉 https://daily-spark.web.app
+👉 https://daily-spark-app-da74b.web.app
 
 Installable on:
 - 📱 Android & iOS  
