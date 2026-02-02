@@ -1,7 +1,7 @@
 # 🌟 Daily Spark 🔥  
 ### Build habits. Stay consistent. Spark progress every day.
 
-🌐 **Live App:** https://daily-spark.web.app  
+🌐 **Live App:** https://daily-spark-app-da74b.web.app  
 🔓 **Open Source:** Yes (MIT License)  
 📱 **Type:** Progressive Web App (PWA)  
 🤖 **Built with AI assistance + human decision-making**
@@ -53,7 +53,7 @@ Perfect for tracking:
 
 Try it now (no signup required):
 
-👉 https://daily-spark.web.app
+👉 https://daily-spark-app-da74b.web.app
 
 Installable on:
 - 📱 Android & iOS  
@@ -206,8 +206,7 @@ Free to use, learn from, and modify.
 🎓 Student & Full-Stack Developer  
 
 GitHub: https://github.com/sahaya-savari  
-Live App: https://daily-spark.web.app  
-
+Live App: https://daily-spark-app-da74b.web.app 
 ---
 
 🌱 *Daily Spark is about small actions, done daily, creating meaningful change.*

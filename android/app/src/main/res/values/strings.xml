@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Daily Spark</string>
     <string name="title_activity_main">Daily Spark</string>
-    <string name="package_name">com.santhosh.dailyspark</string>
-    <string name="custom_url_scheme">com.santhosh.dailyspark</string>
+    <string name="package_name">com.santhosh.dailyspark2</string>
+    <string name="custom_url_scheme">com.santhosh.dailyspark2</string>
 </resources>
