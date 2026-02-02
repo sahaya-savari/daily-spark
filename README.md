@@ -60,7 +60,7 @@ Perfect for tracking:
 
 Try it now (no signup required):
 
-👉 https://daily-spark-app-da74b.web.app
+👉 https://bit.ly/dailyspark-app
 
 Installable on:
 - 📱 Android & iOS  
@@ -213,7 +213,7 @@ Free to use, learn from, and modify.
 🎓 Student & Full-Stack Developer  
 
 GitHub: https://github.com/sahaya-savari  
-Live App: https://daily-spark-app-da74b.web.app 
+Live App: https://bit.ly/dailyspark-app 
 <<<<<<< HEAD
 =======
 
