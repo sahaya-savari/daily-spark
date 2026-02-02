@@ -213,7 +213,7 @@ Free to use, learn from, and modify.
 🎓 Student & Full-Stack Developer  
 
 GitHub: https://github.com/sahaya-savari  
-Live App: https://daily-spark.web.app  
+Live App: https://daily-spark-app-da74b.web.app 
 
 ---
 
