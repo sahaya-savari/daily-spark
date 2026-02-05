@@ -20,6 +20,19 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Create Android debug keystore
+        run: |
+          mkdir -p ~/.android
+          keytool -genkeypair \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
