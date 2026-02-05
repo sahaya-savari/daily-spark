@@ -134,7 +134,7 @@ export const downloadBackup = async (): Promise<void> => {
     if (error instanceof Error) {
       throw error;
     }
-    throw new Error('Failed to create backup file. Please try again.');
+    throw new Error(`Failed to create backup file: ${String(error)}`);
   }
 };
 
