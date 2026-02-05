@@ -69,8 +69,9 @@ export const createBackup = (): BackupData => {
 /**
  * Download backup as JSON file
  * ✅ ANDROID / MOBILE SAFE
+ * Uses Web Share API for mobile, fallback to anchor download for desktop
  */
-export const downloadBackup = (): void => {
+export const downloadBackup = async (): Promise<void> => {
   try {
     const backup = createBackup();
     const today = getTodayDate();
@@ -78,8 +79,39 @@ export const downloadBackup = (): void => {
 
     const json = JSON.stringify(backup, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
 
+    // Validate size (5 MB max)
+    if (blob.size > 5 * 1024 * 1024) {
+      throw new Error('Backup file is too large (max 5 MB).');
+    }
+
+    // Try Web Share API first (mobile/Android)
+    if (navigator.share && navigator.canShare) {
+      const file = new File([blob], filename, { type: 'application/json' });
+      
+      // Check if sharing files is supported
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Daily Spark Backup',
+            text: 'Export your Daily Spark data',
+          });
+          saveLastBackupTimestamp();
+          return;
+        } catch (error) {
+          // User cancelled or share failed, fall through to anchor download
+          if (error instanceof Error && error.name === 'AbortError') {
+            // User cancelled, don't throw error
+            return;
+          }
+          // Fall through to anchor download on other errors
+        }
+      }
+    }
+
+    // Fallback: anchor download (desktop)
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -87,7 +119,7 @@ export const downloadBackup = (): void => {
 
     document.body.appendChild(link);
 
-    // IMPORTANT: delayed click + delayed revoke (Android requirement)
+    // Delayed click + delayed revoke for compatibility
     setTimeout(() => {
       link.click();
 
@@ -98,7 +130,10 @@ export const downloadBackup = (): void => {
     }, 100);
 
     saveLastBackupTimestamp();
-  } catch {
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to create backup file. Please try again.');
   }
 };

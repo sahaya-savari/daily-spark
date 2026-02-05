@@ -104,9 +104,9 @@ const Settings = () => {
   };
   
   // Export backup
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      downloadBackup();
+      await downloadBackup();
       // Update last backup date immediately
       setLastBackupDate(getLastBackupDate());
       toast({
