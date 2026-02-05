@@ -1,4 +1,12 @@
-# 📋 PHASE 1 QUICK START GUIDE
+# ⚠️ LEGACY DOCUMENT — NOT USED
+
+> **This document is an archived planning draft from early Phase-1 ideation.**  
+> **The actual implementation evolved differently.**  
+> **For accurate Phase-1 status, see [PHASE1_FINAL.md](PHASE1_FINAL.md)**
+
+---
+
+# 📋 PHASE 1 QUICK START GUIDE (ARCHIVED)
 
 ## TL;DR: What We're Building
 
