@@ -30,6 +30,12 @@ android {
         keyPassword "android"
     }
     
+    release {
+        storeFile file(keystoreProperties['storeFile'] ?: "release-key.jks")
+        storePassword keystoreProperties['storePassword']
+        keyAlias keystoreProperties['keyAlias']
+        keyPassword keystoreProperties['keyPassword']
+    }
     }
     buildTypes {
     debug {
@@ -37,6 +43,19 @@ android {
         minifyEnabled false
         shrinkResources false
     }
+    release {
+        signingConfig signingConfigs.release
+        minifyEnabled false
+        shrinkResources false
+    }
+    }
+    splits {
+        abi {
+            enable false
+        }
+        density {
+            enable false
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

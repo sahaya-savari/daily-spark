@@ -1,13 +1,10 @@
-# 🌟 Daily Spark 🔥  
+# 🌟 Daily Spark 🔥
 ### Build habits. Stay consistent. Spark progress every day.
 
-🌐 **Live App:**     https://bit.ly/dailyspark-app 
-
-📦 **Type:**         Progressive Web App (PWA)
-
-🔓 **Open Source:**  Yes (MIT License)
-
-🤖 **Built with:**   AI assistance + human decision-making
+🌐 **Live App:** https://bit.ly/dailyspark-app  
+📦 **Type:** Progressive Web App (PWA) + Android APK  
+🔓 **Open Source:** Yes (MIT License)  
+🤖 **Built with:** AI assistance + human decision-making  
 
 ---
 
@@ -42,13 +39,30 @@ Perfect for tracking:
 
 - 🌱 **Multiple Streaks** — Track many habits at once  
 - 😀 **Emoji-Based Habits** — Make habits fun and personal  
-- 📅 **Calendar View** — See your progress visually  
+- 📅 **Calendar View** — Visual progress tracking  
 - 📴 **Offline-First** — Works without internet  
 - 💾 **Local Data Storage** — Your data stays on your device  
 - 🔄 **Backup & Restore** — Export / import anytime  
-- 🔔 **Reminders** — Browser notifications (where supported)  
+- 📄 **CSV Export** — Share or analyze streak configurations  
+- 🔔 **Reminders** — Notifications (where supported)  
 - 🌙 **Dark Mode** — Easy on the eyes  
 - 📲 **PWA Support** — Install like a native app  
+- 📲 **PWA Support** — Install like a native app  
+
+---
+
+## 🚀 Recent Updates & Improvements (v1.0.x)
+
+Daily Spark is actively developed with a focus on **stability, portability, and real-world usability**.
+
+### ✅ v1.0.3 — Backup & Portability Update
+- 🔄 Full JSON backup & restore  
+- 🧱 Atomic import with rollback protection  
+- 📄 CSV export for streak configurations  
+- 📦 Universal Android APK (single file, no splits)  
+- 📱 Supports Android 8 – Android 15  
+- 🛠️ Java 17 compatible, signed release builds  
+- ❌ No feature or data changes (build-only update)  
 
 ---
 
@@ -59,7 +73,8 @@ Try it now (no signup required):
 👉 https://bit.ly/dailyspark-app
 
 Installable on:
-- 📱 Android & iOS  
+- 📱 Android  
+- 📱 iOS (PWA)  
 - 💻 Windows, macOS & Linux  
 
 ---
@@ -137,40 +152,48 @@ Safe for:
 
 ### 🔧 Installation
 
-    git clone https://github.com/sahaya-savari/daily-spark.git
-    cd daily-spark
-    npm install
+```bash
+git clone https://github.com/sahaya-savari/daily-spark.git
+cd daily-spark
+npm install
+```
 
 ### 🧪 Run Locally
 
-    npm run dev
+```bash
+npm run dev
+```
 
 Open: http://localhost:8080
 
 ### 📦 Production Build
 
-    npm run build
-    npm run preview
+```bash
+npm run build
+npm run preview
+```
 
 ---
 
 ## 📁 Project Structure
 
-    daily-spark/
-    ├── src/
-    │   ├── pages/
-    │   ├── components/
-    │   ├── hooks/
-    │   ├── services/
-    │   ├── contexts/
-    │   ├── types/
-    │   ├── lib/
-    │   └── App.tsx
-    ├── public/
-    ├── index.html
-    ├── package.json
-    ├── vite.config.ts
-    └── README.md
+```
+daily-spark/
+├── src/
+│   ├── pages/
+│   ├── components/
+│   ├── hooks/
+│   ├── services/
+│   ├── contexts/
+│   ├── types/
+│   ├── lib/
+│   └── App.tsx
+├── public/
+├── index.html
+├── package.json
+├── vite.config.ts
+└── README.md
+```
 
 ---
 
@@ -188,7 +211,6 @@ Open: http://localhost:8080
 
 Contributions are welcome 🙌
 
-Basic steps:
 1. Fork the repository  
 2. Create a new branch  
 3. Make your changes  
