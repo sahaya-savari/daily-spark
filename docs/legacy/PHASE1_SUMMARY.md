@@ -1,4 +1,12 @@
-# 🎯 PHASE 1 EXECUTIVE SUMMARY
+# ⚠️ LEGACY DOCUMENT — NOT USED
+
+> **This document is an archived planning draft from early Phase-1 ideation.**  
+> **The actual implementation evolved differently.**  
+> **For accurate Phase-1 status, see [PHASE1_FINAL.md](PHASE1_FINAL.md)**
+
+---
+
+# 🎯 PHASE 1 EXECUTIVE SUMMARY (ARCHIVED)
 
 ## The Ask
 Extend Daily Spark with Google Tasks-style simplicity + streak-focused power features.
