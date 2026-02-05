@@ -1,24 +1,12 @@
 /**
  * Backup & Restore Service
- * 
+ *
  * Provides local-first export/import functionality for Daily Spark.
  * - Exports all localStorage data to a downloadable JSON file
  * - Imports and validates backup files
  * - No backend, no auth, 100% client-side
- * 
+ *
  * File Format: daily-spark-backup-YYYY-MM-DD.json
- * 
- * Backup Structure:
- * {
- *   version: "1.0.0",
- *   exportDate: "2026-01-31T12:00:00.000Z",
- *   data: {
- *     streaks: [...],
- *     actionHistory: [...],
- *     notifications: {...},
- *     settings: {...}
- *   }
- * }
  */
 
 import { getTodayDate } from '@/lib/dateUtils';
@@ -33,7 +21,7 @@ const STORAGE_KEYS = {
   SENT_REMINDERS: 'streakflame_sent_reminders',
 } as const;
 
-// Key for storing last backup timestamp (not included in backup itself)
+// Key for storing last backup timestamp
 const LAST_BACKUP_KEY = 'streakflame_last_backup';
 
 /**
@@ -66,19 +54,11 @@ export const createBackup = (): BackupData => {
     data: {},
   };
 
-  // Collect all data from localStorage
-  Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
+  Object.values(STORAGE_KEYS).forEach((key) => {
     try {
       const value = localStorage.getItem(key);
-      if (value) {
-        // Parse to validate it's valid JSON
-        backup.data[key] = JSON.parse(value);
-      } else {
-        // Store null if key doesn't exist (new users might not have all keys)
-        backup.data[key] = null;
-      }
-    } catch (error) {
-      // Silently fail - store the raw value if JSON parse fails
+      backup.data[key] = value ? JSON.parse(value) : null;
+    } catch {
       backup.data[key] = localStorage.getItem(key);
     }
   });
@@ -88,34 +68,37 @@ export const createBackup = (): BackupData => {
 
 /**
  * Download backup as JSON file
+ * ✅ ANDROID / MOBILE SAFE
  */
 export const downloadBackup = (): void => {
   try {
     const backup = createBackup();
     const today = getTodayDate();
     const filename = `daily-spark-backup-${today}.json`;
-    
-    // Convert to pretty JSON
+
     const json = JSON.stringify(backup, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
-    // Create temporary download link
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    link.style.display = 'none';
+
     document.body.appendChild(link);
-    link.click();
-    
-    // Cleanup
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    
-    // Save timestamp of successful backup
+
+    // IMPORTANT: delayed click + delayed revoke (Android requirement)
+    setTimeout(() => {
+      link.click();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 1000);
+    }, 100);
+
     saveLastBackupTimestamp();
-    
-    // Backup downloaded successfully
-  } catch (error) {
+  } catch {
     throw new Error('Failed to create backup file. Please try again.');
   }
 };
@@ -125,212 +108,117 @@ export const downloadBackup = (): void => {
  */
 export const validateBackup = (backup: unknown): ValidationResult => {
   const warnings: string[] = [];
-  
-  // Check if it's an object
+
   if (!backup || typeof backup !== 'object') {
-    return {
-      valid: false,
-      error: 'Invalid backup file format. Expected JSON object.',
-    };
+    return { valid: false, error: 'Invalid backup format.' };
   }
-  
+
   const data = backup as Partial<BackupData>;
-  
-  // Check required fields
+
   if (!data.version) {
-    return {
-      valid: false,
-      error: 'Missing version information. This may not be a Daily Spark backup file.',
-    };
+    return { valid: false, error: 'Missing backup version.' };
   }
-  
-  if (!data.exportDate) {
-    warnings.push('Export date missing. File may be corrupted.');
-  }
-  
+
   if (!data.data || typeof data.data !== 'object') {
-    return {
-      valid: false,
-      error: 'Missing or invalid data section. File may be corrupted.',
-    };
+    return { valid: false, error: 'Invalid backup data.' };
   }
-  
-  // Check version compatibility
-  const [majorVersion] = data.version.split('.');
+
+  const [major] = data.version.split('.');
   const [currentMajor] = BACKUP_VERSION.split('.');
-  
-  if (majorVersion !== currentMajor) {
-    warnings.push(
-      `Backup version (${data.version}) differs from current version (${BACKUP_VERSION}). ` +
-      'Import may fail or cause issues.'
-    );
+
+  if (major !== currentMajor) {
+    warnings.push('Backup version mismatch.');
   }
-  
-  // Check if backup has any recognizable data
-  const hasStreaks = STORAGE_KEYS.STREAKS in data.data;
-  const hasActionHistory = STORAGE_KEYS.ACTION_HISTORY in data.data;
-  
-  if (!hasStreaks && !hasActionHistory) {
-    warnings.push('Backup appears to be empty or missing streak data.');
-  }
-  
-  return {
-    valid: true,
-    warnings: warnings.length > 0 ? warnings : undefined,
-  };
+
+  return { valid: true, warnings: warnings.length ? warnings : undefined };
 };
 
 /**
- * Restore backup data to localStorage
- * CAUTION: This will overwrite all existing data!
+ * Restore backup data
  */
 export const restoreBackup = (backup: BackupData): void => {
+  const validation = validateBackup(backup);
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Invalid backup');
+  }
+
+  const rollback: Record<string, string | null> = {};
+  Object.values(STORAGE_KEYS).forEach((key) => {
+    rollback[key] = localStorage.getItem(key);
+  });
+
   try {
-    // First, validate the backup
-    const validation = validateBackup(backup);
-    if (!validation.valid) {
-      throw new Error(validation.error || 'Invalid backup file');
-    }
-    
-    // Create a backup of current data (in case restore fails)
-    const currentBackup: Record<string, string | null> = {};
-    Object.values(STORAGE_KEYS).forEach(key => {
-      currentBackup[key] = localStorage.getItem(key);
+    Object.entries(backup.data).forEach(([key, value]) => {
+      if (value === null) {
+        localStorage.removeItem(key);
+      } else {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
     });
-    
-    try {
-      // Clear existing data and restore from backup
-      Object.entries(backup.data).forEach(([key, value]) => {
-        if (value === null || value === undefined) {
-          // Remove key if backup has null
-          localStorage.removeItem(key);
-        } else {
-          // Store as JSON string
-          localStorage.setItem(key, JSON.stringify(value));
-        }
-      });
-      
-      // Backup restored successfully
-    } catch (error) {
-      // Restore failed, rollback to previous state (silently)
-      Object.entries(currentBackup).forEach(([key, value]) => {
-        if (value === null) {
-          localStorage.removeItem(key);
-        } else {
-          localStorage.setItem(key, value);
-        }
-      });
-      throw new Error('Failed to restore backup. Your data has not been changed.');
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to restore backup. Please check the file and try again.');
+  } catch {
+    Object.entries(rollback).forEach(([key, value]) => {
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, value);
+    });
+    throw new Error('Restore failed. Data rolled back.');
   }
 };
 
 /**
- * Read and parse backup file
+ * Read backup file
  */
-export const readBackupFile = (file: File): Promise<BackupData> => {
-  return new Promise((resolve, reject) => {
-    // Validate file type
-    if (!file.type.includes('json') && !file.name.endsWith('.json')) {
-      reject(new Error('Invalid file type. Please select a JSON backup file.'));
+export const readBackupFile = (file: File): Promise<BackupData> =>
+  new Promise((resolve, reject) => {
+    if (!file.name.endsWith('.json')) {
+      reject(new Error('Invalid file type'));
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      reject(new Error('File is too large. Maximum size is 5MB.'));
+      reject(new Error('File too large'));
       return;
     }
 
     const reader = new FileReader();
-    
-    reader.onload = (event) => {
+
+    reader.onload = () => {
       try {
-        const content = event.target?.result as string;
-        if (!content) {
-          reject(new Error('Backup file is empty.'));
-          return;
-        }
-        const backup = JSON.parse(content);
-        resolve(backup);
-      } catch (error) {
-        if (error instanceof SyntaxError) {
-          reject(new Error('Invalid JSON format. This may not be a valid backup file.'));
-        } else {
-          reject(new Error('Failed to parse backup file. File may be corrupted.'));
-        }
+        resolve(JSON.parse(reader.result as string));
+      } catch {
+        reject(new Error('Invalid JSON'));
       }
     };
-    
-    reader.onerror = () => {
-      reject(new Error('Failed to read backup file. Please try again.'));
-    };
-    
+
+    reader.onerror = () => reject(new Error('File read failed'));
     reader.readAsText(file);
   });
-};
 
 /**
- * Get backup statistics (for display)
+ * Backup statistics
  */
-export const getBackupStats = (backup: BackupData): {
-  streakCount: number;
-  actionCount: number;
-  exportDate: string;
-} => {
-  try {
-    const streaks = backup.data[STORAGE_KEYS.STREAKS] as Array<unknown> | null;
-    const actions = backup.data[STORAGE_KEYS.ACTION_HISTORY] as Array<unknown> | null;
-    
-    return {
-      streakCount: Array.isArray(streaks) ? streaks.length : 0,
-      actionCount: Array.isArray(actions) ? actions.length : 0,
-      exportDate: new Date(backup.exportDate).toLocaleDateString(),
-    };
-  } catch (error) {
-    return {
-      streakCount: 0,
-      actionCount: 0,
-      exportDate: 'Unknown',
-    };
-  }
+export const getBackupStats = (backup: BackupData) => {
+  const streaks = backup.data[STORAGE_KEYS.STREAKS] as unknown[];
+  const actions = backup.data[STORAGE_KEYS.ACTION_HISTORY] as unknown[];
+
+  return {
+    streakCount: Array.isArray(streaks) ? streaks.length : 0,
+    actionCount: Array.isArray(actions) ? actions.length : 0,
+    exportDate: new Date(backup.exportDate).toLocaleDateString(),
+  };
 };
 
 /**
- * Save timestamp of last successful backup
- * Called automatically after downloadBackup() succeeds
+ * Save last backup timestamp
  */
 const saveLastBackupTimestamp = (): void => {
-  try {
-    const timestamp = new Date().toISOString();
-    localStorage.setItem(LAST_BACKUP_KEY, timestamp);
-  } catch (error) {
-    // Silently fail - backup timestamp is optional
-  }
+  localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString());
 };
 
 /**
- * Get the last backup date (for display in UI)
- * Returns formatted date string or null if no backup exists
+ * Get last backup date
  */
 export const getLastBackupDate = (): string | null => {
-  try {
-    const timestamp = localStorage.getItem(LAST_BACKUP_KEY);
-    if (!timestamp) return null;
-    
-    const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch (error) {
-    // Silently fail - return null
-    return null;
-  }
+  const ts = localStorage.getItem(LAST_BACKUP_KEY);
+  if (!ts) return null;
+  return new Date(ts).toLocaleDateString();
 };
