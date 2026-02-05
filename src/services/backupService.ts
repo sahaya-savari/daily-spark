@@ -68,9 +68,9 @@ export const createBackup = (): BackupData => {
 
 /**
  * Download backup as JSON file
- * ✅ ANDROID / MOBILE SAFE
+ * ✅ ANDROID / MOBILE SAFE - Uses Web Share API when available
  */
-export const downloadBackup = (): void => {
+export const downloadBackup = async (): Promise<void> => {
   try {
     const backup = createBackup();
     const today = getTodayDate();
@@ -78,8 +78,36 @@ export const downloadBackup = (): void => {
 
     const json = JSON.stringify(backup, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
 
+    // Try Web Share API first (for Android PWA and mobile browsers)
+    if (navigator.share && navigator.canShare) {
+      try {
+        const file = new File([blob], filename, { type: 'application/json' });
+        
+        // Check if sharing files is supported
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Daily Spark Backup',
+            text: 'Export your Daily Spark data',
+          });
+          
+          saveLastBackupTimestamp();
+          return;
+        }
+      } catch (shareError) {
+        // User cancelled or share failed, fall through to download
+        if (shareError instanceof Error && shareError.name !== 'AbortError') {
+          console.warn('Web Share API failed:', shareError);
+        } else {
+          // User cancelled, don't save timestamp
+          throw shareError;
+        }
+      }
+    }
+
+    // Fallback to traditional download (desktop browsers)
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -98,7 +126,11 @@ export const downloadBackup = (): void => {
     }, 100);
 
     saveLastBackupTimestamp();
-  } catch {
+  } catch (error) {
+    // Re-throw if it's AbortError (user cancelled)
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw error;
+    }
     throw new Error('Failed to create backup file. Please try again.');
   }
 };

@@ -104,9 +104,9 @@ const Settings = () => {
   };
   
   // Export backup
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      downloadBackup();
+      await downloadBackup();
       // Update last backup date immediately
       setLastBackupDate(getLastBackupDate());
       toast({
@@ -114,6 +114,10 @@ const Settings = () => {
         description: 'Your data has been exported successfully.',
       });
     } catch (error) {
+      // Don't show error if user cancelled the share dialog
+      if (error instanceof Error && error.name === 'AbortError') {
+        return;
+      }
       toast({
         title: 'Export failed',
         description: error instanceof Error ? error.message : 'Failed to create backup',
