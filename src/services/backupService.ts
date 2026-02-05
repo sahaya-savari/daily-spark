@@ -68,9 +68,9 @@ export const createBackup = (): BackupData => {
 
 /**
  * Download backup as JSON file
- * ✅ ANDROID / MOBILE SAFE
+ * ✅ ANDROID / MOBILE SAFE - Uses Web Share API with fallback
  */
-export const downloadBackup = (): void => {
+export const downloadBackup = async (): Promise<void> => {
   try {
     const backup = createBackup();
     const today = getTodayDate();
@@ -78,8 +78,35 @@ export const downloadBackup = (): void => {
 
     const json = JSON.stringify(backup, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
 
+    // Try Web Share API first (for Android PWA)
+    if (navigator.canShare && navigator.share) {
+      const file = new File([blob], filename, { type: 'application/json' });
+      
+      // Check if sharing files is supported
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Daily Spark Backup',
+            text: 'Export your Daily Spark data',
+          });
+          
+          // Save timestamp only after successful share
+          saveLastBackupTimestamp();
+          return;
+        } catch (error) {
+          // If user cancelled (AbortError), rethrow to let caller handle
+          if (error instanceof Error && error.name === 'AbortError') {
+            throw error;
+          }
+          // For other errors, fall through to traditional download
+        }
+      }
+    }
+
+    // Fallback: Traditional anchor download
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -98,7 +125,11 @@ export const downloadBackup = (): void => {
     }, 100);
 
     saveLastBackupTimestamp();
-  } catch {
+  } catch (error) {
+    // Rethrow AbortError as-is
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw error;
+    }
     throw new Error('Failed to create backup file. Please try again.');
   }
 };
