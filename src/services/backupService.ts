@@ -96,13 +96,12 @@ export const downloadBackup = async (): Promise<void> => {
           return;
         }
       } catch (shareError) {
-        // User cancelled or share failed, fall through to download
-        if (shareError instanceof Error && shareError.name !== 'AbortError') {
-          console.warn('Web Share API failed:', shareError);
-        } else {
-          // User cancelled, don't save timestamp
+        // If user cancelled, throw immediately (don't save timestamp)
+        if (shareError instanceof Error && shareError.name === 'AbortError') {
           throw shareError;
         }
+        // For other errors, log and fall through to traditional download
+        console.warn('Web Share API failed:', shareError);
       }
     }
 
@@ -127,7 +126,7 @@ export const downloadBackup = async (): Promise<void> => {
 
     saveLastBackupTimestamp();
   } catch (error) {
-    // Re-throw if it's AbortError (user cancelled)
+    // Re-throw AbortError as-is (user cancelled share dialog)
     if (error instanceof Error && error.name === 'AbortError') {
       throw error;
     }
