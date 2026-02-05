@@ -11,7 +11,10 @@ import { cn } from '@/lib/utils';
 import { APP_VERSION, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
 import { 
   downloadBackup, 
+  downloadStreaksCsv,
   readBackupFile, 
+  readCsvFile,
+  parseStreaksCsv,
   validateBackup, 
   restoreBackup,
   getBackupStats,
@@ -31,7 +34,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const Settings = () => {
-  const { streaks } = useStreaksContext();
+  const { streaks, addStreak, editStreak } = useStreaksContext();
   const isNative = Capacitor.isNativePlatform();
   const {
     permissionStatus,
@@ -104,19 +107,46 @@ const Settings = () => {
   };
   
   // Export backup
-  const handleExport = () => {
+  const handleExport = async () => {
     try {
-      downloadBackup();
+      const result = await downloadBackup();
       // Update last backup date immediately
       setLastBackupDate(getLastBackupDate());
+      const description = isNative
+        ? result.shared
+          ? 'Backup saved and share sheet opened.'
+          : 'Backup saved to Documents/DailySpark.'
+        : 'Your data has been exported successfully.';
       toast({
         title: 'Backup created',
-        description: 'Your data has been exported successfully.',
+        description,
       });
     } catch (error) {
       toast({
         title: 'Export failed',
         description: error instanceof Error ? error.message : 'Failed to create backup',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleExportCsv = async () => {
+    try {
+      const result = await downloadStreaksCsv();
+      setLastBackupDate(getLastBackupDate());
+      const description = isNative
+        ? result.shared
+          ? 'CSV saved and share sheet opened.'
+          : 'CSV saved to Documents/DailySpark.'
+        : 'Your CSV has been exported successfully.';
+      toast({
+        title: 'CSV exported',
+        description,
+      });
+    } catch (error) {
+      toast({
+        title: 'CSV export failed',
+        description: error instanceof Error ? error.message : 'Failed to create CSV',
         variant: 'destructive',
       });
     }
@@ -128,8 +158,64 @@ const Settings = () => {
     if (!file) return;
     
     setIsImporting(true);
+    const isCsv = file.type.includes('csv') || file.name.toLowerCase().endsWith('.csv');
     
     try {
+      if (isCsv) {
+        const csvText = await readCsvFile(file);
+        const { rows, errors } = parseStreaksCsv(csvText);
+        
+        if (rows.length === 0) {
+          toast({
+            title: 'No streaks found',
+            description: errors[0] || 'CSV did not contain any valid rows.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        rows.forEach((row) => {
+          const reminder = row.reminderEnabled && row.reminderTime
+            ? {
+                enabled: true,
+                time: row.reminderTime,
+                repeatType: 'daily' as const,
+                repeatDays: [true, true, true, true, true, true, true],
+                description: row.description || '',
+              }
+            : undefined;
+
+          const created = addStreak(
+            row.name,
+            row.emoji || '🔥',
+            reminder,
+            row.color,
+            row.description
+          );
+
+          editStreak(created.id, {
+            notes: row.notes,
+            scheduledDate: row.scheduledDate,
+            scheduledTime: row.scheduledTime,
+            isStarred: row.isStarred,
+          });
+        });
+
+        toast({
+          title: 'CSV imported',
+          description: `Added ${rows.length} streak${rows.length === 1 ? '' : 's'}.`,
+        });
+
+        if (errors.length > 0) {
+          toast({
+            title: 'Some rows were skipped',
+            description: errors[0],
+          });
+        }
+
+        return;
+      }
+
       // Read and parse file
       const backup = await readBackupFile(file);
       
@@ -327,10 +413,18 @@ const Settings = () => {
                 variant="outline"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Export Data
+                Export JSON
+              </Button>
+              <Button
+                onClick={handleExportCsv}
+                className="w-full"
+                variant="outline"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Download all your data as a JSON file
+                JSON is a full backup. CSV exports streak basics for spreadsheets.
               </p>
             </div>
 
@@ -339,7 +433,7 @@ const Settings = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".json,application/json"
+                accept=".json,.csv,application/json,text/csv"
                 onChange={handleFileSelect}
                 className="hidden"
                 aria-label="Import backup file"
@@ -351,10 +445,10 @@ const Settings = () => {
                 variant="outline"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                {isImporting ? 'Reading file...' : 'Import Data'}
+                {isImporting ? 'Reading file...' : 'Import JSON/CSV'}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                Restore from a previous backup
+                JSON restores all data. CSV adds new streaks only.
               </p>
             </div>
 
@@ -425,7 +519,7 @@ const Settings = () => {
             Build consistency, one day at a time. Track your habits with visual streaks. 
             100% free forever - no ads, no subscriptions, no purchases.
           </p>
-          <p className="text-xs text-muted-foreground mt-2">Version 1.0.0</p>
+          <p className="text-xs text-muted-foreground mt-2">Version {APP_VERSION}</p>
         </section>
       </main>
 
