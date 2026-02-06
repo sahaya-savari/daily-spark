@@ -14,12 +14,13 @@ import { getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { snoozeStreak } from '@/services/snoozeService';
-import { useWeeklyGrace, useMonthlyGrace, getGraceStatus } from '@/services/graceService';
+import { useWeeklyGrace as applyWeeklyGrace, useMonthlyGrace as applyMonthlyGrace, getGraceStatus } from '@/services/graceService';
 import { getTodayFocusEnabled, shouldShowStreakInTodayFocus } from '@/services/focusService';
 import { triggerHapticLight } from '@/services/hapticService';
 import { useModal } from '@/contexts/ModalContext';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_LIST_ID } from '@/types/streak';
+import { Reminder } from '@/types/reminder';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -148,7 +149,7 @@ const Index = () => {
 
   const handleGraceWeekly = useCallback(() => {
     if (graceDialogState.streakId) {
-      const success = useWeeklyGrace(graceDialogState.streakId);
+      const success = applyWeeklyGrace(graceDialogState.streakId);
       if (success) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -166,7 +167,7 @@ const Index = () => {
 
   const handleGraceMonthly = useCallback(() => {
     if (graceDialogState.streakId) {
-      const success = useMonthlyGrace(graceDialogState.streakId);
+      const success = applyMonthlyGrace(graceDialogState.streakId);
       if (success) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -187,7 +188,7 @@ const Index = () => {
     triggerHapticLight();
   }, [toggleStar]);
 
-  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
+  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: Reminder }) => {
     if (editDialogState.streakId) {
       editStreak(editDialogState.streakId, updates);
       if (updates.reminder) {

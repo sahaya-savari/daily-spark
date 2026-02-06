@@ -1,10 +1,11 @@
 import { Capacitor } from '@capacitor/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
+import { LocalNotifications, type LocalNotificationSchema } from '@capacitor/local-notifications';
 import { Streak } from '@/types/streak';
 import { Reminder } from '@/types/reminder';
 
 const NOTIFICATION_STORAGE_KEY = 'streakflame_notifications';
 const REMINDERS_KEY = 'streakflame_reminders';
+const isDev = import.meta.env.DEV;
 
 export interface NotificationSettings {
   enabled: boolean;
@@ -42,7 +43,9 @@ const ensureAndroidChannel = async (): Promise<void> => {
       sound: 'default',
     });
     channelInitialized = true;
-    console.log('[Notification] Android channel created');
+    if (isDev) {
+      console.log('[Notification] Android channel created');
+    }
   } catch (error) {
     console.error('[Notification] Channel creation failed:', error);
   }
@@ -73,7 +76,9 @@ export const checkNotificationPermission = async (): Promise<NotificationPermiss
     if (isNativePlatform()) {
       const status = await LocalNotifications.checkPermissions();
       const permission = (status.display ?? 'prompt') as NotificationPermissionState;
-      console.log('[Notification] Permission check (native):', permission);
+      if (isDev) {
+        console.log('[Notification] Permission check (native):', permission);
+      }
       return { supported: true, permission, platform: getPlatform() };
     }
 
@@ -83,7 +88,9 @@ export const checkNotificationPermission = async (): Promise<NotificationPermiss
     }
 
     const permission = Notification.permission === 'default' ? 'prompt' : Notification.permission;
-    console.log('[Notification] Permission check (web):', permission);
+    if (isDev) {
+      console.log('[Notification] Permission check (web):', permission);
+    }
     return { supported: true, permission, platform: getPlatform() };
   } catch (error) {
     console.error('[Notification] Permission check failed:', error);
@@ -98,7 +105,9 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
       // Android native: request POST_NOTIFICATIONS permission
       const status = await LocalNotifications.requestPermissions();
       const granted = status.display === 'granted';
-      console.log('[Notification] Permission request result (Android):', granted ? 'granted' : 'denied');
+      if (isDev) {
+        console.log('[Notification] Permission request result (Android):', granted ? 'granted' : 'denied');
+      }
       return granted;
     }
 
@@ -106,30 +115,40 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
       // Other native platforms
       const status = await LocalNotifications.requestPermissions();
       const granted = status.display === 'granted';
-      console.log('[Notification] Permission request result (native):', granted ? 'granted' : 'denied');
+      if (isDev) {
+        console.log('[Notification] Permission request result (native):', granted ? 'granted' : 'denied');
+      }
       return granted;
     }
 
     // Web platform
     if (!('Notification' in window)) {
-      console.log('[Notification] Web notifications not supported');
+      if (isDev) {
+        console.log('[Notification] Web notifications not supported');
+      }
       return false;
     }
 
     if (Notification.permission === 'granted') {
-      console.log('[Notification] Already granted (web)');
+      if (isDev) {
+        console.log('[Notification] Already granted (web)');
+      }
       return true;
     }
 
     if (Notification.permission === 'denied') {
-      console.log('[Notification] Already denied (web)');
+      if (isDev) {
+        console.log('[Notification] Already denied (web)');
+      }
       return false;
     }
 
     // Request permission
     const permission = await Notification.requestPermission();
     const granted = permission === 'granted';
-    console.log('[Notification] Permission request result (web):', granted ? 'granted' : 'denied');
+    if (isDev) {
+      console.log('[Notification] Permission request result (web):', granted ? 'granted' : 'denied');
+    }
     return granted;
   } catch (error) {
     console.error('[Notification] Permission request error:', error);
@@ -158,7 +177,9 @@ export const getNotificationSettings = (): NotificationSettings => {
 export const saveNotificationSettings = (settings: NotificationSettings): void => {
   try {
     localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(settings));
-    console.log('[Notification] Settings saved:', settings);
+    if (isDev) {
+      console.log('[Notification] Settings saved:', settings);
+    }
   } catch (e) {
     console.error('[Notification] Failed to save settings:', e);
   }
@@ -182,12 +203,16 @@ export const scheduleNotifications = async (
   settings: NotificationSettings
 ): Promise<void> => {
   if (!settings.enabled) {
-    console.log('[Notification] Notifications disabled in settings');
+    if (isDev) {
+      console.log('[Notification] Notifications disabled in settings');
+    }
     return;
   }
 
   if (!isAndroid()) {
-    console.log('[Notification] Not Android, skipping native scheduling');
+    if (isDev) {
+      console.log('[Notification] Not Android, skipping native scheduling');
+    }
     return;
   }
 
@@ -195,7 +220,9 @@ export const scheduleNotifications = async (
     // Check permission
     const permStatus = await LocalNotifications.checkPermissions();
     if (permStatus.display !== 'granted') {
-      console.log('[Notification] Permission not granted, cannot schedule');
+      if (isDev) {
+        console.log('[Notification] Permission not granted, cannot schedule');
+      }
       return;
     }
 
@@ -205,7 +232,9 @@ export const scheduleNotifications = async (
     try {
       const pending = await LocalNotifications.getPending();
       if (pending.notifications.length > 0) {
-        console.log('[Notification] Cancelling', pending.notifications.length, 'pending notifications');
+        if (isDev) {
+          console.log('[Notification] Cancelling', pending.notifications.length, 'pending notifications');
+        }
         await LocalNotifications.cancel({
           notifications: pending.notifications.map(n => ({ id: n.id }))
         });
@@ -215,7 +244,7 @@ export const scheduleNotifications = async (
     }
 
     // Schedule new notifications for each enabled streak reminder
-    const notificationsToSchedule: any[] = [];
+    const notificationsToSchedule: LocalNotificationSchema[] = [];
 
     streaks.forEach(streak => {
       const reminder = getReminder(streak.id);
@@ -267,13 +296,19 @@ export const scheduleNotifications = async (
     });
 
     if (notificationsToSchedule.length > 0) {
-      console.log('[Notification] Scheduling', notificationsToSchedule.length, 'notifications');
+      if (isDev) {
+        console.log('[Notification] Scheduling', notificationsToSchedule.length, 'notifications');
+      }
       await LocalNotifications.schedule({
         notifications: notificationsToSchedule,
       });
-      console.log('[Notification] Successfully scheduled notifications');
+      if (isDev) {
+        console.log('[Notification] Successfully scheduled notifications');
+      }
     } else {
-      console.log('[Notification] No reminders to schedule');
+      if (isDev) {
+        console.log('[Notification] No reminders to schedule');
+      }
     }
   } catch (error) {
     console.error('[Notification] Failed to schedule notifications:', error);
@@ -298,7 +333,9 @@ export const cancelNotifications = async (streakId?: string): Promise<void> => {
       return;
     }
 
-    console.log('[Notification] Cancelling', toCancel.length, 'notifications' + (streakId ? ` for streak ${streakId}` : ''));
+    if (isDev) {
+      console.log('[Notification] Cancelling', toCancel.length, 'notifications' + (streakId ? ` for streak ${streakId}` : ''));
+    }
     await LocalNotifications.cancel({
       notifications: toCancel.map(n => ({ id: n.id }))
     });
@@ -312,12 +349,16 @@ export const enableNotifications = async (
   streaks: Streak[],
   settings: NotificationSettings
 ): Promise<boolean> => {
-  console.log('[Notification] Enable notifications called');
+  if (isDev) {
+    console.log('[Notification] Enable notifications called');
+  }
 
   // Step 1: Request permission
   const granted = await requestNotificationPermission();
   if (!granted) {
-    console.log('[Notification] Permission denied, cannot enable');
+    if (isDev) {
+      console.log('[Notification] Permission denied, cannot enable');
+    }
     return false;
   }
 
@@ -326,7 +367,9 @@ export const enableNotifications = async (
   saveNotificationSettings(nextSettings);
 
   // Step 3: Schedule notifications immediately
-  console.log('[Notification] Permission granted, scheduling notifications');
+  if (isDev) {
+    console.log('[Notification] Permission granted, scheduling notifications');
+  }
   await scheduleNotifications(streaks, nextSettings);
 
   return true;
@@ -334,7 +377,9 @@ export const enableNotifications = async (
 
 // CORE FUNCTION: Disable notifications
 export const disableNotifications = async (): Promise<void> => {
-  console.log('[Notification] Disable notifications called');
+  if (isDev) {
+    console.log('[Notification] Disable notifications called');
+  }
   const settings = getNotificationSettings();
   settings.enabled = false;
   saveNotificationSettings(settings);

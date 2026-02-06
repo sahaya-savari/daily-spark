@@ -46,7 +46,7 @@ export const getNextReminderTime = (reminder: Reminder | undefined): { date: str
   const now = new Date();
   const [hours, minutes] = reminder.time.split(':').map(Number);
 
-  let nextDate = new Date(now);
+  const nextDate = new Date(now);
   nextDate.setHours(hours, minutes, 0, 0);
 
   if (nextDate <= now) {

@@ -50,6 +50,13 @@ Perfect for tracking:
 
 ---
 
+## 📦 Data Import Formats
+
+- **CSV import** adds new streaks only. It always starts at Day 1 and does not include streak history.
+- **JSON restore** brings back full history, including streak count and last completed date. Use this when changing devices or reinstalling.
+
+---
+
 ## 🚀 Recent Updates & Improvements (v1.0.x)
 
 Daily Spark is actively developed with a focus on **stability, portability, and real-world usability**.

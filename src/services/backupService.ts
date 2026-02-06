@@ -14,6 +14,11 @@ import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { getTodayDate } from '@/lib/dateUtils';
 import { Streak } from '@/types/streak';
+import {
+  validateBackupData,
+  formatValidationMessage,
+  logValidationReport,
+} from '@/lib/dataValidator';
 
 const BACKUP_VERSION = '1.0.0';
 
@@ -341,6 +346,32 @@ export const validateBackup = (backup: unknown): ValidationResult => {
 };
 
 /**
+ * Enhanced validation specifically for streaks import
+ * Returns validated streaks and a detailed report
+ */
+export const validateAndCleanStreaks = (data: unknown): {
+  streaks: Streak[];
+  userMessage: string;
+  hasErrors: boolean;
+  hasWarnings: boolean;
+} => {
+  const result = validateBackupData(data);
+  const userMessage = formatValidationMessage(result);
+  const hasErrors = result.errors.length > 0;
+  const hasWarnings = result.warnings.length > 0;
+
+  // Log full report in dev tools
+  logValidationReport(result);
+
+  return {
+    streaks: result.streaks,
+    userMessage,
+    hasErrors,
+    hasWarnings,
+  };
+};
+
+/**
  * Restore backup data
  */
 export const restoreBackup = (backup: BackupData): void => {
@@ -368,6 +399,81 @@ export const restoreBackup = (backup: BackupData): void => {
       else localStorage.setItem(key, value);
     });
     throw new Error('Restore failed. Data rolled back.');
+  }
+};
+
+/**
+ * Restore streaks from JSON with strict validation
+ * Safe - never crashes or partially restores silently
+ * 
+ * @param data - Raw JSON data (array or backup object)
+ * @param onlyValid - If true, only restore valid streaks (skip invalid ones). If false, abort on any error.
+ * @returns { success, streaks, message }
+ */
+export const restoreStreaksFromJson = (
+  data: unknown,
+  onlyValid = true
+): {
+  success: boolean;
+  streaks: Streak[];
+  message: string;
+  recovered: { total: number; valid: number; invalid: number };
+} => {
+  try {
+    const validation = validateAndCleanStreaks(data);
+
+    // If we have errors and strict mode is enabled, fail
+    if (validation.hasErrors && !onlyValid) {
+      return {
+        success: false,
+        streaks: [],
+        message: `Cannot restore: ${validation.userMessage}`,
+        recovered: { total: 0, valid: 0, invalid: 0 },
+      };
+    }
+
+    // If no valid streaks and we have errors, show warning
+    if (validation.streaks.length === 0 && validation.hasErrors) {
+      return {
+        success: false,
+        streaks: [],
+        message: `No valid streaks to restore.\n\n${validation.userMessage}`,
+        recovered: { total: 0, valid: 0, invalid: 0 },
+      };
+    }
+
+    // Save valid streaks
+    if (validation.streaks.length > 0) {
+      try {
+        localStorage.setItem(STORAGE_KEYS.STREAKS, JSON.stringify(validation.streaks));
+      } catch (storageError) {
+        return {
+          success: false,
+          streaks: [],
+          message: 'Failed to write streaks to storage. Device storage may be full.',
+          recovered: { total: 0, valid: 0, invalid: 0 },
+        };
+      }
+    }
+
+    return {
+      success: true,
+      streaks: validation.streaks,
+      message: validation.userMessage,
+      recovered: {
+        total: validation.streaks.length,
+        valid: validation.streaks.length,
+        invalid: 0,
+      },
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      success: false,
+      streaks: [],
+      message: `Import failed: ${errorMessage}`,
+      recovered: { total: 0, valid: 0, invalid: 0 },
+    };
   }
 };
 

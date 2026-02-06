@@ -7,6 +7,7 @@ import { EditStreakDialog } from '@/components/EditStreakDialog';
 import { useStreaksContext } from '@/contexts/StreaksContext';
 import { getStreakStatus } from '@/hooks/useStreaks';
 import { getReminder } from '@/services/reminderService';
+import { Reminder } from '@/types/reminder';
 import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { useState, useEffect, useCallback } from 'react';
@@ -59,25 +60,6 @@ const StreakDetail = () => {
     }
   }, [streak?.notes, streak?.description, streak?.scheduledDate, streak?.scheduledTime]);
 
-  if (!streak) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Streak not found</h2>
-          <p className="text-muted-foreground mb-4">This streak may have been deleted.</p>
-          <Button onClick={() => navigate('/')} variant="default">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const status = getStatus(streak);
-  const undoCheck = canUndoAction(streak.id);
-  const isCompleted = status === 'completed';
-
   const handleNotesBlur = () => {
     if (notes !== streak.notes || description !== streak.description || scheduledDate !== streak.scheduledDate || scheduledTime !== streak.scheduledTime) {
       setIsSavingNotes(true);
@@ -101,14 +83,17 @@ const StreakDetail = () => {
   };
 
   const handleOpenEditDialog = useCallback(() => {
+    if (!streak) {
+      return;
+    }
     setEditDialogState({ isOpen: true, streakId: streak.id });
-  }, [streak.id]);
+  }, [streak]);
 
   const handleCloseEditDialog = useCallback(() => {
     setEditDialogState({ isOpen: false, streakId: null });
   }, []);
 
-  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
+  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: Reminder }) => {
     if (editDialogState.streakId) {
       editStreak(editDialogState.streakId, updates);
       if (updates.reminder) {
@@ -162,6 +147,25 @@ const StreakDetail = () => {
       });
     }
   }, [streak, toast]);
+
+  if (!streak) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-foreground mb-2">Streak not found</h2>
+          <p className="text-muted-foreground mb-4">This streak may have been deleted.</p>
+          <Button onClick={() => navigate('/')} variant="default">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const status = getStatus(streak);
+  const undoCheck = canUndoAction(streak.id);
+  const isCompleted = status === 'completed';
 
   const cancelDelete = () => {
     setShowDeleteDialog(false);

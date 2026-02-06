@@ -6,7 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useViewportHeight } from "@/hooks/useViewportHeight";
 import { ModalProvider } from "@/contexts/ModalContext";
+import { RecoveryAlertProvider } from "@/contexts/RecoveryAlertContext";
 import { StreaksProvider, useStreaksContext } from "@/contexts/StreaksContext";
+import { RecoveryAlertDialog } from "@/components/RecoveryAlertDialog";
 import { AddStreakDialog } from "@/components/AddStreakDialog";
 import { useModal } from "@/contexts/ModalContext";
 import { Reminder } from "@/types/reminder";
@@ -83,6 +85,7 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
       } catch (error) {
+        // Ignore cleanup failures to avoid blocking app boot.
       }
     };
 
@@ -141,11 +144,14 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <ModalProvider>
-          <StreaksProvider>
-            <AppContent />
-          </StreaksProvider>
-        </ModalProvider>
+        <RecoveryAlertProvider>
+          <ModalProvider>
+            <StreaksProvider>
+              <RecoveryAlertDialog />
+              <AppContent />
+            </StreaksProvider>
+          </ModalProvider>
+        </RecoveryAlertProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

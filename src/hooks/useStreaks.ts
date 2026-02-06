@@ -21,6 +21,7 @@ import {
   unscheduleReminder,
 } from '@/services/reminderService';
 import { triggerHapticLight, triggerHapticSuccess } from '@/services/hapticService';
+import { recoverStreaksOnBoot } from '@/services/dataRecoveryService';
 
 const STORAGE_KEY = 'streakflame_streaks';
 const LISTS_STORAGE_KEY = 'streakflame_lists';
@@ -45,8 +46,13 @@ export const useStreaks = () => {
   const [streaks, setStreaks] = useState<Streak[]>([]);
   const [lists, setLists] = useState<StreakList[]>([DEFAULT_LIST]);
   const [isLoading, setIsLoading] = useState(true);
+  const [recoveryResult, setRecoveryResult] = useState<{
+    recovered: boolean;
+    message: string;
+    reason?: string;
+  } | null>(null);
 
-  // Load streaks and lists from localStorage
+  // Load streaks and lists from localStorage with safe recovery
   useEffect(() => {
     const loadStreaks = () => {
       try {
@@ -62,19 +68,36 @@ export const useStreaks = () => {
           localStorage.setItem(LISTS_STORAGE_KEY, JSON.stringify([DEFAULT_LIST]));
         }
         
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored) as Streak[];
-          // Migrate old streaks: ensure they have default listId
-          const migrated = parsed.map(streak => ({
-            ...streak,
-            listId: streak.listId || DEFAULT_LIST_ID,
-          }));
-          // Recalculate current streaks based on dates
-          const updated = migrated.map(streak => recalculateStreak(streak));
-          setStreaks(updated);
+        // ✅ USE RECOVERY SERVICE: Never crashes, always returns valid data
+        const recovery = recoverStreaksOnBoot();
+        
+        // Set recovery info (for UI to show if recovery happened)
+        if (recovery.recovered) {
+          setRecoveryResult({
+            recovered: true,
+            message: recovery.message,
+            reason: recovery.reason,
+          });
         }
+        
+        // Process recovered streaks
+        const migrated = recovery.streaks.map(streak => ({
+          ...streak,
+          listId: streak.listId || DEFAULT_LIST_ID,
+        }));
+        
+        // Recalculate current streaks based on dates
+        const updated = migrated.map(streak => recalculateStreak(streak));
+        setStreaks(updated);
       } catch (error) {
+        console.error('[useStreaks] Unexpected error during load:', error);
+        // Fail-safe: boot with empty data rather than crash
+        setStreaks([]);
+        setRecoveryResult({
+          recovered: true,
+          message: '⚠️  An unexpected error occurred. Starting fresh.',
+          reason: 'error_recovery',
+        });
       } finally {
         setIsLoading(false);
       }
@@ -335,6 +358,7 @@ export const useStreaks = () => {
     streaks,
     lists,
     isLoading,
+    recoveryResult,
     addStreak,
     completeStreak,
     undoStreak,

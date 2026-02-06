@@ -405,6 +405,15 @@ const Settings = () => {
               </p>
             </div>
 
+            <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground space-y-2">
+              <p>
+                <span className="font-medium text-foreground">CSV import</span> adds new streaks only. CSV starts all streaks at Day 1 and does not include history.
+              </p>
+              <p>
+                <span className="font-medium text-foreground">JSON restore</span> restores full history, including streak count and last completed date. Use JSON when changing devices or reinstalling.
+              </p>
+            </div>
+
             {/* Export button */}
             <div className="space-y-2">
               <Button

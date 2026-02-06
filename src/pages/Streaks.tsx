@@ -9,6 +9,7 @@ import { getStreakStatus } from '@/hooks/useStreaks';
 import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { DEFAULT_LIST_ID } from '@/types/streak';
+import { Reminder } from '@/types/reminder';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +60,7 @@ const StreaksPage = () => {
     setEditDialogState({ isOpen: false, streakId: null });
   }, []);
 
-  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: any }) => {
+  const handleEditStreak = useCallback((updates: { name: string; emoji: string; description: string; listId: string; isStarred: boolean; reminder?: Reminder }) => {
     if (editDialogState.streakId) {
       editStreak(editDialogState.streakId, updates);
       if (updates.reminder) {

@@ -2,8 +2,9 @@ import { Capacitor } from '@capacitor/core';
 import { Reminder } from '@/types/reminder';
 
 const REMINDERS_KEY = 'streakflame_reminders';
+const isDev = import.meta.env.DEV;
 
-let scheduledReminders = new Map<string, NodeJS.Timeout>();
+const scheduledReminders = new Map<string, NodeJS.Timeout>();
 
 const getPlatform = () => Capacitor.getPlatform();
 const isNativePlatform = () => getPlatform() !== 'web';
@@ -40,7 +41,9 @@ const cancelNativeNotificationsForStreak = async (streakId: string): Promise<voi
     await LocalNotifications.cancel({
       notifications: toCancel.map(n => ({ id: n.id }))
     });
-    console.log('[Reminder] Cancelled', toCancel.length, 'notifications for streak:', streakId);
+    if (isDev) {
+      console.log('[Reminder] Cancelled', toCancel.length, 'notifications for streak:', streakId);
+    }
   } catch (error) {
     console.error('[Reminder] Failed to cancel notifications:', error);
   }
@@ -53,7 +56,7 @@ export const calculateNextReminderTime = (
   const [hours, minutes] = time.split(':').map(Number);
   const now = new Date();
   
-  let nextDate = new Date();
+  const nextDate = new Date();
   nextDate.setHours(hours, minutes, 0, 0);
 
   if (nextDate <= now) {
@@ -193,7 +196,9 @@ export const saveReminder = (streakId: string, reminder: Reminder): void => {
   );
   reminders[streakId] = reminder;
   localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
-  console.log('[Reminder] Saved reminder for streak:', streakId);
+  if (isDev) {
+    console.log('[Reminder] Saved reminder for streak:', streakId);
+  }
 };
 
 // Get reminder from localStorage
@@ -212,7 +217,9 @@ export const deleteReminder = (streakId: string): void => {
   delete reminders[streakId];
   localStorage.setItem(REMINDERS_KEY, JSON.stringify(reminders));
   unscheduleReminder(streakId);
-  console.log('[Reminder] Deleted reminder for streak:', streakId);
+  if (isDev) {
+    console.log('[Reminder] Deleted reminder for streak:', streakId);
+  }
 };
 
 // Initialize all reminders (web platform only)
@@ -256,6 +263,8 @@ export const clearAllReminders = (): void => {
   scheduledReminders.clear();
 
   // Note: Android notifications are cancelled by notificationService
-  console.log('[Reminder] Cleared all reminders');
+  if (isDev) {
+    console.log('[Reminder] Cleared all reminders');
+  }
 };
 

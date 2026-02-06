@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-console.log('🚀 main.tsx loaded');
-
 // Global error handler
 window.addEventListener('error', (event) => {
   console.error('❌ Global error caught:', event.error);
@@ -24,15 +22,12 @@ if (!rootEl) {
   throw new Error('Root element not found');
 }
 
-console.log('✅ Root element found, rendering App...');
-
 try {
   ReactDOM.createRoot(rootEl).render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
-  console.log('✅ App rendered successfully');
 } catch (error) {
   console.error('❌ Error rendering app:', error);
   if (error instanceof Error) {
