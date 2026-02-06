@@ -87,7 +87,11 @@ export const useStreaks = () => {
         }));
         
         // Recalculate current streaks based on dates
-        const updated = migrated.map(streak => recalculateStreak(streak));
+        const updated = migrated.map(streak => ({
+          ...recalculateStreak(streak),
+          // ✅ FIX: Deduplicate completedDates to prevent multiple counts per day
+          completedDates: [...new Set(streak.completedDates)].sort(),
+        }));
         setStreaks(updated);
       } catch (error) {
         console.error('[useStreaks] Unexpected error during load:', error);
@@ -218,7 +222,7 @@ export const useStreaks = () => {
         currentStreak: newCurrentStreak,
         bestStreak: newBestStreak,
         lastCompletedDate: today,
-        completedDates: [...streak.completedDates, today],
+        completedDates: streak.completedDates.includes(today) ? streak.completedDates : [...streak.completedDates, today],
       };
     }));
     
