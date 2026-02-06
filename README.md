@@ -68,6 +68,7 @@ Daily Spark is actively developed with a focus on **stability, portability, and 
 - 📦 Universal Android APK (single file, no splits)  
 - 📱 Supports Android 8 – Android 15  
 - 🛠️ Java 17 compatible, signed release builds  
+- 🐛 **Fixed:** Deduplicated `completedDates` array — prevents inflated stats from multiple completes per day
 - ❌ No feature or data changes (build-only update)  
 
 ---
