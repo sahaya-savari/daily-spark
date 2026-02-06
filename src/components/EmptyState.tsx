@@ -8,7 +8,7 @@ export const EmptyState = ({ hasStreaks }: EmptyStateProps) => {
   if (hasStreaks) return null;
 
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+    <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
       <div className="w-20 h-20 rounded-2xl fire-gradient flex items-center justify-center mb-4 shadow-md">
         <Flame className="w-10 h-10 text-white" />
       </div>

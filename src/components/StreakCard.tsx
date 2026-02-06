@@ -2,7 +2,7 @@ import { Check, Flame, AlertTriangle, Undo2, ChevronRight, MoreVertical, Trash2,
 import { Streak, StreakStatus } from '@/types/streak';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import { getReminder } from '@/services/reminderService';
 import { getRepeatModeDisplay, getNextReminderTime } from '@/lib/reminderUtils';
 import {
@@ -28,7 +28,7 @@ interface StreakCardProps {
   index?: number;
 }
 
-export const StreakCard = ({ streak, status, onComplete, onUndo, canUndo, onDelete, onRename, onShare, onEdit, onToggleStar, onSnooze, onUseGrace, index = 0 }: StreakCardProps) => {
+export const StreakCard = memo(({ streak, status, onComplete, onUndo, canUndo, onDelete, onRename, onShare, onEdit, onToggleStar, onSnooze, onUseGrace, index = 0 }: StreakCardProps) => {
   const navigate = useNavigate();
   const isCompleted = status === 'completed';
   const isAtRisk = status === 'at-risk';
@@ -229,4 +229,21 @@ export const StreakCard = ({ streak, status, onComplete, onUndo, canUndo, onDele
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison: only re-render if specific props change
+  return (
+    prevProps.streak === nextProps.streak &&
+    prevProps.status === nextProps.status &&
+    prevProps.canUndo === nextProps.canUndo &&
+    prevProps.index === nextProps.index &&
+    prevProps.onComplete === nextProps.onComplete &&
+    prevProps.onUndo === nextProps.onUndo &&
+    prevProps.onDelete === nextProps.onDelete &&
+    prevProps.onEdit === nextProps.onEdit &&
+    prevProps.onToggleStar === nextProps.onToggleStar &&
+    prevProps.onSnooze === nextProps.onSnooze &&
+    prevProps.onUseGrace === nextProps.onUseGrace
+  );
+});
+
+StreakCard.displayName = 'StreakCard';

@@ -53,7 +53,26 @@ export const calculateNextReminderTime = (
   time: string,
   repeatDays: boolean[]
 ): number => {
-  const [hours, minutes] = time.split(':').map(Number);
+  // BUG FIX 2: Validate inputs to prevent crashes
+  if (!time || typeof time !== 'string' || !time.includes(':')) {
+    console.error('[Reminder] Invalid time format:', time);
+    return Date.now() + (24 * 60 * 60 * 1000); // Default to 24 hours from now
+  }
+
+  if (!Array.isArray(repeatDays) || repeatDays.length !== 7) {
+    console.error('[Reminder] Invalid repeatDays array:', repeatDays);
+    return Date.now() + (24 * 60 * 60 * 1000);
+  }
+
+  const parts = time.split(':');
+  const hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
+  
+  if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    console.error('[Reminder] Invalid time values:', { hours, minutes });
+    return Date.now() + (24 * 60 * 60 * 1000);
+  }
+  
   const now = new Date();
   
   const nextDate = new Date();
@@ -126,6 +145,12 @@ export const scheduleReminder = (
   reminder: Reminder,
   onFire: () => void
 ): void => {
+  // BUG FIX 2: Validate reminder object to prevent crashes
+  if (!reminder || typeof reminder !== 'object') {
+    console.error('[Reminder] Invalid reminder object:', reminder);
+    return;
+  }
+
   if (!reminder.enabled) {
     return;
   }
@@ -140,38 +165,42 @@ export const scheduleReminder = (
     return;
   }
 
-  const existingTimeout = scheduledReminders.get(streakId);
-  if (existingTimeout) {
-    clearTimeout(existingTimeout);
-  }
+  try {
+    const existingTimeout = scheduledReminders.get(streakId);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
 
-  const nextFireTime = calculateNextReminderTime(reminder.time, reminder.repeatDays);
-  const delay = nextFireTime - Date.now();
+    const nextFireTime = calculateNextReminderTime(reminder.time, reminder.repeatDays);
+    const delay = nextFireTime - Date.now();
 
-  if (delay < 0) {
-    const nextNextFireTime = calculateNextReminderTime(
-      reminder.time,
-      reminder.repeatDays
-    );
-    const nextDelay = nextNextFireTime - Date.now();
-    
+    if (delay < 0) {
+      const nextNextFireTime = calculateNextReminderTime(
+        reminder.time,
+        reminder.repeatDays
+      );
+      const nextDelay = nextNextFireTime - Date.now();
+      
+      const timeoutId = setTimeout(() => {
+        fireNotification(streakName, streakEmoji, reminder.description);
+        onFire();
+        scheduleReminder(streakId, streakName, streakEmoji, reminder, onFire);
+      }, nextDelay);
+
+      scheduledReminders.set(streakId, timeoutId);
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       fireNotification(streakName, streakEmoji, reminder.description);
       onFire();
       scheduleReminder(streakId, streakName, streakEmoji, reminder, onFire);
-    }, nextDelay);
+    }, delay);
 
     scheduledReminders.set(streakId, timeoutId);
-    return;
+  } catch (error) {
+    console.error('[Reminder] Failed to schedule reminder:', error);
   }
-
-  const timeoutId = setTimeout(() => {
-    fireNotification(streakName, streakEmoji, reminder.description);
-    onFire();
-    scheduleReminder(streakId, streakName, streakEmoji, reminder, onFire);
-  }, delay);
-
-  scheduledReminders.set(streakId, timeoutId);
 };
 
 // Unschedule reminder

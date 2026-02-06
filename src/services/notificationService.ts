@@ -5,12 +5,14 @@ import { Reminder } from '@/types/reminder';
 
 const NOTIFICATION_STORAGE_KEY = 'streakflame_notifications';
 const REMINDERS_KEY = 'streakflame_reminders';
+const PERMISSION_CACHE_KEY = 'streakflame_notification_permission';
 const isDev = import.meta.env.DEV;
 
 export interface NotificationSettings {
   enabled: boolean;
   defaultTime: string; // HH:MM format
   respectDND: boolean;
+  preTaskReminderOffsetMinutes: number; // Minutes before scheduled task time
 }
 
 export type NotificationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
@@ -27,8 +29,12 @@ const isNativePlatform = () => getPlatform() !== 'web';
 
 let channelInitialized = false;
 
-// Ensure Android notification channel exists
-const ensureAndroidChannel = async (): Promise<void> => {
+/**
+ * Ensure Android notification channel exists
+ * CRITICAL: Must be called at app startup, NOT during render
+ * Safe to call multiple times (idempotent)
+ */
+export const ensureAndroidChannel = async (): Promise<void> => {
   if (!isAndroid() || channelInitialized) {
     return;
   }
@@ -48,6 +54,40 @@ const ensureAndroidChannel = async (): Promise<void> => {
     }
   } catch (error) {
     console.error('[Notification] Channel creation failed:', error);
+    // Fail silently - don't crash the app
+  }
+};
+
+/**
+ * Initialize notification system at app startup
+ * MUST be called in App.tsx useEffect, never during render
+ */
+export const initializeNotificationChannels = async (): Promise<void> => {
+  try {
+    await ensureAndroidChannel();
+  } catch (error) {
+    console.error('[Notification] Initialization failed:', error);
+    // Fail silently - don't crash the app
+  }
+};
+
+const getCachedPermissionState = (): NotificationPermissionState | null => {
+  try {
+    const stored = localStorage.getItem(PERMISSION_CACHE_KEY);
+    if (stored === 'granted' || stored === 'denied' || stored === 'prompt' || stored === 'unsupported') {
+      return stored;
+    }
+  } catch (error) {
+    console.error('[Notification] Failed to read permission cache:', error);
+  }
+  return null;
+};
+
+const setCachedPermissionState = (state: NotificationPermissionState): void => {
+  try {
+    localStorage.setItem(PERMISSION_CACHE_KEY, state);
+  } catch (error) {
+    console.error('[Notification] Failed to write permission cache:', error);
   }
 };
 
@@ -58,6 +98,55 @@ const parseTime = (time: string): { hour: number; minute: number } => {
     return { hour: 20, minute: 0 };
   }
   return { hour, minute };
+};
+
+const parseScheduledTime = (time: string): { hour: number; minute: number } | null => {
+  if (!time || typeof time !== 'string' || !time.includes(':')) {
+    return null;
+  }
+  const [hourRaw, minuteRaw] = time.split(':');
+  const hour = parseInt(hourRaw, 10);
+  const minute = parseInt(minuteRaw, 10);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return null;
+  }
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+    return null;
+  }
+  return { hour, minute };
+};
+
+const getPreTaskTime = (time: string, offsetMinutes: number): { hour: number; minute: number } | null => {
+  if (offsetMinutes <= 0) {
+    return null;
+  }
+  const parsed = parseScheduledTime(time);
+  if (!parsed) {
+    return null;
+  }
+  const scheduledMinutes = parsed.hour * 60 + parsed.minute;
+  const reminderMinutes = scheduledMinutes - offsetMinutes;
+  if (reminderMinutes < 0) {
+    return null;
+  }
+  return {
+    hour: Math.floor(reminderMinutes / 60),
+    minute: reminderMinutes % 60,
+  };
+};
+
+const buildLocalDateTime = (dateString: string, hour: number, minute: number): Date | null => {
+  if (!dateString || typeof dateString !== 'string' || !dateString.includes('-')) {
+    return null;
+  }
+  const [yearRaw, monthRaw, dayRaw] = dateString.split('-');
+  const year = parseInt(yearRaw, 10);
+  const month = parseInt(monthRaw, 10);
+  const day = parseInt(dayRaw, 10);
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
+    return null;
+  }
+  return new Date(year, month - 1, day, hour, minute, 0, 0);
 };
 
 // Get notification ID base from streak ID (deterministic hash)
@@ -71,8 +160,23 @@ const getNotificationIdBase = (streakId: string): number => {
 };
 
 // CORE FUNCTION: Check Android notification permission status
+// ASYNC-SAFE: Never blocks UI thread, always wrapped in try-catch
 export const checkNotificationPermission = async (): Promise<NotificationPermissionStatus> => {
   try {
+    // Ensure channel exists before checking permission (Android only)
+    if (isAndroid()) {
+      await ensureAndroidChannel();
+    }
+
+    if (isAndroid()) {
+      const cached = getCachedPermissionState();
+      const permission = cached ?? 'prompt';
+      if (isDev) {
+        console.log('[Notification] Permission check (android cached):', permission);
+      }
+      return { supported: true, permission, platform: getPlatform() };
+    }
+
     if (isNativePlatform()) {
       const status = await LocalNotifications.checkPermissions();
       const permission = (status.display ?? 'prompt') as NotificationPermissionState;
@@ -94,17 +198,22 @@ export const checkNotificationPermission = async (): Promise<NotificationPermiss
     return { supported: true, permission, platform: getPlatform() };
   } catch (error) {
     console.error('[Notification] Permission check failed:', error);
-    return { supported: false, permission: 'unsupported', platform: getPlatform() };
+    // Fail silently - return safe default
+    return { supported: false, permission: 'denied', platform: getPlatform() };
   }
 };
 
 // CORE FUNCTION: Request notification permission from user
+// ASYNC-SAFE: Never blocks UI thread, properly initializes channel first
 export const requestNotificationPermission = async (): Promise<boolean> => {
   try {
+    // Ensure channel exists BEFORE requesting permission (critical for Android)
+    await ensureAndroidChannel();
+
     if (isAndroid()) {
-      // Android native: request POST_NOTIFICATIONS permission
       const status = await LocalNotifications.requestPermissions();
       const granted = status.display === 'granted';
+      setCachedPermissionState(granted ? 'granted' : 'denied');
       if (isDev) {
         console.log('[Notification] Permission request result (Android):', granted ? 'granted' : 'denied');
       }
@@ -112,9 +221,9 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     }
 
     if (isNativePlatform()) {
-      // Other native platforms
       const status = await LocalNotifications.requestPermissions();
       const granted = status.display === 'granted';
+      setCachedPermissionState(granted ? 'granted' : 'denied');
       if (isDev) {
         console.log('[Notification] Permission request result (native):', granted ? 'granted' : 'denied');
       }
@@ -152,25 +261,37 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     return granted;
   } catch (error) {
     console.error('[Notification] Permission request error:', error);
+    // Fail silently - return false instead of crashing
     return false;
   }
 };
 
 // Get stored notification settings
 export const getNotificationSettings = (): NotificationSettings => {
+  const defaults: NotificationSettings = {
+    enabled: false,
+    defaultTime: '20:00',
+    respectDND: true,
+    preTaskReminderOffsetMinutes: 5,
+  };
+
   try {
     const stored = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored) as Partial<NotificationSettings>;
+      return {
+        ...defaults,
+        ...parsed,
+        preTaskReminderOffsetMinutes:
+          typeof parsed.preTaskReminderOffsetMinutes === 'number'
+            ? parsed.preTaskReminderOffsetMinutes
+            : defaults.preTaskReminderOffsetMinutes,
+      };
     }
   } catch (e) {
     console.error('[Notification] Failed to load settings:', e);
   }
-  return {
-    enabled: false,
-    defaultTime: '20:00',
-    respectDND: true,
-  };
+  return defaults;
 };
 
 // Save notification settings
@@ -217,16 +338,15 @@ export const scheduleNotifications = async (
   }
 
   try {
-    // Check permission
-    const permStatus = await LocalNotifications.checkPermissions();
-    if (permStatus.display !== 'granted') {
+    await ensureAndroidChannel();
+
+    const cachedPermission = getCachedPermissionState();
+    if (cachedPermission && cachedPermission !== 'granted') {
       if (isDev) {
         console.log('[Notification] Permission not granted, cannot schedule');
       }
       return;
     }
-
-    await ensureAndroidChannel();
 
     // First, cancel all pending notifications
     try {
@@ -245,52 +365,114 @@ export const scheduleNotifications = async (
 
     // Schedule new notifications for each enabled streak reminder
     const notificationsToSchedule: LocalNotificationSchema[] = [];
+    const preTaskOffsetMinutes = settings.preTaskReminderOffsetMinutes ?? 5;
 
     streaks.forEach(streak => {
       const reminder = getReminder(streak.id);
-      if (!reminder || !reminder.enabled) {
-        return;
+      let canScheduleReminder = Boolean(reminder && reminder.enabled);
+
+      if (canScheduleReminder) {
+        if (!reminder?.time || typeof reminder.time !== 'string' || !reminder.time.includes(':')) {
+          console.error('[Notification] Invalid time format for streak:', streak.id, reminder?.time);
+          canScheduleReminder = false;
+        } else {
+          const parts = reminder.time.split(':');
+          const hour = parseInt(parts[0], 10);
+          const minute = parseInt(parts[1], 10);
+
+          if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+            console.error('[Notification] Invalid time values for streak:', streak.id, { hour, minute });
+            canScheduleReminder = false;
+          } else {
+            const baseId = getNotificationIdBase(streak.id);
+            const title = `${streak.emoji} ${streak.name}`;
+            const body = reminder.description || `Time to complete "${streak.name}". Keep your streak going!`;
+
+            // Handle repeat days
+            if (reminder.repeatType === 'custom') {
+              if (!Array.isArray(reminder.repeatDays) || reminder.repeatDays.length !== 7) {
+                console.error('[Notification] Invalid repeatDays array for streak:', streak.id, reminder.repeatDays);
+                canScheduleReminder = false;
+              } else {
+                reminder.repeatDays.forEach((isEnabled, dayIndex) => {
+                  if (isEnabled === true) {
+                    notificationsToSchedule.push({
+                      id: baseId + dayIndex + 1,
+                      title,
+                      body,
+                      smallIcon: 'ic_notification_icon',
+                      channelId: 'daily-reminders',
+                      schedule: {
+                        on: {
+                          weekday: dayIndex + 1,
+                          hour,
+                          minute,
+                        },
+                        repeats: true,
+                      },
+                      extra: { streakId: streak.id },
+                    });
+                  }
+                });
+              }
+            } else {
+              notificationsToSchedule.push({
+                id: baseId,
+                title,
+                body,
+                smallIcon: 'ic_notification_icon',
+                channelId: 'daily-reminders',
+                schedule: {
+                  on: { hour, minute },
+                  repeats: true,
+                },
+                extra: { streakId: streak.id },
+              });
+            }
+          }
+        }
       }
 
-      const [hour, minute] = reminder.time.split(':').map(Number);
-      const baseId = getNotificationIdBase(streak.id);
-      const title = `${streak.emoji} ${streak.name}`;
-      const body = reminder.description || `Time to complete "${streak.name}". Keep your streak going!`;
+      // Pre-task reminder for scheduled time (optional, global setting)
+      if (preTaskOffsetMinutes > 0 && streak.scheduledTime) {
+        const preTaskTime = getPreTaskTime(streak.scheduledTime, preTaskOffsetMinutes);
+        if (!preTaskTime) {
+          return;
+        }
 
-      // Handle repeat days
-      if (reminder.repeatType === 'custom') {
-        // Schedule individual notifications for each enabled day
-        reminder.repeatDays.forEach((isEnabled, dayIndex) => {
-          if (isEnabled) {
-            notificationsToSchedule.push({
-              id: baseId + dayIndex + 1,
-              title,
-              body,
-              channelId: 'daily-reminders',
-              schedule: {
-                on: {
-                  weekday: dayIndex + 1, // 1=Sunday, 2=Monday, ..., 7=Saturday
-                  hour,
-                  minute,
-                },
-                repeats: true,
-              },
-              extra: { streakId: streak.id },
-            });
+        const preTaskBaseId = getNotificationIdBase(`${streak.id}-pre`);
+        const minutesLabel = `${preTaskOffsetMinutes} minute${preTaskOffsetMinutes === 1 ? '' : 's'}`;
+        const preTaskTitle = 'Upcoming Task';
+        const preTaskBody = `You have a task scheduled in ${minutesLabel}`;
+
+        if (streak.scheduledDate) {
+          const scheduledAt = buildLocalDateTime(streak.scheduledDate, preTaskTime.hour, preTaskTime.minute);
+          if (!scheduledAt || scheduledAt.getTime() <= Date.now()) {
+            return;
           }
-        });
-      } else {
-        // Daily repeat
+          notificationsToSchedule.push({
+            id: preTaskBaseId,
+            title: preTaskTitle,
+            body: preTaskBody,
+            smallIcon: 'ic_notification_icon',
+            channelId: 'daily-reminders',
+            schedule: { at: scheduledAt },
+            extra: { streakId: streak.id, type: 'pre-task' },
+          });
+          return;
+        }
+
         notificationsToSchedule.push({
-          id: baseId,
-          title,
-          body,
+          id: preTaskBaseId,
+          title: preTaskTitle,
+          body: preTaskBody,
+          smallIcon: 'ic_notification_icon',
           channelId: 'daily-reminders',
           schedule: {
-            on: { hour, minute },
+            on: { hour: preTaskTime.hour, minute: preTaskTime.minute },
             repeats: true,
           },
-          extra: { streakId: streak.id },
+          extra: { streakId: streak.id, type: 'pre-task' },
         });
       }
     });
@@ -323,7 +505,7 @@ export const cancelNotifications = async (streakId?: string): Promise<void> => {
 
   try {
     const pending = await LocalNotifications.getPending();
-    
+
     let toCancel = pending.notifications;
     if (streakId) {
       toCancel = toCancel.filter(n => n.extra?.streakId === streakId);
@@ -353,7 +535,6 @@ export const enableNotifications = async (
     console.log('[Notification] Enable notifications called');
   }
 
-  // Step 1: Request permission
   const granted = await requestNotificationPermission();
   if (!granted) {
     if (isDev) {
@@ -362,11 +543,9 @@ export const enableNotifications = async (
     return false;
   }
 
-  // Step 2: Update settings
   const nextSettings: NotificationSettings = { ...settings, enabled: true };
   saveNotificationSettings(nextSettings);
 
-  // Step 3: Schedule notifications immediately
   if (isDev) {
     console.log('[Notification] Permission granted, scheduling notifications');
   }

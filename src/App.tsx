@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { useViewportHeight } from "@/hooks/useViewportHeight";
@@ -13,6 +12,7 @@ import { AddStreakDialog } from "@/components/AddStreakDialog";
 import { useModal } from "@/contexts/ModalContext";
 import { Reminder } from "@/types/reminder";
 import { initializeAllReminders } from "@/services/reminderService";
+import { initializeNotificationChannels } from "@/services/notificationService";
 import Index from "./pages/Index";
 import Streaks from "./pages/Streaks";
 import StreakDetail from "./pages/StreakDetail";
@@ -20,8 +20,6 @@ import Calendar from "./pages/Calendar";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-
-const queryClient = new QueryClient();
 
 // Apply system theme on load
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
@@ -109,6 +107,27 @@ const AppContent = () => {
     initializeAllReminders(streaks, () => {});
   }, [streaks]);
 
+  // CRITICAL: Initialize notification channels at app startup
+  // Must run ONCE at startup, NEVER during render or Settings screen load
+  // Async-safe: wrapped in useEffect with proper cleanup
+  useEffect(() => {
+    const initNotifications = async () => {
+      try {
+        await initializeNotificationChannels();
+      } catch (error) {
+        console.error('[App] Failed to initialize notifications:', error);
+        // Fail silently - don't crash the app
+      }
+    };
+
+    // Defer to next tick to avoid blocking initial render
+    const timeoutId = window.setTimeout(() => {
+      void initNotifications();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   const handleAddStreak = (name: string, emoji: string, reminder?: Reminder, color?: string, description?: string, listId?: string) => {
     addStreak(name, emoji, reminder, color, description, listId);
     closeAddStreak();
@@ -139,22 +158,20 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <RecoveryAlertProvider>
-          <ModalProvider>
-            <StreaksProvider>
-              <RecoveryAlertDialog />
-              <AppContent />
-            </StreaksProvider>
-          </ModalProvider>
-        </RecoveryAlertProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ThemeProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <RecoveryAlertProvider>
+        <ModalProvider>
+          <StreaksProvider>
+            <RecoveryAlertDialog />
+            <AppContent />
+          </StreaksProvider>
+        </ModalProvider>
+      </RecoveryAlertProvider>
+    </TooltipProvider>
+  </ThemeProvider>
 );
 
 export default App;

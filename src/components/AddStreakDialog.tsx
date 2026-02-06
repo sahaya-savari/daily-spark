@@ -86,11 +86,34 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
       return;
     }
 
+    // BUG FIX 2: Validate reminder data before submission
+    let validReminderTime = reminderTime;
+    let validRepeatDays = repeatDays;
+
+    // Validate time format (HH:MM)
+    if (reminderEnabled && reminderTime) {
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(reminderTime)) {
+        console.error('[AddStreak] Invalid time format:', reminderTime);
+        validReminderTime = '09:00'; // Default to 9 AM
+      }
+    }
+
+    // Validate repeatDays array
+    if (reminderEnabled && repeatType === 'custom') {
+      if (!Array.isArray(repeatDays) || repeatDays.length !== 7) {
+        console.error('[AddStreak] Invalid repeatDays:', repeatDays);
+        validRepeatDays = [true, true, true, true, true, true, true]; // Default to all days
+      }
+      // Ensure all values are strictly boolean
+      validRepeatDays = validRepeatDays.map(val => Boolean(val));
+    }
+
     const reminder: Reminder = {
       enabled: reminderEnabled,
-      time: reminderTime,
+      time: validReminderTime,
       repeatType,
-      repeatDays,
+      repeatDays: validRepeatDays,
       description,
     };
 

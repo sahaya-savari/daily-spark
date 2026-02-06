@@ -21,6 +21,8 @@ import { useModal } from '@/contexts/ModalContext';
 import { Button } from '@/components/ui/button';
 import { DEFAULT_LIST_ID } from '@/types/streak';
 import { Reminder } from '@/types/reminder';
+import { getColorFromListColor } from '@/lib/utils';
+import { calculateGlobalStreak } from '@/services/globalStreakService';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,6 +68,11 @@ const Index = () => {
   const [graceDialogState, setGraceDialogState] = useState<{ isOpen: boolean; streakId: string | null }>({ isOpen: false, streakId: null });
   const [todayFocusEnabled, setTodayFocusEnabled] = useState(getTodayFocusEnabled());
 
+  // BUG FIX 1: Ensure page scrolls to top on mount so Add button is visible
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, []);
+
   useEffect(() => {
     const handler = () => setTodayFocusEnabled(getTodayFocusEnabled());
     window.addEventListener('storage', handler);
@@ -91,7 +98,9 @@ const Index = () => {
   }, [streaks, editDialogState.streakId]);
 
   const stats = getStats();
-  const totalStreakDays = streaks.reduce((sum, s) => sum + s.currentStreak, 0);
+  
+  // BUG FIX 3: Calculate global streak correctly - ONE day = ONE increment
+  const totalStreakDays = calculateGlobalStreak();
 
   const handleCompleteStreak = useCallback((id: string) => {
     const wasCompleted = completeStreak(id);
@@ -307,7 +316,7 @@ const Index = () => {
         )}
 
         {/* Today's Streaks Section */}
-        <section className="mb-8">
+        <section className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-bold text-foreground">Today's Streaks</h2>
             <span className="text-sm text-muted-foreground">
@@ -369,12 +378,7 @@ const Index = () => {
                         <div
                           className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{
-                            backgroundColor: list.color === 'fire' ? '#ff6b35' :
-                                           list.color === 'ocean' ? '#0ea5e9' :
-                                           list.color === 'forest' ? '#22c55e' :
-                                           list.color === 'sunset' ? '#f97316' :
-                                           list.color === 'purple' ? '#a855f7' :
-                                           list.color === 'rose' ? '#ec4899' : '#ff6b35'
+                            backgroundColor: getColorFromListColor(list.color)
                           }}
                         />
                         <span>{list.name}</span>
@@ -418,7 +422,7 @@ const Index = () => {
         </section>
 
         {/* Add streak button - single primary CTA */}
-        <div className="mt-6 pb-4">
+        <div className="mt-4 pb-4">
           <Button
             size="lg"
             className="w-full h-14 text-base font-medium fire-gradient text-white rounded-xl shadow-md"

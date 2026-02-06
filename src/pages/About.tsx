@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
 import { APP_NAME, APP_VERSION, APP_DESCRIPTION } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { openExternalUrl } from '@/services/externalLinkService';
 
 const About = () => {
   return (
@@ -95,24 +96,20 @@ const About = () => {
             </p>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <a
-                href="https://github.com/sahaya-savari"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm"
+              <button
+                onClick={() => openExternalUrl('https://github.com/sahaya-savari')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm cursor-pointer"
               >
                 <Github className="w-4 h-4" />
                 GitHub Profile
-              </a>
-              <a
-                href="https://github.com/sahaya-savari/daily-spark"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-sm"
+              </button>
+              <button
+                onClick={() => openExternalUrl('https://github.com/sahaya-savari/daily-spark')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors text-sm cursor-pointer"
               >
                 <Github className="w-4 h-4" />
                 Repository
-              </a>
+              </button>
             </div>
           </div>
         </section>
@@ -145,14 +142,12 @@ const About = () => {
           <h3 className="font-semibold text-foreground">License</h3>
           <p className="text-sm text-muted-foreground">
             This project is open source and available under the{' '}
-            <a
-              href="https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
+            <button
+              onClick={() => openExternalUrl('https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE')}
+              className="text-primary hover:underline cursor-pointer"
             >
               MIT License
-            </a>
+            </button>
             .
           </p>
         </section>

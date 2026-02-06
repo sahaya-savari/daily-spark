@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, memo } from 'react';
 import { Plus, X, Trash2, Edit2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StreakList } from '@/types/streak';
-import { cn } from '@/lib/utils';
+import { cn, getColorFromListColor } from '@/lib/utils';
 
 interface StreakListManagerProps {
   lists: StreakList[];
@@ -23,7 +23,7 @@ const COLOR_OPTIONS = [
   { name: 'Rose', value: 'rose' },
 ];
 
-export const StreakListManager = ({
+export const StreakListManager = memo(({
   lists,
   activeListId,
   onListChange,
@@ -88,12 +88,7 @@ export const StreakListManager = ({
               <div
                 className="w-4 h-4 rounded-full flex-shrink-0"
                 style={{
-                  backgroundColor: list.color === 'fire' ? '#ff6b35' :
-                                   list.color === 'ocean' ? '#0ea5e9' :
-                                   list.color === 'forest' ? '#22c55e' :
-                                   list.color === 'sunset' ? '#f97316' :
-                                   list.color === 'purple' ? '#a855f7' :
-                                   list.color === 'rose' ? '#ec4899' : '#ff6b35'
+                  backgroundColor: getColorFromListColor(list.color)
                 }}
               />
               <span
@@ -110,12 +105,16 @@ export const StreakListManager = ({
                       setEditingName(list.name);
                     }}
                     className="p-1 hover:bg-background rounded"
+                    aria-label="Edit list"
+                    title="Edit list"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => onDeleteList(list.id)}
                     className="p-1 hover:bg-destructive/10 rounded text-destructive"
+                    aria-label="Delete list"
+                    title="Delete list"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -144,17 +143,13 @@ export const StreakListManager = ({
               <button
                 key={color.value}
                 onClick={() => setNewListColor(color.value)}
+                title={`Select ${color.name} color`}
                 className={cn(
                   'h-8 rounded-lg transition-all',
                   newListColor === color.value ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'
                 )}
                 style={{
-                  backgroundColor: color.value === 'fire' ? '#ff6b35' :
-                                 color.value === 'ocean' ? '#0ea5e9' :
-                                 color.value === 'forest' ? '#22c55e' :
-                                 color.value === 'sunset' ? '#f97316' :
-                                 color.value === 'purple' ? '#a855f7' :
-                                 color.value === 'rose' ? '#ec4899' : '#ff6b35'
+                  backgroundColor: getColorFromListColor(color.value)
                 }}
               />
             ))}
@@ -189,4 +184,6 @@ export const StreakListManager = ({
       )}
     </div>
   );
-};
+});
+
+StreakListManager.displayName = 'StreakListManager';

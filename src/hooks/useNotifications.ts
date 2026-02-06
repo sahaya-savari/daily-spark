@@ -11,6 +11,12 @@ import {
   type NotificationPermissionStatus,
 } from '@/services/notificationService';
 
+/**
+ * ASYNC-SAFE Notifications Hook
+ * NEVER calls native APIs during render
+ * All operations wrapped in try-catch
+ * Fails silently to prevent app crashes
+ */
 export const useNotifications = (streaks: Streak[]) => {
   const [settings, setSettings] = useState<NotificationSettings>(getNotificationSettings);
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermissionStatus>({
@@ -20,67 +26,96 @@ export const useNotifications = (streaks: Streak[]) => {
   });
   const [isBusy, setIsBusy] = useState(false);
 
-  // Update settings
   const updateSettings = useCallback((newSettings: NotificationSettings) => {
-    setSettings(newSettings);
-    saveNotificationSettings(newSettings);
+    try {
+      setSettings(newSettings);
+      saveNotificationSettings(newSettings);
+    } catch (error) {
+      console.error('[useNotifications] Failed to update settings:', error);
+      // Fail silently - don't crash the app
+    }
   }, []);
 
-  // Initial permission check on mount
+  // SAFE: Check permission on mount (deferred to avoid blocking render)
   useEffect(() => {
     let isMounted = true;
+    
     const hydratePermission = async () => {
-      const status = await checkNotificationPermission();
-      if (!isMounted) {
-        return;
-      }
-      setPermissionStatus(status);
-      // Sync settings with actual permission state
-      if (status.permission !== 'granted' && settings.enabled) {
-        updateSettings({ ...settings, enabled: false });
+      try {
+        const status = await checkNotificationPermission();
+        if (!isMounted) return;
+        
+        setPermissionStatus(status);
+        
+        // If permission was revoked, disable notifications
+        if (status.permission !== 'granted' && settings.enabled) {
+          updateSettings({ ...settings, enabled: false });
+        }
+      } catch (error) {
+        console.error('[useNotifications] Permission check failed:', error);
+        // Fail silently - set safe defaults
+        if (isMounted) {
+          setPermissionStatus({
+            supported: false,
+            permission: 'denied',
+            platform: 'web',
+          });
+        }
       }
     };
 
-    hydratePermission();
+    // Defer to next tick to avoid blocking initial render
+    const timeoutId = window.setTimeout(() => {
+      void hydratePermission();
+    }, 0);
+
     return () => {
       isMounted = false;
+      window.clearTimeout(timeoutId);
     };
   }, [settings, updateSettings]);
 
   const enableNotifications = useCallback(async () => {
-    if (isBusy) {
-      return false;
-    }
+    if (isBusy) return false;
+    
     setIsBusy(true);
     try {
       const granted = await enableNotificationsService(streaks, settings);
       const status = await checkNotificationPermission();
       setPermissionStatus(status);
+      
       if (granted) {
         updateSettings({ ...settings, enabled: true });
       } else {
         updateSettings({ ...settings, enabled: false });
       }
+      
       return granted;
+    } catch (error) {
+      console.error('[useNotifications] Enable failed:', error);
+      // Fail silently - return false
+      return false;
     } finally {
       setIsBusy(false);
     }
   }, [isBusy, settings, streaks, updateSettings]);
 
   const disableNotifications = useCallback(async () => {
-    if (isBusy) {
-      return;
-    }
+    if (isBusy) return;
+    
     setIsBusy(true);
     try {
       await disableNotificationsService();
       updateSettings({ ...settings, enabled: false });
+    } catch (error) {
+      console.error('[useNotifications] Disable failed:', error);
+      // Fail silently - don't crash
     } finally {
       setIsBusy(false);
     }
   }, [isBusy, settings, updateSettings]);
 
-  // When time or enabled state changes, reschedule
+  // SAFE: Reschedule notifications when settings or streaks change
   useEffect(() => {
     let isMounted = true;
 
@@ -88,24 +123,34 @@ export const useNotifications = (streaks: Streak[]) => {
       if (!isMounted || !settings.enabled || permissionStatus.permission !== 'granted') {
         return;
       }
-      // Reschedule with updated settings
-      await scheduleNotifications(streaks, settings);
+      
+      try {
+        await scheduleNotifications(streaks, settings);
+      } catch (error) {
+        console.error('[useNotifications] Reschedule failed:', error);
+        // Fail silently - don't crash
+      }
     };
 
-    reschedule();
+    void reschedule();
 
     return () => {
       isMounted = false;
     };
   }, [streaks, settings, permissionStatus.permission]);
 
-  // Listen for visibility changes to re-check permissions
+  // SAFE: Re-check permission when app comes back to foreground
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         void (async () => {
-          const status = await checkNotificationPermission();
-          setPermissionStatus(status);
+          try {
+            const status = await checkNotificationPermission();
+            setPermissionStatus(status);
+          } catch (error) {
+            console.error('[useNotifications] Visibility check failed:', error);
+            // Fail silently - don't crash
+          }
         })();
       }
     };

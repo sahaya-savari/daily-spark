@@ -22,11 +22,16 @@ import {
 } from '@/services/reminderService';
 import { triggerHapticLight, triggerHapticSuccess } from '@/services/hapticService';
 import { recoverStreaksOnBoot } from '@/services/dataRecoveryService';
+import { recordTodayActivity } from '@/services/globalStreakService';
+import { hasRevivalPoints } from '@/services/revivalService';
 
 const STORAGE_KEY = 'streakflame_streaks';
 const LISTS_STORAGE_KEY = 'streakflame_lists';
 
 // Get streak status
+// BUG FIX 4: Verify streak status is calculated independently for each streak
+// Each streak's status depends ONLY on its own lastCompletedDate
+// Missing one streak does NOT affect any other streak
 export const getStreakStatus = (streak: Streak): StreakStatus => {
   if (isToday(streak.lastCompletedDate)) {
     return 'completed';
@@ -149,34 +154,45 @@ export const useStreaks = () => {
 
   // Add a new streak
   const addStreak = useCallback((name: string, emoji: string, reminder?: Reminder, color?: string, description?: string, listId?: string) => {
-    const newStreak: Streak = {
-      id: generateId(),
-      name,
-      emoji,
-      createdAt: getTodayDate(),
-      currentStreak: 0,
-      bestStreak: 0,
-      lastCompletedDate: null,
-      completedDates: [],
-      color,
-      description,
-      listId: listId || DEFAULT_LIST_ID,
-      isStarred: false,
-    };
-    setStreaks(prev => [...prev, newStreak]);
-    
-    if (reminder && reminder.enabled) {
-      saveReminder(newStreak.id, reminder);
-      scheduleReminder(
-        newStreak.id,
+    try {
+      // BUG FIX 2: Wrap in try-catch to prevent app crashes
+      const newStreak: Streak = {
+        id: generateId(),
         name,
         emoji,
-        reminder,
-        () => {}
-      );
+        createdAt: getTodayDate(),
+        currentStreak: 0,
+        bestStreak: 0,
+        lastCompletedDate: null,
+        completedDates: [],
+        color,
+        description,
+        listId: listId || DEFAULT_LIST_ID,
+        isStarred: false,
+      };
+      setStreaks(prev => [...prev, newStreak]);
+      
+      if (reminder && reminder.enabled) {
+        try {
+          saveReminder(newStreak.id, reminder);
+          scheduleReminder(
+            newStreak.id,
+            name,
+            emoji,
+            reminder,
+            () => {}
+          );
+        } catch (reminderError) {
+          console.error('[Streak] Failed to setup reminder:', reminderError);
+          // Continue anyway - streak was created successfully
+        }
+      }
+      
+      return newStreak;
+    } catch (error) {
+      console.error('[Streak] Failed to add streak:', error);
+      throw error; // Re-throw so UI can handle it
     }
-    
-    return newStreak;
   }, []);
 
   // Complete a streak for today
@@ -194,6 +210,9 @@ export const useStreaks = () => {
       
       wasCompleted = true;
       triggerHapticSuccess(); // Haptic feedback on completion
+      
+      // BUG FIX 3: Record today's activity for global streak (only once per day)
+      recordTodayActivity();
       
       const yesterday = getYesterdayDate();
       
@@ -369,6 +388,7 @@ export const useStreaks = () => {
     deleteStreak,
     editStreak,
     toggleStar,
+    hasRevivalPoints,
     moveStreakToList,
     createList,
     renameList,

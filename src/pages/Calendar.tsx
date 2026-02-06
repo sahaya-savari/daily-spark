@@ -14,15 +14,30 @@ const CalendarPage = () => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  // Get all completion dates across all streaks
+  // Get all completion dates across all streaks with active streak count
   const allCompletions = useMemo(() => {
     const completions = new Map<string, number>();
+    const activeStreaks = new Map<string, number>();
+    
     streaks.forEach(streak => {
+      const createdDate = streak.createdAt;
+      
+      // For each date from creation onward, mark streak as active
+      const createdDateObj = new Date(createdDate);
+      const today = new Date();
+      
+      for (let d = new Date(createdDateObj); d <= today; d.setDate(d.getDate() + 1)) {
+        const dateStr = formatLocalDate(d);
+        activeStreaks.set(dateStr, (activeStreaks.get(dateStr) || 0) + 1);
+      }
+      
+      // Count completions
       streak.completedDates.forEach(date => {
         completions.set(date, (completions.get(date) || 0) + 1);
       });
     });
-    return completions;
+    
+    return { completions, activeStreaks };
   }, [streaks]);
 
   // Generate calendar days
@@ -32,19 +47,20 @@ const CalendarPage = () => {
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
 
-    const days: Array<{ date: Date | null; day: number; completions: number }> = [];
+    const days: Array<{ date: Date | null; day: number; completed: number; active: number }> = [];
 
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDay; i++) {
-      days.push({ date: null, day: 0, completions: 0 });
+      days.push({ date: null, day: 0, completed: 0, active: 0 });
     }
 
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const dateString = formatLocalDate(date);
-      const completions = allCompletions.get(dateString) || 0;
-      days.push({ date, day, completions });
+      const completed = allCompletions.completions.get(dateString) || 0;
+      const active = allCompletions.activeStreaks.get(dateString) || 0;
+      days.push({ date, day, completed, active });
     }
 
     return days;
@@ -99,9 +115,9 @@ const CalendarPage = () => {
         </div>
 
         {/* Calendar grid */}
-        <div className="bg-card border border-border rounded-xl p-3">
+        <div className="bg-card border border-border rounded-xl p-2 sm:p-3">
           {/* Day headers */}
-          <div className="grid grid-cols-7 mb-2">
+          <div className="grid grid-cols-7 mb-1 sm:mb-2">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
               <div
                 key={day}
@@ -113,7 +129,7 @@ const CalendarPage = () => {
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-1">
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
             {calendarDays.map((dayInfo, index) => {
               if (!dayInfo.date) {
                 return <div key={`empty-${index}`} className="aspect-square" />;
@@ -121,38 +137,55 @@ const CalendarPage = () => {
 
               const dateString = formatLocalDate(dayInfo.date);
               const isToday = dateString === today;
-              const hasCompletions = dayInfo.completions > 0;
-              const maxStreaks = streaks.length || 1;
-              const completionRatio = dayInfo.completions / maxStreaks;
+              const { completed, active } = dayInfo;
+              
+              // Determine color based on completion count and ratio
+              let bgColor = "bg-muted";
+              let textColor = "text-muted-foreground";
+              
+              if (active > 0) {
+                if (completed === 0) {
+                  // 0/x → Grey
+                  bgColor = "bg-gray-200 dark:bg-gray-700";
+                  textColor = "text-gray-600 dark:text-gray-300";
+                } else if (completed <= 2) {
+                  // 1-2/x → Red
+                  bgColor = "bg-destructive/20";
+                  textColor = "text-destructive";
+                } else if (completed <= 4) {
+                  // 3-4/x → Orange
+                  bgColor = "bg-orange-200 dark:bg-orange-900/30";
+                  textColor = "text-orange-600 dark:text-orange-400";
+                } else if (completed === active) {
+                  // x/x → Green (all completed)
+                  bgColor = "bg-success/20";
+                  textColor = "text-success";
+                } else {
+                  // 5+ but not all → Primary/default
+                  bgColor = "bg-primary/10";
+                  textColor = "text-primary";
+                }
+              }
 
               return (
                 <div
                   key={dateString}
                   className={cn(
-                    "aspect-square flex flex-col items-center justify-center rounded-lg text-sm relative",
+                    "aspect-square flex flex-col items-center justify-center rounded-lg text-xs relative",
+                    bgColor,
                     isToday && "ring-2 ring-primary",
-                    hasCompletions && "bg-primary/10"
                   )}
                 >
                   <span className={cn(
-                    "font-medium",
-                    isToday && "text-primary",
-                    hasCompletions && "text-primary"
+                    "font-medium text-foreground text-sm sm:text-base",
+                    isToday && "text-primary font-bold",
                   )}>
                     {dayInfo.day}
                   </span>
-                  {hasCompletions && (
-                    <div className="flex items-center gap-0.5 mt-0.5">
-                      <Flame className={cn(
-                        "w-3 h-3",
-                        completionRatio >= 1 ? "text-primary" : "text-primary/60"
-                      )} />
-                      {dayInfo.completions > 1 && (
-                        <span className="text-[10px] text-primary font-medium">
-                          {dayInfo.completions}
-                        </span>
-                      )}
-                    </div>
+                  {active > 0 && (
+                    <span className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                      {completed}/{active}
+                    </span>
                   )}
                 </div>
               );
@@ -163,12 +196,22 @@ const CalendarPage = () => {
         {/* Legend */}
         <div className="mt-4 p-3 bg-card border border-border rounded-xl">
           <h3 className="text-sm font-medium text-foreground mb-2">Legend</h3>
-          <div className="flex flex-wrap gap-4 text-sm">
+          <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-primary/10 flex items-center justify-center">
-                <Flame className="w-2.5 h-2.5 text-primary" />
-              </div>
-              <span className="text-muted-foreground">Completed</span>
+              <div className="w-4 h-4 rounded bg-gray-200 dark:bg-gray-700" />
+              <span className="text-muted-foreground">0/x — No completions</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-destructive/20" />
+              <span className="text-muted-foreground">1–2/x — Few completions</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-orange-200 dark:bg-orange-900/30" />
+              <span className="text-muted-foreground">3–4/x — Most completions</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-success/20" />
+              <span className="text-muted-foreground">x/x — All completed</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded ring-2 ring-primary" />
@@ -183,7 +226,7 @@ const CalendarPage = () => {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <p className="text-2xl font-bold text-primary">
-                {Array.from(allCompletions.entries())
+                {Array.from(allCompletions.completions.entries())
                   .filter(([date]) => date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`))
                   .reduce((sum, [, count]) => sum + count, 0)}
               </p>
@@ -192,7 +235,7 @@ const CalendarPage = () => {
             <div>
               <p className="text-2xl font-bold text-secondary">
                 {new Set(
-                  Array.from(allCompletions.entries())
+                  Array.from(allCompletions.completions.entries())
                     .filter(([date]) => date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`))
                     .map(([date]) => date)
                 ).size}

@@ -12,7 +12,7 @@
 import { Capacitor } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
-import { getTodayDate } from '@/lib/dateUtils';
+import { getTodayDate, getDaysAgo, formatLocalDate } from '@/lib/dateUtils';
 import { Streak } from '@/types/streak';
 import {
   validateBackupData,
@@ -137,8 +137,12 @@ export const downloadBackup = async (): Promise<DownloadResult> => {
     const today = getTodayDate();
     const filename = `daily-spark-backup-${today}.json`;
     const json = JSON.stringify(backup, null, 2);
-    return await downloadTextFile(filename, json, 'application/json', 'Daily Spark backup');
+    console.log('[Backup] Starting JSON export:', filename);
+    const result = await downloadTextFile(filename, json, 'application/json', 'Daily Spark backup');
+    console.log('[Backup] JSON export result:', result);
+    return result;
   } catch (error) {
+    console.error('[Backup] Export failed:', error);
     throw new Error('Failed to create backup file. Please try again.');
   }
 };
@@ -242,8 +246,12 @@ export const downloadStreaksCsv = async (): Promise<DownloadResult> => {
     const today = getTodayDate();
     const filename = `daily-spark-streaks-${today}.csv`;
     const csv = createStreaksCsv();
-    return await downloadTextFile(filename, csv, 'text/csv', 'Daily Spark CSV export');
+    console.log('[Backup] Starting CSV export:', filename);
+    const result = await downloadTextFile(filename, csv, 'text/csv', 'Daily Spark CSV export');
+    console.log('[Backup] CSV export result:', result);
+    return result;
   } catch (error) {
+    console.error('[Backup] CSV export failed:', error);
     throw new Error('Failed to create CSV file. Please try again.');
   }
 };
@@ -261,6 +269,17 @@ export interface CsvStreakImportRow {
   isStarred?: boolean;
 }
 
+/**
+ * Simple CSV format for importing streaks from other apps
+ * Format: title,start_date,current_count
+ * Example: Duolingo,2025-12-10,56
+ */
+export interface SimpleStreakImportRow {
+  title: string;
+  startDate: string;
+  currentCount: number;
+}
+
 export const parseStreaksCsv = (text: string): { rows: CsvStreakImportRow[]; errors: string[] } => {
   const errors: string[] = [];
   const content = text.replace(/^\uFEFF/, '');
@@ -276,8 +295,20 @@ export const parseStreaksCsv = (text: string): { rows: CsvStreakImportRow[]; err
     headerMap.set(header.toLowerCase(), index);
   });
 
+  // Detect format: simple (title,start_date,current_count) or complex (with full streak fields)
+  const isSimpleFormat = 
+    headerMap.has('title') && 
+    headerMap.has('start_date') && 
+    headerMap.has('current_count') &&
+    headerCells.length === 3;
+
+  if (isSimpleFormat) {
+    return parseSimpleStreaksCsv(lines, errors);
+  }
+
+  // Complex format detection (existing logic)
   if (!headerMap.has('name')) {
-    return { rows: [], errors: ['CSV must include a "name" column.'] };
+    return { rows: [], errors: ['CSV must include a "name" column (or use simple format: title,start_date,current_count).'] };
   }
 
   const rows: CsvStreakImportRow[] = [];
@@ -310,6 +341,86 @@ export const parseStreaksCsv = (text: string): { rows: CsvStreakImportRow[]; err
       scheduledTime: getValue('scheduledTime') || undefined,
       isStarred: parseBoolean(getValue('isStarred')),
     });
+  }
+
+  return { rows, errors };
+};
+
+/**
+ * Parse simple CSV format: title,start_date,current_count
+ * Converts to complex CsvStreakImportRow format for consistency
+ */
+const parseSimpleStreaksCsv = (lines: string[], errors: string[]): { rows: CsvStreakImportRow[]; errors: string[] } => {
+  const rows: CsvStreakImportRow[] = [];
+  
+  for (let i = 1; i < lines.length; i += 1) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    const cells = parseCsvLine(line);
+    if (cells.length < 3) {
+      errors.push(`Row ${i + 1}: incomplete data (need title, start_date, current_count).`);
+      continue;
+    }
+
+    const title = cells[0]?.trim();
+    const startDateStr = cells[1]?.trim();
+    const currentCountStr = cells[2]?.trim();
+
+    if (!title) {
+      errors.push(`Row ${i + 1}: missing title.`);
+      continue;
+    }
+
+    if (!startDateStr) {
+      errors.push(`Row ${i + 1}: missing start_date (format: YYYY-MM-DD).`);
+      continue;
+    }
+
+    // Validate date format (YYYY-MM-DD)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {
+      errors.push(`Row ${i + 1}: invalid date format "${startDateStr}" (use YYYY-MM-DD).`);
+      continue;
+    }
+
+    const currentCount = parseInt(currentCountStr || '0', 10);
+    if (Number.isNaN(currentCount) || currentCount < 0) {
+      errors.push(`Row ${i + 1}: current_count must be a non-negative number.`);
+      continue;
+    }
+
+    // Generate completed dates from start_date to today
+    const completedDates: string[] = [];
+    const startDate = new Date(startDateStr);
+    const today = new Date();
+
+    // Make sure date strings are parsed correctly
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+    if (currentCount > 0) {
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        completedDates.push(formatLocalDate(d));
+        if (completedDates.length >= currentCount) break;
+      }
+    }
+
+    rows.push({
+      name: title,
+      emoji: '🔥',
+      color: undefined,
+      description: undefined,
+      notes: undefined,
+      reminderEnabled: undefined,
+      reminderTime: undefined,
+      scheduledDate: undefined,
+      scheduledTime: undefined,
+      isStarred: false,
+    });
+
+    // Store metadata for use in Settings.tsx
+    (rows[rows.length - 1] as any)._completedDates = completedDates;
+    (rows[rows.length - 1] as any)._startDate = startDateStr;
   }
 
   return { rows, errors };

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Bell, Shield, Download, Upload, AlertTriangle, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
@@ -8,6 +8,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { openExternalUrl } from '@/services/externalLinkService';
 import { APP_VERSION, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
 import { 
   downloadBackup, 
@@ -37,6 +38,8 @@ const Settings = () => {
   const { streaks, addStreak, editStreak } = useStreaksContext();
   const isNative = Capacitor.isNativePlatform();
   const {
+    settings,
+    updateSettings,
     permissionStatus,
     isEnabled,
     enableNotifications,
@@ -68,9 +71,9 @@ const Settings = () => {
   };
   
   // Load last backup date on mount
-  useState(() => {
+  useEffect(() => {
     setLastBackupDate(getLastBackupDate());
-  });
+  }, []);
 
   const handleToggleNotifications = async () => {
     if (isBusy) {
@@ -102,8 +105,10 @@ const Settings = () => {
     });
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateSettings({ ...settings, defaultTime: e.target.value });
+  const handlePreTaskOffsetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(e.target.value, 10);
+    const nextOffset = Number.isNaN(value) ? 5 : value;
+    updateSettings({ ...settings, preTaskReminderOffsetMinutes: nextOffset });
   };
   
   // Export backup
@@ -174,6 +179,8 @@ const Settings = () => {
           return;
         }
 
+        let needsReload = false;
+
         rows.forEach((row) => {
           const reminder = row.reminderEnabled && row.reminderTime
             ? {
@@ -193,6 +200,33 @@ const Settings = () => {
             row.description
           );
 
+          // Handle completed dates and streak count from simple CSV format
+          const rowAny = row as any;
+          if (rowAny._completedDates && Array.isArray(rowAny._completedDates)) {
+            const completedDates = rowAny._completedDates as string[];
+            const currentStreak = completedDates.length;
+            const lastCompletedDate = completedDates.length > 0 ? completedDates[completedDates.length - 1] : null;
+            const bestStreak = Math.max(currentStreak, 0);
+            
+            // Update streak with completed dates
+            const storedStreaks = JSON.parse(localStorage.getItem('streakflame_streaks') || '[]');
+            const updatedStreaks = storedStreaks.map((s: any) => {
+              if (s.id === created.id) {
+                return {
+                  ...s,
+                  currentStreak,
+                  bestStreak,
+                  lastCompletedDate,
+                  completedDates,
+                  createdAt: rowAny._startDate || s.createdAt,
+                };
+              }
+              return s;
+            });
+            localStorage.setItem('streakflame_streaks', JSON.stringify(updatedStreaks));
+            needsReload = true;
+          }
+
           editStreak(created.id, {
             notes: row.notes,
             scheduledDate: row.scheduledDate,
@@ -211,6 +245,13 @@ const Settings = () => {
             title: 'Some rows were skipped',
             description: errors[0],
           });
+        }
+
+        // Reload if needed after all operations complete
+        if (needsReload) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
         }
 
         return;
@@ -321,6 +362,26 @@ const Settings = () => {
             />
           </div>
 
+          {isEnabled && (
+            <div className="flex items-center justify-between px-4 py-4 touch-target border-b border-border">
+              <div>
+                <p className="font-medium text-foreground">Pre-task Reminder</p>
+                <p className="text-sm text-muted-foreground">Notify before scheduled time</p>
+              </div>
+              <select
+                value={String(settings.preTaskReminderOffsetMinutes ?? 5)}
+                onChange={handlePreTaskOffsetChange}
+                className="bg-muted border-0 rounded-lg px-3 py-2 text-foreground text-sm font-medium"
+                aria-label="Pre-task reminder offset"
+              >
+                <option value="5">5 minutes before</option>
+                <option value="10">10 minutes before</option>
+                <option value="15">15 minutes before</option>
+                <option value="0">Off</option>
+              </select>
+            </div>
+          )}
+
           {/* Today Focus Mode */}
           <div className="flex items-center justify-between px-4 py-4 touch-target">
             <div>
@@ -405,13 +466,26 @@ const Settings = () => {
               </p>
             </div>
 
-            <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground space-y-2">
-              <p>
-                <span className="font-medium text-foreground">CSV import</span> adds new streaks only. CSV starts all streaks at Day 1 and does not include history.
-              </p>
-              <p>
-                <span className="font-medium text-foreground">JSON restore</span> restores full history, including streak count and last completed date. Use JSON when changing devices or reinstalling.
-              </p>
+            <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm space-y-3">
+              <div>
+                <p className="font-semibold text-foreground mb-1">JSON Backup (Full Backup & Restore)</p>
+                <ul className="text-xs text-muted-foreground space-y-0.5 ml-4">
+                  <li>• Complete backup of all streaks, history, and settings</li>
+                  <li>• Restores everything exactly as it was</li>
+                  <li>• Use when changing devices or for safe backup</li>
+                  <li>• Recommended for reliability</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground mb-1">CSV Import (Import from Other Apps)</p>
+                <ul className="text-xs text-muted-foreground space-y-0.5 ml-4">
+                  <li>• Import streaks from other apps (Duolingo, Habit trackers, etc.)</li>
+                  <li>• Format: title, start_date, current_count</li>
+                  <li>• New streaks created with your specified streak count</li>
+                  <li>• History is NOT imported (use JSON for that)</li>
+                  <li>• Skipped rows show clear error messages</li>
+                </ul>
+              </div>
             </div>
 
             {/* Export button */}
@@ -433,7 +507,7 @@ const Settings = () => {
                 Export CSV
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                JSON is a full backup. CSV exports streak basics for spreadsheets.
+                JSON for backup/restore. CSV for importing from other apps.
               </p>
             </div>
 
@@ -457,7 +531,7 @@ const Settings = () => {
                 {isImporting ? 'Reading file...' : 'Import JSON/CSV'}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                JSON restores all data. CSV adds new streaks only.
+                Upload JSON backup to restore, or CSV to import streaks from other apps.
               </p>
             </div>
 
@@ -644,25 +718,21 @@ const Settings = () => {
           <div className="border-t border-border pt-4 text-center">
             <p className="text-sm text-muted-foreground">
               Made with ❤️ by{' '}
-              <a
-                href="https://github.com/sahaya-savari"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
+              <button
+                onClick={() => openExternalUrl('https://github.com/sahaya-savari')}
+                className="text-primary hover:underline cursor-pointer"
               >
                 Sahaya Savari
-              </a>
+              </button>
             </p>
             <p className="text-xs text-muted-foreground mt-2">
               Open source under{' '}
-              <a
-                href="https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
+              <button
+                onClick={() => openExternalUrl('https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE')}
+                className="text-primary hover:underline cursor-pointer"
               >
                 MIT License
-              </a>
+              </button>
             </p>
           </div>
         </div>

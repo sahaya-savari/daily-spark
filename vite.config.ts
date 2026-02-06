@@ -15,6 +15,25 @@ export default defineConfig(({ mode }) => {
       hmr: { overlay: false },
     },
 
+    build: {
+      // Optimize build output
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+        },
+      },
+      // Code splitting configuration
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor': ['react', 'react-dom', 'react-router-dom'],
+            'capacitor': ['@capacitor/core', '@capacitor/local-notifications', '@capacitor/filesystem'],
+          },
+        },
+      },
+    },
+
     plugins: [
       react(),
 

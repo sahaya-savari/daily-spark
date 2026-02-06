@@ -1,274 +1,365 @@
-# 🌟 Daily Spark 🔥
-### Build habits. Stay consistent. Spark progress every day.
+﻿# Daily Spark
 
-🌐 **Live App:** https://bit.ly/dailyspark-app  
-📦 **Type:** Progressive Web App (PWA) + Android APK  
-🔓 **Open Source:** Yes (MIT License)  
-🤖 **Built with:** AI assistance + human decision-making  
+## What is Daily Spark?
 
----
+Daily Spark is a **simple, offline-first daily streak and habit tracking app**. It helps you build consistency by tracking one simple action per day, per habit.
 
-## ✨ What is Daily Spark?
+**Key principles:**
+- No login or account needed
+- No ads or tracking
+- No forced syncing to the cloud
+- Your data stays on your device
+- Designed for consistency, not pressure
 
-**Daily Spark** is a simple, offline-first habit and streak tracking app designed to help you stay consistent without distractions.
-
-No logins.  
-No cloud lock-in.  
-No unnecessary complexity.
-
-Just **you**, your **habits**, and your **daily progress**.
+Perfect for anyone who wants to build habits quietly, without noisy notifications or achievement systems.
 
 ---
 
-## 💡 Why Daily Spark?
+## Core Features (Phase-1)
 
-- 🧠 Encourages **consistency**, not perfection  
-- 🔐 Keeps your data **private & local**  
-- ⚡ Fast, lightweight, and distraction-free  
-- 🎯 Designed for **students, learners, and daily builders**
+### 1. Streak Tracking
 
-Perfect for tracking:
-- 📚 Study habits  
-- 🏃 Fitness routines  
-- 🧘 Mindfulness  
-- ✍️ Daily practice goals  
+Create daily streaks for any habit or task. Each streak can be completed once per day.
 
----
+**What you can do:**
+- Create streaks with custom names and emojis
+- Mark a streak as completed (once per day)
+- Undo a completion if you made a mistake
+- See how many days in a row you've completed
+- Star important streaks to prioritize them
+- Move streaks between "Active" and "Archived" lists
+- Edit streak details
+- Delete streaks
 
-## 🔥 Features at a Glance
+**The philosophy:**
+- One action per day, per streak
+- No over-counting completions
+- No judgment if you break a streak
+- Recovery possible with grace period (24 hours)
 
-- 🌱 **Multiple Streaks** — Track many habits at once  
-- 😀 **Emoji-Based Habits** — Make habits fun and personal  
-- 📅 **Calendar View** — Visual progress tracking  
-- 📴 **Offline-First** — Works without internet  
-- 💾 **Local Data Storage** — Your data stays on your device  
-- 🔄 **Backup & Restore** — Export / import anytime  
-- 📄 **CSV Export** — Share or analyze streak configurations  
-- 🔔 **Reminders** — Notifications (where supported)  
-- 🌙 **Dark Mode** — Easy on the eyes  
-- 📲 **PWA Support** — Install like a native app  
+### 2. Calendar View (Daily Completion Clarity)
 
----
+See your progress over time. The calendar shows **how many streaks you completed each day** (as a ratio: completed / total).
 
-## 📦 Data Import Formats
+**What you see:**
+- A monthly grid showing every day
+- A completion ratio under each day (e.g., "2/3" means 2 out of 3 streaks completed)
+- Background colors indicate your completion rate
 
-- **CSV import** adds new streaks only. It always starts at Day 1 and does not include streak history.
-- **JSON restore** brings back full history, including streak count and last completed date. Use this when changing devices or reinstalling.
+**Color meanings:**
+- **Grey** — 0/x (no completions that day)
+- **Red** — 1–2/x (few completions)
+- **Orange** — 3–4/x (most completions)
+- **Green** — x/x (all streaks completed, perfect day)
+- **Blue ring** — today's date
 
----
+**Why this instead of emojis or stars?**
+- Clear and honest feedback
+- Shows actual progress, not just "done" or "failed"
+- Scales automatically as you add more streaks
+- No confusion about what the numbers mean
 
-## 🚀 Recent Updates & Improvements (v1.0.x)
+### 3. Daily Reminders (Safe & Optional)
 
-Daily Spark is actively developed with a focus on **stability, portability, and real-world usability**.
+Get optional reminders to complete your streaks.
 
-### ✅ v1.0.3 — Backup & Portability Update
-- 🔄 Full JSON backup & restore  
-- 🧱 Atomic import with rollback protection  
-- 📄 CSV export for streak configurations  
-- 📦 Universal Android APK (single file, no splits)  
-- 📱 Supports Android 8 – Android 15  
-- 🛠️ Java 17 compatible, signed release builds  
-- 🐛 **Fixed:** Deduplicated `completedDates` array — prevents inflated stats from multiple completes per day
-- ❌ No feature or data changes (build-only update)  
+**What you can do:**
+- Enable/disable reminders per streak
+- Set a preferred reminder time
+- Choose which days of the week to be reminded
+- Disable all notifications in Settings
 
----
+**Safety first:**
+- Reminders are optional and can be turned off anytime
+- If you deny notification permission, the app won't crash
+- The app works completely fine without notifications
+- Notifications never block or interrupt other app functions
 
-## 🌍 Live Application
+### 4. Backup & Restore (Very Important)
 
-Try it now (no signup required):
+#### JSON Backup (Full Backup + Restore)
 
-👉 https://bit.ly/dailyspark-app
+Use JSON backup to **completely restore your streaks and history** if something happens to your phone.
 
-Installable on:
-- 📱 Android  
-- 📱 iOS (PWA)  
-- 💻 Windows, macOS & Linux  
+**When to use:**
+- Before switching phones
+- Before resetting your device
+- Before reinstalling the app
+- Regular backups (recommended monthly)
 
-### 🧪 Web Demo (Quick Try)
+**What it saves:**
+- All streaks (names, emojis, settings)
+- Complete history (every completion date)
+- Reminder preferences
+- Star/archive status
 
-Daily Spark is available as a **web demo** for quick testing and preview.
+**How to use:**
+1. Go to Settings → Backup & Restore
+2. Tap "Export Full Backup (JSON)"
+3. Save the file to cloud storage or email it to yourself
+4. To restore: Go to Settings → Restore from JSON and select your file
 
-👉 **Web App:** https://bit.ly/dailyspark-app  
-
-You can:
-- Try all core features
-- Install it as a **web application (PWA)** from your browser
-- Use it without signup
-
-> ℹ️ The web version is recommended for **demo and evaluation**.
-
-### 📱 Full Experience (Android APK)
-
-For the **best and complete experience**, download the **Android APK**.
-
-Benefits of the APK version:
-- Better performance
-- Native Android behavior
-- Reliable local storage
-- Recommended for daily, long-term use
-
-👉 **Download APK:**  
-https://github.com/sahaya-savari/daily-spark/releases/latest
-
-> ⭐ For regular use, the **APK version is strongly recommended**.
+**Important:** This is the recommended way to backup. Keep it safe.
 
 ---
 
-## ▶️ Getting Started (Local Setup)
+#### CSV Import (Add New Streaks Only)
 
-### 📦 Requirements
-- Node.js 18+
-- npm or bun
+Import streak ideas in bulk from a spreadsheet or other app.
 
-### 🔧 Installation
+**When to use:**
+- Adding many new streaks at once
+- Importing a list of habits from another app
+- Bulk creating streaks from a template
 
-```bash
-git clone https://github.com/sahaya-savari/daily-spark.git
-cd daily-spark
-npm install
+**What to know:**
+- CSV import starts all streaks at **Day 1** (no history)
+- It does **NOT** overwrite existing streaks
+- It only adds new ones
+- Use this to quickly populate your app with habit ideas
+
+**CSV Format:**
+```
+name,emoji
+Morning Jog,🏃
+Read 30 mins,📚
+Drink Water,💧
+Meditate,🧘
 ```
 
-### 🧪 Run Locally
+**How to use:**
+1. Go to Settings → Backup & Restore
+2. Tap "Import from CSV"
+3. Select your CSV file
+4. New streaks will be added to your Active list
 
+---
+
+**Key difference:**
+- **JSON** = Restore your entire app (all streaks + history)
+- **CSV** = Add new streak ideas (no history)
+
+### 5. Offline-First & Data Safety
+
+Daily Spark uses **local storage only**. Your data never leaves your phone.
+
+**What this means:**
+- App works without internet
+- No cloud service needed
+- No account or login required
+- App updates never reset your data
+- You own your data completely
+
+**Data security:**
+- Stored locally on your device
+- Protected by your device's security
+- Backup files are yours to manage
+
+---
+
+## What Daily Spark Does NOT Do
+
+These features are intentionally missing to keep the app simple and calm:
+
+- **No AI coaching** — You know yourself best
+- **No gamification or achievements** — No pressure systems
+- **No social sharing** — Your streaks are private
+- **No leaderboards** — No competition
+- **No forced reminders** — You decide when to be reminded
+- **No animations or celebrations** — Minimal, quiet interface
+- **No data syncing** — No cloud, no accounts
+
+**Why?** Focus on consistency and calm usage, not addiction or comparison.
+
+---
+
+## Who This App Is For
+
+- Students building study habits
+- Developers tracking daily coding or exercise
+- Anyone building habits quietly
+- Minimalists who hate noisy productivity apps
+- People who prefer local control over cloud services
+- People wanting honest feedback, not false achievements
+
+---
+
+## Who This App Is NOT For
+
+- People who want cloud sync across multiple devices
+- People who need social competition or leaderboards
+- People who want AI-powered coaching
+- People who want heavy analytics and charts
+
+---
+
+## App Navigation
+
+### Home Screen
+Shows your daily streak list with today's completion status. Complete streaks by tapping the button.
+
+### Streaks Screen
+Manage all your streaks: add new ones, edit, move between Active/Archived, or delete.
+
+### Calendar Screen
+View your monthly completion history. See patterns and celebrate perfect days.
+
+### Settings Screen
+- Manage notifications and reminders
+- Backup and restore your data
+- View app information
+
+---
+
+## Technical Overview (For Developers)
+
+### Architecture
+- **Frontend:** React 18 + TypeScript
+- **Native Runtime:** Capacitor (Android)
+- **Storage:** LocalStorage + JSON persistence
+- **Build Tool:** Vite
+- **Testing:** Vitest
+- **UI:** Tailwind CSS + shadcn/ui
+
+### Stack Details
+- **UI Framework:** React with custom components
+- **Styling:** Tailwind CSS
+- **State Management:** React Context API
+- **Notifications:** Capacitor Push Notifications API (Android)
+- **File I/O:** Capacitor Filesystem API
+
+### Key Design Decisions
+
+**Notification Safety:**
+- Notification channel initialized at app startup (not during render)
+- Async-safe notification lifecycle management
+- Permission checks before accessing native APIs
+- Silent failure if permission is denied (no crashes)
+
+**Offline-First:**
+- All data stored locally via localStorage
+- No network requests required for core functionality
+- Backup/restore handled on-device
+
+**Data Format:**
+- Streaks stored as JSON
+- LocalStorage for lightweight settings
+- Deterministic date formatting (YYYY-MM-DD)
+- UTC-based date calculations
+
+### Directory Structure
+```
+src/
+├── components/      # React UI components
+├── contexts/        # React Context providers
+├── hooks/           # Custom React hooks
+├── lib/             # Utilities and helpers
+├── pages/           # Full page components
+├── services/        # Business logic & API
+├── types/           # TypeScript types
+└── test/            # Test files
+android/            # Android native code and Gradle config
+docs/               # Documentation
+public/             # Static assets
+```
+
+### Running Locally
+
+**Development:**
 ```bash
+npm install
 npm run dev
 ```
 
-Open: http://localhost:8080
-
-### 📦 Production Build
-
+**Build for Android:**
 ```bash
-npm run build
-npm run preview
+npm run build -- --mode capacitor
+npx cap sync android
+cd android && ./gradlew clean assembleDebug && cd ..
+```
+
+**Deploy to Device:**
+```bash
+cd android && ./gradlew installDebug && cd ..
+adb shell am start -n com.santhosh.dailyspark2/.MainActivity
+```
+
+### Version Management
+```bash
+# Auto-sync version from package.json to Android
+npm run sync-version
 ```
 
 ---
 
-## 📁 Project Structure
+## Installation
 
-```
-daily-spark/
-├── src/
-│   ├── pages/
-│   ├── components/
-│   ├── hooks/
-│   ├── services/
-│   ├── contexts/
-│   ├── types/
-│   ├── lib/
-│   └── App.tsx
-├── public/
-├── index.html
-├── package.json
-├── vite.config.ts
-└── README.md
-```
+### From GitHub Releases
+1. Go to [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases)
+2. Download the latest APK file
+3. Install on your Android phone
+
+### Manual APK Installation
+1. Build the app locally (see Technical Overview)
+2. Install via ADB: `adb install app-debug.apk`
+
+### Web Version (PWA)
+1. Visit the live app at https://bit.ly/dailyspark-app
+2. Use all core features without signup
+3. Install as a web app from your browser
 
 ---
 
-## �️ Tech Stack
+## Data Responsibility Notice
 
-### Frontend
-- ⚛️ React 18  
-- 🟦 TypeScript  
-- ⚡ Vite  
-- 🎨 Tailwind CSS  
-- 🧩 shadcn/ui  
+**Important:** You are responsible for your data.
 
-### PWA & Storage
-- 📦 Vite PWA Plugin  
-- 🗄️ localStorage  
-- 🔔 Web Notification API  
+- Daily Spark stores all data locally on your device
+- Backup is **your responsibility**
+- We recommend **weekly or monthly JSON backups** to cloud storage
+- If you uninstall the app without backing up, your data is gone
+- App updates should not affect your data, but backup anyway to be safe
 
-### Development
-- ✅ ESLint  
-- 🧪 Vitest  
+**To protect your data:**
+1. Export JSON backup regularly
+2. Store backups in cloud (Google Drive, Dropbox, etc.)
+3. Keep backups in a safe place
 
 ---
 
-## 🔓 Open Source Philosophy
+## Phase-2 (Planned, Not Yet Released)
 
-Daily Spark is **fully open source**.
+These features are planned but NOT yet released. When they arrive, they will NOT break existing data.
 
-✔ Anyone can explore the code  
-✔ Suitable for learning & teaching  
-✔ Contributions are welcome  
-✔ Licensed under **MIT**
+**Planned features:**
+- Simple notes per streak (optional)
+- Additional notification customization
+- UX refinements based on user feedback
 
-This project is both a **real-world app** and a **learning reference** for modern web development.
-
----
-
-## 🤖 Built with AI (Transparent & Ethical)
-
-Daily Spark was built with **AI assistance** as a productivity and learning tool.
-
-AI was used to:
-- ⚙️ Speed up boilerplate setup  
-- 🎨 Improve UI/UX ideas  
-- 🧹 Refactor and clean code  
-- 📝 Help with documentation  
-
-**Important:**  
-All architecture decisions, feature choices, and final implementations were **reviewed, understood, and controlled by the developer**.
-
-AI was a **tool**, not the author.
+**Promise:** Phase-2 will be 100% backward compatible. Your streaks and history are safe.
 
 ---
 
-## 🎓 Educational & Academic Use
+## License & Disclaimer
 
-Daily Spark is suitable for:
-- 🎓 Student projects  
-- 🧑‍🏫 Classroom demonstrations  
-- 📘 Learning React, TypeScript & PWAs  
-- 🧠 Habit psychology discussions  
+Daily Spark is provided as-is for personal and open use.
 
-Safe for:
-- College submissions  
-- Portfolio reviews  
-- Recruiter evaluation  
+**Disclaimer:**
+- No warranty or guarantee of any kind
+- Use at your own risk
+- No liability for data loss
+- Backup regularly
 
----
-
-## �🛣️ Roadmap (Future Ideas)
-
-- 👥 Social & sharing features  
-- 📊 Advanced analytics  
-- 🎨 Themes & achievements  
-- ☁️ Optional cloud sync  
-- 🌐 Multi-language support  
+**Licensed under:** MIT License (free to use, modify, and distribute)
 
 ---
 
-## 🤝 Contributing
+## Support & Feedback
 
-Contributions are welcome 🙌
-
-1. Fork the repository  
-2. Create a new branch  
-3. Make your changes  
-4. Submit a pull request  
+Found a bug or have a suggestion? Open an issue on GitHub.
 
 ---
 
-## 📄 License
+**Built by Santhosh Savari**
 
-Licensed under the **MIT License**.  
-Free to use, learn from, and modify.
-
----
-
-## 👤 Author
-
-**Sahaya Savari**  
-🎓 Student & Full-Stack Developer  
-
-GitHub: https://github.com/sahaya-savari  
----
-
-
-🌱 *Daily Spark is about small actions, done daily, creating meaningful change.*
-
----
+Last updated: February 2026

@@ -1,4 +1,5 @@
 import { Flame, TrendingUp, Calendar, Target } from 'lucide-react';
+import { memo } from 'react';
 import { StreakStats } from '@/types/streak';
 import { cn } from '@/lib/utils';
 
@@ -6,7 +7,7 @@ interface StatsCardProps {
   stats: StreakStats;
 }
 
-export const StatsCards = ({ stats }: StatsCardProps) => {
+export const StatsCards = memo(({ stats }: StatsCardProps) => {
   const statItems = [
     {
       label: 'Active',
@@ -66,4 +67,6 @@ export const StatsCards = ({ stats }: StatsCardProps) => {
       ))}
     </div>
   );
-};
+});
+
+StatsCards.displayName = 'StatsCards';
