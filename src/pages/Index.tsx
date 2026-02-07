@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Plus, Flame, Star, ChevronDown } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { StreakCard } from '@/components/StreakCard';
 import { EditStreakDialog } from '@/components/EditStreakDialog';
@@ -15,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { saveReminder, scheduleReminder, unscheduleReminder } from '@/services/reminderService';
 import { snoozeStreak } from '@/services/snoozeService';
 import { useWeeklyGrace as applyWeeklyGrace, useMonthlyGrace as applyMonthlyGrace, getGraceStatus } from '@/services/graceService';
-import { getTodayFocusEnabled, shouldShowStreakInTodayFocus } from '@/services/focusService';
+import { getTodayFocusEnabled } from '@/services/focusService';
 import { triggerHapticLight } from '@/services/hapticService';
 import { useModal } from '@/contexts/ModalContext';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Index = () => {
+  const location = useLocation();
   const { 
     streaks, 
     lists,
@@ -70,14 +72,54 @@ const Index = () => {
 
   // BUG FIX 1: Ensure page scrolls to top on mount so Add button is visible
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    try {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    } catch (error) {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
+  // Refresh state when navigating to Home page
+  useEffect(() => {
+    const currentState = getTodayFocusEnabled();
+    setTodayFocusEnabled(currentState);
+    console.log('[Home] Refreshing state on navigation:', currentState);
+  }, [location.pathname]);
+
+  // Refresh Today Focus state when component mounts or becomes visible
+  useEffect(() => {
+    // Update state on mount
+    const currentState = getTodayFocusEnabled();
+    setTodayFocusEnabled(currentState);
+    console.log('[Home] Today Focus state on mount:', currentState);
+    
+    // Update state when page becomes visible (user returns from Settings)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const newState = getTodayFocusEnabled();
+        setTodayFocusEnabled(newState);
+        console.log('[Home] Today Focus state on visibility:', newState);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   useEffect(() => {
-    const handler = () => setTodayFocusEnabled(getTodayFocusEnabled());
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{ enabled: boolean }>;
+      console.log('[Home] Today Focus changed via event:', customEvent.detail.enabled);
+      setTodayFocusEnabled(customEvent.detail.enabled);
+    };
+    window.addEventListener('todayFocusChanged', handler);
+    return () => window.removeEventListener('todayFocusChanged', handler);
   }, []);
+
+  // Debug: log todayFocusEnabled whenever it changes
+  useEffect(() => {
+    console.log('[Home] todayFocusEnabled state updated:', todayFocusEnabled);
+  }, [todayFocusEnabled]);
 
   // BUG FIX 2: Reset activeListId if current list is deleted
   useEffect(() => {
@@ -270,11 +312,11 @@ const Index = () => {
 
     let baseStreaks = streaks;
     
-    // Apply today focus filter if enabled
+    // Apply today focus filter if enabled - show only incomplete streaks
     if (todayFocusEnabled) {
-      baseStreaks = streaks.filter(s => 
-        shouldShowStreakInTodayFocus(s.lastCompletedDate, s.scheduledDate)
-      );
+      const today = new Date().toISOString().split('T')[0];
+      baseStreaks = streaks.filter(s => s.lastCompletedDate !== today);
+      console.log('[Home] Today Focus filtered:', baseStreaks.length, 'of', streaks.length, 'streaks');
     }
 
     // Today's streaks (all streaks, sorted)
@@ -307,6 +349,22 @@ const Index = () => {
       <Header totalStreak={totalStreakDays} />
       
       <main className="content-width px-4 py-4">
+        {/* Today Focus Mode Indicator */}
+        {todayFocusEnabled && (
+          <div className="mb-6 p-4 rounded-2xl bg-card border border-orange-500/30">
+            <div className="flex items-center gap-3">
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  Today Focus Enabled
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Showing only today's tasks
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats section */}
         {streaks.length > 0 && (
           <section className="mb-6">

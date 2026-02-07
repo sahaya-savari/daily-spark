@@ -24,7 +24,7 @@ export const Celebration = ({ isVisible, onComplete }: CelebrationProps) => {
       <div className="absolute inset-0 bg-success/10" />
       
       {/* Central message */}
-      <div className="text-center animate-scale-in">
+      <div className="text-center">
         <div className="w-20 h-20 rounded-2xl fire-gradient flex items-center justify-center mx-auto mb-3 shadow-md">
           <Flame className="w-10 h-10 text-white" />
         </div>
