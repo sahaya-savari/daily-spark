@@ -304,7 +304,7 @@ npm run sync-version
 2. Install via ADB: `adb install app-debug.apk`
 
 ### Web Version (PWA)
-1. Visit the live app at https://bit.ly/dailyspark-app
+1. Visit the live app at https://daily-spark-app-da74b.web.app
 2. Use all core features without signup
 3. Install as a web app from your browser
 
