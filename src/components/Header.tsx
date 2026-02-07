@@ -17,11 +17,14 @@ export const Header = ({ totalStreak }: HeaderProps) => {
             <h1 className="text-lg font-bold text-foreground">Daily Spark</h1>
           </div>
 
-          {/* Total streak counter */}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted">
-            <Flame className="w-4 h-4 text-primary" />
-            <span className="text-sm font-bold text-foreground">{totalStreak}</span>
-            <span className="text-xs text-muted-foreground">days</span>
+          {/* Right side: streak counter */}
+          <div className="flex items-center gap-2">
+            {/* Total streak counter */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted">
+              <Flame className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold text-foreground">{totalStreak}</span>
+              <span className="text-xs text-muted-foreground">days</span>
+            </div>
           </div>
         </div>
       </div>

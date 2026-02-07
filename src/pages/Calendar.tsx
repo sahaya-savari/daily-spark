@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Flame } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
 import { useStreaksContext } from '@/contexts/StreaksContext';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { formatLocalDate, getTodayDate } from '@/lib/dateUtils';
 
 const CalendarPage = () => {
+  const navigate = useNavigate();
   const { streaks } = useStreaksContext();
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -82,11 +83,11 @@ const CalendarPage = () => {
     <div className="min-h-screen bg-background pb-nav">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card border-b border-border safe-top">
-        <div className="content-width px-4 py-3">
+        <div className="content-width py-3 edge-safe-x">
           <div className="flex items-center gap-3">
-            <Link to="/" className="p-2 -ml-2 rounded-xl active:bg-muted touch-target">
+            <button onClick={() => navigate(-1)} className="p-3 rounded-xl active:bg-muted touch-target" aria-label="Go back">
               <ArrowLeft className="w-5 h-5 text-foreground" />
-            </Link>
+            </button>
             <h1 className="text-lg font-bold text-foreground">Calendar</h1>
           </div>
         </div>

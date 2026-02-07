@@ -181,81 +181,92 @@ const logRecoveryEvent = (
  * Called once during app initialization.
  */
 export const recoverStreaksOnBoot = (): RecoveryResult => {
-  if (isDev) {
-    console.info('[DataRecovery] Starting boot recovery process...');
-  }
-  
-  // Step 1: Try to load main data
-  const { data: mainData, isValid: canParse } = loadStreaksRaw(STORAGE_KEYS.STREAKS);
-  
-  // Step 2: If storage is empty, treat as clean first boot
-  if (canParse && mainData === null) {
-    logRecoveryEvent('boot_validation', 'Boot validation passed: 0 streaks', 0);
-    return {
-      streaks: [],
-      recovered: false,
-      message: '✅ Loaded 0 streaks successfully',
-    };
-  }
-
-  // Step 3: If we can parse it, validate integrity
-  if (canParse && mainData !== null) {
-    const validated = validateStreaksIntegrity(mainData);
+  try {
+    if (isDev) {
+      console.info('[DataRecovery] Starting boot recovery process...');
+    }
     
-    if (validated) {
-      // ✅ Main data is valid - save backup and return
-      logRecoveryEvent('boot_validation', `Boot validation passed: ${validated.length} streaks`, validated.length);
-      saveBackup(validated);
-      
+    // Step 1: Try to load main data
+    const { data: mainData, isValid: canParse } = loadStreaksRaw(STORAGE_KEYS.STREAKS);
+    
+    // Step 2: If storage is empty, treat as clean first boot
+    if (canParse && mainData === null) {
+      logRecoveryEvent('boot_validation', 'Boot validation passed: 0 streaks', 0);
       return {
-        streaks: validated,
+        streaks: [],
         recovered: false,
-        message: `✅ Loaded ${validated.length} streaks successfully`,
+        message: '✅ Loaded 0 streaks successfully',
       };
     }
-  }
-  
-  // Step 4: Main data corrupted - attempt recovery
-  console.warn('[DataRecovery] Main data corrupted or missing, attempting recovery...');
-  logRecoveryEvent('corrupted_detected', 'Main data corrupted or unreadable');
-  
-  const backupStreaks = restoreFromBackup();
-  
-  if (backupStreaks) {
-    // ✅ Restored from backup
+
+    // Step 3: If we can parse it, validate integrity
+    if (canParse && mainData !== null) {
+      const validated = validateStreaksIntegrity(mainData);
+      
+      if (validated) {
+        // ✅ Main data is valid - save backup and return
+        logRecoveryEvent('boot_validation', `Boot validation passed: ${validated.length} streaks`, validated.length);
+        saveBackup(validated);
+        
+        return {
+          streaks: validated,
+          recovered: false,
+          message: `✅ Loaded ${validated.length} streaks successfully`,
+        };
+      }
+    }
+    
+    // Step 4: Main data corrupted - attempt recovery
+    console.warn('[DataRecovery] Main data corrupted or missing, attempting recovery...');
+    logRecoveryEvent('corrupted_detected', 'Main data corrupted or unreadable');
+    
+    const backupStreaks = restoreFromBackup();
+    
+    if (backupStreaks) {
+      // ✅ Restored from backup
+      try {
+        localStorage.setItem(STORAGE_KEYS.STREAKS, JSON.stringify(backupStreaks));
+      } catch (error) {
+        console.warn('[DataRecovery] Failed to write recovered data:', error);
+      }
+      
+      return {
+        streaks: backupStreaks,
+        recovered: true,
+        reason: 'backup_restored',
+        message: `⚠️  Data was corrupted. Recovered ${backupStreaks.length} streaks from backup.\n\nPlease review your streaks to ensure everything looks correct.`,
+      };
+    }
+    
+    // Step 5: No backup available - start fresh
+    if (isDev) {
+      console.info('[DataRecovery] No backup found, starting fresh');
+    }
+    logRecoveryEvent('empty_recovery', 'No backup available, starting with empty data');
+    
+    // Clear any corrupted data to prevent re-corruption
     try {
-      localStorage.setItem(STORAGE_KEYS.STREAKS, JSON.stringify(backupStreaks));
-    } catch (error) {
-      console.warn('[DataRecovery] Failed to write recovered data:', error);
+      localStorage.removeItem(STORAGE_KEYS.STREAKS);
+    } catch {
+      // Ignore
     }
     
     return {
-      streaks: backupStreaks,
+      streaks: [],
       recovered: true,
-      reason: 'backup_restored',
-      message: `⚠️  Data was corrupted. Recovered ${backupStreaks.length} streaks from backup.\n\nPlease review your streaks to ensure everything looks correct.`,
+      reason: 'no_backup',
+      message: '⚠️  Your data could not be recovered. Starting fresh.\n\nYour streaks will start from today.',
+    };
+  } catch (error) {
+    console.error('[DataRecovery] ❌ CRITICAL ERROR in boot recovery:', error);
+    // Return empty state - don't crash the app
+    return {
+      streaks: [],
+      recovered: true,
+      reason: 'recovery_error',
+      message: '⚠️  An error occurred during recovery. Starting fresh.',
     };
   }
-  
-  // Step 5: No backup available - start fresh
-  if (isDev) {
-    console.info('[DataRecovery] No backup found, starting fresh');
-  }
-  logRecoveryEvent('empty_recovery', 'No backup available, starting with empty data');
-  
-  // Clear any corrupted data to prevent re-corruption
-  try {
-    localStorage.removeItem(STORAGE_KEYS.STREAKS);
-  } catch {
-    // Ignore
-  }
-  
-  return {
-    streaks: [],
-    recovered: true,
-    reason: 'no_backup',
-    message: '⚠️  Your data could not be recovered. Starting fresh.\n\nYour streaks will start from today.',
-  };
 };
 
 /**

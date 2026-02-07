@@ -26,7 +26,14 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 export const useModal = () => {
   const context = useContext(ModalContext);
   if (!context) {
-    throw new Error('useModal must be used within ModalProvider');
+    console.warn('[ModalContext] ⚠️  useModal called outside provider, returning no-op');
+    // Return no-op context instead of throwing
+    return {
+      isAddStreakOpen: false,
+      openAddStreak: () => {},
+      closeAddStreak: () => {},
+      setAddStreakOpen: () => {},
+    };
   }
   return context;
 };

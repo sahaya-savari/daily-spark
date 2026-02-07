@@ -53,7 +53,13 @@ export const RecoveryAlertProvider = ({ children }: { children: ReactNode }) => 
 export const useRecoveryAlert = () => {
   const context = useContext(RecoveryAlertContext);
   if (!context) {
-    throw new Error('useRecoveryAlert must be used within RecoveryAlertProvider');
+    console.warn('[RecoveryAlertContext] ⚠️  useRecoveryAlert called outside provider, returning no-op');
+    // Return no-op context instead of throwing
+    return {
+      alert: { show: false, title: '', message: '', type: 'info' as const },
+      showRecoveryAlert: () => {},
+      dismissAlert: () => {},
+    };
   }
   return context;
 };

@@ -1,25 +1,28 @@
 import { ArrowLeft, Github, Mail } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { BottomNav } from '@/components/BottomNav';
 import { APP_NAME, APP_VERSION, APP_DESCRIPTION } from '@/lib/constants';
-import { Button } from '@/components/ui/button';
 import { openExternalUrl } from '@/services/externalLinkService';
 
 const About = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-background pb-nav">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-card border-b border-border safe-top">
-        <div className="content-width px-4 py-4 flex items-center gap-3">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-lg hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-lg font-bold">About</h1>
+      <header className="sticky top-0 z-40 bg-card border-b border-border safe-top">
+        <div className="content-width py-3 edge-safe-x">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-3 rounded-xl active:bg-muted touch-target"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <h1 className="text-lg font-bold text-foreground">About</h1>
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
       <main className="content-width px-4 py-8 space-y-8">

@@ -161,7 +161,7 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
       >
         {/* Modal Panel */}
         <div 
-          className="bg-card w-full md:w-[520px] md:max-w-[90vw] rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] animate-in slide-in-from-bottom md:slide-in-from-bottom-0 md:zoom-in-95 duration-300"
+          className="bg-card w-full md:w-[520px] md:max-w-[90vw] rounded-t-2xl md:rounded-2xl shadow-2xl flex flex-col max-h-[90vh] md:max-h-[85vh] animate-in slide-in-from-bottom md:slide-in-from-bottom-0 duration-300"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -222,10 +222,10 @@ export const AddStreakDialog = ({ isOpen, onClose, onAdd, existingStreakNames, l
                                 key={emoji}
                                 type="button"
                                 className={cn(
-                                  "w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary",
+                                  "w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary",
                                   selectedEmoji === emoji
                                     ? "bg-primary/20 ring-2 ring-primary"
-                                    : "hover:bg-muted active:scale-95"
+                                    : "hover:bg-muted"
                                 )}
                                 onClick={() => handleEmojiSelect(emoji)}
                                 role="option"

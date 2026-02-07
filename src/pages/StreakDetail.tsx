@@ -201,16 +201,19 @@ const StreakDetail = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-card border-b border-border">
-        <div className="content-width px-4 py-4 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-card border-b border-border safe-top">
+        <div className="content-width py-4 flex items-center gap-3 edge-safe-x">
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full"
-            onClick={() => navigate('/')}
+            className="rounded-full min-h-[56px] min-w-[56px] h-14 w-14 -ml-2 touch-manipulation"
+            onClick={() => {
+              console.log('[StreakDetail] Back button clicked, navigating to:', -1);
+              navigate(-1);
+            }}
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-6 h-6" />
           </Button>
           <h1 className="text-lg font-semibold text-foreground flex-1">Streak Details</h1>
           

@@ -12,6 +12,7 @@ const isAndroid = () => getPlatform() === 'android';
 
 const getGlobalNotificationsEnabled = (): boolean => {
   try {
+    if (!localStorage) return false;
     const stored = localStorage.getItem('streakflame_notifications');
     if (!stored) {
       return false;
@@ -19,6 +20,7 @@ const getGlobalNotificationsEnabled = (): boolean => {
     const parsed = JSON.parse(stored) as { enabled?: boolean };
     return Boolean(parsed.enabled);
   } catch (error) {
+    console.warn('[Reminder] Failed to get notification settings:', error);
     return false;
   }
 };

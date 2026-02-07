@@ -32,7 +32,7 @@ export const GraceDialog = ({
       />
       
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-full max-w-md">
-        <div className="bg-background rounded-2xl shadow-2xl border border-border m-4 animate-in zoom-in-95 duration-200">
+        <div className="bg-background rounded-2xl shadow-2xl border border-border m-4">
           <div className="flex items-center justify-between p-6 border-b border-border">
             <div>
               <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">

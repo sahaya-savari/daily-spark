@@ -182,8 +182,16 @@ const StreaksPage = () => {
         {streaks.length === 0 ? (
           <div className="text-center py-12">
             <Flame className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">No streaks yet</p>
-            <p className="text-sm text-muted-foreground">Go to Home to create one</p>
+            <div className="text-center text-muted-foreground py-8">
+              <p className="text-base font-medium">
+                No active streaks here
+              </p>
+              <p className="text-sm mt-2 opacity-80">
+                Completed streaks are shown in the Calendar.
+                <br />
+                Start a new streak to see it listed here.
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">

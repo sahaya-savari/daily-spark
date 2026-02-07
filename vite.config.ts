@@ -28,7 +28,6 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: {
             'vendor': ['react', 'react-dom', 'react-router-dom'],
-            'capacitor': ['@capacitor/core', '@capacitor/local-notifications', '@capacitor/filesystem'],
           },
         },
       },
