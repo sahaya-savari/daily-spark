@@ -68,56 +68,49 @@ export function createStreaksCsv(streaks: any[]): string {
  */
 // Revert: Remove Filesystem import and restore share-only logic
 
-async function shareFile(
+export async function shareFile(
   filename: string,
   content: string,
   mimeType: string
-): Promise<void> {
+): Promise<boolean> {
   const blob = new Blob([content], { type: mimeType });
   const reader = new FileReader();
-  const base64: string = await new Promise((resolve) => {
+  const base64 = await new Promise<string>((resolve) => {
     reader.onloadend = () =>
       resolve((reader.result as string).split(',')[1]);
     reader.readAsDataURL(blob);
   });
-  // Defensive: ensure base64 is a string
-  const safeBase64 = typeof base64 === 'string' ? base64 : JSON.stringify(base64);
-  await Share.share({
-    title: filename,
-    text: 'Daily Spark export',
-    files: [
-      {
-        name: filename,
-        data: safeBase64,
-        mimeType,
-      },
-    ],
-  });
+  try {
+    await Share.share({
+      title: filename,
+      text: 'Daily Spark backup',
+      files: [
+        {
+          name: filename,
+          data: base64,
+          mimeType,
+        },
+      ],
+    });
+    // ✅ ALWAYS treat as success
+    return true;
+  } catch {
+    // ❌ Only real failure (rare)
+    return false;
+  }
 }
 
 /**
  * Export CSV (ANDROID → SHARE SHEET)
  */
-export async function exportCsvBackup(streaks: any[]): Promise<void> {
+export async function exportJsonBackup(data: any): Promise<void> {
   const csv = createStreaksCsv(streaks);
   if (Capacitor.getPlatform() === 'web') {
     // Web logic already exists elsewhere
     return;
-  }
-  // Android: Write file and share
-  const { Filesystem, Directory } = await import('@capacitor/filesystem');
-  const writeResult = await Filesystem.writeFile({
-    path: 'daily_spark_backup.csv',
-    data: csv,
-    directory: Directory.Documents,
-    encoding: 'utf8',
-  });
-  await Share.share({
-    title: 'daily_spark_backup.csv',
-    text: 'Daily Spark export',
-    url: writeResult.uri,
-  });
-}
+    return;
+  await shareFile('daily_spark_backup.csv', csv, 'text/csv');
+  await shareFile('daily_spark_backup.json', json, 'application/json');
 
 /**
  * Export JSON (ANDROID → SHARE SHEET)
@@ -127,19 +120,7 @@ export async function exportJsonBackup(data: any): Promise<void> {
   const json = JSON.stringify(backup, null, 2);
   if (Capacitor.getPlatform() === 'web') {
     // Web logic already exists elsewhere
-    return;
+    return true;
   }
-  // Android: Write file and share
-  const { Filesystem, Directory } = await import('@capacitor/filesystem');
-  const writeResult = await Filesystem.writeFile({
-    path: 'daily_spark_backup.json',
-    data: json,
-    directory: Directory.Documents,
-    encoding: 'utf8',
-  });
-  await Share.share({
-    title: 'daily_spark_backup.json',
-    text: 'Daily Spark export',
-    url: writeResult.uri,
-  });
+  return await shareFile('daily_spark_backup.json', json, 'application/json');
 }

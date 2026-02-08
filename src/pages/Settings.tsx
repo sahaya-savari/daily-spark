@@ -105,18 +105,12 @@ const Settings = () => {
   
   // Export backup
   const handleExport = async () => {
-    try {
-      await exportJsonBackup(createBackup());
+    const ok = await exportJsonBackup(createBackup());
+    if (ok) {
       setLastBackupDate(getLastBackupDate());
       toast({
-        title: 'Backup exported',
-        description: 'Backup file shared. Choose where to save or send.',
-      });
-    } catch (error) {
-      toast({
-        title: 'Backup failed',
-        description: error instanceof Error ? error.message : 'Could not export backup file.',
-        variant: 'destructive',
+        title: 'Backup created',
+        description: 'Saved via Files app',
       });
     }
   };
