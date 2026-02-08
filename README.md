@@ -1,4 +1,62 @@
-﻿# Daily Spark
+﻿# Daily Spark 📱
+
+A simple, offline-first Android app for daily streaks and personal progress.
+
+---
+
+## Overview
+
+Daily Spark helps you track daily habits and streaks with ease. Designed for simplicity, it works fully offline and keeps your data private on your device.
+
+---
+
+## ✅ Key Features
+
+- Create, edit, archive, and delete streaks
+- Daily completion tracking (one per day)
+- Undo grace logic for missed days
+- Calendar and insights for progress
+- Star important streaks
+- Settings for customization
+
+---
+
+## 🔒 Offline & Privacy
+
+- Works fully offline
+- No internet required
+- No user accounts
+- No data collection
+
+---
+
+## 📦 Update & Data Safety
+
+- Safe in-place updates (v1.0.2 → v1.0.3)
+- No uninstall required
+- Data is never wiped
+- applicationId is immutable: `com.santhosh.dailyspark2`
+
+---
+
+## ⚡ Phase-1 Stable Notice
+
+This is the Phase-1 Stable release. Core features are locked and no breaking changes will occur.
+
+---
+
+## Tech Stack
+
+- Android
+- Capacitor
+- React
+- Java 17
+- Offline storage
+
+---
+
+Thank you for using Daily Spark. Your progress stays private, secure, and always accessible.
+# Daily Spark
 
 ## What is Daily Spark?
 

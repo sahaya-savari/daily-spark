@@ -1,20 +1,34 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, HashRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, Component, ReactNode } from "react";
-import { App as CapacitorApp } from '@capacitor/app';
-import { Capacitor } from '@capacitor/core';
+import {
+  BrowserRouter,
+  HashRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { useEffect, useRef, Component, ReactNode } from "react";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
+import { Dialog } from "@capacitor/dialog";
+
 import { useViewportHeight } from "@/hooks/useViewportHeight";
-import { ModalProvider } from "@/contexts/ModalContext";
+import { ModalProvider, useModal } from "@/contexts/ModalContext";
 import { RecoveryAlertProvider } from "@/contexts/RecoveryAlertContext";
-import { StreaksProvider, useStreaksContext } from "@/contexts/StreaksContext";
+import {
+  StreaksProvider,
+  useStreaksContext,
+} from "@/contexts/StreaksContext";
+
 import { RecoveryAlertDialog } from "@/components/RecoveryAlertDialog";
 import { AddStreakDialog } from "@/components/AddStreakDialog";
-import { useModal } from "@/contexts/ModalContext";
+
 import { Reminder } from "@/types/reminder";
 import { initializeAllReminders } from "@/services/reminderService";
 import { initializeNotificationChannels } from "@/services/notificationService";
+
 import Index from "./pages/Index";
 import Streaks from "./pages/Streaks";
 import StreakDetail from "./pages/StreakDetail";
@@ -23,7 +37,8 @@ import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
-// Error Boundary to catch React rendering errors
+/* ===================== ERROR BOUNDARY ===================== */
+
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { hasError: boolean; error: Error | null }
@@ -34,20 +49,15 @@ class ErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error: Error) {
-    console.error('❌ [ErrorBoundary] Caught error:', error.message);
-    console.error('❌ [ErrorBoundary] Stack:', error.stack);
+    console.error("❌ ErrorBoundary:", error);
     return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
-    console.error('❌ [ErrorBoundary] Component stack:', errorInfo.componentStack);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
-          <h1>App Error</h1>
+        <div style={{ padding: 20, textAlign: "center", color: "red" }}>
+          <h2>Something went wrong</h2>
           <p>{this.state.error?.message}</p>
           <button onClick={() => window.location.reload()}>Reload</button>
         </div>
@@ -57,222 +67,101 @@ class ErrorBoundary extends Component<
   }
 }
 
-// Apply system theme on load
-const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // Track viewport height for mobile keyboard handling
+/* ===================== THEME PROVIDER ===================== */
+
+const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useViewportHeight();
-  
+
   useEffect(() => {
-    try {
-      const root = window.document.documentElement;
-      const savedTheme = localStorage.getItem('theme') || 'system';
-      
-      root.classList.remove('light', 'dark');
-      
-      if (savedTheme === 'system') {
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches 
-          ? 'dark' 
-          : 'light';
-        root.classList.add(systemTheme);
-      } else {
-        root.classList.add(savedTheme);
-      }
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem("theme") || "system";
+    root.classList.remove("light", "dark");
 
-      // Listen for system theme changes
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = (e: MediaQueryListEvent) => {
-        try {
-          if (localStorage.getItem('theme') === 'system' || !localStorage.getItem('theme')) {
-            root.classList.remove('light', 'dark');
-            root.classList.add(e.matches ? 'dark' : 'light');
-          }
-        } catch (e) {
-          console.error('[ThemeProvider] Error handling theme change:', e);
-        }
-      };
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    } catch (error) {
-      console.error('[ThemeProvider] Error initializing theme:', error);
-    }
-  }, []);
-
-  // Service worker cleanup: unregister old workers, clear outdated caches
-  useEffect(() => {
-    const cleanupServiceWorkers = async () => {
-      try {
-        if (!('serviceWorker' in navigator)) return;
-
-        try {
-          // Get all service worker registrations
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          
-          for (const registration of registrations) {
-            try {
-              // Unregister all workers (PWA will re-register automatically)
-              await registration.unregister();
-            } catch (e) {
-              console.warn('[ThemeProvider] Failed to unregister service worker:', e);
-            }
-          }
-        } catch (e) {
-          console.warn('[ThemeProvider] Failed to get service worker registrations:', e);
-        }
-
-        // Clear old caches that might have stale assets
-        if ('caches' in window) {
-          try {
-            const cacheNames = await caches.keys();
-            const oldCaches = cacheNames.filter(name => 
-              name.includes('workbox') || 
-              name.includes('old') || 
-              name.includes('v1') ||
-              name.includes('precache')
-            );
-            
-            for (const cacheName of oldCaches) {
-              try {
-                await caches.delete(cacheName);
-              } catch (e) {
-                console.warn('[ThemeProvider] Failed to delete cache:', cacheName, e);
-              }
-            }
-          } catch (e) {
-            console.warn('[ThemeProvider] Failed to clear caches:', e);
-          }
-        }
-      } catch (error) {
-        console.error('[ThemeProvider] Error during service worker cleanup:', error);
-        // Ignore cleanup failures to avoid blocking app boot
-      }
-    };
-
-    // Run cleanup on first mount only
-    cleanupServiceWorkers();
-  }, []);
-
-  // Force layout reflow after initial render to fix desktop bottom bar visibility
-  useEffect(() => {
-    try {
-      requestAnimationFrame(() => {
-        try {
-          window.dispatchEvent(new Event('resize'));
-        } catch (e) {
-          console.warn('[ThemeProvider] Failed to dispatch resize event:', e);
-        }
-      });
-    } catch (error) {
-      console.error('[ThemeProvider] Error in layout reflow:', error);
+    if (savedTheme === "system") {
+      root.classList.add(
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light"
+      );
+    } else {
+      root.classList.add(savedTheme);
     }
   }, []);
 
   return <>{children}</>;
 };
 
-const AppRouter = ({ children }: { children: React.ReactNode }) => {
+/* ===================== ROUTER ===================== */
+
+const AppRouter = ({ children }: { children: ReactNode }) => {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
   return <Router>{children}</Router>;
 };
 
+/* ===================== APP CONTENT ===================== */
+
 const AppContent = () => {
-  const { isAddStreakOpen, closeAddStreak } = useModal();
-  const { streaks, addStreak } = useStreaksContext();
+
   const navigate = useNavigate();
   const location = useLocation();
+  const { streaks, addStreak } = useStreaksContext();
+  const { isAddStreakOpen, closeAddStreak } = useModal();
 
   useEffect(() => {
-    console.log('[AppContent] Initializing reminders for', streaks.length, 'streaks');
-    try {
-      initializeAllReminders(streaks, () => {});
-      console.log('[AppContent] ✓ Reminders initialized');
-    } catch (error) {
-      console.error('[AppContent] ✗ Failed to initialize reminders:', error);
-    }
+    initializeAllReminders(streaks, () => {});
   }, [streaks]);
 
-  // CRITICAL: Initialize notification channels at app startup
-  // Must run ONCE at startup, NEVER during render or Settings screen load
-  // Async-safe: wrapped in useEffect with proper cleanup
   useEffect(() => {
-    const initNotifications = async () => {
-      try {
-        console.log('[AppContent] Initializing notification channels...');
-        await initializeNotificationChannels();
-        console.log('[AppContent] ✓ Notification channels initialized');
-      } catch (error) {
-        console.error('[AppContent] ✗ Failed to initialize notifications:', error);
-        // Fail silently - don't crash the app
-      }
-    };
-
-    // Defer to next tick to avoid blocking initial render
-    const timeoutId = window.setTimeout(() => {
-      void initNotifications();
+    setTimeout(() => {
+      initializeNotificationChannels().catch(() => {});
     }, 0);
-
-    return () => window.clearTimeout(timeoutId);
   }, []);
 
-  // Handle Android hardware back button
+  // FINAL ANDROID BACK HANDLER (guaranteed, no duplicates)
   useEffect(() => {
-    try {
-      if (!Capacitor.isNativePlatform()) {
-        console.log('[AppContent] Not native platform, skipping back button handler');
-        return;
-      }
+    if (!Capacitor.isNativePlatform()) return;
 
-      const backButtonListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-        console.log('[AppContent] Back button pressed, canGoBack:', canGoBack, 'location:', location.pathname);
-        
-        // Home page or main tabs - exit app
-        if (location.pathname === '/' || 
-            location.pathname === '/streaks' || 
-            location.pathname === '/calendar' ||
-            location.pathname === '/insights' ||
-            location.pathname === '/settings') {
-          console.log('[AppContent] On main tab, exiting app');
+    const handler = async () => {
+      const path = location.pathname;
+      if (
+        path === "/" ||
+        path === "/streaks" ||
+        path === "/calendar" ||
+        path === "/insights" ||
+        path === "/settings"
+      ) {
+        const { value } = await Dialog.confirm({
+          title: "Exit Daily Spark?",
+          message: "Do you really want to close the app?",
+          okButtonTitle: "Exit",
+          cancelButtonTitle: "Cancel",
+        });
+        if (value) {
           CapacitorApp.exitApp();
-        } else if (canGoBack) {
-          // Detail pages - navigate back in history
-          console.log('[AppContent] On detail page, navigating back');
-          navigate(-1);
-        } else {
-          // No history, go to home
-          console.log('[AppContent] No history, going to home');
-          navigate('/');
         }
-      });
-
-      console.log('[AppContent] ✓ Android back button handler registered');
-
-      return () => {
-        try {
-          backButtonListener.remove();
-          console.log('[AppContent] Android back button handler removed');
-        } catch (e) {
-          console.error('[AppContent] Error removing back button listener:', e);
-        }
-      };
-    } catch (error) {
-      console.error('[AppContent] Error setting up back button handler:', error);
-      return undefined;
-    }
+      } else {
+        navigate(-1);
+      }
+    };
+    window.addEventListener("capacitorBackButton", handler);
+    return () => window.removeEventListener("capacitorBackButton", handler);
   }, [navigate, location.pathname]);
 
-  const handleAddStreak = (name: string, emoji: string, reminder?: Reminder, color?: string, description?: string, listId?: string) => {
-    try {
-      console.log('[AppContent] Adding streak:', name);
-      addStreak(name, emoji, reminder, color, description, listId);
-      closeAddStreak();
-      console.log('[AppContent] ✓ Streak added');
-    } catch (error) {
-      console.error('[AppContent] ✗ Error adding streak:', error);
-      throw error;
-    }
+  /* ===================== ADD STREAK ===================== */
+
+  const handleAddStreak = (
+    name: string,
+    emoji: string,
+    reminder?: Reminder,
+    color?: string,
+    description?: string,
+    listId?: string
+  ) => {
+    addStreak(name, emoji, reminder, color, description, listId);
+    closeAddStreak();
   };
 
-  console.log('[AppContent] Rendering with', streaks.length, 'streaks');
+  /* ===================== ROUTES ===================== */
 
   return (
     <>
@@ -290,11 +179,13 @@ const AppContent = () => {
         isOpen={isAddStreakOpen}
         onClose={closeAddStreak}
         onAdd={handleAddStreak}
-        existingStreakNames={streaks.map(s => s.name)}
+        existingStreakNames={streaks.map((s) => s.name)}
       />
     </>
   );
 };
+
+/* ===================== ROOT APP ===================== */
 
 const App = () => (
   <ErrorBoundary>
