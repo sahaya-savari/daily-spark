@@ -1,42 +1,10 @@
 # Changelog
 
-All notable changes to Daily Spark will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## [Unreleased]
-
-### Planned
-- Social & sharing features
-- Advanced analytics
-- Themes & achievements
-- Optional cloud sync
-- Multi-language support
-
----
-
-## [1.0.3] — 2026-02-05
-
-### Added
-- 🔄 Full JSON backup & restore functionality
-- 🧱 Atomic import with rollback protection
-- 📄 CSV export for streak configurations
-- 📦 Universal Android APK (single file, no splits)
-- 🛠️ Java 17 compatible build configuration
-- 📱 Signed release builds for app stores
-- ❌ Support for Android 8 – Android 15
-
-### Changed
-- Build system optimized for universal APK distribution
-- Enhanced release build configuration
-
-### Fixed
-- App stability improvements
-
----
+## v1.0.1 – Phase-1 Stable
+- Offline streak tracking
+- Backup & restore
+- Android export/share fixed
+- Data-safe updates
 
 ## [1.0.2] — Previous Release
 

@@ -1,43 +1,52 @@
-﻿# Daily Spark 📱
+﻿# Daily Spark
 
-A simple, offline-first Android app for daily streaks and personal progress.
+Daily Spark is a simple, offline-first Android app for tracking daily streaks. Designed for privacy and reliability, it helps you build habits by marking one completion per calendar day. No login, no ads, no tracking—just your data, on your device.
 
----
+## Key Features
+- Offline streak tracking
+- One completion per calendar day
+- JSON backup & full restore
+- CSV export/import (add-only)
+- Android share-sheet for backups
+- No login, no ads, no tracking
 
-## Overview
+## Screenshots
+Screenshots can be added here in the future to illustrate the app’s interface and features.
 
-Daily Spark helps you track daily habits and streaks with ease. Designed for simplicity, it works fully offline and keeps your data private on your device.
+## Backup & Restore
+- **JSON backup**: Full backup and restore of all streaks and settings.
+- **CSV export/import**: Export your streaks as CSV. Importing CSV only adds new streaks (does not overwrite existing data).
+- **Filenames**: Backups are timestamped (e.g., `daily_spark_backup_YYYY-MM-DD_HH-mm.json`).
+- **Share-sheet**: Use Android’s share sheet to send backups to Drive, WhatsApp, Files, etc.
+- **Data safety**: Backups never overwrite existing files. Restores never delete data unless explicitly chosen.
 
----
+## Data Safety & Privacy
+- All data is stored locally on your device
+- No cloud sync
+- No analytics
+- No third-party tracking
 
-## ✅ Key Features
+## Installation
+1. Download the latest APK from [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases)
+2. Enable “Install unknown apps” in your device settings
+3. Install the APK
+4. Updates can be installed in-place without losing data
 
-- Create, edit, archive, and delete streaks
-- Daily completion tracking (one per day)
-- Undo grace logic for missed days
-- Calendar and insights for progress
-- Star important streaks
-- Settings for customization
+## Versioning Policy
+- **Phase-1**: v1.0.x (bugfixes only)
+- **Phase-2**: v2.x (new features)
+- Updates never break or erase your data
 
----
+## Android Build Requirements (For Developers)
+- Java: Temurin 21
+- Android Gradle Plugin: 8.9.x
+- Capacitor: 6+
 
-## 🔒 Offline & Privacy
-
-- Works fully offline
-- No internet required
-- No user accounts
-- No data collection
-
----
-
-## 📦 Update & Data Safety
-
-- Safe in-place updates (v1.0.2 → v1.0.3)
-- No uninstall required
-- Data is never wiped
-- applicationId is immutable: `com.santhosh.dailyspark2`
-
----
+## Project Philosophy
+- Minimal
+- Stable
+- Offline
+- Boring in a good way
 
 ## ⚡ Phase-1 Stable Notice
 

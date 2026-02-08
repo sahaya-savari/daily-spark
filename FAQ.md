@@ -1,43 +1,26 @@
-# Frequently Asked Questions (FAQ)
+# FAQ
 
-## General Questions
+**Is my data stored online?**
+No. All your data stays on your device. There is no cloud sync or online storage.
 
-### What is Daily Spark?
+**Will updates delete my streaks?**
+No. Updates never erase your data. Your streaks and settings are preserved.
 
-Daily Spark is a simple, offline-first daily streak and habit tracking app. It helps you build consistency by tracking habits you want to do once per day.
+**What happens if I uninstall the app?**
+Uninstalling the app will remove all local data. Make a backup before uninstalling if you want to keep your streaks.
 
-**Example:**
-- Create streaks for: Reading, Exercise, Meditation, Study, etc.
-- Mark each one as done (once per day)
-- See your calendar progress
-- Backup your data safely
+**What’s the difference between CSV and JSON backup?**
+- JSON: Full backup and restore (all streaks and settings)
+- CSV: Export/import for adding new streaks only (does not overwrite existing data)
 
----
+**Can I restore old backups?**
+Yes. You can restore any valid JSON backup created by Daily Spark.
 
-### Why is it called "Daily Spark"?
+**Does the app use the internet?**
+No. Daily Spark works fully offline and does not require an internet connection.
 
-"Daily" = once per day focus
-"Spark" = small action creating meaningful change
-
-The app is about consistency through small daily actions.
-
----
-
-### Do I need an account?
-
-No. Daily Spark requires:
-- No email
-- No password
-- No login
-- No registration
-
-Use it completely anonymously.
-
----
-
-### Is my data safe?
-
-Yes, with caveats:
+**Can I sync across devices?**
+No. There is no sync or cloud feature. All data is local.
 
 **What we do:**
 - Store data locally on your device only
