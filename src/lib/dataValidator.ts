@@ -339,6 +339,9 @@ export const validateBackupData = (
   if (Array.isArray(data)) {
     streakArray = data;
     isValidFormat = true;
+  } else if (data && typeof data === 'object' && 'streaks' in data && Array.isArray((data as any).streaks)) {
+    streakArray = (data as any).streaks;
+    isValidFormat = true;
   } else if (data && typeof data === 'object' && 'data' in data) {
     const backupData = (data as Record<string, unknown>).data;
     if (backupData && typeof backupData === 'object') {

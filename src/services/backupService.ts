@@ -1,10 +1,9 @@
-export const BACKUP_VERSION = "1";
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
-/**
- * Backup data structure (TOP-LEVEL ONLY)
- */
+export const BACKUP_VERSION = '1';
+
 export interface BackupData {
   version: string;
   exportDate: string;
@@ -23,29 +22,18 @@ export function getLastBackupDate(): string | null {
 
 export function setLastBackupDate(): void {
   try {
-    localStorage.setItem(
-      LAST_BACKUP_KEY,
-      new Date().toISOString()
-    );
-  } catch {
-    // silent fail (offline-safe)
-  }
+    localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString());
+  } catch {}
 }
 
-/**
- * Create full JSON backup (LOGIC UNCHANGED)
- */
 export function createBackup(data: any): BackupData {
   return {
-    version: '1',
+    version: BACKUP_VERSION,
     exportDate: new Date().toISOString(),
     data,
   };
 }
 
-/**
- * Convert streaks to CSV (LOGIC UNCHANGED)
- */
 export function createStreaksCsv(streaks: any[]): string {
   const headers = ['id', 'name', 'createdAt', 'archived'];
 
@@ -61,66 +49,68 @@ export function createStreaksCsv(streaks: any[]): string {
   return [headers.join(','), ...rows].join('\n');
 }
 
-/**
- * Share helper (ANDROID SAFE)
- * NO Filesystem
- * NO browser download
- */
-// Revert: Remove Filesystem import and restore share-only logic
-
-export async function shareFile(
+async function shareViaCache(
   filename: string,
-  content: string,
-  mimeType: string
-): Promise<boolean> {
-  const blob = new Blob([content], { type: mimeType });
-  const reader = new FileReader();
-  const base64 = await new Promise<string>((resolve) => {
-    reader.onloadend = () =>
-      resolve((reader.result as string).split(',')[1]);
-    reader.readAsDataURL(blob);
+  content: string
+): Promise<void> {
+  const result = await Filesystem.writeFile({
+    path: filename,
+    data: content,
+    directory: Directory.Cache,
+    encoding: 'utf8',
   });
-  try {
-    await Share.share({
-      title: filename,
-      text: 'Daily Spark backup',
-      files: [
-        {
-          name: filename,
-          data: base64,
-          mimeType,
-        },
-      ],
-    });
-    // ✅ ALWAYS treat as success
-    return true;
-  } catch {
-    // ❌ Only real failure (rare)
-    return false;
-  }
+
+  await Share.share({
+    title: filename,
+    text: 'Daily Spark backup',
+    url: result.uri,
+  });
 }
 
-/**
- * Export CSV (ANDROID → SHARE SHEET)
- */
-export async function exportJsonBackup(data: any): Promise<void> {
-  const csv = createStreaksCsv(streaks);
-  if (Capacitor.getPlatform() === 'web') {
-    // Web logic already exists elsewhere
-    return;
-    return;
-  await shareFile('daily_spark_backup.csv', csv, 'text/csv');
-  await shareFile('daily_spark_backup.json', json, 'application/json');
+export async function exportCsvBackup(streaks: any[]): Promise<void> {
+  if (Capacitor.getPlatform() === 'web') return;
 
-/**
- * Export JSON (ANDROID → SHARE SHEET)
- */
+  const csv = createStreaksCsv(streaks);
+  const filename = `daily_spark_backup_${getBackupTimestamp()}.csv`;
+  await shareViaCache(filename, csv);
+}
+
 export async function exportJsonBackup(data: any): Promise<void> {
-  const backup = createBackup(data);
-  const json = JSON.stringify(backup, null, 2);
-  if (Capacitor.getPlatform() === 'web') {
-    // Web logic already exists elsewhere
-    return true;
-  }
-  return await shareFile('daily_spark_backup.json', json, 'application/json');
+  if (Capacitor.getPlatform() === 'web') return;
+
+  const json = JSON.stringify(createBackup(data), null, 2);
+  const filename = `daily_spark_backup_${getBackupTimestamp()}.json`;
+  await shareViaCache(filename, json);
+}
+
+export async function readBackupFile(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('Invalid file content'));
+      }
+    };
+
+    reader.onerror = () => {
+      reject(new Error('Failed to read file'));
+    };
+
+    reader.readAsText(file);
+  });
+}
+
+function getBackupTimestamp(): string {
+  const d = new Date();
+
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+
+  return `${yyyy}-${mm}-${dd}_${hh}-${min}`;
 }

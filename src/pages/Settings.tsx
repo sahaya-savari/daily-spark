@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { openExternalUrl } from '@/services/externalLinkService';
 import { APP_VERSION, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
-import { exportCsvBackup, exportJsonBackup, getLastBackupDate, createBackup } from '@/services/backupService';
+import { exportCsvBackup, exportJsonBackup, getLastBackupDate, createBackup, readBackupFile } from '@/services/backupService';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -22,6 +22,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { validateBackupData } from '@/lib/dataValidator';
+
+// Utility to extract stats from backup data for import dialog
+function getBackupStats(backup: any) {
+  // Handles both wrapped and unwrapped backup formats
+  let streaks = [];
+  let exportDate = '';
+  if (backup) {
+    if (Array.isArray(backup.streaks)) {
+      streaks = backup.streaks;
+      exportDate = backup.exportDate || '';
+    } else if (Array.isArray(backup)) {
+      streaks = backup;
+    } else if (backup.data && Array.isArray(backup.data.streaks)) {
+      streaks = backup.data.streaks;
+      exportDate = backup.exportDate || backup.data.exportDate || '';
+    }
+  }
+  return {
+    streakCount: streaks.length,
+    exportDate: exportDate ? new Date(exportDate).toLocaleString() : 'Unknown',
+  };
+}
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -105,7 +128,10 @@ const Settings = () => {
   
   // Export backup
   const handleExport = async () => {
-    const ok = await exportJsonBackup(createBackup());
+    const ok = await exportJsonBackup({
+      streaks,
+      settings
+    });
     if (ok) {
       setLastBackupDate(getLastBackupDate());
       toast({
@@ -122,7 +148,6 @@ const Settings = () => {
   
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // ...existing code...
     // Platform detection for Android-safe import
     // TODO: Implement Capacitor file picker for Android
     // For now, keep web logic unchanged
@@ -137,17 +162,29 @@ const Settings = () => {
         // ...existing CSV import logic...
         // ...existing code...
       } else {
-        const backup = await readBackupFile(file);
-        const validation = validateBackup(backup);
-        if (!validation.valid) {
+        const backupRaw = await readBackupFile(file);
+        let backupJson;
+        try {
+          backupJson = JSON.parse(backupRaw);
+        } catch (err) {
           toast({
             title: 'Invalid backup file',
-            description: validation.error,
+            description: 'Could not parse JSON',
             variant: 'destructive',
           });
           return;
         }
-        setBackupToImport(backup);
+        const backupData = backupJson.data || backupJson;
+        const validation = validateBackupData(backupData);
+        if (validation.errors && validation.errors.length > 0) {
+          toast({
+            title: 'Invalid backup file',
+            description: validation.errors.map(e => e.message).join(', '),
+            variant: 'destructive',
+          });
+          return;
+        }
+        setBackupToImport(backupData);
         setImportDialogOpen(true);
       }
     } catch (error) {
@@ -164,23 +201,63 @@ const Settings = () => {
     }
   };
   
+  // Restore backup utility: replaces streaks/settings in localStorage
+  function restoreBackup(backup: any) {
+    // Accepts both {streaks, settings} and {data: {streaks, settings}}
+    let streaks = [];
+    let settings = {};
+    if (backup) {
+      if (Array.isArray(backup.streaks)) {
+        streaks = backup.streaks;
+        settings = backup.settings || {};
+      } else if (backup.data && Array.isArray(backup.data.streaks)) {
+        streaks = backup.data.streaks;
+        settings = backup.data.settings || {};
+      } else if (Array.isArray(backup)) {
+        streaks = backup;
+      }
+    }
+    localStorage.setItem('streakflame_streaks', JSON.stringify(streaks));
+    localStorage.setItem('streakflame_settings', JSON.stringify(settings));
+
+    // Reconstruct global activity days from all completedDates in imported streaks
+    const allDates = new Set<string>();
+    if (Array.isArray(streaks)) {
+      for (const s of streaks) {
+        if (Array.isArray(s.completedDates)) {
+          for (const d of s.completedDates) {
+            allDates.add(d);
+          }
+        }
+      }
+    }
+    const activeDays = Array.from(allDates).sort();
+    localStorage.setItem('streakflame_global_activity', JSON.stringify({ activeDays }));
+
+    // Update global streak day count (top right, legacy)
+    let maxStreak = 0;
+    if (Array.isArray(streaks)) {
+      for (const s of streaks) {
+        if (typeof s.bestStreak === 'number' && s.bestStreak > maxStreak) {
+          maxStreak = s.bestStreak;
+        }
+      }
+    }
+    localStorage.setItem('streakflame_global_streak', String(maxStreak));
+  }
+
   // Confirm and restore backup
   const handleConfirmImport = () => {
     if (!backupToImport) return;
-    
     try {
       restoreBackup(backupToImport);
-      
       toast({
         title: 'Backup restored',
         description: 'Your data has been imported. Reloading app...',
       });
-      
-      // Reload app after 1 second
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      
     } catch (error) {
       toast({
         title: 'Import failed',
@@ -191,7 +268,7 @@ const Settings = () => {
       setImportDialogOpen(false);
       setBackupToImport(null);
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-background pb-nav">
