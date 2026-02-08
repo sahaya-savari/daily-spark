@@ -1,52 +1,118 @@
-﻿# Daily Spark
+﻿# 🌱 Daily Spark
 
-Daily Spark is a simple, offline-first Android app for tracking daily streaks. Designed for privacy and reliability, it helps you build habits by marking one completion per calendar day. No login, no ads, no tracking—just your data, on your device.
+**Daily Spark** is a simple, offline-first Android app for tracking daily streaks and habits.  
+No login. No ads. No tracking. Just you and your progress.
 
-## Key Features
-- Offline streak tracking
-- One completion per calendar day
-- JSON backup & full restore
-- CSV export/import (add-only)
-- Android share-sheet for backups
-- No login, no ads, no tracking
+Built to be **quiet, stable, and honest** — not addictive.
 
-## Screenshots
-Screenshots can be added here in the future to illustrate the app’s interface and features.
+---
 
-## Backup & Restore
-- **JSON backup**: Full backup and restore of all streaks and settings.
-- **CSV export/import**: Export your streaks as CSV. Importing CSV only adds new streaks (does not overwrite existing data).
-- **Filenames**: Backups are timestamped (e.g., `daily_spark_backup_YYYY-MM-DD_HH-mm.json`).
-- **Share-sheet**: Use Android’s share sheet to send backups to Drive, WhatsApp, Files, etc.
-- **Data safety**: Backups never overwrite existing files. Restores never delete data unless explicitly chosen.
+## ✨ What is Daily Spark?
 
-## Data Safety & Privacy
-- All data is stored locally on your device
-- No cloud sync
-- No analytics
-- No third-party tracking
+Daily Spark helps you build consistency by tracking **one action per day, per habit**.
 
-## Installation
-1. Download the latest APK from [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases)
-2. Enable “Install unknown apps” in your device settings
-3. Install the APK
-4. Updates can be installed in-place without losing data
+### Core Principles
+- 🔐 No account, no login
+- 🚫 No ads, no analytics, no tracking
+- 📵 Works fully offline
+- 💾 Your data stays on your device
+- 🧘 Designed for calm, not pressure
 
-## Versioning Policy
-- **Phase-1**: v1.0.x (bugfixes only)
-- **Phase-2**: v2.x (new features)
-- Updates never break or erase your data
+Perfect for people who want to build habits **without noise**.
 
-## Android Build Requirements (For Developers)
-- Java: Temurin 21
-- Android Gradle Plugin: 8.9.x
-- Capacitor: 6+
+---
 
-## Project Philosophy
-- Minimal
-- Stable
-- Offline
-- Boring in a good way
+## 🚀 Core Features (Phase-1 Stable)
+
+### 🔥 1. Daily Streak Tracking
+Create streaks for any habit or task.
+
+**You can:**
+- ✏️ Create streaks with custom names & emojis
+- ✅ Complete a streak once per calendar day
+- ↩️ Undo today’s completion (mistake-friendly)
+- ⭐ Star important streaks
+- 📦 Archive inactive streaks
+- 🗑️ Edit or delete streaks anytime
+
+**Design rules:**
+- One completion per day
+- No over-counting
+- No punishment for breaks
+- Calm recovery mindset
+
+---
+
+### 📅 2. Calendar View (Honest Progress)
+Visualize your consistency over time.
+
+**What you see:**
+- Monthly calendar grid
+- Completion ratio per day (e.g. `2/3`)
+- Clear color feedback
+
+**Color meaning:**
+- ⚪ Grey — 0/x (no streaks done)
+- 🔴 Red — few completed
+- 🟠 Orange — most completed
+- 🟢 Green — all completed (perfect day)
+- 🔵 Blue ring — today
+
+No fake achievements. Just clarity.
+
+---
+
+### ⏰ 3. Reminders (Optional & Safe)
+Gentle reminders — only if you want them.
+
+- Enable per streak
+- Choose time & days
+- Disable anytime
+- App never crashes if permission is denied
+
+Notifications are **optional**, not forced.
+
+---
+
+## 💾 4. Backup & Restore (IMPORTANT)
+
+### 🧾 JSON Backup — Full Restore
+Use JSON backups to **fully protect your data**.
+
+**Includes:**
+- All streaks
+- Full completion history
+- Reminder settings
+- Star/archive status
+
+**How to use:**
+1. Settings → Backup & Restore
+2. Tap **Export Full Backup (JSON)**
+3. Save via Android Share Sheet (Drive, Files, WhatsApp, etc.)
+4. Restore anytime by selecting the file
+
+**Filenames are timestamped**, e.g.  
+`daily_spark_backup_2026-02-08_21-45.json`
+
+✅ Recommended for regular backups
+
+---
+
+### 📄 CSV Import — Add New Streaks Only
+CSV is for **bulk adding new streak ideas**.
+
+**Rules:**
+- Starts at Day 1
+- Never overwrites existing streaks
+- Adds only new entries
+
+**CSV format:**
+```csv
+name,emoji
+Morning Jog,🏃
+Read 30 mins,📚
+Drink Water,💧
+Meditate,🧘
 
 ## ⚡ Phase-1 Stable Notice
 
