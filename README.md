@@ -427,6 +427,6 @@ Found a bug or have a suggestion? Open an issue on GitHub.
 
 ---
 
-**Built by Santhosh Savari**
+**Built by Sahaya Savari F**
 
 Last updated: February 2026
