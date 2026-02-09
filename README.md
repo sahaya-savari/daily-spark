@@ -62,6 +62,8 @@ No fake achievements. Just clarity.
 
 ---
 
+If you still have questions, check the FAQ → [FAQ](./FAQ.md)
+
 ### ⏰ 3. Reminders (Optional & Safe)
 Gentle reminders — only if you want them.
 
@@ -98,6 +100,8 @@ Use JSON backups to **fully protect your data**.
 
 ---
 
+If you still have questions, check the FAQ → [FAQ](./FAQ.md)
+
 ### 📄 CSV Import — Add New Streaks Only
 CSV is for **bulk adding new streak ideas**.
 
@@ -119,6 +123,8 @@ Meditate,🧘
 This is the Phase-1 Stable release. Core features are locked and no breaking changes will occur.
 
 ---
+
+If you still have questions, check the FAQ → [FAQ](./FAQ.md)
 
 ## Tech Stack
 
@@ -306,6 +312,8 @@ These features are intentionally missing to keep the app simple and calm:
 
 ---
 
+For legal details, see → [Terms](./TERMS.md)
+
 ## Who This App Is For
 
 - Students building study habits
@@ -317,6 +325,8 @@ These features are intentionally missing to keep the app simple and calm:
 
 ---
 
+For legal details, see → [Terms](./TERMS.md)
+
 ## Who This App Is NOT For
 
 - People who want cloud sync across multiple devices
@@ -325,6 +335,8 @@ These features are intentionally missing to keep the app simple and calm:
 - People who want heavy analytics and charts
 
 ---
+
+For legal details, see → [Terms](./TERMS.md)
 
 ## App Navigation
 
@@ -343,6 +355,8 @@ View your monthly completion history. See patterns and celebrate perfect days.
 - View app information
 
 ---
+
+Want to contribute or report issues? See → [Contributing](./CONTRIBUTING.md)
 
 ## Technical Overview (For Developers)
 
@@ -496,3 +510,88 @@ Found a bug or have a suggestion? Open an issue on GitHub.
 **Built by Sahaya Savari F**
 
 Last updated: February 2026
+
+## ✅ Phase-1 Status (Locked)
+
+Phase-1 is **fully complete and stable**.
+
+All features planned for Phase-1 have been implemented, tested on real devices, and released publicly.
+No additional features will be added to Phase-1.
+
+Only critical bug fixes or data-safety fixes are allowed.
+
+---
+
+## ❌ Features NOT Included in Phase-1 (By Design)
+
+The following are **intentionally not part of Phase-1**:
+
+- Home-screen widgets
+- Cloud sync / login
+- Notes per streak
+- Charts or analytics
+- Editing past dates
+- Cross-device sync
+
+These are **not bugs**.
+They are reserved for **Phase-2**.
+
+---
+
+## ⚠️ Backup & Restore (Important)
+
+Phase-1 backup schema is **strict**.
+
+- Keys must not be renamed
+- `history` must exist and match `currentStreak`
+- Each streak must have a unique `id`
+- Invalid backups may load partially but block individual streak pages
+
+Use the documented backup template when restoring historical streaks.
+
+### 🧾 Phase-1 Backup JSON Format (Strict)
+
+To generate a valid, restore-ready backup, use the following schema and rules:
+
+```json
+{
+  "version": "1",
+  "exportDate": "YYYY-MM-DD",
+  "data": {
+    "streaks": [
+      {
+        "id": "unique-streak-id",
+        "title": "Streak name",
+        "emoji": "🔥",
+        "createdAt": "YYYY-MM-DD",
+        "currentStreak": 0,
+        "bestStreak": 0,
+        "lastCompletedDate": null,
+        "history": [],
+        "archived": false,
+        "starred": false
+      }
+    ],
+    "settings": {
+      "enabled": true,
+      "defaultTime": "20:00",
+      "respectDND": true,
+      "preTaskReminderOffsetMinutes": 5
+    }
+  }
+}
+```
+
+**Strict rules:**
+- Output ONLY valid JSON (no comments, no explanation)
+- Follow the schema EXACTLY as shown
+- Do NOT rename keys or add extra fields
+- Each streak MUST have a unique `id`
+- Date format MUST be YYYY-MM-DD
+- `history.length` MUST equal `currentStreak`
+- Dates in `history` MUST be continuous
+- `lastCompletedDate` MUST equal the last date in `history`
+- If `currentStreak` is 0 → `history` must be empty and `lastCompletedDate` must be null
+- Widgets are NOT part of Phase-1 (do not include anything related to widgets)
+
+---
