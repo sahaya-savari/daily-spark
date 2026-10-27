@@ -17,7 +17,6 @@ import {
   Sparkles,
   Smartphone,
   ShieldCheck,
-  ChevronDown,
   Pause,
   Play,
 } from "lucide-react";
@@ -314,7 +313,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
         {/* Data */}
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
-          <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
+          <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
               <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold leading-tight">
                 Your data stays on your device
@@ -344,31 +343,17 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </p>
           </div>
           <div className="min-w-0 w-full">
-            <div className="hidden flex-wrap justify-start gap-2.5 sm:flex">
+            <div className="flex flex-wrap justify-start gap-2 sm:gap-2.5 w-full">
               {NOT_DOING.map((t) => (
                 <Pill key={t}>{t}</Pill>
               ))}
             </div>
-            <details className="group w-full max-w-full rounded-2xl border border-white/10 bg-surface/50 px-4 py-2 sm:hidden">
-              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-medium text-foreground [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
-                <span>What is left out ({NOT_DOING.length})</span>
-                <ChevronDown
-                  className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
-                  aria-hidden="true"
-                />
-              </summary>
-              <div className="mt-2 flex flex-wrap gap-2.5 pb-2">
-                {NOT_DOING.map((t) => (
-                  <Pill key={t}>{t}</Pill>
-                ))}
-              </div>
-            </details>
           </div>
         </section>
 
         {/* Why */}
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
-          <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
+          <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
               <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Why it exists</h2>
               <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
@@ -472,11 +457,11 @@ function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: str
     </>
   );
   return href ? (
-    <a href={href} target="_blank" rel="noreferrer" className="glass-inset group flex w-full items-center gap-3.5 rounded-2xl px-4 py-3.5 transition-all hover:scale-[1.01] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
+    <a href={href} target="_blank" rel="noreferrer" className="glass-inset group flex w-full items-center gap-3 sm:gap-3.5 rounded-2xl px-3.5 py-3 sm:px-4 sm:py-3.5 transition-all hover:scale-[1.01] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
       {inner}
     </a>
   ) : (
-    <div className="glass-inset group flex w-full items-center gap-3.5 rounded-2xl px-4 py-3.5">{inner}</div>
+    <div className="glass-inset group flex w-full items-center gap-3 sm:gap-3.5 rounded-2xl px-3.5 py-3 sm:px-4 sm:py-3.5">{inner}</div>
   );
 }
 

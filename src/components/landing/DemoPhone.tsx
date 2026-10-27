@@ -87,7 +87,7 @@ export function Device({ children, tilt }: { children: React.ReactNode; tilt?: {
   const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(270);
   return (
     <div
-      className="bezel relative w-[290px] max-w-full rounded-[42px] p-2.5 transition-transform duration-500"
+      className="bezel relative w-[290px] max-w-[calc(100vw-2.5rem)] rounded-[42px] p-2.5 transition-transform duration-500"
       style={{ transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined }}
     >
       <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
