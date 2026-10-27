@@ -3,29 +3,36 @@ import { Bug, Github, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SITE } from "@/lib/site";
 
-const lnk = "whitespace-nowrap text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
+const lnk =
+  "whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-all duration-150 hover:bg-surface/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-[14px]">
-      <div className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-x-5 gap-y-2.5 px-6 py-3 md:h-[62px] md:flex-nowrap md:py-0">
-        <Link to="/" aria-label="Daily Spark home" className="order-1 mr-auto md:mr-0">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-x-5 gap-y-2.5 px-6 py-3 md:h-[64px] md:flex-nowrap md:py-0">
+        <Link to="/" aria-label="Daily Spark home" className="order-1 mr-auto rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember md:mr-0">
           <Logo />
         </Link>
-        <nav className="scrollbar-none order-4 flex w-full gap-5 overflow-x-auto md:order-2 md:w-auto md:gap-6">
+        <nav className="scrollbar-none order-4 flex w-full items-center gap-1.5 overflow-x-auto py-1 md:order-2 md:w-auto md:gap-2">
           <a href="#features" className={lnk}>What it does</a>
           <a href="#screens" className={lnk}>Screens</a>
-          <Link to="/privacy" className={lnk} activeProps={{ className: "text-foreground" }}>Privacy</Link>
+          <Link to="/privacy" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>Privacy</Link>
           <a href="#get" className={lnk}>Download</a>
         </nav>
-        <div className="order-2 flex items-center gap-5 md:order-3">
+        <div className="order-2 flex items-center gap-3 md:order-3">
           <a
             href={SITE.apk.url}
-            className="rounded-full border-0 bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm shadow-ember/20 transition-all hover:scale-[1.02] hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           >
             Download APK
           </a>
-          <a href={SITE.repo} target="_blank" rel="noreferrer" className={`${lnk} inline-flex items-center gap-[7px]`}>
+          <a
+            href={SITE.repo}
+            target="_blank"
+            rel="noreferrer"
+            className={`${lnk} inline-flex items-center gap-1.5`}
+            aria-label="View Daily Spark source code on GitHub"
+          >
             <Github className="size-4" /> <span className="hidden sm:inline">GitHub</span>
           </a>
         </div>
