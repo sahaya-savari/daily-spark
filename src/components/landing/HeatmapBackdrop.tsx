@@ -36,11 +36,11 @@ export function HeatmapBackdrop() {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden [mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_25%,transparent_80%)]"
+      className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden max-w-full [contain:paint] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_25%,transparent_80%)]"
       aria-hidden="true"
     >
       <div
-        className="grid gap-2.5 opacity-60 sm:gap-3"
+        className="grid gap-2.5 opacity-60 sm:gap-3 max-w-none"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
         }}

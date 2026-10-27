@@ -86,51 +86,78 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="grid size-7 sm:size-8 place-items-center rounded-full border border-white/10 bg-surface/60 text-muted-foreground transition-colors hover:text-foreground md:hidden shrink-0"
-            aria-label="Toggle mobile menu"
+            className="grid size-9 place-items-center rounded-full border border-white/20 bg-surface-2/90 text-foreground shadow-sm transition-all hover:border-ember/50 hover:text-ember active:scale-95 md:hidden shrink-0"
+            aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="size-3.5 sm:size-4" /> : <Menu className="size-3.5 sm:size-4" />}
+            {mobileMenuOpen ? (
+              <X className="size-5 text-ember stroke-[2.2]" />
+            ) : (
+              <Menu className="size-5 text-foreground stroke-[2.2]" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div className="mx-auto mt-2 max-w-[1100px] overflow-hidden rounded-2xl border border-white/10 bg-surface/90 p-3 shadow-2xl backdrop-blur-2xl md:hidden">
-          <nav className="flex flex-col gap-1">
+        <div className="mx-auto mt-2 max-w-[1100px] overflow-hidden rounded-2xl border border-white/15 bg-surface/95 p-3 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav className="flex flex-col gap-1.5" aria-label="Mobile navigation">
             <Link
               to="/features"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-surface-2 font-semibold" }}
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-[15px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15"
+              activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
             >
-              What it does
+              <span>What it does</span>
+              <span className="text-xs text-muted-foreground font-mono">01</span>
             </Link>
             <Link
               to="/screens"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-surface-2 font-semibold" }}
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-[15px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15"
+              activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
             >
-              Screens
+              <span>Screens</span>
+              <span className="text-xs text-muted-foreground font-mono">02</span>
             </Link>
             <Link
               to="/privacy"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-surface-2 font-semibold" }}
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-[15px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15"
+              activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
             >
-              Privacy
+              <span className="flex items-center gap-2">
+                <ShieldCheck className="size-4 text-emerald-400" />
+                <span>Privacy</span>
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">03</span>
             </Link>
             <Link
               to="/download"
               onClick={() => setMobileMenuOpen(false)}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
-              activeProps={{ className: "text-foreground bg-surface-2 font-semibold" }}
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-[15px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15"
+              activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
             >
-              Download
+              <span className="flex items-center gap-2">
+                <Download className="size-4 text-ember" />
+                <span>Download</span>
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">04</span>
             </Link>
+            <a
+              href={SITE.repo}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between rounded-xl px-4 py-3 text-[15px] font-medium text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 border-t border-white/5 mt-1 pt-3"
+            >
+              <span className="flex items-center gap-2">
+                <Github className="size-4" />
+                <span>GitHub Repository</span>
+              </span>
+              <span className="text-xs text-muted-foreground font-mono">v{SITE.apk.version}</span>
+            </a>
           </nav>
         </div>
       )}

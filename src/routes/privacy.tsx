@@ -46,11 +46,11 @@ function Privacy() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
       <SiteHeader />
-      <main id="main" className="mx-auto max-w-3xl px-5 py-20">
-        <h1 className="font-display text-6xl font-bold">Privacy</h1>
-        <p className="mt-4 text-lg text-muted-foreground">Short version: your habits never leave your device.</p>
+      <main id="main" className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-20 w-full max-w-full">
+        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold">Privacy</h1>
+        <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">Short version: your habits never leave your device.</p>
         <div className="mt-12">
           {SECTIONS.map(([t, b]) => (
             <section key={t} className="border-t border-border py-7">

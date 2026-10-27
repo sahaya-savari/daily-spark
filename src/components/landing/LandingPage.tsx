@@ -151,19 +151,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
           <HeatmapBackdrop />
 
-          <div className="order-1 md:order-1 flex flex-col items-start text-left w-full max-w-full">
+          <div className="order-1 md:order-1 flex flex-col items-center text-center md:items-start md:text-left w-full max-w-full">
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full"
+              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full mx-auto md:mx-0"
             >
               <SparkMark className="size-5 sm:size-[26px] shrink-0" />
               <b className="font-display text-sm sm:text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
               <span className="rounded-full bg-ember-soft px-1.5 sm:px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">{SITE.apk.version}</span>
               <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
-            <h1 className="font-display text-[34px] xs:text-[38px] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14]">
+            <h1 className="font-display text-[34px] xs:text-[38px] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-center md:text-left">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
@@ -185,15 +185,15 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 />
               </span>
             </h1>
-            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[16.5px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground">
+            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[16.5px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground mx-auto md:mx-0 text-center md:text-left">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-3.5 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-3.5 w-full sm:w-auto">
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-6 py-3.5 text-sm sm:text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35 justify-center text-center`}
+                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-6 py-3.5 text-sm sm:text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35 justify-center text-center w-full sm:w-auto`}
               >
                 Download Daily Spark APK <Download className="size-[19px]" />
               </a>
@@ -201,27 +201,27 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`glass-pill ${btn} border-white/10 px-6 py-3.5 text-sm sm:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center`}
+                className={`glass-pill ${btn} border-white/10 px-6 py-3.5 text-sm sm:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto`}
               >
                 GitHub Releases
               </a>
             </div>
-            <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint">Android APK · 100% Offline · No account · No ads</p>
+            <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint mx-auto md:mx-0 text-center md:text-left">Android APK · 100% Offline · No account · No ads</p>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
-          <div className="order-2 mt-4 sm:mt-0 flex justify-center md:order-2 w-full max-w-full overflow-hidden">
+          <div className="order-2 mt-6 sm:mt-0 flex justify-center md:order-2 w-full max-w-full overflow-hidden">
             <DemoPhone />
           </div>
         </section>
 
         {/* What it does */}
-        <section id="features" className="reveal mx-auto max-w-[1100px] scroll-mt-20 px-6 py-[72px]">
-          <div className="mb-8">
-            <h2 className="font-display text-[30px] font-bold md:text-[42px]">What it does</h2>
-            <p className="mt-2 text-base text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
+        <section id="features" className="reveal mx-auto max-w-[1100px] scroll-mt-20 px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden max-w-full">
+          <div className="mb-8 text-center md:text-left">
+            <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">What it does</h2>
+            <p className="mt-2 text-sm sm:text-base text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
             {FEATURES.map(({ icon: Icon, title, body }) => (
               <article
                 key={title}
@@ -240,18 +240,18 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* LOCK B: Screens Carousel Parade */}
-        <section id="screens" className="relative scroll-mt-20 py-[72px] overflow-hidden max-w-full">
+        <section id="screens" className="relative scroll-mt-20 py-[56px] sm:py-[72px] overflow-hidden max-w-full [contain:paint]">
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/5 blur-[120px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/5 blur-[120px] overflow-hidden"
             aria-hidden="true"
           />
-          <div className="reveal mx-auto max-w-[1100px] px-6">
-            <h2 className="mb-3 font-display text-[30px] font-bold md:text-[42px]">Screens</h2>
-            <p className="mb-9 max-w-[52ch] text-[17px] text-muted-foreground">
+          <div className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 text-center md:text-left">
+            <h2 className="mb-3 font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Screens</h2>
+            <p className="mb-9 max-w-[52ch] text-sm sm:text-[17px] text-muted-foreground mx-auto md:mx-0">
               The real layouts with sample habits. Hover to pause.
             </p>
           </div>
-          <div className="rail-mask overflow-hidden py-2.5 [contain:paint] motion-reduce:overflow-x-auto">
+          <div className="rail-mask overflow-hidden py-2.5 w-full max-w-full [contain:paint]">
             <div className="parade flex w-max gap-7 motion-reduce:animate-none">
               {[...SHOTS, ...SHOTS].map(([label, screen], i) => (
                 <figure key={i} className="group w-[208px] flex-none" aria-hidden={i >= SHOTS.length || undefined}>
@@ -266,97 +266,97 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* Data */}
-        <section className="reveal mx-auto grid max-w-[1100px] gap-6 px-6 py-[72px] md:grid-cols-[1fr_1.3fr] md:gap-14">
-          <h2 className="font-display text-[30px] font-bold md:text-[42px]">
-            Your data stays on your device
-          </h2>
-          <div>
-            <p className="max-w-[54ch] text-[17px] text-muted-foreground">
+        <section className="reveal mx-auto grid max-w-[1100px] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[1fr_1.3fr] md:gap-14 overflow-hidden max-w-full items-center">
+          <div className="text-center md:text-left">
+            <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold leading-tight">
+              Your data stays on your device
+            </h2>
+            <p className="mt-3 max-w-[54ch] text-sm sm:text-[17px] text-muted-foreground mx-auto md:mx-0">
               Daily Spark has no account and no server, so there's nowhere for your habits to go. No analytics, no ads.
             </p>
-            <p className="mt-3.5 max-w-[54ch] text-[17px] text-muted-foreground">
+            <p className="mt-3.5 max-w-[54ch] text-sm sm:text-[17px] text-muted-foreground mx-auto md:mx-0">
               Everything is saved locally on your phone with the APK. Export a backup now and then, and
               restore it on any device.
             </p>
-            <div className="mt-7 flex flex-wrap gap-4">
-              <RowLink icon={<UserX />} title="No account" sub="Install and start immediately" />
-              <RowLink icon={<WifiOff />} title="Offline first" sub="Tracking needs zero internet" />
-              <RowLink icon={<ShieldCheck />} title="Privacy by design" sub="No ads or hidden telemetry" />
-            </div>
+          </div>
+          <div className="flex flex-col gap-3.5 w-full">
+            <RowLink icon={<UserX />} title="No account" sub="Install and start immediately" />
+            <RowLink icon={<WifiOff />} title="Offline first" sub="Tracking needs zero internet" />
+            <RowLink icon={<ShieldCheck />} title="Privacy by design" sub="No ads or hidden telemetry" />
           </div>
         </section>
 
         {/* What it doesn't do */}
-        <section className="reveal mx-auto grid max-w-[1100px] gap-6 px-6 py-[72px] md:grid-cols-[1fr_1.3fr] md:gap-14">
-          <h2 className="font-display text-[30px] font-bold md:text-[42px]">What it doesn't do</h2>
-          <div>
-            <p className="max-w-[54ch] text-[17px] text-muted-foreground">
+        <section className="reveal mx-auto grid max-w-[1100px] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[1fr_1.3fr] md:gap-14 overflow-hidden max-w-full items-center">
+          <div className="text-center md:text-left">
+            <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">What it doesn't do</h2>
+            <p className="mt-3 max-w-[54ch] text-sm sm:text-[17px] text-muted-foreground mx-auto md:mx-0">
               Left out on purpose, to keep it simple and calm. Focus on consistency - not addiction or comparison.
             </p>
-            <div className="mt-6 flex flex-wrap gap-2.5">
-              {[
-                "No AI coaching",
-                "No gamification",
-                "No social feeds",
-                "No leaderboards",
-                "No pushy streaks",
-                "No forced reminders",
-                "No data syncing",
-              ].map((t) => (
-                <span
-                  key={t}
-                  className="glass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-foreground/90"
-                >
-                  <span className="size-1.5 rounded-full bg-ember shadow-sm shadow-ember/50" />
-                  {t}
-                </span>
-              ))}
-            </div>
+          </div>
+          <div className="flex flex-wrap justify-center md:justify-start gap-2.5 w-full">
+            {[
+              "No AI coaching",
+              "No gamification",
+              "No social feeds",
+              "No leaderboards",
+              "No pushy streaks",
+              "No forced reminders",
+              "No data syncing",
+            ].map((t) => (
+              <span
+                key={t}
+                className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium text-foreground/90 transition-all hover:scale-[1.02]"
+              >
+                <span className="size-1.5 rounded-full bg-ember shadow-sm shadow-ember/50" />
+                {t}
+              </span>
+            ))}
           </div>
         </section>
 
         {/* Why */}
-        <section className="reveal mx-auto grid max-w-[1100px] gap-6 px-6 py-[72px] md:grid-cols-[1fr_1.3fr] md:gap-14">
-          <h2 className="font-display text-[30px] font-bold md:text-[42px]">Why it exists</h2>
-          <div>
-            <p className="max-w-[54ch] text-[17px] text-muted-foreground">
+        <section className="reveal mx-auto grid max-w-[1100px] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[1fr_1.3fr] md:gap-14 overflow-hidden max-w-full items-center">
+          <div className="text-center md:text-left">
+            <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Why it exists</h2>
+            <p className="mt-3 max-w-[54ch] text-sm sm:text-[17px] text-muted-foreground mx-auto md:mx-0">
               Most habit apps want your attention: badges, pressure, guilt when you miss a day. Daily Spark is built
               to be quiet, stable and honest - not addictive.
             </p>
-            <p className="mt-3.5 max-w-[54ch] text-[17px] text-muted-foreground">
+            <p className="mt-3.5 max-w-[54ch] text-sm sm:text-[17px] text-muted-foreground mx-auto md:mx-0">
               It's open source under MIT. If something is missing, open an issue or send a pull request on GitHub.
             </p>
-            <div className="mt-7 flex flex-wrap gap-4">
-              <RowLink icon={<Github />} title={SITE.author} sub={`github.com/${SITE.author}`} href={SITE.authorUrl} />
-              <RowLink icon={<Star />} title="Give it a star" sub="Star on GitHub" href={SITE.repo} />
-              <RowLink icon={<Bug />} title="Report an issue" sub="GitHub issues" href={SITE.issues} />
-            </div>
+          </div>
+          <div className="flex flex-col gap-3.5 w-full">
+            <RowLink icon={<Github />} title={SITE.author} sub={`github.com/${SITE.author}`} href={SITE.authorUrl} />
+            <RowLink icon={<Star />} title="Give it a star" sub="Star on GitHub" href={SITE.repo} />
+            <RowLink icon={<Bug />} title="Report an issue" sub="GitHub issues" href={SITE.issues} />
           </div>
         </section>
 
         {/* Get it */}
-        <section id="get" className="reveal scroll-mt-20 px-6 pb-24 pt-[72px]">
-          <div className="glass-panel relative mx-auto max-w-[1100px] overflow-hidden rounded-3xl p-8 text-center md:p-14">
+        <section id="get" className="reveal scroll-mt-20 px-4 sm:px-6 pb-20 sm:pb-24 pt-[56px] sm:pt-[72px] overflow-hidden max-w-full">
+          <div className="glass-panel relative mx-auto max-w-[1100px] overflow-hidden rounded-3xl p-6 sm:p-10 md:p-14 text-center w-full">
             <div
-              className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-96 -translate-x-1/2 rounded-full bg-ember/15 blur-[90px]"
+              className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-full max-w-96 -translate-x-1/2 rounded-full bg-ember/15 blur-[90px] overflow-hidden"
               aria-hidden="true"
             />
-            <h2 className="mb-4 font-display text-[32px] font-bold text-foreground md:text-[44px]">Get Daily Spark</h2>
-            <p className="mx-auto max-w-[52ch] text-[17px] text-muted-foreground">
+            <h2 className="mb-3 sm:mb-4 font-display text-[28px] sm:text-[36px] md:text-[44px] font-bold text-foreground">Get Daily Spark</h2>
+            <p className="mx-auto max-w-[52ch] text-sm sm:text-[17px] text-muted-foreground">
               Free, calm habit tracking directly on your Android phone.
             </p>
-            <div className="mb-6 mt-8 flex flex-wrap justify-center gap-4">
+            <div className="mb-6 mt-7 sm:mt-8 flex flex-col sm:flex-row flex-wrap justify-center gap-3.5 sm:gap-4 w-full sm:w-auto">
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className="inline-flex h-[54px] items-center gap-3 rounded-full bg-gradient-to-r from-ember to-amber-500 px-7 text-left text-primary-foreground shadow-lg shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-ember/35 [&_svg]:size-6"
+                className="inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full bg-gradient-to-r from-ember to-amber-500 px-6 sm:px-7 text-left text-primary-foreground shadow-lg shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-ember/35 [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto"
               >
                 <Download />
                 <span className="leading-none">
                   <span className="block text-[10px] font-semibold uppercase tracking-wider text-primary-foreground/90">
                     Download APK
                   </span>
-                  <span className="mt-0.5 block font-display text-[19px] font-bold tracking-wide">
+                  <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-bold tracking-wide">
                     Direct Install
                   </span>
                 </span>
@@ -365,22 +365,22 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className="glass-pill inline-flex h-[54px] items-center gap-3 rounded-full px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-6"
+                className="glass-pill inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto"
               >
                 <Github />
                 <span className="leading-none">
                   <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     View on
                   </span>
-                  <span className="mt-0.5 block font-display text-[19px] font-semibold tracking-wide">
+                  <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide">
                     GitHub Releases
                   </span>
                 </span>
               </a>
             </div>
-            <p className="text-sm text-faint">
+            <p className="text-xs sm:text-sm text-faint">
               Android APK{" "}
-              <code className="font-mono rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[13px] text-muted-foreground">
+              <code className="font-mono rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[12px] sm:text-[13px] text-muted-foreground">
                 {SITE.apk.version}
               </code>{" "}
               · {SITE.apk.size} · 100% offline and privacy-first.
@@ -400,17 +400,17 @@ function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: str
       <span className="grid size-11 flex-none place-items-center rounded-xl border border-white/10 bg-surface/80 text-ember shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:border-ember/40 group-hover:bg-surface [&_svg]:size-5 [&_svg]:stroke-[1.8]">
         {icon}
       </span>
-      <span className="text-left">
-        <b className="block font-display text-[15.5px] font-semibold uppercase leading-tight tracking-[0.05em] text-foreground">{title}</b>
-        <small className="block text-[13.5px] text-faint transition-colors group-hover:text-ember">{sub}</small>
+      <span className="text-left flex-1 min-w-0">
+        <b className="block font-display text-[15px] sm:text-[15.5px] font-semibold uppercase leading-tight tracking-[0.04em] text-foreground truncate">{title}</b>
+        <small className="block text-[12.5px] sm:text-[13.5px] text-faint transition-colors group-hover:text-ember truncate">{sub}</small>
       </span>
     </>
   );
   return href ? (
-    <a href={href} target="_blank" rel="noreferrer" className="glass-pill group inline-flex items-center gap-3.5 rounded-2xl px-4 py-3">
+    <a href={href} target="_blank" rel="noreferrer" className="glass-pill group flex w-full items-center gap-3.5 rounded-2xl px-4 py-3.5 transition-all hover:scale-[1.01] hover:border-white/20">
       {inner}
     </a>
   ) : (
-    <div className="glass-pill group inline-flex items-center gap-3.5 rounded-2xl px-4 py-3">{inner}</div>
+    <div className="glass-pill group flex w-full items-center gap-3.5 rounded-2xl px-4 py-3.5">{inner}</div>
   );
 }
