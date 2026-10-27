@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { ArrowRight, Download, Github, Globe, Smartphone, UserX, WifiOff, Bug, Star } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import {
@@ -17,6 +18,12 @@ import { useReveal } from "@/hooks/use-reveal";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    const isNative = typeof window !== "undefined" && Boolean((window as any).Capacitor?.isNativePlatform?.());
+    if (isNative) {
+      throw redirect({ to: "/app" });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Daily Spark — Calm, offline habit tracker" },
@@ -61,7 +68,15 @@ const btn =
   "inline-flex items-center justify-center gap-[9px] whitespace-nowrap rounded-full border px-6 py-[13px] font-display text-sm font-bold tracking-normal transition-colors";
 
 function Landing() {
+  const navigate = useNavigate();
   useReveal();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && Boolean((window as any).Capacitor?.isNativePlatform?.())) {
+      navigate({ to: "/app" });
+    }
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-background">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[90] focus:rounded-[10px] focus:bg-ember focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground">
