@@ -220,9 +220,11 @@ export function DiaTextReveal({
   return (
     <motion.span
       ref={spanRef}
-      className={cn("inline-block align-bottom leading-[100%] text-inherit", className)}
+      className={cn(
+        "inline-block align-baseline leading-[1.25] pb-[0.25em] -mb-[0.25em] pt-[0.05em] -mt-[0.05em] text-inherit",
+        className,
+      )}
       style={{
-        transform: "translateY(-2px)",
         color: "transparent",
         backgroundClip: "text",
         WebkitBackgroundClip: "text",

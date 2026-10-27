@@ -163,14 +163,14 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <span className="rounded-full bg-ember-soft px-2 py-0.5 text-xs font-semibold text-ember">{SITE.apk.version}</span>
               <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
-            <h1 className="font-display text-[44px] font-bold leading-[1.08] sm:text-[58px] lg:text-[72px]">
-              <span className="block">
+            <h1 className="font-display text-[44px] font-bold leading-[1.15] sm:text-[58px] lg:text-[72px]">
+              <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
-              <span className="block">
+              <span className="block pb-0.5">
                 <DiaTextReveal text="Tick it." delay={0.28} textColor="#FAF7F5" />
               </span>
-              <span className="block text-ember">
+              <span className="block pb-0.5 text-ember">
                 <DiaTextReveal
                   text="Keep going."
                   delay={0.48}
