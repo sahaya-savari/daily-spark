@@ -156,7 +156,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="mb-8 inline-flex items-center gap-3 rounded-full border border-border/80 bg-surface/80 py-2 pl-2.5 pr-4 text-[14.5px] text-muted-foreground backdrop-blur-md transition-all hover:border-ember/40 hover:text-foreground"
+              className="glass-pill mb-8 inline-flex items-center gap-3 rounded-full py-2 pl-2.5 pr-4 text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground"
             >
               <SparkMark className="size-[26px] shrink-0" />
               <b className="font-display text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
@@ -193,7 +193,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className={`${btn} border-transparent bg-primary px-7 py-3.5 text-base text-primary-foreground shadow-lg shadow-ember/20 hover:scale-[1.02] hover:bg-primary/90`}
+                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-7 py-3.5 text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35`}
               >
                 Download Daily Spark APK <Download className="size-[19px]" />
               </a>
@@ -201,7 +201,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`${btn} border-border-hi bg-surface/80 px-7 py-3.5 text-base hover:border-muted-foreground hover:bg-surface-2`}
+                className={`glass-pill ${btn} border-white/10 px-7 py-3.5 text-base text-foreground transition-all hover:scale-[1.02]`}
               >
                 GitHub Releases
               </a>
@@ -228,7 +228,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 className="glass-card group flex flex-col justify-between rounded-2xl p-6 transition-all duration-200"
               >
                 <div>
-                  <div className="mb-4 inline-flex size-11 items-center justify-center rounded-xl bg-ember-soft text-ember transition-transform duration-300 group-hover:scale-110">
+                  <div className="mb-4 inline-flex size-11 items-center justify-center rounded-xl border border-ember/20 bg-gradient-to-br from-ember/15 to-transparent text-ember shadow-sm shadow-ember/10 transition-transform duration-300 group-hover:scale-110 group-hover:border-ember/40">
                     <Icon className="size-5" />
                   </div>
                   <h3 className="mb-2 font-display text-lg font-bold tracking-tight text-foreground">{title}</h3>
@@ -240,7 +240,11 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* LOCK B: Screens Carousel Parade */}
-        <section id="screens" className="scroll-mt-20 py-[72px]">
+        <section id="screens" className="relative scroll-mt-20 py-[72px]">
+          <div
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/5 blur-[120px]"
+            aria-hidden="true"
+          />
           <div className="reveal mx-auto max-w-[1100px] px-6">
             <h2 className="mb-3 font-display text-[30px] font-bold md:text-[42px]">Screens</h2>
             <p className="mb-9 max-w-[52ch] text-[17px] text-muted-foreground">
@@ -301,9 +305,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               ].map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-surface/70 px-4 py-2 text-sm font-medium text-foreground/90 backdrop-blur-sm"
+                  className="glass-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-foreground/90"
                 >
-                  <span className="size-1.5 rounded-full bg-ember" />
+                  <span className="size-1.5 rounded-full bg-ember shadow-sm shadow-ember/50" />
                   {t}
                 </span>
               ))}
@@ -332,9 +336,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
         {/* Get it */}
         <section id="get" className="reveal scroll-mt-20 px-6 pb-24 pt-[72px]">
-          <div className="relative mx-auto max-w-[1100px] overflow-hidden rounded-3xl border border-border/80 bg-surface/60 p-8 text-center backdrop-blur-md md:p-14">
+          <div className="glass-panel relative mx-auto max-w-[1100px] overflow-hidden rounded-3xl p-8 text-center md:p-14">
             <div
-              className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-96 -translate-x-1/2 rounded-full bg-ember/10 blur-[80px]"
+              className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-96 -translate-x-1/2 rounded-full bg-ember/15 blur-[90px]"
               aria-hidden="true"
             />
             <h2 className="mb-4 font-display text-[32px] font-bold text-foreground md:text-[44px]">Get Daily Spark</h2>
@@ -345,14 +349,14 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className="inline-flex h-[54px] items-center gap-3 rounded-full bg-primary px-7 text-left text-primary-foreground shadow-lg shadow-ember/20 transition-all hover:scale-[1.02] hover:bg-primary/95 [&_svg]:size-6"
+                className="inline-flex h-[54px] items-center gap-3 rounded-full bg-gradient-to-r from-ember to-amber-500 px-7 text-left text-primary-foreground shadow-lg shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-ember/35 [&_svg]:size-6"
               >
                 <Download />
                 <span className="leading-none">
-                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-primary-foreground/80">
+                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-primary-foreground/90">
                     Download APK
                   </span>
-                  <span className="mt-0.5 block font-display text-[19px] font-semibold tracking-wide">
+                  <span className="mt-0.5 block font-display text-[19px] font-bold tracking-wide">
                     Direct Install
                   </span>
                 </span>
@@ -361,7 +365,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-[54px] items-center gap-3 rounded-full border border-border-hi bg-surface px-7 text-left transition-all hover:border-muted-foreground hover:bg-surface-2 [&_svg]:size-6"
+                className="glass-pill inline-flex h-[54px] items-center gap-3 rounded-full px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-6"
               >
                 <Github />
                 <span className="leading-none">
@@ -376,7 +380,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </div>
             <p className="text-sm text-faint">
               Android APK{" "}
-              <code className="font-mono rounded bg-surface-2 px-2 py-0.5 text-[13px] text-muted-foreground">
+              <code className="font-mono rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[13px] text-muted-foreground">
                 {SITE.apk.version}
               </code>{" "}
               · {SITE.apk.size} · 100% offline and privacy-first.
@@ -393,20 +397,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: string; sub: string; href?: string }) {
   const inner = (
     <>
-      <span className="grid size-11 flex-none place-items-center rounded-full border border-border bg-surface text-ember transition-colors group-hover:border-ember [&_svg]:size-5 [&_svg]:stroke-[1.8]">
+      <span className="grid size-11 flex-none place-items-center rounded-xl border border-white/10 bg-surface/80 text-ember shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:border-ember/40 group-hover:bg-surface [&_svg]:size-5 [&_svg]:stroke-[1.8]">
         {icon}
       </span>
       <span className="text-left">
-        <b className="block font-display text-[15.5px] font-semibold uppercase leading-tight tracking-[0.05em]">{title}</b>
+        <b className="block font-display text-[15.5px] font-semibold uppercase leading-tight tracking-[0.05em] text-foreground">{title}</b>
         <small className="block text-[13.5px] text-faint transition-colors group-hover:text-ember">{sub}</small>
       </span>
     </>
   );
   return href ? (
-    <a href={href} target="_blank" rel="noreferrer" className="group inline-flex items-center gap-[13px]">
+    <a href={href} target="_blank" rel="noreferrer" className="glass-pill group inline-flex items-center gap-3.5 rounded-2xl px-4 py-3">
       {inner}
     </a>
   ) : (
-    <div className="group inline-flex items-center gap-[13px]">{inner}</div>
+    <div className="glass-pill group inline-flex items-center gap-3.5 rounded-2xl px-4 py-3">{inner}</div>
   );
 }
