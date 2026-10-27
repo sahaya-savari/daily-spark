@@ -28,29 +28,46 @@ const sweepEase = (t: number) =>
   t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
 
 function buildGradient(pos: number, colors: string[], textColor: string) {
+  const safeColor =
+    textColor && textColor !== "currentColor"
+      ? textColor
+      : "#FAF7F5";
   const bandStart = pos - BAND_HALF;
   const bandEnd = pos + BAND_HALF;
 
-  if (bandStart >= 100) {
-    return `linear-gradient(90deg, ${textColor}, ${textColor})`;
+  if (pos <= SWEEP_START || bandStart >= 100) {
+    return `linear-gradient(90deg, ${safeColor} 0%, ${safeColor} 100%)`;
   }
+
   const n = colors.length;
   const parts: string[] = [];
 
+  // Before the radiant band: text is fully visible in its base color
   if (bandStart > 0) {
-    parts.push(`${textColor} 0%`, `${textColor} ${bandStart.toFixed(2)}%`);
+    parts.push(`${safeColor} 0%`, `${safeColor} ${bandStart.toFixed(2)}%`);
+  } else {
+    parts.push(`${safeColor} 0%`);
   }
 
+  // The moving sweep highlight
   colors.forEach((c, i) => {
     const pct = n === 1 ? pos : bandStart + (i / (n - 1)) * BAND_HALF * 2;
-    parts.push(`${c} ${pct.toFixed(2)}%`);
+    if (pct >= 0 && pct <= 100) {
+      parts.push(`${c} ${pct.toFixed(2)}%`);
+    }
   });
 
+  // After the radiant band: text remains fully visible in its base color
   if (bandEnd < 100) {
-    parts.push(`transparent ${bandEnd.toFixed(2)}%`, `transparent 100%`);
+    const safeEnd = Math.max(0, bandEnd);
+    parts.push(`${safeColor} ${safeEnd.toFixed(2)}%`, `${safeColor} 100%`);
+  } else {
+    parts.push(`${safeColor} 100%`);
   }
 
-  return `linear-gradient(90deg, ${parts.join(", ")})`;
+  return parts.length >= 2
+    ? `linear-gradient(90deg, ${parts.join(", ")})`
+    : `linear-gradient(90deg, ${safeColor} 0%, ${safeColor} 100%)`;
 }
 
 function measureWidths(el: HTMLElement, texts: string[]) {
@@ -92,7 +109,7 @@ export interface DiaTextRevealProps
 export function DiaTextReveal({
   text,
   colors = DEFAULT_SPARK_COLORS,
-  textColor = "currentColor",
+  textColor = "#FAF7F5",
   duration = 1.6,
   delay = 0.1,
   repeat = false,

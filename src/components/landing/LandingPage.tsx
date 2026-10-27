@@ -18,6 +18,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
+import { SparkMark } from "@/components/brand/Logo";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { DiaTextReveal } from "@/components/magicui/dia-text-reveal";
 import {
@@ -155,20 +156,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-border/80 bg-surface/80 py-2 pl-2 pr-4 text-[14.5px] text-muted-foreground backdrop-blur-md transition-all hover:border-ember/40 hover:text-foreground"
+              className="mb-8 inline-flex items-center gap-3 rounded-full border border-border/80 bg-surface/80 py-2 pl-2.5 pr-4 text-[14.5px] text-muted-foreground backdrop-blur-md transition-all hover:border-ember/40 hover:text-foreground"
             >
-              <span className="grid size-[32px] place-items-center rounded-lg bg-ember-soft text-ember">
-                <Download className="size-[18px]" />
-              </span>
-              <b className="font-display text-[19px] font-semibold tracking-[0.02em] text-foreground">{SITE.apk.version}</b>
-              on GitHub - Free &amp; Open Source
+              <SparkMark className="size-[26px] shrink-0" />
+              <b className="font-display text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
+              <span className="rounded-full bg-ember-soft px-2 py-0.5 text-xs font-semibold text-ember">{SITE.apk.version}</span>
+              <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
             <h1 className="font-display text-[44px] font-bold leading-[1.08] sm:text-[58px] lg:text-[72px]">
               <span className="block">
-                <DiaTextReveal text="Show up." delay={0.08} />
+                <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
               <span className="block">
-                <DiaTextReveal text="Tick it." delay={0.28} />
+                <DiaTextReveal text="Tick it." delay={0.28} textColor="#FAF7F5" />
               </span>
               <span className="block text-ember">
                 <DiaTextReveal
@@ -195,7 +195,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 download={SITE.apk.filename}
                 className={`${btn} border-transparent bg-primary px-7 py-3.5 text-base text-primary-foreground shadow-lg shadow-ember/20 hover:scale-[1.02] hover:bg-primary/90`}
               >
-                Download APK <Download className="size-[19px]" />
+                Download Daily Spark APK <Download className="size-[19px]" />
               </a>
               <a
                 href={SITE.releases}
