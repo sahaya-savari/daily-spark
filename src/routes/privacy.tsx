@@ -1,8 +1,18 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/privacy")({
+  beforeLoad: ({ location }) => {
+    const rawHash = location.hash ? location.hash.replace(/^#/, "") : "";
+    if (rawHash && ["get", "features", "screens", "main"].includes(rawHash)) {
+      throw redirect({
+        to: "/",
+        hash: rawHash,
+      });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Privacy - Daily Spark" },
@@ -26,10 +36,19 @@ const SECTIONS = [
 ] as const;
 
 function Privacy() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const rawHash = window.location.hash.replace(/^#/, "");
+    if (rawHash && ["get", "features", "screens", "main"].includes(rawHash)) {
+      router.navigate({ to: "/", hash: rawHash });
+    }
+  }, [router]);
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-5 py-20">
+      <main id="main" className="mx-auto max-w-3xl px-5 py-20">
         <h1 className="font-display text-6xl font-bold">Privacy</h1>
         <p className="mt-4 text-lg text-muted-foreground">Short version: your habits never leave your device.</p>
         <div className="mt-12">

@@ -6,6 +6,13 @@ import { SITE } from "@/lib/site";
 const lnk =
   "whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-all duration-150 hover:bg-surface/80 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
 
+function scrollTo(id: string) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-xl">
@@ -14,10 +21,18 @@ export function SiteHeader() {
           <Logo />
         </Link>
         <nav className="scrollbar-none order-4 flex w-full items-center gap-1.5 overflow-x-auto py-1 md:order-2 md:w-auto md:gap-2">
-          <a href="#features" className={lnk}>What it does</a>
-          <a href="#screens" className={lnk}>Screens</a>
-          <Link to="/privacy" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>Privacy</Link>
-          <a href="#get" className={lnk}>Download</a>
+          <Link to="/" hash="features" className={lnk} onClick={() => scrollTo("features")}>
+            What it does
+          </Link>
+          <Link to="/" hash="screens" className={lnk} onClick={() => scrollTo("screens")}>
+            Screens
+          </Link>
+          <Link to="/privacy" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>
+            Privacy
+          </Link>
+          <Link to="/" hash="get" className={lnk} onClick={() => scrollTo("get")}>
+            Download
+          </Link>
         </nav>
         <div className="order-2 flex items-center gap-3 md:order-3">
           <a

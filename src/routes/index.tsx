@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useLocation } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   Download,
   Github,
@@ -109,6 +110,20 @@ const btn =
 
 function Landing() {
   useReveal();
+  const location = useLocation();
+
+  useEffect(() => {
+    const rawHash = (location.hash || window.location.hash || "").replace(/^#/, "");
+    if (rawHash) {
+      const timer = setTimeout(() => {
+        const el = document.getElementById(rawHash);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash]);
 
   return (
     <div className="min-h-screen bg-background">
