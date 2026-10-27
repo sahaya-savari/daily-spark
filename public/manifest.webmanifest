@@ -3,7 +3,7 @@
   "name": "Daily Spark",
   "short_name": "Daily Spark",
   "description": "A calm, offline-first habit and streak tracker. No login, no ads, no tracking.",
-  "start_url": "./app",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -16,9 +16,5 @@
     { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "./icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ],
-  "shortcuts": [
-    { "name": "Today", "url": "./app", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] },
-    { "name": "Insights", "url": "./app/insights", "icons": [{ "src": "./icon-192.png", "sizes": "192x192" }] }
   ]
 }
