@@ -1,4 +1,9 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
+
+Object.defineProperty(window, "scrollTo", {
+  writable: true,
+  value: () => {},
+});
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,

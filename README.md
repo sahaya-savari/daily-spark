@@ -17,7 +17,7 @@ No login. No ads. No tracking. Just you and your progress.
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
 
-[Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Try the Web App](https://daily-spark-app-da74b.web.app) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
+[Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Try the Web App](https://sahaya-savari.github.io/daily-spark/) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
 
 </div>
 
@@ -350,7 +350,7 @@ Use the documented template below when restoring historical streaks.
 
 ### Web Version (PWA)
 
-1. Visit [daily-spark-app-da74b.web.app](https://daily-spark-app-da74b.web.app)
+1. Visit [sahaya-savari.github.io/daily-spark/](https://sahaya-savari.github.io/daily-spark/)
 2. Use all core features without signup
 3. Install as a web app from your browser
 

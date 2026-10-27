@@ -1,23 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="flame" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ff8c42"/>
-      <stop offset="100%" style="stop-color:#f97316"/>
-    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#202026"/><stop offset="1" stop-color="#17171D"/></linearGradient>
+    <linearGradient id="sp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F29559"/><stop offset="1" stop-color="#DDA77B"/></linearGradient>
   </defs>
-  
-  <!-- Dark background for contrast -->
-  <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
-  
-  <!-- Simplified flame - optimized for 16x16, 32x32 -->
-  <path d="M 16 6 C 16 6, 13 10, 13 13 C 13 15, 14 16, 16 18 C 16 16, 17 15, 18 13 C 18.5 12, 19 11, 19 10 C 19 8, 18 7, 16 6 Z" 
-        fill="url(#flame)"/>
-  <path d="M 16 18 C 15 19, 12 21, 12 24 C 12 26.5, 13.5 28, 16 28.5 C 18.5 28, 20 26.5, 20 24 C 20 21, 17 19, 16 18 Z" 
-        fill="url(#flame)"/>
-  
-  <!-- Yellow highlight -->
-  <path d="M 16 10 C 16 10, 15 11.5, 15 13 C 15 14, 15.5 14.5, 16 15 C 16.5 14.5, 17 14, 17 13 C 17 11.5, 16 10, 16 10 Z" 
-        fill="#ffd700" 
-        opacity="0.7"/>
-  <ellipse cx="16" cy="23" rx="2.5" ry="3" fill="#ffe680" opacity="0.5"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 440c9-70-11-130-62-181" fill="none" stroke="#DDA77B" stroke-width="26" stroke-linecap="round"/>
+  <path d="M194 259c-50-16-83 3-96 50 46 9 83-12 96-50Z" fill="#DDA77B"/>
+  <path d="M228 302c46-19 83-5 101 42-45 13-83-6-101-42Z" fill="#DDA77B"/>
+  <path d="M256 56c10 72 37 99 109 109-72 10-99 37-109 109-10-72-37-99-109-109 72-10 99-37 109-109Z" fill="url(#sp)"/>
+  <circle cx="394" cy="106" r="20" fill="#DDA77B"/>
 </svg>

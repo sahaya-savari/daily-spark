@@ -1,0 +1,330 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Daily Spark design system — Sunlit Apricot & Smoked Slate: slate page,
+ * tonal surfaces, apricot accent, tan progress. Arvo display headings and
+ * JetBrains Mono body and habit titles. All tokens live here.
+ */
+
+@theme inline {
+  --font-sans: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Arvo", serif;
+  --font-app: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: 16px;
+  --radius-3xl: 28px;
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-hi: var(--border-hi);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-scrim: var(--scrim);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ember: var(--ember);
+  --color-ember-soft: var(--ember-soft);
+  --color-brass: var(--brass);
+  --color-gold: var(--gold);
+  --color-sage: var(--sage);
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root,
+.dark {
+  /* Sunlit Apricot & Smoked Slate */
+  --radius: 0.75rem;
+  --background: oklch(0.207 0.012 285.3); /* smoked slate #17171D */
+  --foreground: oklch(0.978 0.004 56.4); /* pearl #FAF7F5 */
+  --surface: oklch(0.265 0.015 285.9); /* tonal elevated #24242C */
+  --surface-2: oklch(0.32 0.018 285.5);
+  --card: var(--surface);
+  --card-foreground: oklch(0.978 0.004 56.4);
+  --popover: oklch(0.246 0.011 285.5 / 96%);
+  --popover-foreground: oklch(0.978 0.004 56.4);
+  --primary: oklch(0.755 0.135 52.1);
+  --primary-foreground: oklch(0.207 0.012 285.3);
+  --ember: oklch(0.755 0.135 52.1); /* sunlit apricot #F29559 */
+  --ember-soft: color-mix(in oklab, var(--ember) 16%, transparent);
+  --brass: oklch(0.769 0.087 60.2); /* #DDA77B */
+  --gold: oklch(0.769 0.087 60.2); /* secondary progress #DDA77B */
+  --sage: oklch(0.7 0.07 140);
+  --secondary: oklch(0.28 0.012 285.5);
+  --secondary-foreground: oklch(0.978 0.004 56.4);
+  --muted: oklch(0.28 0.012 285.5);
+  --muted-foreground: oklch(0.8 0.008 285);
+  --faint: oklch(0.62 0.012 285);
+  --accent: oklch(0.31 0.013 285.5);
+  --accent-foreground: oklch(0.978 0.004 56.4);
+  --destructive: oklch(0.63 0.17 25);
+  --destructive-foreground: oklch(0.978 0.004 56.4);
+  --border: oklch(0.978 0.004 56.4 / 9%);
+  --border-hi: oklch(0.755 0.135 52.1 / 32%);
+  --input: oklch(0.978 0.004 56.4 / 14%);
+  --glass-shadow: 0 8px 24px -16px oklch(0 0 0 / 35%);
+  --scrim: oklch(0 0 0 / 75%);
+  --ring: oklch(0.755 0.135 52.1);
+
+  --heat-0: oklch(0.978 0.004 56.4 / 6%);
+  --heat-1: oklch(0.42 0.04 60);
+  --heat-2: oklch(0.55 0.06 60);
+  --heat-3: oklch(0.769 0.087 60.2);
+  --heat-4: oklch(0.755 0.135 52.1);
+
+  --chart-1: oklch(0.755 0.135 52.1);
+  --chart-2: oklch(0.769 0.087 60.2);
+  --chart-3: oklch(0.7 0.07 140);
+  --chart-4: oklch(0.68 0.04 250);
+  --chart-5: oklch(0.55 0.01 285);
+  --sidebar: oklch(0.246 0.011 285.5);
+  --sidebar-foreground: oklch(0.978 0.004 56.4);
+  --sidebar-primary: oklch(0.755 0.135 52.1);
+  --sidebar-primary-foreground: oklch(0.207 0.012 285.3);
+  --sidebar-accent: oklch(0.28 0.012 285.5);
+  --sidebar-accent-foreground: oklch(0.978 0.004 56.4);
+  --sidebar-border: oklch(0.978 0.004 56.4 / 9%);
+  --sidebar-ring: oklch(0.755 0.135 52.1);
+
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --bezel: linear-gradient(155deg, oklch(0.36 0.012 285) 0%, oklch(0.25 0.011 285) 26%, oklch(0.21 0.012 285) 62%, oklch(0.33 0.012 285) 100%);
+  --bezel-shine: linear-gradient(120deg, oklch(1 0 0 / 14%) 0%, transparent 34%, transparent 66%, oklch(1 0 0 / 5%) 100%);
+  --device-shadow: 0 60px 90px -40px oklch(0 0 0 / 95%), 0 0 0 1px oklch(1 0 0 / 6%);
+  --go-gradient: linear-gradient(135deg, var(--ember), var(--brass));
+  --go-shadow: 0 6px 18px color-mix(in oklab, var(--ember) 45%, transparent);
+  --nav-shadow: 0 12px 32px oklch(0 0 0 / 40%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-background);
+    background-image:
+      radial-gradient(60rem 40rem at 50% -10%, oklch(0.755 0.135 52.1 / 8%), transparent 70%),
+      radial-gradient(40rem 30rem at 100% 100%, oklch(0.769 0.087 60.2 / 5%), transparent 70%);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  /* Shared tonal elevation */
+  .bg-surface,
+  .bg-card,
+  .bg-surface-2,
+  .bg-popover {
+    backdrop-filter: blur(20px) saturate(140%);
+    box-shadow: var(--glass-shadow);
+  }
+
+  ::selection {
+    background: var(--ember);
+    color: var(--primary-foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+@utility kicker {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* Subtle dotted texture used behind the app screens. */
+@utility bg-dots {
+  background-color: var(--background);
+  background-image: radial-gradient(oklch(1 0 0 / 5.5%) 1.1px, transparent 1.1px);
+  background-size: 26px 26px;
+}
+
+@utility bezel {
+  background: var(--bezel);
+  box-shadow: var(--device-shadow);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 4;
+    background: var(--bezel-shine);
+  }
+}
+
+@utility go-button {
+  background: var(--go-gradient);
+  box-shadow: var(--go-shadow);
+}
+
+@utility nav-float {
+  box-shadow: var(--nav-shadow);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility rail-mask {
+  mask-image: linear-gradient(90deg, transparent 0, #000 90px, #000 calc(100% - 90px), transparent 100%);
+}
+
+@utility parade {
+  animation: parade 80s linear infinite;
+  animation-delay: -40s;
+  will-change: transform;
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+@utility rise {
+  animation: rise 0.9s var(--ease-out-soft) both;
+}
+
+@keyframes parade {
+  to {
+    transform: translateX(calc(-50% - 14px));
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@utility pulse-dot {
+  animation: pulse-dot 1.6s infinite;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s var(--ease-out-soft),
+    transform 0.6s var(--ease-out-soft);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@utility check-orb {
+  transition: transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 200ms;
+  &:active { transform: scale(0.84); }
+  &[aria-pressed="true"] svg { animation: check-pop 450ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+}
+
+@keyframes check-pop {
+  0% { transform: scale(0.5) rotate(-18deg); }
+  65% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}

@@ -1,53 +1,35 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import path from 'path';
-import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => {
   const isCapacitor = mode === 'capacitor';
 
   return {
-    base: isCapacitor ? './' : '/',
+    base: './',
 
     server: {
       host: true,
       port: 8080,
-      hmr: { overlay: false },
-    },
-
-    build: {
-      // Optimize build output
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-        },
-      },
-      // Code splitting configuration
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'vendor': ['react', 'react-dom', 'react-router-dom'],
-          },
-        },
-      },
     },
 
     plugins: [
+      TanStackRouterVite({ target: 'react', autoCodeSplitting: true }),
       react(),
-
-      // PWA ONLY FOR WEB
-      !isCapacitor &&
-        VitePWA({
-          registerType: 'autoUpdate',
-          manifest: false,
-        }),
-    ].filter(Boolean),
+      tailwindcss(),
+    ],
 
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src'),
+        '@': path.resolve(import.meta.dirname, './src'),
       },
+    },
+
+    build: {
+      outDir: 'dist',
+      sourcemap: false,
     },
   };
 });
