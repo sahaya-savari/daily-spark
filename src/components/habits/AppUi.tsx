@@ -98,7 +98,7 @@ export function Segmented<T extends string>({
   );
 }
 
-/** White pill — the app's primary action, as in the reference. */
+/** White pill - the app's primary action, as in the reference. */
 export const primaryBtn =
   "inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-[15px] font-extrabold text-primary-foreground transition-transform active:scale-[0.975] hover:bg-primary/90";
 export const smallPrimaryBtn =

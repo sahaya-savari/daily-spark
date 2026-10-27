@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   Bell, Check, ChartColumn, ChevronRight, Download, Flame, House, ListChecks, Plus, Settings2, Star, Upload,
 } from "lucide-react";
@@ -115,6 +115,14 @@ function Screen({
 }) {
   const ctxNav = useContext(NavCtx);
   const onNav = onNavProp ?? ctxNav;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [active]);
+
   return (
     <div className="bg-dots relative h-full w-full font-app text-[14px] leading-[1.45] text-foreground">
       <div className="absolute inset-x-0 top-0 z-[6] flex h-12 items-center justify-between px-[26px] text-[13px] font-semibold">
@@ -130,7 +138,10 @@ function Screen({
           </span>
         </span>
       </div>
-      <div className="scrollbar-none absolute inset-0 flex flex-col gap-5 overflow-y-auto [&>*]:shrink-0 overscroll-contain px-5 pb-[116px] pt-[52px]">
+      <div
+        ref={scrollRef}
+        className="scrollbar-none absolute inset-0 flex flex-col gap-5 overflow-y-auto [&>*]:shrink-0 overscroll-contain px-5 pb-[116px] pt-[52px]"
+      >
         {children}
       </div>
       <div className="nav-float absolute inset-x-3.5 bottom-3.5 z-[6] flex h-[88px] items-center justify-between rounded-full border-0 bg-surface/90 px-3 backdrop-blur-xl">
@@ -273,15 +284,23 @@ export function HomeScreen({
         </div>
       </div>
 
-      <div>
-        <div className="mb-2.5 flex items-center justify-between">
-          <p className="text-[17px] font-extrabold">Activity</p>
-          <ChevronRight className="size-4 text-faint" />
+      <button
+        type="button"
+        tabIndex={onNav ? 0 : -1}
+        onClick={() => onNav?.(3)}
+        className="flex w-full items-center justify-between rounded-2xl bg-surface p-4 text-left transition-colors hover:bg-surface-2"
+      >
+        <div className="flex items-center gap-3">
+          <span className="grid size-8 place-items-center rounded-lg bg-ember-soft text-ember">
+            <Flame className="size-4" />
+          </span>
+          <div>
+            <p className="kicker text-[10px]">Overview</p>
+            <p className="font-mono text-sm font-semibold">View 6-Month Activity &amp; Stats</p>
+          </div>
         </div>
-        <Card>
-          <Heatmap levels={HEAT} />
-        </Card>
-      </div>
+        <ChevronRight className="size-4 text-faint" />
+      </button>
     </Screen>
   );
 }
@@ -388,36 +407,105 @@ export function CalendarScreen() {
   );
 }
 
-export function HabitScreen() {
-  const x = INITIAL[1];
-  if (!x) return null;
+export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefined }) {
+  const [filter, setFilter] = useState<"all" | "starred">("all");
+  const [activeHabit, setActiveHabit] = useState<DemoHabit | null>(null);
+
+  const displayed = filter === "starred"
+    ? INITIAL.filter((h) => h.id === "1" || h.id === "2")
+    : INITIAL;
+
   return (
-    <Screen active={1}>
-      <div className="relative overflow-hidden rounded-3xl border-0 bg-surface p-[22px]">
-        <HabitIcon habit={h(x)} size="lg" />
-        <p className="kicker mt-4">Since 12 Jan</p>
-        <p className="font-display text-[26px] font-bold leading-tight">{x.name}</p>
-        <p className="text-[12.5px] font-semibold text-muted-foreground">8 glasses before dinner</p>
-        <div className="mt-4 flex h-[52px] items-center justify-center gap-2 rounded-full bg-surface-2 text-[15px] font-extrabold">
-          <Check className="size-4" strokeWidth={3} /> Done today
+    <Screen active={1} onNav={onNav}>
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="kicker">Habits</p>
+          <p className="font-display text-[26px] font-bold leading-tight">All Habits</p>
         </div>
+        <span className="text-xs font-semibold text-faint">{displayed.length} habits</span>
       </div>
-      <div className="grid grid-cols-3 gap-[9px]">
-        {[["31", "Current", true], ["31", "Best", false], ["96", "Total", false]].map(([v, k, a]) => (
-          <Card key={k as string} className="p-3.5 text-center">
-            <p className={cn("text-[26px] font-extrabold leading-none", a && "text-ember")}>{v as string}</p>
-            <p className="kicker mt-1.5">{k as string}</p>
-          </Card>
-        ))}
+
+      {/* Segmented Filter: All vs Starred (Favorites) */}
+      <div className="flex rounded-full bg-surface p-1">
+        <button
+          type="button"
+          onClick={() => {
+            setFilter("all");
+            setActiveHabit(null);
+          }}
+          className={cn(
+            "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+            filter === "all" ? "bg-surface-2 text-foreground shadow-sm" : "text-faint hover:text-muted-foreground",
+          )}
+        >
+          All ({INITIAL.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setFilter("starred");
+            setActiveHabit(null);
+          }}
+          className={cn(
+            "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+            filter === "starred" ? "bg-surface-2 text-ember shadow-sm" : "text-faint hover:text-muted-foreground",
+          )}
+        >
+          ★ Starred (2)
+        </button>
       </div>
-      <Card>
-        <Heatmap levels={seeded(84, 11).map((l) => (l > 1 ? 4 : 0))} />
-      </Card>
-      <Card className="flex items-center gap-3 px-4 py-3">
-        <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember"><Bell className="size-4" /></span>
-        <span className="flex-1 text-[14px] font-bold">Reminder</span>
-        <span className="text-[14px] font-bold text-muted-foreground">19:30</span>
-      </Card>
+
+      {activeHabit ? (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setActiveHabit(null)}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-ember hover:underline"
+          >
+            ← Back to habits list
+          </button>
+          <div className="relative overflow-hidden rounded-3xl border-0 bg-surface p-[22px]">
+            <HabitIcon habit={h(activeHabit)} size="lg" />
+            <p className="kicker mt-4">Active Habit</p>
+            <p className="font-display text-[26px] font-bold leading-tight">{activeHabit.name}</p>
+            <p className="text-[12.5px] font-semibold text-muted-foreground">{activeHabit.streak} days current streak</p>
+          </div>
+          <div className="grid grid-cols-3 gap-[9px]">
+            {[
+              [String(activeHabit.streak), "Current", true],
+              [String(Math.max(activeHabit.streak, 21)), "Best", false],
+              [String(activeHabit.streak * 3), "Total", false],
+            ].map(([v, k, a]) => (
+              <Card key={k as string} className="p-3.5 text-center">
+                <p className={cn("text-[26px] font-extrabold leading-none", a && "text-ember")}>{v as string}</p>
+                <p className="kicker mt-1.5">{k as string}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {displayed.map((x) => (
+            <div
+              key={x.id}
+              onClick={() => setActiveHabit(x)}
+              className="flex cursor-pointer items-center gap-3 rounded-3xl bg-surface p-4 transition-colors hover:bg-surface-2"
+            >
+              <HabitIcon habit={h(x)} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="break-words font-mono text-[14px] font-semibold">{x.name}</p>
+                  {(x.id === "1" || x.id === "2") && <Star className="size-3 fill-gold text-gold" />}
+                </div>
+                <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
+                  <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
+                </p>
+              </div>
+              <ChevronRight className="size-4 text-faint" />
+            </div>
+          ))}
+        </div>
+      )}
     </Screen>
   );
 }
