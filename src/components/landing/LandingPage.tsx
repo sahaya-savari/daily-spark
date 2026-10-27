@@ -166,19 +166,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
           <HeatmapBackdrop />
 
-          <div className="order-1 md:order-1 flex min-w-0 flex-col items-center text-center md:items-start md:text-left w-full max-w-full">
+          <div className="order-1 md:order-1 flex min-w-0 flex-col items-start text-left w-full max-w-full">
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full mx-auto md:mx-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <SparkMark className="size-5 sm:size-[26px] shrink-0" />
               <b className="font-display text-sm sm:text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
               <span className="rounded-full bg-ember-soft px-1.5 sm:px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">{SITE.apk.version}</span>
               <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
-            <h1 className="font-display text-[clamp(28px,8.2vw,36px)] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-center md:text-left max-w-full">
+            <h1 className="font-display text-[clamp(28px,8.2vw,36px)] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-left max-w-full">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
@@ -200,11 +200,11 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 />
               </span>
             </h1>
-            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[15px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground mx-auto md:mx-0 text-center md:text-left">
+            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[15px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground text-left">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center md:justify-start gap-3 sm:gap-3.5 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-start gap-3 sm:gap-3.5 w-full sm:w-auto">
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
@@ -221,7 +221,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 GitHub Releases
               </a>
             </div>
-            <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint mx-auto md:mx-0 text-center md:text-left">Android APK · 100% Offline · No account · No ads</p>
+            <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint text-left">Android APK · 100% Offline · No account · No ads</p>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
@@ -232,7 +232,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
         {/* What it does */}
         <section id="features" className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
-          <div className="mb-8 text-center md:text-left">
+          <div className="mb-8 text-left">
             <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">What it does</h2>
             <p className="mt-2 text-[15px] sm:text-base text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
           </div>
@@ -261,10 +261,10 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             aria-hidden="true"
           />
           <div className="reveal mx-auto max-w-[1100px] px-4 sm:px-6">
-            <div className="mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 text-center md:text-left">
+            <div className="mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 text-left">
               <div className="min-w-0 flex-1">
                 <h2 className="mb-3 font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Screens</h2>
-                <p className="max-w-[52ch] text-[15px] sm:text-base text-muted-foreground mx-auto md:mx-0">
+                <p className="max-w-[52ch] text-[15px] sm:text-base text-muted-foreground">
                   The real layouts with sample habits. On a phone it is a rail you swipe yourself; on wider screens it
                   scrolls on its own and you can stop it.
                 </p>
@@ -315,14 +315,14 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         {/* Data */}
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
-            <div className="min-w-0 text-center md:text-left">
+            <div className="min-w-0 text-left">
               <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold leading-tight">
                 Your data stays on your device
               </h2>
-              <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground mx-auto md:mx-0">
+              <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
                 Daily Spark has no account and no server, so there's nowhere for your habits to go. No analytics, no ads.
               </p>
-              <p className="mt-3.5 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground mx-auto md:mx-0">
+              <p className="mt-3.5 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
                 Everything is saved locally on your phone with the APK. Export a backup now and then, and
                 restore it on any device.
               </p>
@@ -337,19 +337,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
         {/* What it doesn't do */}
         <section className="reveal mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 overflow-hidden items-center">
-          <div className="min-w-0 text-center md:text-left">
+          <div className="min-w-0 text-left">
             <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">What it doesn't do</h2>
-            <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground mx-auto md:mx-0">
+            <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
               Left out on purpose, to keep it simple and calm. Focus on consistency - not addiction or comparison.
             </p>
           </div>
           <div className="min-w-0 w-full">
-            <div className="hidden flex-wrap justify-center gap-2.5 sm:flex md:justify-start">
+            <div className="hidden flex-wrap justify-start gap-2.5 sm:flex">
               {NOT_DOING.map((t) => (
                 <Pill key={t}>{t}</Pill>
               ))}
             </div>
-            <details className="group mx-auto w-full max-w-[34ch] rounded-2xl border border-white/10 bg-surface/50 px-4 py-2 sm:hidden">
+            <details className="group w-full max-w-full rounded-2xl border border-white/10 bg-surface/50 px-4 py-2 sm:hidden">
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-medium text-foreground [&::-webkit-details-marker]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
                 <span>What is left out ({NOT_DOING.length})</span>
                 <ChevronDown
@@ -369,13 +369,13 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         {/* Why */}
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
-            <div className="min-w-0 text-center md:text-left">
+            <div className="min-w-0 text-left">
               <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Why it exists</h2>
-              <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground mx-auto md:mx-0">
+              <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
                 Most habit apps want your attention: badges, pressure, guilt when you miss a day. Daily Spark is built
                 to be quiet, stable and honest - not addictive.
               </p>
-              <p className="mt-3.5 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground mx-auto md:mx-0">
+              <p className="mt-3.5 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
                 It's open source under MIT. If something is missing, open an issue or send a pull request on GitHub.
               </p>
             </div>
