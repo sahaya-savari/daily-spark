@@ -13,10 +13,10 @@ export function SiteHeader() {
           <Logo />
         </Link>
         <nav className="scrollbar-none order-4 flex w-full gap-5 overflow-x-auto md:order-2 md:w-auto md:gap-6">
-          <a href="/#features" className={lnk}>What it does</a>
-          <a href="/#screens" className={lnk}>Screens</a>
+          <a href="#features" className={lnk}>What it does</a>
+          <a href="#screens" className={lnk}>Screens</a>
           <Link to="/privacy" className={lnk} activeProps={{ className: "text-foreground" }}>Privacy</Link>
-          <a href="/#get" className={lnk}>Download</a>
+          <a href="#get" className={lnk}>Download</a>
         </nav>
         <div className="order-2 flex items-center gap-5 md:order-3">
           <Link
