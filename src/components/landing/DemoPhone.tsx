@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 /*
  * Landing-page demo. Screens are laid out at 390×844 (a real phone) and
- * scaled into the device frame. Uses sample data only — never the real store.
+ * scaled into the device frame. Uses sample data only - never the real store.
  */
 
 const W = 390;

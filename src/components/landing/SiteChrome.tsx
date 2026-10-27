@@ -19,12 +19,12 @@ export function SiteHeader() {
           <a href="#get" className={lnk}>Download</a>
         </nav>
         <div className="order-2 flex items-center gap-5 md:order-3">
-          <Link
-            to="/app"
-            className="rounded-full border-0 bg-surface px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-border-hi hover:text-foreground"
+          <a
+            href={SITE.apk.url}
+            className="rounded-full border-0 bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
-            Open app
-          </Link>
+            Download APK
+          </a>
           <a href={SITE.repo} target="_blank" rel="noreferrer" className={`${lnk} inline-flex items-center gap-[7px]`}>
             <Github className="size-4" /> <span className="hidden sm:inline">GitHub</span>
           </a>

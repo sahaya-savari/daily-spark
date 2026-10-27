@@ -36,7 +36,7 @@ export function ReminderRunner() {
         if (minsLate > 30) continue;
         try {
           new Notification(h.name, {
-            body: "A gentle nudge — whenever you're ready.",
+            body: "A gentle nudge - whenever you're ready.",
             icon: "/icon-192.png",
             tag: `ds-${h.id}`,
           });

@@ -12,12 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppCalendarRouteImport } from './routes/app.calendar'
-import { Route as AppInsightsRouteImport } from './routes/app.insights'
-import { Route as AppSettingsRouteImport } from './routes/app.settings'
-import { Route as AppHabitsIndexRouteImport } from './routes/app.habits.index'
-import { Route as AppHabitsIdRouteImport } from './routes/app.habits.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,108 +28,34 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppCalendarRoute = AppCalendarRouteImport.update({
-  id: '/calendar',
-  path: '/calendar',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppInsightsRoute = AppInsightsRouteImport.update({
-  id: '/insights',
-  path: '/insights',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHabitsIndexRoute = AppHabitsIndexRouteImport.update({
-  id: '/habits/',
-  path: '/habits/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHabitsIdRoute = AppHabitsIdRouteImport.update({
-  id: '/habits/$id',
-  path: '/habits/$id',
-  getParentRoute: () => AppRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
+  '/app': typeof AppRoute
   '/privacy': typeof PrivacyRoute
-  '/app/calendar': typeof AppCalendarRoute
-  '/app/insights': typeof AppInsightsRoute
-  '/app/settings': typeof AppSettingsRoute
-  '/app/': typeof AppIndexRoute
-  '/app/habits/$id': typeof AppHabitsIdRoute
-  '/app/habits/': typeof AppHabitsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app': typeof AppRoute
   '/privacy': typeof PrivacyRoute
-  '/app/calendar': typeof AppCalendarRoute
-  '/app/insights': typeof AppInsightsRoute
-  '/app/settings': typeof AppSettingsRoute
-  '/app': typeof AppIndexRoute
-  '/app/habits/$id': typeof AppHabitsIdRoute
-  '/app/habits': typeof AppHabitsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/app': typeof AppRouteWithChildren
+  '/app': typeof AppRoute
   '/privacy': typeof PrivacyRoute
-  '/app/calendar': typeof AppCalendarRoute
-  '/app/insights': typeof AppInsightsRoute
-  '/app/settings': typeof AppSettingsRoute
-  '/app/': typeof AppIndexRoute
-  '/app/habits/$id': typeof AppHabitsIdRoute
-  '/app/habits/': typeof AppHabitsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/app'
-    | '/privacy'
-    | '/app/calendar'
-    | '/app/insights'
-    | '/app/settings'
-    | '/app/'
-    | '/app/habits/$id'
-    | '/app/habits/'
+  fullPaths: '/' | '/app' | '/privacy'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/privacy'
-    | '/app/calendar'
-    | '/app/insights'
-    | '/app/settings'
-    | '/app'
-    | '/app/habits/$id'
-    | '/app/habits'
-  id:
-    | '__root__'
-    | '/'
-    | '/app'
-    | '/privacy'
-    | '/app/calendar'
-    | '/app/insights'
-    | '/app/settings'
-    | '/app/'
-    | '/app/habits/$id'
-    | '/app/habits/'
+  to: '/' | '/app' | '/privacy'
+  id: '__root__' | '/' | '/app' | '/privacy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppRoute: typeof AppRouteWithChildren
+  AppRoute: typeof AppRoute
   PrivacyRoute: typeof PrivacyRoute
 }
 
@@ -162,74 +82,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
-      path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/calendar': {
-      id: '/app/calendar'
-      path: '/calendar'
-      fullPath: '/app/calendar'
-      preLoaderRoute: typeof AppCalendarRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/insights': {
-      id: '/app/insights'
-      path: '/insights'
-      fullPath: '/app/insights'
-      preLoaderRoute: typeof AppInsightsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/habits/': {
-      id: '/app/habits/'
-      path: '/habits'
-      fullPath: '/app/habits/'
-      preLoaderRoute: typeof AppHabitsIndexRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/habits/$id': {
-      id: '/app/habits/$id'
-      path: '/habits/$id'
-      fullPath: '/app/habits/$id'
-      preLoaderRoute: typeof AppHabitsIdRouteImport
-      parentRoute: typeof AppRoute
-    }
   }
 }
 
-interface AppRouteChildren {
-  AppCalendarRoute: typeof AppCalendarRoute
-  AppInsightsRoute: typeof AppInsightsRoute
-  AppSettingsRoute: typeof AppSettingsRoute
-  AppIndexRoute: typeof AppIndexRoute
-  AppHabitsIdRoute: typeof AppHabitsIdRoute
-  AppHabitsIndexRoute: typeof AppHabitsIndexRoute
-}
-
-const AppRouteChildren: AppRouteChildren = {
-  AppCalendarRoute: AppCalendarRoute,
-  AppInsightsRoute: AppInsightsRoute,
-  AppSettingsRoute: AppSettingsRoute,
-  AppIndexRoute: AppIndexRoute,
-  AppHabitsIdRoute: AppHabitsIdRoute,
-  AppHabitsIndexRoute: AppHabitsIndexRoute,
-}
-
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AppRoute: AppRouteWithChildren,
+  AppRoute: AppRoute,
   PrivacyRoute: PrivacyRoute,
 }
 export const routeTree = rootRouteImport

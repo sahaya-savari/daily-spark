@@ -5,9 +5,9 @@ import { SITE } from "@/lib/site";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy — Daily Spark" },
-      { name: "description", content: "Daily Spark collects nothing. No account, no analytics, no ads — your habits stay on your device." },
-      { property: "og:title", content: "Privacy — Daily Spark" },
+      { title: "Privacy - Daily Spark" },
+      { name: "description", content: "Daily Spark collects nothing. No account, no analytics, no ads - your habits stay on your device." },
+      { property: "og:title", content: "Privacy - Daily Spark" },
       { property: "og:description", content: "No account, no analytics, no ads. Your habit data stays on your device." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
