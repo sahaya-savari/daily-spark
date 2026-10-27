@@ -3,13 +3,56 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    <!--
+      Static, per-route SEO head.
+
+      This app is a client-only SPA: `head()` only reaches the DOM after JS runs,
+      so crawlers and link unfurlers that do not execute JS would otherwise see
+      one generic head for every URL. `scripts/postbuild.js` replaces everything
+      between these markers with the tags for each route.
+
+      The <title> is deliberately NOT marked `data-ssg-seo`: React 19 adopts an
+      existing <title> and updates its text, so it must survive the pre-mount
+      cleanup below. Every other tag here is marked so the same cleanup removes
+      it, which lets React own the live head without creating duplicates.
+    -->
+    <!--seo:start-->
     <title>Daily Spark - Calm, offline habit tracker</title>
-    <meta name="description" content="A calm, offline-first habit and streak tracker. Show up. Tick it. Keep going." />
+    <meta data-ssg-seo name="description" content="Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK." />
+    <link data-ssg-seo rel="canonical" href="https://sahaya-savari.github.io/daily-spark/" />
+    <meta data-ssg-seo property="og:type" content="website" />
+    <meta data-ssg-seo property="og:title" content="Daily Spark - Show up. Tick it. Keep going." />
+    <meta data-ssg-seo property="og:description" content="Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK." />
+    <meta data-ssg-seo property="og:url" content="https://sahaya-savari.github.io/daily-spark/" />
+    <meta data-ssg-seo name="twitter:card" content="summary_large_image" />
+    <meta data-ssg-seo name="twitter:title" content="Daily Spark - Show up. Tick it. Keep going." />
+    <meta data-ssg-seo name="twitter:description" content="Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK." />
+    <!--seo:end-->
+
+    <script>
+      // Run before the app module so React never sees the static duplicates.
+      document.querySelectorAll("[data-ssg-seo]:not(title)").forEach(function (el) {
+        el.remove();
+      });
+    </script>
+
     <meta name="theme-color" content="#17171D" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Daily Spark" />
+
+    <meta property="og:site_name" content="Daily Spark" />
+    <meta property="og:image" content="https://sahaya-savari.github.io/daily-spark/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Daily Spark social card: the app name beside a glowing ember spark mark." />
+    <meta name="twitter:image" content="https://sahaya-savari.github.io/daily-spark/og-image.png" />
+    <meta name="twitter:image:alt" content="Daily Spark social card: the app name beside a glowing ember spark mark." />
+
+    <!-- Relative in source; postbuild rewrites these to /daily-spark/... for
+         every generated route, matching the hrefs added by __root.tsx. -->
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="./favicon.ico" sizes="any" />
@@ -17,6 +60,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+
+    <!--
+      Site-level structured data. Route-independent, so it lives here rather than
+      in `head()` (React does not hoist plain <script> tags).
+
+      Values must match src/lib/site.ts: `softwareVersion`/`downloadUrl`/`fileSize`
+      describe the published APK (SITE.apk), never the site's own version.
+    -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Daily Spark",
+        "description": "A calm, offline-first habit and streak tracker. No account, no ads, no tracking.",
+        "url": "https://sahaya-savari.github.io/daily-spark/",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Android",
+        "downloadUrl": "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
+        "softwareVersion": "v1.0.1",
+        "fileSize": "4095513",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Organization", "name": "Daily Spark", "url": "https://github.com/sahaya-savari" }
+      }
+    </script>
   </head>
   <body class="bg-background text-foreground antialiased selection:bg-ember selection:text-white">
     <div id="root"></div>

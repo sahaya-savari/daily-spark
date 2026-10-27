@@ -36,6 +36,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-faint: var(--faint);
+  --color-faint-dim: var(--faint-dim);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -50,6 +51,8 @@
   --color-surface-2: var(--surface-2);
   --color-ember: var(--ember);
   --color-ember-soft: var(--ember-soft);
+  --color-cta: var(--cta);
+  --color-cta-foreground: var(--cta-foreground);
   --color-brass: var(--brass);
   --color-gold: var(--gold);
   --color-sage: var(--sage);
@@ -90,13 +93,20 @@
   --ember: oklch(0.755 0.135 52.1); /* sunlit apricot #F29559 */
   --ember-soft: color-mix(in oklab, var(--ember) 16%, transparent);
   --brass: oklch(0.769 0.087 60.2); /* #DDA77B */
+  /* Solid CTA fill: matching Sunlit Apricot button in Image 5 */
+  --cta: var(--ember);
+  --cta-foreground: oklch(0.207 0.012 285.3);
+  --cta-ring: color-mix(in oklab, var(--cta) 55%, transparent);
   --gold: oklch(0.769 0.087 60.2); /* secondary progress #DDA77B */
   --sage: oklch(0.7 0.07 140);
   --secondary: oklch(0.28 0.012 285.5);
   --secondary-foreground: oklch(0.978 0.004 56.4);
   --muted: oklch(0.28 0.012 285.5);
   --muted-foreground: oklch(0.8 0.008 285);
-  --faint: oklch(0.62 0.012 285);
+  /* Readable secondary text: 7.73:1 on background, 5.51:1 on surface-2. */
+  --faint: oklch(0.74 0.012 285);
+  /* Decorative-only text (empty calendar days, etc). Never use for real copy. */
+  --faint-dim: oklch(0.62 0.012 285);
   --accent: oklch(0.31 0.013 285.5);
   --accent-foreground: oklch(0.978 0.004 56.4);
   --destructive: oklch(0.63 0.17 25);
@@ -128,13 +138,27 @@
   --sidebar-border: oklch(0.978 0.004 56.4 / 9%);
   --sidebar-ring: oklch(0.755 0.135 52.1);
 
+  /* Anchor offset for in-page sections: header pill (~68px mobile / ~82px
+     desktop) + safe area + breathing room. 6rem clears both with margin. */
+  --anchor-offset: calc(env(safe-area-inset-top) + 6rem);
+
   --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
   --bezel: linear-gradient(155deg, oklch(0.36 0.012 285) 0%, oklch(0.25 0.011 285) 26%, oklch(0.21 0.012 285) 62%, oklch(0.33 0.012 285) 100%);
   --bezel-shine: linear-gradient(120deg, oklch(1 0 0 / 14%) 0%, transparent 34%, transparent 66%, oklch(1 0 0 / 5%) 100%);
   --device-shadow: 0 60px 90px -40px oklch(0 0 0 / 95%), 0 0 0 1px oklch(1 0 0 / 6%);
-  --go-gradient: linear-gradient(135deg, var(--ember), var(--brass));
-  --go-shadow: 0 6px 18px color-mix(in oklab, var(--ember) 45%, transparent);
   --nav-shadow: 0 12px 32px oklch(0 0 0 / 40%);
+
+  /* Modern Glass system: multi-layered frosted glass with delicate specular reflection */
+  --glass-tint: color-mix(in oklab, var(--surface) 68%, transparent);
+  --glass-tint-strong: color-mix(in oklab, var(--surface) 80%, transparent);
+  --glass-tint-inset: color-mix(in oklab, var(--background) 55%, transparent);
+  --glass-line: oklch(1 0 0 / 11%);
+  --glass-line-strong: oklch(1 0 0 / 18%);
+  --glass-sheen: linear-gradient(158deg, oklch(1 0 0 / 10%) 0%, transparent 40%, transparent 100%);
+  --glass-blur: 24px;
+  --aurora-1: oklch(0.755 0.135 52.1 / 14%);
+  --aurora-2: oklch(0.769 0.087 60.2 / 12%);
+  --aurora-3: oklch(0.68 0.04 250 / 9%);
 }
 
 @layer base {
@@ -154,8 +178,9 @@
   body {
     background-color: var(--color-background);
     background-image:
-      radial-gradient(60rem 40rem at 50% -10%, oklch(0.755 0.135 52.1 / 8%), transparent 70%),
-      radial-gradient(40rem 30rem at 100% 100%, oklch(0.769 0.087 60.2 / 5%), transparent 70%);
+      radial-gradient(60rem 40rem at 50% -10%, var(--aurora-1), transparent 70%),
+      radial-gradient(46rem 34rem at 92% 8%, var(--aurora-2), transparent 72%),
+      radial-gradient(52rem 38rem at 4% 100%, var(--aurora-3), transparent 74%);
     background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
@@ -236,9 +261,18 @@
   }
 }
 
-@utility go-button {
-  background: var(--go-gradient);
-  box-shadow: var(--go-shadow);
+@utility cta-solid {
+  background-color: var(--cta);
+  color: var(--cta-foreground);
+  box-shadow: 0 10px 24px -8px color-mix(in oklab, var(--ember) 40%, transparent), inset 0 1px 0 0 oklch(1 0 0 / 40%);
+  transition: background-color 0.2s ease, box-shadow 0.25s ease, transform 0.2s ease;
+  &:hover {
+    background-color: color-mix(in oklab, var(--cta) 88%, white);
+    box-shadow: 0 14px 30px -8px color-mix(in oklab, var(--ember) 55%, transparent), inset 0 1px 0 0 oklch(1 0 0 / 50%);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 @utility nav-float {
@@ -261,37 +295,43 @@
 }
 
 @utility glass-card {
-  background: color-mix(in oklab, var(--surface) 80%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  background: var(--glass-tint);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 8%),
+    0 10px 25px -5px oklch(0 0 0 / 32%);
   transition: transform 0.25s var(--ease-out-soft), border-color 0.25s, box-shadow 0.25s;
   &:hover {
     transform: translateY(-3px);
-    border-color: color-mix(in oklab, var(--ember) 45%, rgba(255, 255, 255, 0.15));
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 20px 35px -10px color-mix(in oklab, var(--ember) 20%, transparent);
+    border-color: color-mix(in oklab, var(--ember) 45%, var(--glass-line-strong));
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 12%),
+      0 20px 35px -10px color-mix(in oklab, var(--ember) 20%, transparent);
   }
 }
 
 @utility glass-panel {
-  background: color-mix(in oklab, var(--surface) 75%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.1), 0 20px 40px -15px rgba(0, 0, 0, 0.45);
+  background: var(--glass-tint-strong);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  border: 1px solid var(--glass-line-strong);
+  box-shadow:
+    inset 0 1px 1px 0 oklch(1 0 0 / 10%),
+    0 20px 40px -15px oklch(0 0 0 / 45%);
 }
 
 @utility glass-pill {
-  background: color-mix(in oklab, var(--surface) 70%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  background: var(--glass-tint);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid var(--glass-line);
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 7%);
   transition: all 0.2s ease;
   &:hover {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: color-mix(in oklab, var(--surface) 85%, transparent);
+    border-color: var(--glass-line-strong);
+    background: var(--glass-tint-strong);
   }
 }
 
@@ -303,12 +343,82 @@
     inset: -1px;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent 50%, color-mix(in oklab, var(--ember) 25%, transparent));
+    background: linear-gradient(135deg, oklch(1 0 0 / 14%), transparent 50%, color-mix(in oklab, var(--ember) 25%, transparent));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
   }
+}
+
+/* Large neutral slab: sections and cards that group content but do not react
+   to the pointer. Same tint as `glass-card` without the hover lift. */
+@utility glass-surface {
+  background: var(--glass-tint);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--glass-line);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 6%),
+    0 14px 32px -18px oklch(0 0 0 / 45%);
+}
+
+/* Heaviest frost, reserved for the sticky header that floats over moving
+   content and must stay legible at every scroll position. */
+@utility glass-strong {
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-line-strong);
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 12%),
+    0 18px 40px -20px oklch(0 0 0 / 55%);
+}
+
+/* Recessed tray. Deliberately no backdrop-filter: it lives inside glass slabs
+   and must not stack a second blur (or a second compositor layer). */
+@utility glass-inset {
+  background: var(--glass-tint-inset);
+  border: 1px solid oklch(1 0 0 / 6%);
+  box-shadow: inset 0 1px 0 0 oklch(1 0 0 / 5%);
+}
+
+/* Opt-in light sweep for big slabs only. Uses ::after because `glass-glow`
+   already owns ::before. The negative z-index keeps it over the slab tint but
+   under the content, and `isolation` stops it escaping behind the page. */
+@utility glass-sheen {
+  position: relative;
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: var(--glass-sheen);
+  }
+}
+
+/* Animated aurora bed. `transform` is animated on purpose: Tailwind v4 uses the
+   standalone `translate` property, so placement utilities keep working. */
+@utility aurora-field {
+  background:
+    radial-gradient(closest-side, var(--aurora-1), transparent 72%),
+    radial-gradient(closest-side, var(--aurora-2), transparent 74%),
+    radial-gradient(closest-side, var(--aurora-3), transparent 76%);
+  background-position: 18% 26%, 80% 20%, 52% 84%;
+  background-size: 58% 62%, 52% 56%, 66% 60%;
+  background-repeat: no-repeat;
+  filter: blur(56px);
+  animation: aurora-drift 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Keeps in-page anchor targets clear of the sticky header at every breakpoint.
+   `--anchor-offset` includes the device safe-area inset. */
+@utility anchor-section {
+  scroll-margin-top: var(--anchor-offset);
 }
 
 @utility rail-mask {
@@ -319,8 +429,43 @@
   animation: parade 80s linear infinite;
   animation-delay: -40s;
   will-change: transform;
-  &:hover {
+  /* Pause for pointer users, keyboard users (the rail is focusable), and the
+     explicit pause/play control. */
+  &:hover,
+  &:focus-within,
+  &[data-paused="true"] {
     animation-play-state: paused;
+  }
+}
+
+/* Below `sm` the gallery is a scroll-snap rail instead of a marquee. These are
+   unlayered so they win over the `parade` / `rail-mask` utilities. */
+@media (max-width: 639px) {
+  .parade {
+    animation: none;
+    will-change: auto;
+  }
+  .rail-mask {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+}
+
+/* Minimum physical hit area for taps inside a scaled-down phone mock.
+   `--phone-scale` is set by the React `Scaled` wrapper. */
+@utility phone-tap-row {
+  min-height: max(52px, calc(44px / var(--phone-scale, 1)));
+}
+
+/* Bottom padding for the final CTA panel: keeps the original 5rem/6rem rhythm
+   but adds the device home-indicator inset so the last button is never clipped. */
+@utility pb-safe-section {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 640px) {
+  .pb-safe-section {
+    padding-bottom: 6rem;
   }
 }
 
@@ -331,6 +476,18 @@
 @keyframes parade {
   to {
     transform: translateX(calc(-50% - 14px));
+  }
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2.5%, -2%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-2%, 1.5%, 0) scale(1.04);
   }
 }
 
@@ -377,6 +534,12 @@
   }
   html {
     scroll-behavior: auto;
+  }
+  /* The aurora bed is decorative movement, not a reveal. Stop it outright
+     instead of letting the global 0.01ms cap leave it parked mid-drift. */
+  .aurora-field {
+    animation: none;
+    will-change: auto;
   }
   *,
   *::before {

@@ -1,8 +1,8 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Bell, Check, ChartColumn, ChevronRight, Download, Flame, House, ListChecks, Plus, Settings2, Star, Upload,
 } from "lucide-react";
-import { Heatmap, ProgressRing } from "@/components/habits/Heatmap";
+import { Heatmap } from "@/components/habits/Heatmap";
 import { HabitIcon, HABIT_ICONS, getIcon } from "@/lib/habits/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -53,35 +53,62 @@ function Scaled({ width, children }: { width: number; children: React.ReactNode 
   const s = width / W;
   return (
     <div className="relative overflow-hidden" style={{ width, height: H * s, borderRadius: 37 * (width / 310) }}>
-      <div className="absolute left-0 top-0 origin-top-left" style={{ width: W, height: H, transform: `scale(${s})` }}>
+      <div
+        className="absolute left-0 top-0 origin-top-left"
+        style={{ width: W, height: H, transform: `scale(${s})`, ...({ "--phone-scale": s } as React.CSSProperties) }}
+      >
         {children}
       </div>
     </div>
   );
 }
 
+/** Measures the available box so the phone screen can shrink instead of clipping. */
+function useAutoWidth<T extends HTMLElement>(fallback: number) {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState(fallback);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const apply = () => {
+      const next = Math.round(el.clientWidth);
+      if (next > 0) setWidth((prev) => (prev === next ? prev : next));
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width] as const;
+}
+
 /** Large hero device with side keys and a soft 3D tilt. */
 export function Device({ children, tilt }: { children: React.ReactNode; tilt?: { x: number; y: number } }) {
+  const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(270);
   return (
     <div
-      className="bezel relative w-[290px] max-w-[80vw] rounded-[42px] p-2.5 transition-transform duration-500"
+      className="bezel relative w-[290px] max-w-full rounded-[42px] p-2.5 transition-transform duration-500"
       style={{ transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined }}
     >
       <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
       <span className="absolute -left-[3px] top-[162px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
       <span className="absolute -right-[3px] top-[148px] h-[54px] w-[3px] rounded-[3px] bg-border-hi" />
-      <div className="relative overflow-hidden rounded-[33px] shadow-[inset_0_0_0_1px_oklch(1_0_0/5%)]">
+      <div ref={innerRef} className="relative overflow-hidden rounded-[33px] shadow-[inset_0_0_0_1px_oklch(1_0_0/5%)]">
         <span className="absolute left-1/2 top-2.5 z-10 h-[17px] w-[66px] -translate-x-1/2 rounded-xl bg-background shadow-[inset_0_0_0_1px_oklch(1_0_0/6%)]" />
-        <Scaled width={270}>{children}</Scaled>
+        <Scaled width={innerWidth}>{children}</Scaled>
       </div>
     </div>
   );
 }
 
-/** Small phone for the screens strip. */
+/** Small phone for the screens rail. Purely decorative: hidden from AT and inert. */
 export function MiniPhone({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bezel relative w-[208px] rounded-[32px] p-[7px] transition-transform duration-300 group-hover:-translate-y-2">
+    <div
+      aria-hidden="true"
+      inert
+      className="bezel relative w-[208px] rounded-[32px] p-[7px] transition-transform duration-300 group-hover:-translate-y-2"
+    >
       <span className="absolute left-1/2 top-[9px] z-10 h-[13px] w-[52px] -translate-x-1/2 rounded-[9px] bg-background" />
       <div className="overflow-hidden rounded-[26px]">
         <Scaled width={194}>{children}</Scaled>
@@ -151,6 +178,7 @@ function Screen({
               key="go"
               type="button"
               tabIndex={onNav ? 0 : -1}
+              aria-hidden={onNav ? undefined : true}
               aria-label="Add habit"
               onClick={() => onNav?.(5)}
               variant="fab" size="fab" className="shrink-0"
@@ -162,6 +190,7 @@ function Screen({
               key={n.label}
               type="button"
               tabIndex={onNav ? 0 : -1}
+              aria-hidden={onNav ? undefined : true}
               onClick={() => onNav?.(i)}
               className={cn(
                 "flex h-[60px] min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-full p-0 transition-colors",
@@ -382,7 +411,7 @@ export function CalendarScreen() {
                 key={d}
                 className={cn(
                   "grid aspect-square place-items-center rounded-[10px] text-[12px] font-bold",
-                  l < 0 ? "text-faint/60" : ["bg-heat-0", "bg-heat-1", "bg-heat-2", "bg-heat-3", "bg-heat-4"][l],
+                  l < 0 ? "text-faint-dim" : ["bg-heat-0", "bg-heat-1", "bg-heat-2", "bg-heat-3", "bg-heat-4"][l],
                   l >= 3 && "text-primary-foreground",
                   d === 26 && "shadow-[inset_0_0_0_2px_var(--ember)]",
                 )}
@@ -429,6 +458,7 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
       <div className="flex rounded-full bg-surface p-1">
         <button
           type="button"
+          aria-pressed={filter === "all"}
           onClick={() => {
             setFilter("all");
             setActiveHabit(null);
@@ -442,6 +472,7 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
         </button>
         <button
           type="button"
+          aria-pressed={filter === "starred"}
           onClick={() => {
             setFilter("starred");
             setActiveHabit(null);
@@ -486,10 +517,11 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
       ) : (
         <div className="space-y-3">
           {displayed.map((x) => (
-            <div
+            <button
               key={x.id}
+              type="button"
               onClick={() => setActiveHabit(x)}
-              className="flex cursor-pointer items-center gap-3 rounded-3xl bg-surface p-4 transition-colors hover:bg-surface-2"
+              className="phone-tap-row flex w-full items-center gap-3 rounded-3xl bg-surface p-4 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-ember focus-visible:outline-none"
             >
               <HabitIcon habit={h(x)} />
               <div className="min-w-0 flex-1">
@@ -502,7 +534,7 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
                 </p>
               </div>
               <ChevronRight className="size-4 text-faint" />
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -604,15 +636,16 @@ export function DemoPhone() {
   return (
     <div
       ref={ref}
-      className="flex flex-col items-center gap-4 w-full max-w-full overflow-hidden"
-      onMouseMove={(e) => {
+      className="flex flex-col items-center gap-4 w-full max-w-full"
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse") return;
         const r = ref.current?.getBoundingClientRect();
         if (!r) return;
         const px = (e.clientX - r.left) / r.width - 0.5;
         const py = (e.clientY - r.top) / r.height - 0.5;
         setTilt({ x: -py * 6, y: px * 8 });
       }}
-      onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+      onPointerLeave={() => setTilt({ x: 0, y: 0 })}
     >
       <NavCtx.Provider value={nav}>
         <Device tilt={tilt}>
@@ -630,7 +663,7 @@ export function DemoPhone() {
       )}
       {tab === 0 && (
         <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
-          <span className="text-ember">Live demo.</span> Tap “Check in”, or a tab below. Sample data only.
+          <span className="text-ember">Live demo.</span> Tap “Check in”, or use the tabs inside the phone. Sample data only.
         </p>
       )}
     </div>

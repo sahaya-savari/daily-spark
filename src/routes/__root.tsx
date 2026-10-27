@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { SITE } from "@/lib/site";
 
 function NotFoundComponent() {
   return (
@@ -65,7 +66,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
             Try again
           </button>
           <a
-            href="/"
+            href={SITE.basePath}
             className="inline-flex items-center justify-center rounded-full border border-input px-4 py-2 text-sm font-medium text-foreground hover:bg-surface"
           >
             Go home
@@ -78,31 +79,16 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
+    // Site-level, route-independent tags (charset, viewport, theme-color,
+    // apple-mobile-web-app-*, og:image, twitter:image) and the icon/manifest/
+    // font <link>s live in index.html and are injected per route at build time.
+    // React owns only the tags that vary by route, so nothing is emitted twice.
     meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Daily Spark" },
       { name: "description", content: "A calm, offline-first habit and streak tracker." },
       { name: "author", content: "sahaya-savari" },
-      { name: "theme-color", content: "#17171D" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Daily Spark" },
     ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "./manifest.webmanifest" },
-      { rel: "icon", href: "./favicon.svg", type: "image/svg+xml" },
-      { rel: "icon", href: "./favicon.ico", sizes: "any" },
-      { rel: "apple-touch-icon", href: "./apple-touch-icon.png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap",
-      },
-    ],
+    links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -110,17 +96,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+// React 19 hoists <HeadContent> and <Scripts> to the document head/body on its
+// own, so the shell returns a fragment instead of invalid <html>/<head>/<body>
+// wrappers (which the browser had to unwrap anyway).
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
+    <>
+      <HeadContent />
+      {children}
+      <Scripts />
+    </>
   );
 }
 

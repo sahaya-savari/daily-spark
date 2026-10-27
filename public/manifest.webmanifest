@@ -1,20 +1,20 @@
 {
-  "id": "daily-spark-pwa",
+  "id": "/daily-spark/",
   "name": "Daily Spark",
   "short_name": "Daily Spark",
   "description": "A calm, offline-first habit and streak tracker. No login, no ads, no tracking.",
-  "start_url": "./",
-  "scope": "./",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/daily-spark/",
+  "scope": "/daily-spark/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#17171D",
   "theme_color": "#17171D",
   "categories": ["productivity", "lifestyle", "health"],
   "icons": [
-    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "./icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "./icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/daily-spark/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/daily-spark/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/daily-spark/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

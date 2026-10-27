@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "types": ["vitest/globals"],
-    "target": "ES2020",
+    "types": ["vitest/globals", "vite/client"],
+    "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -28,5 +28,9 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Leftover TanStack Start scaffolding: these files are not part of the Vite
+  // SPA build (entry is src/main.tsx) and import @tanstack/react-start, which
+  // is not a dependency of this project.
+  "exclude": ["src/server.ts", "src/start.ts"]
 }

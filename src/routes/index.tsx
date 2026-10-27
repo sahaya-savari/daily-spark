@@ -1,23 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { siteUrl } from "@/lib/site";
+
+const title = "Daily Spark - Calm, offline habit tracker";
+const description =
+  "Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK.";
+const socialTitle = "Daily Spark - Show up. Tick it. Keep going.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Daily Spark - Calm, offline habit tracker" },
-      {
-        name: "description",
-        content:
-          "Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK.",
-      },
-      { property: "og:title", content: "Daily Spark - Show up. Tick it. Keep going." },
-      {
-        property: "og:description",
-        content: "A free, calm, offline-first habit tracker. No account, no ads, your data stays on your device.",
-      },
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: socialTitle },
+      { property: "og:description", content: description },
+      { property: "og:url", content: siteUrl("/") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: socialTitle },
+      { name: "twitter:description", content: description },
     ],
+    links: [{ rel: "canonical", href: siteUrl("/") }],
   }),
   component: () => <LandingPage />,
 });

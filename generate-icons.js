@@ -27,10 +27,9 @@ const conversions = [
   { input: 'favicon.svg', output: 'favicon-16x16.png', size: 16 },
   { input: 'favicon.svg', output: 'favicon-32x32.png', size: 32 },
   { input: 'apple-touch-icon.svg', output: 'apple-touch-icon.png', size: 180 },
-  { input: 'icon-192x192.svg', output: 'icon-192x192.png', size: 192 },
-  { input: 'icon-512x512.svg', output: 'icon-512x512.png', size: 512 },
-  { input: 'icon-192x192.svg', output: 'icon-maskable-192x192.png', size: 192 },
-  { input: 'icon-512x512.svg', output: 'icon-maskable-512x512.png', size: 512 },
+  { input: 'icon-192x192.svg', output: 'icon-192.png', size: 192 },
+  { input: 'icon-512x512.svg', output: 'icon-512.png', size: 512 },
+  { input: 'icon-512x512.svg', output: 'icon-maskable-512.png', size: 512 },
 ];
 
 async function generateIcons() {
@@ -92,10 +91,9 @@ async function generateIcons() {
   console.log('  - favicon-16x16.png');
   console.log('  - favicon-32x32.png');
   console.log('  - apple-touch-icon.png (180x180)');
-  console.log('  - icon-192x192.png');
-  console.log('  - icon-512x512.png');
-  console.log('  - icon-maskable-192x192.png');
-  console.log('  - icon-maskable-512x512.png\n');
+  console.log('  - icon-192.png');
+  console.log('  - icon-512.png');
+  console.log('  - icon-maskable-512.png\n');
 }
 
 generateIcons().catch(console.error);

@@ -1,12 +1,14 @@
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
-import { SITE } from "@/lib/site";
+import { SITE, siteUrl } from "@/lib/site";
+
+const description = "Daily Spark collects nothing. No account, no analytics, no ads - your habits stay on your device.";
 
 export const Route = createFileRoute("/privacy")({
   beforeLoad: ({ location }) => {
     const rawHash = location.hash ? location.hash.replace(/^#/, "") : "";
-    if (rawHash && ["get", "features", "screens", "main"].includes(rawHash)) {
+    if (rawHash && ["get", "features", "screens"].includes(rawHash)) {
       throw redirect({
         to: "/",
         hash: rawHash,
@@ -16,21 +18,25 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy - Daily Spark" },
-      { name: "description", content: "Daily Spark collects nothing. No account, no analytics, no ads - your habits stay on your device." },
+      { name: "description", content: description },
       { property: "og:title", content: "Privacy - Daily Spark" },
-      { property: "og:description", content: "No account, no analytics, no ads. Your habit data stays on your device." },
+      { property: "og:description", content: description },
+      { property: "og:url", content: siteUrl("/privacy") },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Privacy - Daily Spark" },
+      { name: "twitter:description", content: description },
     ],
+    links: [{ rel: "canonical", href: siteUrl("/privacy") }],
   }),
   component: Privacy,
 });
 
 const SECTIONS = [
   ["What we collect", "Nothing. Daily Spark has no account system, no analytics, no ads and no tracking. We never see your habits."],
-  ["Where your data lives", "In the web app, habits are saved in your browser's local storage on this device. In the Android app, they're saved in the app's own storage. Clearing browser data or uninstalling removes them."],
+  ["Where your data lives", "In the Android app, habits are saved in the app's own storage on your phone. Uninstalling removes them. There is no web version yet; if one ships, this page will describe where it stores data."],
   ["Backups", "Backups are files you create and keep. They're saved wherever you choose and are never uploaded by Daily Spark."],
-  ["Reminders", "Reminders are optional. If you turn them on, your browser or phone asks for notification permission. Notifications are created on your device."],
+  ["Reminders", "Reminders are optional. If you turn them on in the Android app, your phone asks for notification permission. Notifications are created on your device."],
   ["Links", "The website links to GitHub for source code and APK downloads. GitHub's own privacy policy applies there."],
   ["Questions", "Open an issue on GitHub and we'll answer in public."],
 ] as const;
@@ -40,15 +46,21 @@ function Privacy() {
 
   useEffect(() => {
     const rawHash = window.location.hash.replace(/^#/, "");
-    if (rawHash && ["get", "features", "screens", "main"].includes(rawHash)) {
+    if (rawHash && ["get", "features", "screens"].includes(rawHash)) {
       router.navigate({ to: "/", hash: rawHash });
     }
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-background w-full max-w-full">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[90] focus:rounded-[10px] focus:bg-ember focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+      >
+        Skip to content
+      </a>
       <SiteHeader />
-      <main id="main" className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-20 w-full max-w-full">
+      <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-20 w-full outline-none">
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold">Privacy</h1>
         <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">Short version: your habits never leave your device.</p>
         <div className="mt-12">
