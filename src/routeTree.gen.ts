@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as DownloadRouteImport } from './routes/download'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as GetRouteImport } from './routes/get'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ScreensRouteImport } from './routes/screens'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,40 +27,86 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GetRoute = GetRouteImport.update({
+  id: '/get',
+  path: '/get',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScreensRoute = ScreensRouteImport.update({
+  id: '/screens',
+  path: '/screens',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/download': typeof DownloadRoute
+  '/features': typeof FeaturesRoute
+  '/get': typeof GetRoute
   '/privacy': typeof PrivacyRoute
+  '/screens': typeof ScreensRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/download': typeof DownloadRoute
+  '/features': typeof FeaturesRoute
+  '/get': typeof GetRoute
   '/privacy': typeof PrivacyRoute
+  '/screens': typeof ScreensRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/download': typeof DownloadRoute
+  '/features': typeof FeaturesRoute
+  '/get': typeof GetRoute
   '/privacy': typeof PrivacyRoute
+  '/screens': typeof ScreensRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/privacy'
+  fullPaths:
+    '/' | '/app' | '/download' | '/features' | '/get' | '/privacy' | '/screens'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app' | '/privacy'
-  id: '__root__' | '/' | '/app' | '/privacy'
+  to:
+    '/' | '/app' | '/download' | '/features' | '/get' | '/privacy' | '/screens'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/download'
+    | '/features'
+    | '/get'
+    | '/privacy'
+    | '/screens'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  DownloadRoute: typeof DownloadRoute
+  FeaturesRoute: typeof FeaturesRoute
+  GetRoute: typeof GetRoute
   PrivacyRoute: typeof PrivacyRoute
+  ScreensRoute: typeof ScreensRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +125,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/get': {
+      id: '/get'
+      path: '/get'
+      fullPath: '/get'
+      preLoaderRoute: typeof GetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/screens': {
+      id: '/screens'
+      path: '/screens'
+      fullPath: '/screens'
+      preLoaderRoute: typeof ScreensRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +166,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  DownloadRoute: DownloadRoute,
+  FeaturesRoute: FeaturesRoute,
+  GetRoute: GetRoute,
   PrivacyRoute: PrivacyRoute,
+  ScreensRoute: ScreensRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

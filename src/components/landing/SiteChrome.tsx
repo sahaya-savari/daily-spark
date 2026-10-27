@@ -21,16 +21,16 @@ export function SiteHeader() {
           <Logo />
         </Link>
         <nav className="scrollbar-none order-4 flex w-full items-center gap-1.5 overflow-x-auto py-1 md:order-2 md:w-auto md:gap-2">
-          <Link to="/" hash="features" className={lnk} onClick={() => scrollTo("features")}>
+          <Link to="/features" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>
             What it does
           </Link>
-          <Link to="/" hash="screens" className={lnk} onClick={() => scrollTo("screens")}>
+          <Link to="/screens" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>
             Screens
           </Link>
           <Link to="/privacy" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>
             Privacy
           </Link>
-          <Link to="/" hash="get" className={lnk} onClick={() => scrollTo("get")}>
+          <Link to="/download" className={lnk} activeProps={{ className: "text-foreground bg-surface/80" }}>
             Download
           </Link>
         </nav>
