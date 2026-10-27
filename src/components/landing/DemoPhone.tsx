@@ -604,7 +604,7 @@ export function DemoPhone() {
   return (
     <div
       ref={ref}
-      className="flex flex-col items-center gap-4"
+      className="flex flex-col items-center gap-4 w-full max-w-full overflow-hidden"
       onMouseMove={(e) => {
         const r = ref.current?.getBoundingClientRect();
         if (!r) return;
@@ -629,7 +629,7 @@ export function DemoPhone() {
         </Button>
       )}
       {tab === 0 && (
-        <p className="text-[13.5px] text-faint">
+        <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
           <span className="text-ember">Live demo.</span> Tap “Check in”, or a tab below. Sample data only.
         </p>
       )}

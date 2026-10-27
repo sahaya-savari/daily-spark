@@ -139,9 +139,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
       </a>
       <SiteHeader />
 
-      <main id="main">
+      <main id="main" className="w-full max-w-full overflow-x-hidden">
         {/* Hero */}
-        <section className="relative mx-auto grid max-w-[1100px] items-center gap-11 px-6 pb-8 pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px]">
+        <section className="relative mx-auto grid max-w-[1100px] items-center gap-11 px-5 sm:px-6 pb-8 pt-8 sm:pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px] overflow-hidden">
           {/* Ambient light glow */}
           <div
             className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[450px] w-full max-w-[800px] -translate-x-1/2 rounded-full bg-ember/5 blur-[120px]"
@@ -151,7 +151,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
           <HeatmapBackdrop />
 
-          <div className="order-2 md:order-1">
+          <div className="order-1 md:order-1">
             <a
               href={SITE.releases}
               target="_blank"
@@ -163,7 +163,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <span className="rounded-full bg-ember-soft px-2 py-0.5 text-xs font-semibold text-ember">{SITE.apk.version}</span>
               <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
-            <h1 className="font-display text-[44px] font-bold leading-[1.15] sm:text-[58px] lg:text-[72px]">
+            <h1 className="font-display text-[38px] font-bold leading-[1.15] sm:text-[58px] lg:text-[72px]">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
@@ -185,7 +185,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 />
               </span>
             </h1>
-            <p className="mb-9 mt-7 max-w-[38ch] text-[20px] leading-relaxed text-muted-foreground sm:text-[22px]">
+            <p className="mb-9 mt-7 max-w-[38ch] text-[18px] leading-relaxed text-muted-foreground sm:text-[22px]">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
@@ -210,7 +210,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
-          <div className="order-1 flex justify-center md:order-2">
+          <div className="order-2 flex justify-center md:order-2 w-full max-w-full overflow-hidden">
             <DemoPhone />
           </div>
         </section>

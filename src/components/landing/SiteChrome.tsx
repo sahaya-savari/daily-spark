@@ -65,7 +65,7 @@ export function SiteHeader() {
           <a
             href={SITE.apk.url}
             download={SITE.apk.filename}
-            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-ember to-amber-500 px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow-md shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-ember/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:px-4 sm:py-2"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-ember to-amber-500 px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-md shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-ember/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:px-4 sm:py-2"
           >
             <Download className="size-3.5" />
             <span>Download APK</span>
@@ -75,11 +75,11 @@ export function SiteHeader() {
             href={SITE.repo}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:py-2"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:py-2"
             aria-label="View Daily Spark source code on GitHub"
           >
             <Github className="size-3.5" />
-            <span className="hidden sm:inline">GitHub</span>
+            <span>GitHub</span>
           </a>
 
           {/* Mobile Menu Toggle Button */}

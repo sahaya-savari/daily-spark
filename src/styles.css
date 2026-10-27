@@ -146,6 +146,8 @@
     color-scheme: dark;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   body {
@@ -159,6 +161,8 @@
     font-variant-numeric: tabular-nums;
     line-height: 1.65;
     overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
     -webkit-font-smoothing: antialiased;
   }
 
