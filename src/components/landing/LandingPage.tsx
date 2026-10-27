@@ -88,7 +88,7 @@ const SHOTS = [
 ] as const;
 
 const btn =
-  "inline-flex items-center justify-center gap-[9px] whitespace-nowrap rounded-full border px-6 py-[13px] font-display text-sm font-bold tracking-normal transition-all duration-200";
+  "inline-flex items-center justify-center gap-2 sm:gap-[9px] rounded-full border px-5 sm:px-6 py-3 sm:py-[13px] font-display text-xs sm:text-sm font-bold tracking-normal transition-all duration-200 max-w-full";
 
 interface LandingPageProps {
   targetSection?: "features" | "screens" | "get";
@@ -163,7 +163,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <span className="rounded-full bg-ember-soft px-1.5 sm:px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">{SITE.apk.version}</span>
               <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
-            <h1 className="font-display text-[34px] xs:text-[38px] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-center md:text-left">
+            <h1 className="font-display text-[28px] xs:text-[34px] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-center md:text-left max-w-full">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
@@ -185,7 +185,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 />
               </span>
             </h1>
-            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[16.5px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground mx-auto md:mx-0 text-center md:text-left">
+            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[15.5px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground mx-auto md:mx-0 text-center md:text-left">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
@@ -193,15 +193,15 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-6 py-3.5 text-sm sm:text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35 justify-center text-center w-full sm:w-auto`}
+                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35 justify-center text-center w-full sm:w-auto`}
               >
-                Download Daily Spark APK <Download className="size-[19px]" />
+                <span>Download Daily Spark APK</span> <Download className="size-4 sm:size-[19px] shrink-0" />
               </a>
               <a
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`glass-pill ${btn} border-white/10 px-6 py-3.5 text-sm sm:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto`}
+                className={`glass-pill ${btn} border-white/10 px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto`}
               >
                 GitHub Releases
               </a>

@@ -65,10 +65,10 @@ export function SiteHeader() {
           <a
             href={SITE.apk.url}
             download={SITE.apk.filename}
-            className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-gradient-to-r from-ember to-amber-500 px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-md shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-ember/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember whitespace-nowrap"
+            className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-gradient-to-r from-ember to-amber-500 px-2 sm:px-3.5 py-1.5 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-md shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-ember/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember whitespace-nowrap shrink-0"
           >
-            <Download className="size-3 sm:size-3.5" />
-            <span>Download APK</span>
+            <Download className="size-3 sm:size-3.5 shrink-0" />
+            <span><span className="hidden sm:inline">Download </span>APK</span>
           </a>
 
           <a
