@@ -11,16 +11,16 @@ export function SiteHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-3.5 z-50 px-3 sm:px-6">
-      <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-3 rounded-full border border-white/10 bg-surface/75 px-3.5 py-2 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-all duration-300 hover:border-white/15 sm:px-4.5 sm:py-2.5">
+    <header className="sticky top-2.5 sm:top-3.5 z-50 px-2 sm:px-6 w-full max-w-full">
+      <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-1.5 sm:gap-3 rounded-full border border-white/10 bg-surface/80 px-2.5 py-1.5 sm:px-4.5 sm:py-2.5 shadow-2xl shadow-black/40 backdrop-blur-2xl transition-all duration-300 hover:border-white/15">
         {/* Brand Logo & Title */}
         <Link
           to="/"
           aria-label="Daily Spark home"
-          className="group flex items-center gap-2.5 rounded-full px-1.5 py-1 transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+          className="group flex items-center gap-2 rounded-full px-1 py-0.5 transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0"
         >
-          <SparkMark className="size-6 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-          <b className="font-display text-[17.5px] font-bold tracking-tight text-foreground">
+          <SparkMark className="size-5 sm:size-6 shrink-0 transition-transform duration-200 group-hover:scale-105" />
+          <b className="font-display text-[15px] sm:text-[17.5px] font-bold tracking-tight text-foreground whitespace-nowrap">
             Daily Spark
           </b>
         </Link>
@@ -61,13 +61,13 @@ export function SiteHeader() {
         </nav>
 
         {/* Header Action Buttons */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <a
             href={SITE.apk.url}
             download={SITE.apk.filename}
-            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-ember to-amber-500 px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-md shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-ember/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:px-4 sm:py-2"
+            className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-gradient-to-r from-ember to-amber-500 px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-semibold text-primary-foreground shadow-md shadow-ember/25 transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-ember/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember whitespace-nowrap"
           >
-            <Download className="size-3.5" />
+            <Download className="size-3 sm:size-3.5" />
             <span>Download APK</span>
           </a>
 
@@ -75,7 +75,7 @@ export function SiteHeader() {
             href={SITE.repo}
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:py-2"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 sm:py-2 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             aria-label="View Daily Spark source code on GitHub"
           >
             <Github className="size-3.5" />
@@ -86,11 +86,11 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="grid size-8 place-items-center rounded-full border border-white/10 bg-surface/60 text-muted-foreground transition-colors hover:text-foreground md:hidden"
+            className="grid size-7 sm:size-8 place-items-center rounded-full border border-white/10 bg-surface/60 text-muted-foreground transition-colors hover:text-foreground md:hidden shrink-0"
             aria-label="Toggle mobile menu"
             aria-expanded={mobileMenuOpen}
           >
-            {mobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+            {mobileMenuOpen ? <X className="size-3.5 sm:size-4" /> : <Menu className="size-3.5 sm:size-4" />}
           </button>
         </div>
       </div>

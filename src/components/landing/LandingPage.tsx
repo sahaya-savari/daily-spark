@@ -130,7 +130,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   }, [targetSection, location.hash, router]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background w-full max-w-full overflow-x-hidden">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[90] focus:rounded-[10px] focus:bg-ember focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground"
@@ -141,7 +141,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
       <main id="main" className="w-full max-w-full overflow-x-hidden">
         {/* Hero */}
-        <section className="relative mx-auto grid max-w-[1100px] items-center gap-11 px-5 sm:px-6 pb-8 pt-8 sm:pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px] overflow-hidden">
+        <section className="relative mx-auto grid max-w-[1100px] items-center gap-10 sm:gap-11 px-4 sm:px-6 pb-8 pt-6 sm:pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px] overflow-hidden max-w-full">
           {/* Ambient light glow */}
           <div
             className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[450px] w-full max-w-[800px] -translate-x-1/2 rounded-full bg-ember/5 blur-[120px]"
@@ -151,19 +151,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
           <HeatmapBackdrop />
 
-          <div className="order-1 md:order-1">
+          <div className="order-1 md:order-1 flex flex-col items-start text-left w-full max-w-full">
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-8 inline-flex items-center gap-3 rounded-full py-2 pl-2.5 pr-4 text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground"
+              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full"
             >
-              <SparkMark className="size-[26px] shrink-0" />
-              <b className="font-display text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
-              <span className="rounded-full bg-ember-soft px-2 py-0.5 text-xs font-semibold text-ember">{SITE.apk.version}</span>
+              <SparkMark className="size-5 sm:size-[26px] shrink-0" />
+              <b className="font-display text-sm sm:text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
+              <span className="rounded-full bg-ember-soft px-1.5 sm:px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">{SITE.apk.version}</span>
               <span className="hidden sm:inline">· Free &amp; Open Source</span>
             </a>
-            <h1 className="font-display text-[38px] font-bold leading-[1.15] sm:text-[58px] lg:text-[72px]">
+            <h1 className="font-display text-[34px] xs:text-[38px] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14]">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
@@ -185,15 +185,15 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 />
               </span>
             </h1>
-            <p className="mb-9 mt-7 max-w-[38ch] text-[18px] leading-relaxed text-muted-foreground sm:text-[22px]">
+            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[16.5px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
-            <div className="flex flex-wrap gap-3.5">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-3.5 w-full sm:w-auto">
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-7 py-3.5 text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35`}
+                className={`${btn} border-transparent bg-gradient-to-r from-ember to-amber-500 px-6 py-3.5 text-sm sm:text-base text-primary-foreground shadow-xl shadow-ember/25 transition-all hover:scale-[1.03] hover:shadow-2xl hover:shadow-ember/35 justify-center text-center`}
               >
                 Download Daily Spark APK <Download className="size-[19px]" />
               </a>
@@ -201,16 +201,16 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`glass-pill ${btn} border-white/10 px-7 py-3.5 text-base text-foreground transition-all hover:scale-[1.02]`}
+                className={`glass-pill ${btn} border-white/10 px-6 py-3.5 text-sm sm:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center`}
               >
                 GitHub Releases
               </a>
             </div>
-            <p className="mt-6 text-[15.5px] text-faint">Android APK · 100% Offline · No account · No ads</p>
+            <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint">Android APK · 100% Offline · No account · No ads</p>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
-          <div className="order-2 flex justify-center md:order-2 w-full max-w-full overflow-hidden">
+          <div className="order-2 mt-4 sm:mt-0 flex justify-center md:order-2 w-full max-w-full overflow-hidden">
             <DemoPhone />
           </div>
         </section>
@@ -240,9 +240,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* LOCK B: Screens Carousel Parade */}
-        <section id="screens" className="relative scroll-mt-20 py-[72px]">
+        <section id="screens" className="relative scroll-mt-20 py-[72px] overflow-hidden max-w-full">
           <div
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/5 blur-[120px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/5 blur-[120px]"
             aria-hidden="true"
           />
           <div className="reveal mx-auto max-w-[1100px] px-6">
