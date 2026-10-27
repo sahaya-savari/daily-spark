@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const isCapacitor = mode === 'capacitor';
 
   return {
-    base: './',
+    base: isCapacitor ? './' : '/daily-spark/',
 
     server: {
       host: true,

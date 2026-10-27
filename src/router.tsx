@@ -6,13 +6,14 @@ export const getRouter = () => {
   const queryClient = new QueryClient();
 
   const isNative = typeof window !== "undefined" && Boolean((window as any).Capacitor?.isNativePlatform?.());
-  const history = isNative 
-    ? createHashHistory() 
-    : createBrowserHistory({ base: import.meta.env.BASE_URL || "/" });
+  const history = isNative ? createHashHistory() : createBrowserHistory();
+  const rawBase = typeof import.meta.env.BASE_URL === "string" ? import.meta.env.BASE_URL : "/";
+  const basepath = isNative ? undefined : (rawBase.replace(/\/$/, "") || undefined);
 
   const router = createRouter({
     routeTree,
     history,
+    basepath,
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
