@@ -8,7 +8,8 @@ export const SITE = {
   authorUrl: "https://github.com/sahaya-savari",
   apk: {
     version: "v1.0.1",
-    url: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/app-universal-release.apk",
+    url: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
+    filename: "Daily-Spark-v1.0.1.apk",
     size: "4.1 MB",
   },
   webVersion: "2.0.0",

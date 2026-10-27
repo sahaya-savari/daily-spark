@@ -37,6 +37,7 @@ export function SiteHeader() {
         <div className="order-2 flex items-center gap-3 md:order-3">
           <a
             href={SITE.apk.url}
+            download={SITE.apk.filename}
             className="rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm shadow-ember/20 transition-all hover:scale-[1.02] hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           >
             Download APK

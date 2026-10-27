@@ -18,6 +18,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
+import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
+import { DiaTextReveal } from "@/components/magicui/dia-text-reveal";
 import {
   CalendarScreen,
   DemoPhone,
@@ -145,52 +147,66 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             aria-hidden="true"
           />
 
+          {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
+          <HeatmapBackdrop />
+
           <div className="order-2 md:order-1">
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-border/80 bg-surface/70 py-[7px] pl-[7px] pr-4 text-sm text-muted-foreground backdrop-blur-md transition-all hover:border-ember/40 hover:text-foreground"
+              className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-border/80 bg-surface/80 py-2 pl-2 pr-4 text-[14.5px] text-muted-foreground backdrop-blur-md transition-all hover:border-ember/40 hover:text-foreground"
             >
-              <span className="grid size-[30px] place-items-center rounded-lg bg-ember-soft text-ember">
-                <Download className="size-[17px]" />
+              <span className="grid size-[32px] place-items-center rounded-lg bg-ember-soft text-ember">
+                <Download className="size-[18px]" />
               </span>
-              <b className="font-display text-lg font-semibold tracking-[0.02em] text-foreground">{SITE.apk.version}</b>
+              <b className="font-display text-[19px] font-semibold tracking-[0.02em] text-foreground">{SITE.apk.version}</b>
               on GitHub - Free &amp; Open Source
             </a>
-            <h1 className="font-display text-[38px] font-bold sm:text-[48px] lg:text-[60px]">
-              {["Show up.", "Tick it.", "Keep going."].map((t, i) => (
-                <span key={t} className="block overflow-hidden">
-                  <i
-                    className={`rise block not-italic ${i === 2 ? "text-ember" : ""}`}
-                    style={{ animationDelay: `${i * 0.08}s` }}
-                  >
-                    {t}
-                  </i>
-                </span>
-              ))}
+            <h1 className="font-display text-[44px] font-bold leading-[1.08] sm:text-[58px] lg:text-[72px]">
+              <span className="block">
+                <DiaTextReveal text="Show up." delay={0.08} />
+              </span>
+              <span className="block">
+                <DiaTextReveal text="Tick it." delay={0.28} />
+              </span>
+              <span className="block text-ember">
+                <DiaTextReveal
+                  text="Keep going."
+                  delay={0.48}
+                  textColor="oklch(0.755 0.135 52.1)"
+                  colors={[
+                    "oklch(0.755 0.135 52.1)",
+                    "oklch(0.85 0.12 70)",
+                    "oklch(0.978 0.004 56.4)",
+                    "oklch(0.769 0.087 60.2)",
+                    "oklch(0.755 0.135 52.1)",
+                  ]}
+                />
+              </span>
             </h1>
-            <p className="mb-8 mt-[26px] max-w-[36ch] text-lg text-muted-foreground">
+            <p className="mb-9 mt-7 max-w-[38ch] text-[20px] leading-relaxed text-muted-foreground sm:text-[22px]">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3.5">
               <a
                 href={SITE.apk.url}
-                className={`${btn} border-transparent bg-primary text-primary-foreground shadow-lg shadow-ember/20 hover:scale-[1.02] hover:bg-primary/90`}
+                download={SITE.apk.filename}
+                className={`${btn} border-transparent bg-primary px-7 py-3.5 text-base text-primary-foreground shadow-lg shadow-ember/20 hover:scale-[1.02] hover:bg-primary/90`}
               >
-                Download APK <Download className="size-[18px]" />
+                Download APK <Download className="size-[19px]" />
               </a>
               <a
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`${btn} border-border-hi bg-surface/80 hover:border-muted-foreground hover:bg-surface-2`}
+                className={`${btn} border-border-hi bg-surface/80 px-7 py-3.5 text-base hover:border-muted-foreground hover:bg-surface-2`}
               >
                 GitHub Releases
               </a>
             </div>
-            <p className="mt-[22px] text-sm text-faint">Android APK · 100% Offline · No account · No ads</p>
+            <p className="mt-6 text-[15.5px] text-faint">Android APK · 100% Offline · No account · No ads</p>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
@@ -328,6 +344,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             <div className="mb-6 mt-8 flex flex-wrap justify-center gap-4">
               <a
                 href={SITE.apk.url}
+                download={SITE.apk.filename}
                 className="inline-flex h-[54px] items-center gap-3 rounded-full bg-primary px-7 text-left text-primary-foreground shadow-lg shadow-ember/20 transition-all hover:scale-[1.02] hover:bg-primary/95 [&_svg]:size-6"
               >
                 <Download />
