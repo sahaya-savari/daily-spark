@@ -12,7 +12,7 @@ import { SparkMark } from "@/components/brand/Logo";
 import { SITE } from "@/lib/site";
 
 const navLnk =
-  "whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center";
+  "whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs sm:text-[14px] font-normal text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center";
 
 const menuItem =
   "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[14px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
@@ -141,28 +141,28 @@ export function SiteHeader() {
           <Link
             to="/features"
             className={navLnk}
-            activeProps={{ className: "text-foreground bg-surface/90 shadow-sm font-semibold" }}
+            activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
           >
             What it does
           </Link>
           <Link
             to="/screens"
             className={navLnk}
-            activeProps={{ className: "text-foreground bg-surface/90 shadow-sm font-semibold" }}
+            activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
           >
             Screens
           </Link>
           <Link
             to="/privacy"
             className={navLnk}
-            activeProps={{ className: "text-foreground bg-surface/90 shadow-sm font-semibold" }}
+            activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
           >
             Privacy
           </Link>
           <Link
             to="/download"
             className={navLnk}
-            activeProps={{ className: "text-foreground bg-surface/90 shadow-sm font-semibold" }}
+            activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
           >
             Download
           </Link>
@@ -227,7 +227,7 @@ export function SiteHeader() {
                 to="/features"
                 onClick={() => closeMenu("route")}
                 className={menuItem}
-                activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
+                activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span>What it does</span>
                 <span className="text-xs text-muted-foreground">01</span>
@@ -236,7 +236,7 @@ export function SiteHeader() {
                 to="/screens"
                 onClick={() => closeMenu("route")}
                 className={menuItem}
-                activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
+                activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span>Screens</span>
                 <span className="text-xs text-muted-foreground">02</span>
@@ -245,7 +245,7 @@ export function SiteHeader() {
                 to="/privacy"
                 onClick={() => closeMenu("route")}
                 className={menuItem}
-                activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
+                activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span className="flex items-center gap-2">
                   <PixelShieldCheck className="size-4 text-ember" />
@@ -257,7 +257,7 @@ export function SiteHeader() {
                 to="/download"
                 onClick={() => closeMenu("route")}
                 className={menuItem}
-                activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
+                activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span className="flex items-center gap-2">
                   <PixelDownload className="size-4 text-ember" />

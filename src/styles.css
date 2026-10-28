@@ -13,7 +13,7 @@
 @font-face {
   font-family: "Block Craft";
   src: url("./assets/fonts/BlockCraft.otf") format("opentype");
-  font-weight: normal;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -178,6 +178,7 @@
     overflow-x: clip;
     width: 100%;
     max-width: 100%;
+    font-synthesis: none;
   }
 
   body {
@@ -190,12 +191,15 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     line-height: 1.65;
     overflow-x: clip;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    -webkit-font-smoothing: antialiased;
   }
 
   #root {

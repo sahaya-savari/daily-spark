@@ -1107,14 +1107,14 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             </div>
 
             {/* Segmented Switcher: Overview vs Calendar */}
-            <div className="flex rounded-full bg-surface p-1">
+            <div className="flex rounded-full bg-surface p-1 border border-border/40">
               <button
                 type="button"
                 onClick={() => setProgressSubTab("overview")}
                 className={cn(
-                  "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+                  "flex-1 rounded-full py-1.5 text-center text-xs font-normal transition-all",
                   progressSubTab === "overview"
-                    ? "bg-surface-2 text-foreground shadow-sm"
+                    ? "bg-surface-2 text-foreground border border-white/10"
                     : "text-faint hover:text-muted-foreground"
                 )}
               >
@@ -1124,9 +1124,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 type="button"
                 onClick={() => setProgressSubTab("calendar")}
                 className={cn(
-                  "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+                  "flex-1 rounded-full py-1.5 text-center text-xs font-normal transition-all",
                   progressSubTab === "calendar"
-                    ? "bg-surface-2 text-ember shadow-sm"
+                    ? "bg-surface-2 text-ember border border-ember/20"
                     : "text-faint hover:text-muted-foreground"
                 )}
               >
