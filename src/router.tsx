@@ -9,7 +9,8 @@ export const getRouter = () => {
 
   const isNative =
     typeof window !== "undefined" &&
-    Boolean((window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.());
+    (Boolean((window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor?.isNativePlatform?.()) ||
+     Boolean((window as unknown as { androidBridge?: unknown }).androidBridge));
   const history = isNative ? createHashHistory() : createBrowserHistory();
   const rawBase = typeof import.meta.env.BASE_URL === "string" ? import.meta.env.BASE_URL : "/";
   const basepath = isNative ? undefined : (rawBase.replace(/\/$/, "") || undefined);

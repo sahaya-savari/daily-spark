@@ -1,11 +1,33 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
-  Bell, Check, ChartColumn, ChevronRight, Download, Flame, House, ListChecks, Plus, Settings2, Star, Upload,
+  Archive,
+  Bell,
+  Check,
+  ChartColumn,
+  ChevronRight,
+  Download,
+  Flame,
+  House,
+  ListChecks,
+  Lock,
+  Plus,
+  Settings2,
+  Star,
+  Trash2,
+  Upload,
 } from "lucide-react";
 import { Heatmap } from "@/components/habits/Heatmap";
 import { HabitIcon, HABIT_ICONS, getIcon } from "@/lib/habits/icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { BackupPreviewDialog } from "@/components/habits/BackupPreviewDialog";
+import { AppLockDialog } from "@/components/habits/AppLockDialog";
+import { NotesView } from "@/components/habits/NotesView";
+import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitSearchFilter";
+import { type BackupInspection, createHabit } from "@/lib/habits/logic";
+import { DEFAULT_SETTINGS } from "@/lib/habits/types";
 
 /*
  * Landing-page demo. Screens are laid out at 390×844 (a real phone) and
@@ -22,13 +44,17 @@ interface DemoHabit {
   color: string;
   streak: number;
   done: boolean;
+  notes?: string;
+  category?: string;
+  archived?: boolean;
+  starred?: boolean;
 }
 
 const INITIAL: DemoHabit[] = [
-  { id: "1", name: "Read 20 minutes", icon: "read", color: "fire", streak: 12, done: true },
-  { id: "2", name: "Drink water", icon: "water", color: "ocean", streak: 31, done: true },
-  { id: "3", name: "Evening walk", icon: "run", color: "forest", streak: 4, done: false },
-  { id: "4", name: "Meditate", icon: "mindful", color: "purple", streak: 0, done: false },
+  { id: "1", name: "Read 20 minutes", icon: "read", color: "fire", streak: 12, done: true, notes: "Chapter 3: How to build good habits.", category: "study", starred: true },
+  { id: "2", name: "Drink water", icon: "water", color: "ocean", streak: 31, done: true, notes: "Target 2.5L daily with a pinch of lemon.", category: "health", starred: true },
+  { id: "3", name: "Evening walk", icon: "run", color: "forest", streak: 4, done: false, notes: "Gentle 30-min walk after dinner.", category: "health" },
+  { id: "4", name: "Meditate", icon: "mindful", color: "purple", streak: 0, done: false, notes: "Calm breathwork practice.", category: "mindfulness" },
 ];
 
 function seeded(n: number, seed = 7): number[] {
@@ -207,8 +233,18 @@ function Screen({
   );
 }
 
-const Card = ({ className, children }: { className?: string; children: React.ReactNode }) => (
-  <div className={cn("rounded-3xl border-0 bg-surface p-[18px]", className)}>{children}</div>
+const Card = ({
+  className,
+  onClick,
+  children,
+}: {
+  className?: string;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) => (
+  <div onClick={onClick} className={cn("rounded-3xl border-0 bg-surface p-[18px]", className)}>
+    {children}
+  </div>
 );
 
 /* ------------------------------------------------------------------ */
@@ -437,56 +473,86 @@ export function CalendarScreen() {
 }
 
 export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefined }) {
-  const [filter, setFilter] = useState<"all" | "starred">("all");
+  const [subTab, setSubTab] = useState<"habits" | "notes">("habits");
+  const [habitsList, setHabitsList] = useState<DemoHabit[]>(INITIAL);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeHabit, setActiveHabit] = useState<DemoHabit | null>(null);
 
-  const displayed = filter === "starred"
-    ? INITIAL.filter((h) => h.id === "1" || h.id === "2")
-    : INITIAL;
+  const displayed = habitsList.filter((h) => {
+    if (statusFilter === "active" && h.archived) return false;
+    if (statusFilter === "archived" && !h.archived) return false;
+    if (statusFilter === "starred" && !h.starred) return false;
+    if (categoryFilter && h.category !== categoryFilter) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchName = h.name.toLowerCase().includes(q);
+      const matchNotes = h.notes?.toLowerCase().includes(q) ?? false;
+      const matchCat = h.category?.toLowerCase().includes(q) ?? false;
+      if (!matchName && !matchNotes && !matchCat) return false;
+    }
+    return true;
+  });
+
+  const categories = Array.from(new Set(habitsList.map((h) => h.category).filter(Boolean))) as string[];
+
+  const handleToggleSelect = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
 
   return (
     <Screen active={1} onNav={onNav}>
       <div className="flex items-end justify-between">
         <div>
-          <p className="kicker">Habits</p>
-          <p className="font-display text-[26px] font-bold leading-tight">All Habits</p>
+          <p className="kicker">Habits &amp; Reflections</p>
+          <p className="font-display text-[26px] font-bold leading-tight">
+            {subTab === "habits" ? "All Habits" : "Standalone Notes"}
+          </p>
         </div>
-        <span className="text-xs font-semibold text-faint">{displayed.length} habits</span>
+        <span className="text-xs font-semibold text-faint">
+          {subTab === "habits" ? `${displayed.length} habits` : "Reflections"}
+        </span>
       </div>
 
-      {/* Segmented Filter: All vs Starred (Favorites) */}
+      {/* Subtab Segmented Switcher: Habits vs Standalone Notes */}
       <div className="flex rounded-full bg-surface p-1">
         <button
           type="button"
-          aria-pressed={filter === "all"}
           onClick={() => {
-            setFilter("all");
+            setSubTab("habits");
             setActiveHabit(null);
           }}
           className={cn(
             "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
-            filter === "all" ? "bg-surface-2 text-foreground shadow-sm" : "text-faint hover:text-muted-foreground",
+            subTab === "habits" ? "bg-surface-2 text-foreground shadow-sm" : "text-faint hover:text-muted-foreground",
           )}
         >
-          All ({INITIAL.length})
+          Habits ({habitsList.length})
         </button>
         <button
           type="button"
-          aria-pressed={filter === "starred"}
           onClick={() => {
-            setFilter("starred");
+            setSubTab("notes");
             setActiveHabit(null);
           }}
           className={cn(
             "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
-            filter === "starred" ? "bg-surface-2 text-ember shadow-sm" : "text-faint hover:text-muted-foreground",
+            subTab === "notes" ? "bg-surface-2 text-ember shadow-sm" : "text-faint hover:text-muted-foreground",
           )}
         >
-          ★ Starred (2)
+          Notes &amp; Journal
         </button>
       </div>
 
-      {activeHabit ? (
+      {subTab === "notes" ? (
+        <NotesView />
+      ) : activeHabit ? (
         <div className="space-y-4">
           <button
             type="button"
@@ -513,29 +579,130 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
               </Card>
             ))}
           </div>
+
+          {/* Safe Past-Day Fill-in (Phase 2) */}
+          <Card className="p-3.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground">Past-Day Fill-In</span>
+              <span className="text-[11px] text-faint">Yesterday: Sun 25 Oct</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setActiveHabit((prev) => (prev ? { ...prev, streak: prev.streak + 1 } : null));
+                setHabitsList((prev) =>
+                  prev.map((x) => (x.id === activeHabit.id ? { ...x, streak: x.streak + 1 } : x)),
+                );
+              }}
+              className="w-full text-xs gap-1.5 font-semibold text-ember border-ember/20 hover:bg-ember/10"
+            >
+              <Check className="size-3.5 text-ember" strokeWidth={3} /> Complete Missed Yesterday (+1 Streak)
+            </Button>
+          </Card>
+
+          {/* Phase 2: Per-Streak Notes with Auto-Save and Character Limit */}
+          <Card className="p-3.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-foreground">Habit Notes &amp; Guidelines</span>
+              <span className="text-[11px] text-faint">{(activeHabit.notes?.length ?? 0)} / 1000</span>
+            </div>
+            <Textarea
+              value={activeHabit.notes ?? ""}
+              maxLength={1000}
+              placeholder="Record guidelines, reflections, or triggers for this habit..."
+              onChange={(e) => {
+                const val = e.target.value.slice(0, 1000);
+                setActiveHabit((prev) => (prev ? { ...prev, notes: val } : null));
+                setHabitsList((prev) =>
+                  prev.map((x) => (x.id === activeHabit.id ? { ...x, notes: val } : x)),
+                );
+              }}
+              className="min-h-[85px] text-xs resize-none bg-surface-2 border-border text-foreground"
+            />
+            <p className="text-[10px] text-muted-foreground">Auto-saved offline to device storage.</p>
+          </Card>
         </div>
       ) : (
         <div className="space-y-3">
-          {displayed.map((x) => (
-            <button
-              key={x.id}
-              type="button"
-              onClick={() => setActiveHabit(x)}
-              className="phone-tap-row flex w-full items-center gap-3 rounded-3xl bg-surface p-4 text-left transition-colors hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-ember focus-visible:outline-none"
-            >
-              <HabitIcon habit={h(x)} />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <p className="break-words font-mono text-[14px] font-semibold">{x.name}</p>
-                  {(x.id === "1" || x.id === "2") && <Star className="size-3 fill-gold text-gold" />}
+          <HabitSearchFilter
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            selectedCategory={categoryFilter}
+            onCategoryChange={setCategoryFilter}
+            availableCategories={categories}
+            isSelectionMode={isSelectionMode}
+            onToggleSelectionMode={() => {
+              setIsSelectionMode(!isSelectionMode);
+              setSelectedIds(new Set());
+            }}
+            selectedIds={selectedIds}
+            onSelectAll={() => setSelectedIds(new Set(displayed.map((h) => h.id)))}
+            onDeselectAll={() => setSelectedIds(new Set())}
+            onBulkStar={(star) => {
+              setHabitsList((hs) =>
+                hs.map((h) => (selectedIds.has(h.id) ? { ...h, starred: star } : h)),
+              );
+              setSelectedIds(new Set());
+              setIsSelectionMode(false);
+            }}
+            onBulkArchive={(archive) => {
+              setHabitsList((hs) =>
+                hs.map((h) => (selectedIds.has(h.id) ? { ...h, archived: archive } : h)),
+              );
+              setSelectedIds(new Set());
+              setIsSelectionMode(false);
+            }}
+            onBulkDelete={() => {
+              setHabitsList((hs) => hs.filter((h) => !selectedIds.has(h.id)));
+              setSelectedIds(new Set());
+              setIsSelectionMode(false);
+            }}
+            filteredCount={displayed.length}
+          />
+
+          <div className="space-y-3 pt-1">
+            {displayed.length === 0 ? (
+              <p className="text-center text-xs py-8 text-faint">No habits match your filters.</p>
+            ) : (
+              displayed.map((x) => (
+                <div
+                  key={x.id}
+                  className="flex w-full items-center gap-3 rounded-3xl bg-surface p-4 text-left transition-colors hover:bg-surface-2"
+                >
+                  {isSelectionMode && (
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(x.id)}
+                      onChange={() => handleToggleSelect(x.id)}
+                      className="size-4 accent-primary rounded cursor-pointer shrink-0"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setActiveHabit(x)}
+                    className="flex flex-1 items-center gap-3 min-w-0 text-left focus-visible:outline-none"
+                  >
+                    <HabitIcon habit={h(x)} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="break-words font-mono text-[14px] font-semibold">{x.name}</p>
+                        {x.starred && <Star className="size-3 fill-gold text-gold shrink-0" />}
+                        {x.archived && <span className="text-[10px] text-faint border px-1 rounded">Archived</span>}
+                      </div>
+                      <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
+                        <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
+                        {x.category && <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">#{x.category}</span>}
+                      </p>
+                    </div>
+                    <ChevronRight className="size-4 text-faint shrink-0" />
+                  </button>
                 </div>
-                <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
-                  <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
-                </p>
-              </div>
-              <ChevronRight className="size-4 text-faint" />
-            </button>
-          ))}
+              ))
+            )}
+          </div>
         </div>
       )}
     </Screen>
@@ -576,45 +743,150 @@ export function NewHabitScreen() {
 }
 
 export function SettingsScreen() {
+  const [backupDialogOpen, setBackupDialogOpen] = useState(false);
+  const [lockDialogOpen, setLockDialogOpen] = useState(false);
+  const [autoRolling, setAutoRolling] = useState(true);
+
+  const sampleInspection: BackupInspection = {
+    parsed: {
+      version: "1",
+      habits: [
+        {
+          ...createHabit({ name: "Read 20 mins", emoji: "📚" }, "2026-10-26"),
+          id: "b1",
+          currentStreak: 12,
+          completedDates: ["2026-10-25", "2026-10-26"],
+        },
+        {
+          ...createHabit({ name: "Morning Run", emoji: "🏃" }, "2026-10-26"),
+          id: "b2",
+          currentStreak: 5,
+          completedDates: ["2026-10-26"],
+        },
+      ],
+      settings: DEFAULT_SETTINGS,
+      skipped: 0,
+      exportDate: "2026-10-26T12:00:00.000Z",
+    },
+    preview: {
+      version: "1",
+      exportDate: "2026-10-26",
+      totalStreaks: 4,
+      activeCount: 3,
+      archivedCount: 1,
+      totalCompletions: 48,
+      notesCount: 2,
+      settings: DEFAULT_SETTINGS,
+    },
+    notes: [
+      {
+        id: "sn1",
+        title: "Study Log",
+        content: "Weekly reflection notes",
+        createdAt: "2026-10-26",
+        updatedAt: "2026-10-26",
+        pinned: true,
+      },
+    ],
+  };
+
   return (
     <Screen active={4}>
       <div>
         <p className="kicker">Daily Spark</p>
         <p className="font-display text-[26px] font-bold leading-tight">Settings</p>
       </div>
+
       <div>
-        <p className="kicker mb-2.5">Your data</p>
+        <p className="kicker mb-2.5">Your data &amp; Backups</p>
         <Card className="px-4 py-1">
-          {[
-            [Download, "Export backup", ".json"],
-            [Upload, "Restore from file", "Old backups work"],
-          ].map(([Ic, t, s]) => {
-            const I = Ic as typeof Download;
-            return (
-              <div key={t as string} className="flex items-center gap-3 border-b border-border py-3 last:border-b-0">
-                <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember"><I className="size-4" /></span>
-                <div className="flex-1">
-                  <p className="text-[14px] font-bold">{t as string}</p>
-                  <p className="text-[11.5px] font-semibold text-faint">{s as string}</p>
-                </div>
-                <ChevronRight className="size-4 text-faint" />
-              </div>
-            );
-          })}
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 border-b border-border py-3 text-left focus-visible:outline-none"
+          >
+            <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
+              <Download className="size-4" />
+            </span>
+            <div className="flex-1">
+              <p className="text-[14px] font-bold">Export backup</p>
+              <p className="text-[11.5px] font-semibold text-faint">Includes habits and notes (.json)</p>
+            </div>
+            <ChevronRight className="size-4 text-faint" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setBackupDialogOpen(true)}
+            className="flex w-full items-center gap-3 py-3 text-left focus-visible:outline-none"
+          >
+            <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
+              <Upload className="size-4" />
+            </span>
+            <div className="flex-1">
+              <p className="text-[14px] font-bold">Inspect &amp; Restore file</p>
+              <p className="text-[11.5px] font-semibold text-faint">Safe pre-validation preview</p>
+            </div>
+            <ChevronRight className="size-4 text-faint" />
+          </button>
         </Card>
       </div>
+
+      <div>
+        <p className="kicker mb-2.5">Safety &amp; Local History</p>
+        <Card className="flex items-center justify-between px-4 py-3">
+          <div className="pr-2">
+            <p className="text-[14px] font-bold">Auto local snapshots</p>
+            <p className="text-[11.5px] font-semibold text-faint">Stores rolling 7-day backups</p>
+          </div>
+          <Switch checked={autoRolling} onCheckedChange={setAutoRolling} />
+        </Card>
+      </div>
+
+      <div>
+        <p className="kicker mb-2.5">Privacy &amp; Security</p>
+        <Card
+          onClick={() => setLockDialogOpen(true)}
+          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-surface-2 transition-colors"
+        >
+          <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
+            <Lock className="size-4" />
+          </span>
+          <div className="flex-1">
+            <p className="text-[14px] font-bold">App Lock &amp; PIN</p>
+            <p className="text-[11.5px] font-semibold text-faint">SHA-256 protected with 5-min timeout</p>
+          </div>
+          <ChevronRight className="size-4 text-faint" />
+        </Card>
+      </div>
+
       <div>
         <p className="kicker mb-2.5">Reminders</p>
         <Card className="flex items-center gap-3 px-4 py-3">
-          <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember"><Bell className="size-4" /></span>
+          <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
+            <Bell className="size-4" />
+          </span>
           <span className="flex-1 text-[14px] font-bold">Gentle reminders</span>
-          <span className="h-5 w-9 rounded-full bg-primary p-0.5"><i className="ml-auto block size-4 rounded-full bg-background" /></span>
+          <span className="h-5 w-9 rounded-full bg-primary p-0.5">
+            <i className="ml-auto block size-4 rounded-full bg-background" />
+          </span>
         </Card>
       </div>
+
       <Card className="flex items-center gap-3 px-4 py-3">
         <Star className="size-4 fill-gold text-gold" />
         <span className="text-[13px] font-semibold text-muted-foreground">No account · No ads · No tracking</span>
       </Card>
+
+      <BackupPreviewDialog
+        open={backupDialogOpen}
+        onOpenChange={setBackupDialogOpen}
+        inspection={sampleInspection}
+        onConfirmRestore={() => {
+          setBackupDialogOpen(false);
+        }}
+      />
+
+      <AppLockDialog open={lockDialogOpen} onOpenChange={setLockDialogOpen} />
     </Screen>
   );
 }

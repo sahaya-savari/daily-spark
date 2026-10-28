@@ -46,3 +46,57 @@ export function formatLong(key: string): string {
 export function formatShort(key: string): string {
   return fromKey(key).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
+
+export function formatDisplayDate(key: string): string {
+  return formatLong(key);
+}
+
+export function formatMonthYear(d: Date): string {
+  return d.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+}
+
+export function addMonths(d: Date, n: number): Date {
+  const next = new Date(d);
+  next.setMonth(next.getMonth() + n);
+  return next;
+}
+
+/**
+ * Builds a 7-column calendar matrix (Mon..Sun) of YYYY-MM-DD keys or null.
+ */
+export function monthMatrix(d: Date): (string | null)[][] {
+  const y = d.getFullYear();
+  const m = d.getMonth();
+  const firstDay = new Date(y, m, 1);
+  const lastDay = new Date(y, m + 1, 0);
+
+  // 0=Sun..6=Sat, we want Mon=0..Sun=6
+  const startDay = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = lastDay.getDate();
+
+  const weeks: (string | null)[][] = [];
+  let currentWeek: (string | null)[] = [];
+
+  for (let i = 0; i < startDay; i++) {
+    currentWeek.push(null);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const curDate = new Date(y, m, day);
+    currentWeek.push(toKey(curDate));
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) {
+      currentWeek.push(null);
+    }
+    weeks.push(currentWeek);
+  }
+
+  return weeks;
+}
+

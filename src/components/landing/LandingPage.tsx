@@ -399,18 +399,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                   </span>
                 </span>
               </a>
-              <div className="glass-pill inline-flex h-[52px] sm:h-[54px] cursor-default items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left opacity-75 [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto">
+              <Link
+                to="/app"
+                className="glass-pill inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+              >
                 <Globe aria-hidden="true" />
                 <span className="leading-none">
-                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Web &amp; iOS
+                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-ember">
+                    Web App
                   </span>
-                  <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide text-muted-foreground">
-                    Coming soon
+                  <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide">
+                    Launch in Browser
                   </span>
                 </span>
-                <span className="sr-only">Web and iOS versions are not available yet.</span>
-              </div>
+              </Link>
               <a
                 href={SITE.releases}
                 target="_blank"

@@ -150,27 +150,27 @@ export interface StandaloneNote {
 When starting tomorrow, follow this step-by-step checklist:
 
 ### Step 1: Core Pure Logic ([`src/lib/habits/logic.ts`](file:///d:/daily-spark/src/lib/habits/logic.ts))
-- [ ] Add `togglePastDay(habit, targetDate, today)` with full streak recalculation.
-- [ ] Add `verifyAndHealIntegrity(habits, today)` integrity checker and auto-healer.
-- [ ] Add `reorderHabits(habits, sourceId, targetId)` ordering utility.
-- [ ] Expand [`src/lib/habits/logic.test.ts`](file:///d:/daily-spark/src/lib/habits/logic.test.ts) with unit tests for each new function.
+- [x] Add `togglePastDay(habit, targetDate, today)` with full streak recalculation.
+- [x] Add `verifyAndHealIntegrity(habits, today)` integrity checker and auto-healer.
+- [x] Add `reorderHabits(habits, sourceId, targetId)` ordering utility.
+- [x] Expand [`src/lib/habits/logic.test.ts`](file:///d:/daily-spark/src/lib/habits/logic.test.ts) with unit tests for each new function.
 
 ### Step 2: Store Actions ([`src/lib/habits/store.ts`](file:///d:/daily-spark/src/lib/habits/store.ts))
-- [ ] Add `habitActions.togglePastDay(id, targetDate)`.
-- [ ] Add `habitActions.reorder(orderedIds: string[])`.
-- [ ] Add `habitActions.bulkArchive(ids: string[], archive: boolean)`.
-- [ ] Add `habitActions.bulkStar(ids: string[], star: boolean)`.
-- [ ] Add `habitActions.bulkDelete(ids: string[])`.
-- [ ] Add `habitActions.updateNotes(id: string, notes: string)`.
-- [ ] Add automated rolling local backup helper in store persistence.
+- [x] Add `habitActions.togglePastDay(id, targetDate)`.
+- [x] Add `habitActions.reorder(orderedIds: string[])`.
+- [x] Add `habitActions.bulkArchive(ids: string[], archive: boolean)`.
+- [x] Add `habitActions.bulkStar(ids: string[], star: boolean)`.
+- [x] Add `habitActions.bulkDelete(ids: string[])`.
+- [x] Add `habitActions.updateNotes(id: string, notes: string)`.
+- [x] Add automated rolling local backup helper in store persistence.
 
 ### Step 3: Standalone Notes Store ([`src/lib/habits/notes.ts`](file:///d:/daily-spark/src/lib/habits/notes.ts))
-- [ ] Create `notes.ts` store with `addNote`, `updateNote`, `deleteNote`, `pinNote`, and `getNotes()`.
-- [ ] Add unit tests in `src/lib/habits/notes.test.ts`.
+- [x] Create `notes.ts` store with `addNote`, `updateNote`, `deleteNote`, `pinNote`, and `getNotes()`.
+- [x] Add unit tests in `src/lib/habits/notes.test.ts`.
 
 ### Step 4: Verification & UI Wire-Up
-- [ ] Run `npm run typecheck` and `npm run test` to verify 100% test pass rate.
-- [ ] Wire the actions to the interactive app components or test harnesses.
+- [x] Run `npm run typecheck` and `npm run test` to verify 100% test pass rate.
+- [x] Wire the actions to the interactive app components or test harnesses.
 
 ---
 

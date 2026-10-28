@@ -22,7 +22,29 @@ export interface Habit {
   reminderEnabled?: boolean | undefined;
   reminderTime?: string | undefined; // HH:MM
   listId?: string | undefined;
+  // Phase 2 additions
+  category?: string | undefined;
+  orderIndex?: number | undefined;
+  isPaused?: boolean | undefined;
+  pausedAt?: string | null | undefined;
+  // Phase 3 additions
+  frequencyType?: "daily" | "weekly_target" | "specific_days" | undefined;
+  targetDaysPerWeek?: number | undefined;
+  customDays?: number[] | undefined; // 0=Sun, 1=Mon, ..., 6=Sat
+  milestonesReached?: number[] | undefined;
+  pauseReason?: string | undefined;
+  snoozedUntil?: number | undefined; // Unix timestamp in ms
   [extra: string]: unknown;
+}
+
+export interface StandaloneNote {
+  id: string; // UUID or timestamp-based
+  title: string; // Plain text title
+  content: string; // Markdown or plain text content
+  createdAt: string; // ISO 8601 string
+  updatedAt: string; // ISO 8601 string
+  pinned?: boolean | undefined; // Pinned to top
+  color?: string | undefined; // Accent color swatch
 }
 
 export interface HabitSettings {
@@ -30,6 +52,7 @@ export interface HabitSettings {
   defaultTime: string; // HH:MM
   respectDND?: boolean | undefined;
   preTaskReminderOffsetMinutes?: number | undefined;
+  autoBackupHistoryEnabled?: boolean | undefined;
   [extra: string]: unknown;
 }
 
@@ -38,6 +61,7 @@ export const DEFAULT_SETTINGS: HabitSettings = {
   defaultTime: "20:00",
   respectDND: true,
   preTaskReminderOffsetMinutes: 5,
+  autoBackupHistoryEnabled: true,
 };
 
 export const COLOR_OPTIONS = [
@@ -58,3 +82,34 @@ export const COLOR_SWATCH: Record<string, string> = {
   purple: "#A897BE",
   rose: "#C98E96",
 };
+
+export interface MilestoneDef {
+  days: number;
+  title: string;
+  badge: string;
+  description: string;
+}
+
+export const MILESTONES: MilestoneDef[] = [
+  { days: 7, title: "First Spark", badge: "🌱", description: "One full week of showing up" },
+  { days: 21, title: "Habit Loop", badge: "⚡", description: "21 days: neural pattern forming" },
+  { days: 50, title: "Steady Rhythm", badge: "🔥", description: "50 days of unshakeable consistency" },
+  { days: 100, title: "Century Run", badge: "🌟", description: "Triple digits: dedicated mastery" },
+  { days: 365, title: "Year of Spark", badge: "👑", description: "One full revolution around the sun" },
+];
+
+export interface CategoryDef {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+}
+
+export const CURATED_CATEGORIES: CategoryDef[] = [
+  { id: "daily", name: "Daily Essentials", emoji: "⚡", color: "fire" },
+  { id: "health", name: "Health & Body", emoji: "🏃", color: "forest" },
+  { id: "study", name: "Study & Skill", emoji: "📚", color: "ocean" },
+  { id: "work", name: "Deep Work", emoji: "💼", color: "purple" },
+  { id: "mindfulness", name: "Mind & Calm", emoji: "🧘", color: "sunset" },
+  { id: "creative", name: "Creative Craft", emoji: "🎨", color: "rose" },
+];

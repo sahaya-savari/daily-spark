@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { siteUrl } from "@/lib/site";
 
@@ -8,6 +8,15 @@ const description =
 const socialTitle = "Daily Spark - Show up. Tick it. Keep going.";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    if (
+      typeof window !== "undefined" &&
+      (Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
+       Boolean((window as unknown as { androidBridge?: unknown }).androidBridge))
+    ) {
+      throw redirect({ to: "/app" });
+    }
+  },
   head: () => ({
     meta: [
       { title },

@@ -5,6 +5,13 @@ import {
   createHabit,
   refresh,
   undoToday,
+  togglePastDay,
+  verifyAndHealIntegrity,
+  reorderHabits,
+  reorderHabitsByIds,
+  pauseHabit,
+  resumeHabit,
+  applyGrace,
 } from "./logic";
 import { DEFAULT_SETTINGS, type Habit, type HabitSettings } from "./types";
 
@@ -16,7 +23,16 @@ export const STORAGE_KEYS = {
   habits: "streakflame_streaks",
   settings: "streakflame_settings",
   lastBackup: "streakflame_last_backup",
+  autoBackupHistory: "streakflame_autobackup_history",
+  recoveryStash: "streakflame_recovery_stash",
 } as const;
+
+export interface LocalBackupSnapshot {
+  date: string;
+  timestamp: string;
+  habits: Habit[];
+  settings: HabitSettings;
+}
 
 export interface HabitState {
   loaded: boolean;
@@ -37,15 +53,76 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+function saveRollingBackup(habits: Habit[], settings: HabitSettings) {
+  if (typeof window === "undefined" || habits.length === 0) return;
+  if (settings.autoBackupHistoryEnabled === false) return;
+  try {
+    const today = todayKey();
+    const history = readJson<LocalBackupSnapshot[]>(STORAGE_KEYS.autoBackupHistory, []);
+    const filtered = history.filter((s) => s.date !== today);
+    const updated: LocalBackupSnapshot[] = [
+      {
+        date: today,
+        timestamp: new Date().toISOString(),
+        habits,
+        settings,
+      },
+      ...filtered,
+    ].slice(0, 7);
+    localStorage.setItem(STORAGE_KEYS.autoBackupHistory, JSON.stringify(updated));
+  } catch (e) {
+    console.error("[daily-spark] could not save rolling backup", e);
+  }
+}
+
 function load() {
   if (state.loaded || typeof window === "undefined") return;
   const today = todayKey();
-  const raw = readJson<unknown>(STORAGE_KEYS.habits, []);
-  const habits = (Array.isArray(raw) ? raw : [])
-    .filter((h): h is Habit => !!h && typeof h === "object" && typeof (h as Habit).id === "string")
-    .map((h) => refresh({ ...h, completedDates: h.completedDates ?? [] }, today));
+  let raw: unknown = [];
+  try {
+    const item = localStorage.getItem(STORAGE_KEYS.habits);
+    if (item) {
+      raw = JSON.parse(item);
+    }
+  } catch {
+    try {
+      const corrupt = localStorage.getItem(STORAGE_KEYS.habits);
+      if (corrupt) {
+        localStorage.setItem(STORAGE_KEYS.recoveryStash, corrupt);
+      }
+    } catch {
+      /* ignore */
+    }
+    raw = [];
+  }
+
+  const rawArray = Array.isArray(raw) ? raw : [];
+  const candidateHabits: Habit[] = [];
+  const corruptObjects: unknown[] = [];
+
+  for (const item of rawArray) {
+    if (item && typeof item === "object") {
+      candidateHabits.push(item as Habit);
+    } else {
+      corruptObjects.push(item);
+    }
+  }
+
+  if (corruptObjects.length > 0) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.recoveryStash, JSON.stringify(corruptObjects));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const { healed, issuesFound } = verifyAndHealIntegrity(candidateHabits, today);
   const settings = { ...DEFAULT_SETTINGS, ...readJson<Partial<HabitSettings>>(STORAGE_KEYS.settings, {}) };
-  state = { loaded: true, habits, settings };
+  state = { loaded: true, habits: healed, settings };
+
+  if (issuesFound > 0 || corruptObjects.length > 0) {
+    persist();
+  }
 }
 
 function persist() {
@@ -53,6 +130,7 @@ function persist() {
   try {
     localStorage.setItem(STORAGE_KEYS.habits, JSON.stringify(state.habits));
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
+    saveRollingBackup(state.habits, state.settings);
   } catch (e) {
     console.error("[daily-spark] could not save", e);
   }
@@ -116,6 +194,10 @@ export const habitActions = {
     mapHabit(id, (x) => (done ? undoToday(x, today) : completeToday(x, today)));
     return done ? "undone" : "done";
   },
+  togglePastDay(id: string, targetDate: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => togglePastDay(h, targetDate, today));
+  },
   star(id: string) {
     mapHabit(id, (h) => ({ ...h, isStarred: !h.isStarred }));
   },
@@ -124,6 +206,59 @@ export const habitActions = {
   },
   remove(id: string) {
     set({ habits: state.habits.filter((h) => h.id !== id) });
+  },
+  reorder(orderedIdsOrSource: string[] | string, targetId?: string) {
+    load();
+    if (Array.isArray(orderedIdsOrSource)) {
+      set({ habits: reorderHabitsByIds(state.habits, orderedIdsOrSource) });
+    } else if (typeof orderedIdsOrSource === "string" && typeof targetId === "string") {
+      set({ habits: reorderHabits(state.habits, orderedIdsOrSource, targetId) });
+    }
+  },
+  bulkArchive(ids: string[], archive: boolean) {
+    load();
+    const idSet = new Set(ids);
+    const now = new Date().toISOString();
+    set({
+      habits: state.habits.map((h) =>
+        idSet.has(h.id) ? { ...h, archivedAt: archive ? now : null } : h,
+      ),
+    });
+  },
+  bulkStar(ids: string[], star: boolean) {
+    load();
+    const idSet = new Set(ids);
+    set({
+      habits: state.habits.map((h) =>
+        idSet.has(h.id) ? { ...h, isStarred: star } : h,
+      ),
+    });
+  },
+  bulkDelete(ids: string[]) {
+    load();
+    const idSet = new Set(ids);
+    set({ habits: state.habits.filter((h) => !idSet.has(h.id)) });
+  },
+  updateNotes(id: string, notes: string) {
+    mapHabit(id, (h) => ({ ...h, notes: notes.slice(0, 1000) }));
+  },
+  pause(id: string, reason?: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => pauseHabit(h, reason, today));
+  },
+  resume(id: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => resumeHabit(h, today));
+  },
+  applyGrace(id: string, type: "weekly" | "monthly") {
+    const today = todayKey();
+    mapHabit(id, (h) => applyGrace(h, type, today));
+  },
+  snooze(id: string, until: number) {
+    mapHabit(id, (h) => ({ ...h, snoozedUntil: until }));
+  },
+  clearSnooze(id: string) {
+    mapHabit(id, (h) => ({ ...h, snoozedUntil: undefined }));
   },
   updateSettings(patch: Partial<HabitSettings>) {
     load();
@@ -134,6 +269,11 @@ export const habitActions = {
   },
   clearAll() {
     set({ loaded: true, habits: [], settings: DEFAULT_SETTINGS });
+  },
+  reload() {
+    state = { ...SERVER_STATE };
+    load();
+    listeners.forEach((l) => l());
   },
   markBackedUp() {
     if (typeof window === "undefined") return;
@@ -151,4 +291,16 @@ export const habitActions = {
       return null;
     }
   },
+  getRollingBackups(): LocalBackupSnapshot[] {
+    if (typeof window === "undefined") return [];
+    return readJson<LocalBackupSnapshot[]>(STORAGE_KEYS.autoBackupHistory, []);
+  },
+  restoreRollingBackup(index: number) {
+    const history = habitActions.getRollingBackups();
+    const target = history[index];
+    if (target) {
+      habitActions.replaceAll(target.habits, target.settings);
+    }
+  },
 };
+

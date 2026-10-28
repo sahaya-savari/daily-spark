@@ -10,8 +10,19 @@ import {
   buildBackup,
   buildStrictBackup,
   parseCsvHabits,
+  togglePastDay,
+  verifyAndHealIntegrity,
+  reorderHabits,
+  reorderHabitsByIds,
+  inspectBackup,
+  isHabitDueToday,
+  getMilestones,
+  pauseHabit,
+  resumeHabit,
+  applyGrace,
+  exportToMarkdown,
 } from "./logic";
-import { DEFAULT_SETTINGS } from "./types";
+import { DEFAULT_SETTINGS, type Habit, type StandaloneNote } from "./types";
 
 const TODAY = "2026-10-26";
 
@@ -184,3 +195,325 @@ describe("CSV import logic", () => {
     expect(res.habits[0]!.name).toBe("Walk Dog");
   });
 });
+
+describe("Phase 2: Safe Past-Day Fill-In (togglePastDay)", () => {
+  it("toggles past day on and recalculates currentStreak and bestStreak", () => {
+    const h = {
+      ...createHabit({ name: "Workout", emoji: "💪" }, "2026-10-20"),
+      completedDates: ["2026-10-24", "2026-10-26"],
+      currentStreak: 1,
+      bestStreak: 1,
+    };
+    // Toggling 2026-10-25 fills the gap, making 24, 25, 26 continuous -> streak 3
+    const updated = togglePastDay(h, "2026-10-25", TODAY);
+    expect(updated.completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
+    expect(updated.currentStreak).toBe(3);
+    expect(updated.bestStreak).toBe(3);
+    expect(updated.lastCompletedDate).toBe("2026-10-26");
+  });
+
+  it("toggles past day off and recalculates currentStreak and bestStreak correctly", () => {
+    const h = {
+      ...createHabit({ name: "Workout", emoji: "💪" }, "2026-10-20"),
+      completedDates: ["2026-10-24", "2026-10-25", "2026-10-26"],
+      currentStreak: 3,
+      bestStreak: 3,
+    };
+    // Toggling off 2026-10-25 breaks streak, leaving only today (26) active -> streak 1
+    const updated = togglePastDay(h, "2026-10-25", TODAY);
+    expect(updated.completedDates).toEqual(["2026-10-24", "2026-10-26"]);
+    expect(updated.currentStreak).toBe(1);
+    expect(updated.bestStreak).toBe(1);
+  });
+
+  it("ignores invalid date strings gracefully", () => {
+    const h = createHabit({ name: "Workout", emoji: "💪" }, TODAY);
+    const updated = togglePastDay(h, "invalid-date", TODAY);
+    expect(updated).toBe(h);
+  });
+
+  it("rejects future dates to maintain streak integrity", () => {
+    const h = createHabit({ name: "Workout", emoji: "💪" }, TODAY);
+    const updated = togglePastDay(h, "2099-01-01", TODAY);
+    expect(updated).toBe(h);
+    expect(updated.completedDates).toEqual([]);
+  });
+});
+
+describe("Phase 2: Habit Creation Defaults", () => {
+  it("initializes new habit with safe Phase 2 defaults", () => {
+    const h = createHabit({ name: "Meditate", emoji: "🧘" }, TODAY);
+    expect(h.notes).toBe("");
+    expect(h.isPaused).toBe(false);
+    expect(h.pausedAt).toBeNull();
+    expect(h.category).toBeUndefined();
+  });
+});
+
+describe("Phase 2: Startup Data Integrity Check & Auto-Healing", () => {
+  it("heals duplicate IDs, drifted streak counters, and unsorted/duplicate dates", () => {
+    const corruptHabits: Habit[] = [
+      {
+        id: "duplicate-id",
+        name: "Morning Run",
+        emoji: "🏃",
+        createdAt: "2026-10-20",
+        currentStreak: 99, // drifted
+        bestStreak: 2,
+        lastCompletedDate: null,
+        completedDates: ["2026-10-26", "2026-10-24", "2026-10-25", "2026-10-25"], // unsorted & duplicate
+      },
+      {
+        id: "duplicate-id", // duplicate ID
+        name: "Reading",
+        emoji: "📚",
+        createdAt: "2026-10-20",
+        currentStreak: 0,
+        bestStreak: 0,
+        lastCompletedDate: null,
+        completedDates: [],
+      },
+      {
+        id: "", // empty ID
+        name: "", // empty name
+        emoji: "🧘",
+        createdAt: "2026-10-20",
+        currentStreak: 0,
+        bestStreak: 0,
+        lastCompletedDate: null,
+        completedDates: [],
+      },
+    ];
+
+    const result = verifyAndHealIntegrity(corruptHabits, TODAY);
+    expect(result.issuesFound).toBeGreaterThan(0);
+    expect(result.healed).toHaveLength(3);
+
+    const h0 = result.healed[0]!;
+    expect(h0.id).toBe("duplicate-id");
+    expect(h0.completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
+    expect(h0.currentStreak).toBe(3); // corrected from 99
+    expect(h0.bestStreak).toBe(3);
+    expect(h0.lastCompletedDate).toBe("2026-10-26");
+    expect(h0.notes).toBe("");
+    expect(h0.orderIndex).toBe(0);
+
+    const h1 = result.healed[1]!;
+    expect(h1.id).not.toBe("duplicate-id");
+    expect(h1.id).toContain("duplicate-id-dup");
+
+    const h2 = result.healed[2]!;
+    expect(h2.id).toBeTruthy();
+    expect(h2.name).toBe("Untitled Habit");
+  });
+
+  it("truncates notes exceeding 1,000 characters and flags issue", () => {
+    const longNotes = "a".repeat(1200);
+    const habit = {
+      ...createHabit({ name: "Journal", emoji: "📝" }, TODAY),
+      notes: longNotes,
+    };
+    const res = verifyAndHealIntegrity([habit], TODAY);
+    expect(res.issuesFound).toBe(1);
+    expect(res.healed[0]?.notes?.length).toBe(1000);
+  });
+});
+
+describe("Phase 2: Safe Deserialization Invariants", () => {
+  it("defaults missing Phase 2 fields to notes: '', category: undefined, isPaused: false", () => {
+    const rawLegacyJson = JSON.stringify({
+      version: "1",
+      data: {
+        streaks: [
+          {
+            id: "legacy-1",
+            title: "Old Habit",
+            emoji: "⭐",
+            history: [TODAY],
+            archived: false,
+            starred: true,
+          },
+        ],
+      },
+    });
+
+    const parsed = parseBackup(rawLegacyJson, TODAY);
+    const habit = parsed.habits[0]!;
+    expect(habit.notes).toBe("");
+    expect(habit.category).toBeUndefined();
+    expect(habit.isPaused).toBe(false);
+    expect(habit.pausedAt).toBeNull();
+  });
+});
+
+describe("Phase 2: Custom Streak Reordering", () => {
+  it("reorders habits moving source to target and updates orderIndex", () => {
+    const habits: Habit[] = [
+      { ...createHabit({ name: "A", emoji: "1️⃣" }, TODAY), id: "a", orderIndex: 0 },
+      { ...createHabit({ name: "B", emoji: "2️⃣" }, TODAY), id: "b", orderIndex: 1 },
+      { ...createHabit({ name: "C", emoji: "3️⃣" }, TODAY), id: "c", orderIndex: 2 },
+    ];
+
+    // Move 'c' to index of 'a'
+    const reordered = reorderHabits(habits, "c", "a");
+    expect(reordered.map((h) => h.id)).toEqual(["c", "a", "b"]);
+    expect(reordered.map((h) => h.orderIndex)).toEqual([0, 1, 2]);
+  });
+
+  it("reorders habits by given list of IDs", () => {
+    const habits: Habit[] = [
+      { ...createHabit({ name: "A", emoji: "1️⃣" }, TODAY), id: "a" },
+      { ...createHabit({ name: "B", emoji: "2️⃣" }, TODAY), id: "b" },
+      { ...createHabit({ name: "C", emoji: "3️⃣" }, TODAY), id: "c" },
+    ];
+
+    const reordered = reorderHabitsByIds(habits, ["b", "c", "a"]);
+    expect(reordered.map((h) => h.id)).toEqual(["b", "c", "a"]);
+    expect(reordered.map((h) => h.orderIndex)).toEqual([0, 1, 2]);
+  });
+});
+
+describe("Phase 2: Backup Preview & Notes Roundtrip", () => {
+  it("inspects backup correctly returning stats and notes", () => {
+    const habits: Habit[] = [
+      { ...createHabit({ name: "Active Habit", emoji: "🔥" }, TODAY), id: "h1", completedDates: [TODAY] },
+      { ...createHabit({ name: "Archived Habit", emoji: "📦" }, TODAY), id: "h2", archivedAt: TODAY },
+    ];
+    const notes: StandaloneNote[] = [
+      {
+        id: "n1",
+        title: "Reflection",
+        content: "Good progress today",
+        createdAt: "2026-10-26T10:00:00Z",
+        updatedAt: "2026-10-26T10:00:00Z",
+        pinned: true,
+      },
+    ];
+
+    const backupFile = buildBackup(habits, DEFAULT_SETTINGS, new Date("2026-10-26T12:00:00Z"), notes);
+    const backupJson = JSON.stringify(backupFile);
+
+    const inspection = inspectBackup(backupJson, TODAY);
+    expect(inspection.preview.totalStreaks).toBe(2);
+    expect(inspection.preview.activeCount).toBe(1);
+    expect(inspection.preview.archivedCount).toBe(1);
+    expect(inspection.preview.totalCompletions).toBe(1);
+    expect(inspection.preview.notesCount).toBe(1);
+    expect(inspection.notes[0]?.title).toBe("Reflection");
+    expect(inspection.notes[0]?.pinned).toBe(true);
+  });
+});
+
+describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
+  it("evaluates daily habits as always due today when not paused", () => {
+    const h = createHabit({ name: "Daily Habit", emoji: "⚡" }, TODAY);
+    expect(isHabitDueToday(h, TODAY)).toBe(true);
+  });
+
+  it("evaluates specific_days frequency correctly", () => {
+    // 2026-10-26 is a Monday (UTC day 1)
+    const mondayHabit = {
+      ...createHabit({ name: "Gym", emoji: "🏋️" }, TODAY),
+      frequencyType: "specific_days" as const,
+      customDays: [1, 3, 5], // Mon, Wed, Fri
+    };
+    expect(isHabitDueToday(mondayHabit, "2026-10-26")).toBe(true); // Monday
+
+    // 2026-10-27 is Tuesday (UTC day 2)
+    expect(isHabitDueToday(mondayHabit, "2026-10-27")).toBe(false); // Tuesday
+  });
+
+  it("evaluates weekly_target frequency correctly", () => {
+    // Target: 2 days per week
+    const targetHabit = {
+      ...createHabit({ name: "Read Book", emoji: "📚" }, TODAY),
+      frequencyType: "weekly_target" as const,
+      targetDaysPerWeek: 2,
+      completedDates: ["2026-10-26"], // 1 completion in week of Mon 26 Oct
+    };
+    // 1 < 2, so it is still due later in the week
+    expect(isHabitDueToday(targetHabit, "2026-10-27")).toBe(true);
+
+    // If 2 completions exist in the week
+    const satisfied = {
+      ...targetHabit,
+      completedDates: ["2026-10-26", "2026-10-27"],
+    };
+    // Already met 2/2, so not strictly due on Wednesday unless user checks in
+    expect(isHabitDueToday(satisfied, "2026-10-28")).toBe(false);
+  });
+
+  it("never marks paused habits as due", () => {
+    const h = {
+      ...createHabit({ name: "Jogging", emoji: "🏃" }, TODAY),
+      isPaused: true,
+      pauseReason: "Resting knee",
+    };
+    expect(isHabitDueToday(h, TODAY)).toBe(false);
+  });
+
+  it("calculates calm milestones properly", () => {
+    expect(getMilestones(3).reached).toEqual([]);
+    expect(getMilestones(3).nextMilestone?.days).toBe(7);
+
+    const m7 = getMilestones(7);
+    expect(m7.reached.length).toBe(1);
+    expect(m7.reached[0]?.title).toBe("First Spark");
+    expect(m7.nextMilestone?.days).toBe(21);
+
+    const m100 = getMilestones(100);
+    expect(m100.reached.length).toBe(4); // 7, 21, 50, 100
+    expect(m100.nextMilestone?.days).toBe(365);
+  });
+
+  it("pauses and resumes habits cleanly preserving streak", () => {
+    const h = {
+      ...createHabit({ name: "Guitar", emoji: "🎸" }, TODAY),
+      currentStreak: 15,
+      bestStreak: 15,
+    };
+    const paused = pauseHabit(h, "Traveling abroad", TODAY);
+    expect(paused.isPaused).toBe(true);
+    expect(paused.pausedAt).toBe(TODAY);
+    expect(paused.pauseReason).toBe("Traveling abroad");
+    expect(paused.currentStreak).toBe(15);
+
+    const resumed = resumeHabit(paused, TODAY);
+    expect(resumed.isPaused).toBe(false);
+    expect(resumed.pausedAt).toBeNull();
+    expect(resumed.pauseReason).toBeUndefined();
+  });
+
+  it("applies weekly grace to forgive a missed yesterday", () => {
+    const h = createHabit({ name: "Drink Water", emoji: "💧" }, TODAY);
+    const withGrace = applyGrace(h, "weekly", TODAY);
+    expect(withGrace.completedDates).toContain("2026-10-25"); // yesterday
+    expect(withGrace.graceUsedThisWeek).toBe(true);
+  });
+
+  it("exports habits and notes to clean Markdown format", () => {
+    const h = {
+      ...createHabit({ name: "Morning Meditation", emoji: "🧘" }, "2026-10-01"),
+      currentStreak: 25,
+      bestStreak: 25,
+      category: "mindfulness",
+      notes: "Focus on breath",
+    };
+    const note: StandaloneNote = {
+      id: "note-1",
+      title: "Mindfulness Log",
+      content: "Feeling calmer this week.",
+      createdAt: TODAY,
+      updatedAt: TODAY,
+      pinned: true,
+    };
+    const md = exportToMarkdown([h], [note]);
+    expect(md).toContain("# 🌱 Daily Spark — Habit & Journal Export");
+    expect(md).toContain("### 🧘 Morning Meditation");
+    expect(md).toContain("Focus on breath");
+    expect(md).toContain("### 📌 Mindfulness Log");
+    expect(md).toContain("Feeling calmer this week.");
+  });
+});
+
+

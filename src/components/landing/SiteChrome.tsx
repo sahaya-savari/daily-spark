@@ -176,6 +176,13 @@ export function SiteHeader() {
           >
             Download
           </Link>
+          <Link
+            to="/app"
+            className={navLnk}
+            activeProps={{ className: "text-foreground bg-surface/90 shadow-sm font-semibold" }}
+          >
+            Web App
+          </Link>
         </nav>
 
         {/* Header Action Buttons */}
@@ -274,6 +281,18 @@ export function SiteHeader() {
                   <span>Download</span>
                 </span>
                 <span className="text-xs text-muted-foreground font-mono">04</span>
+              </Link>
+              <Link
+                to="/app"
+                onClick={() => closeMenu("route")}
+                className={menuItem}
+                activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
+              >
+                <span className="flex items-center gap-2">
+                  <SparkMark className="size-4 text-ember" />
+                  <span>Launch Web App</span>
+                </span>
+                <span className="text-xs text-muted-foreground font-mono">05</span>
               </Link>
               <a
                 href={SITE.repo}

@@ -1,5 +1,5 @@
 import { addDays, isValidKey, lastNDays } from "./dates";
-import { DEFAULT_SETTINGS, type Habit, type HabitSettings } from "./types";
+import { DEFAULT_SETTINGS, MILESTONES, type Habit, type HabitSettings, type MilestoneDef, type StandaloneNote } from "./types";
 
 /* ------------------------------------------------------------------ */
 /* Streak rules                                                        */
@@ -70,6 +70,33 @@ export function undoToday(habit: Habit, today: string): Habit {
   const next = refresh({ ...habit, completedDates, bestStreak: 0 }, today);
   // Best streak never drops below the longest run still in history.
   return { ...next, bestStreak: Math.max(longestStreak(completedDates), next.currentStreak) };
+}
+
+/**
+ * Safely toggle completion of any day (past or today).
+ * If dateStr is in completedDates, removes it.
+ * If not, adds it.
+ * Recalculates currentStreak, bestStreak, and lastCompletedDate deterministically.
+ */
+export function togglePastDay(habit: Habit, dateStr: string, today: string): Habit {
+  if (!isValidKey(dateStr) || dateStr > today) return habit;
+  const isCompleted = habit.completedDates.includes(dateStr);
+  const nextDates = isCompleted
+    ? habit.completedDates.filter((d) => d !== dateStr)
+    : [...habit.completedDates, dateStr];
+
+  const sortedDates = normalizeDates(nextDates);
+  const cur = currentStreak(sortedDates, today);
+  const longest = longestStreak(sortedDates);
+  const best = Math.max(isCompleted ? longest : (habit.bestStreak || 0), longest, cur);
+
+  return {
+    ...habit,
+    completedDates: sortedDates,
+    currentStreak: cur,
+    bestStreak: best,
+    lastCompletedDate: sortedDates.at(-1) ?? null,
+  };
 }
 
 export type HabitStatus = "done" | "pending" | "broken";
@@ -162,7 +189,155 @@ export function createHabit(
     isStarred: input.isStarred ?? false,
     archivedAt: null,
     listId: input.listId ?? "default",
+    notes: typeof input.notes === "string" ? input.notes.slice(0, 1000) : "",
+    category: typeof input.category === "string" && input.category.trim() ? input.category.trim() : undefined,
+    orderIndex: typeof input.orderIndex === "number" ? input.orderIndex : undefined,
+    isPaused: Boolean(input.isPaused),
+    pausedAt: input.pausedAt ?? null,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Reordering & Organization                                           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Reorders habits by moving the habit with sourceId to the index of targetId.
+ * Updates orderIndex on all habits in sequence.
+ */
+export function reorderHabits(habits: Habit[], sourceId: string, targetId: string): Habit[] {
+  if (sourceId === targetId) return habits;
+  const sourceIndex = habits.findIndex((h) => h.id === sourceId);
+  const targetIndex = habits.findIndex((h) => h.id === targetId);
+  if (sourceIndex === -1 || targetIndex === -1) return habits;
+
+  const result = [...habits];
+  const [removed] = result.splice(sourceIndex, 1);
+  if (!removed) return habits;
+  result.splice(targetIndex, 0, removed);
+
+  return result.map((h, idx) => ({ ...h, orderIndex: idx }));
+}
+
+/**
+ * Reorders habits according to an explicit array of IDs.
+ */
+export function reorderHabitsByIds(habits: Habit[], orderedIds: string[]): Habit[] {
+  const map = new Map(habits.map((h) => [h.id, h]));
+  const ordered: Habit[] = [];
+  for (const id of orderedIds) {
+    const item = map.get(id);
+    if (item) {
+      ordered.push(item);
+      map.delete(id);
+    }
+  }
+  for (const remaining of map.values()) {
+    ordered.push(remaining);
+  }
+  return ordered.map((h, idx) => ({ ...h, orderIndex: idx }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Data Integrity Check & Auto-Healing                                 */
+/* ------------------------------------------------------------------ */
+
+export interface IntegrityResult {
+  healed: Habit[];
+  issuesFound: number;
+}
+
+/**
+ * Startup Data Integrity Check & Auto-Healing.
+ * 1. Duplicate IDs: Assigns deterministic new IDs to duplicate entries.
+ * 2. Streak Counter Drift: Recalculates currentStreak and bestStreak using pure rules.
+ * 3. History Invariance: Ensures completedDates are unique, valid YYYY-MM-DD, sorted.
+ * 4. Safe Phase-2 Defaults: Populates notes, category, orderIndex, and pause flags.
+ */
+export function verifyAndHealIntegrity(habits: Habit[], today: string): IntegrityResult {
+  let issuesFound = 0;
+  const seenIds = new Set<string>();
+  const healed: Habit[] = [];
+
+  for (let i = 0; i < habits.length; i++) {
+    const raw = habits[i];
+    if (!raw || typeof raw !== "object") {
+      issuesFound++;
+      continue;
+    }
+
+    let habit = { ...raw };
+
+    // 1. ID check & deduplication
+    if (!habit.id || typeof habit.id !== "string" || !habit.id.trim()) {
+      habit.id = newId();
+      issuesFound++;
+    } else if (seenIds.has(habit.id)) {
+      habit.id = `${habit.id}-dup-${i + 1}`;
+      issuesFound++;
+    }
+    seenIds.add(habit.id);
+
+    // 2. Name sanity
+    if (!habit.name || typeof habit.name !== "string" || !habit.name.trim()) {
+      habit.name = "Untitled Habit";
+      issuesFound++;
+    }
+
+    // 3. History invariance: unique, valid YYYY-MM-DD strings, chronologically sorted
+    const rawDates = Array.isArray(habit.completedDates) ? habit.completedDates : [];
+    const normalized = normalizeDates(rawDates);
+    const datesChanged =
+      normalized.length !== rawDates.length ||
+      normalized.some((d, idx) => d !== rawDates[idx]);
+    if (datesChanged) {
+      issuesFound++;
+    }
+
+    // 4. Streak counter drift
+    const correctCurrent = currentStreak(normalized, today);
+    const longest = longestStreak(normalized);
+    const correctBest = Math.max(habit.bestStreak || 0, longest, correctCurrent);
+    const correctLastCompleted = normalized.at(-1) ?? null;
+
+    if (
+      habit.currentStreak !== correctCurrent ||
+      habit.bestStreak !== correctBest ||
+      habit.lastCompletedDate !== correctLastCompleted
+    ) {
+      issuesFound++;
+    }
+
+    const rawNotes = typeof habit.notes === "string" ? habit.notes : "";
+    const notes = rawNotes.slice(0, 1000);
+    if (typeof habit.notes !== "string" || habit.notes.length > 1000) {
+      issuesFound++;
+    }
+
+    const isPaused = Boolean(habit.isPaused);
+    if (habit.isPaused !== isPaused) {
+      issuesFound++;
+    }
+
+    habit = {
+      ...habit,
+      completedDates: normalized,
+      currentStreak: correctCurrent,
+      bestStreak: correctBest,
+      lastCompletedDate: correctLastCompleted,
+      isStarred: Boolean(habit.isStarred),
+      archivedAt: habit.archivedAt ?? null,
+      notes,
+      category: typeof habit.category === "string" ? habit.category : undefined,
+      orderIndex: typeof habit.orderIndex === "number" ? habit.orderIndex : i,
+      isPaused,
+      pausedAt: habit.pausedAt ?? null,
+    };
+
+    healed.push(habit);
+  }
+
+  return { healed, issuesFound };
 }
 
 /* ------------------------------------------------------------------ */
@@ -241,21 +416,32 @@ export interface BackupFile {
   version: string;
   exportDate: string;
   app: "daily-spark";
-  data: { streaks: Habit[]; settings: HabitSettings };
+  data: { streaks: Habit[]; settings: HabitSettings; notes?: StandaloneNote[] };
 }
 
-export function buildBackup(habits: Habit[], settings: HabitSettings, now = new Date()): BackupFile {
+export function buildBackup(
+  habits: Habit[],
+  settings: HabitSettings,
+  now = new Date(),
+  notes?: StandaloneNote[],
+): BackupFile {
   return {
     version: BACKUP_VERSION,
     exportDate: now.toISOString(),
     app: "daily-spark",
-    data: { streaks: habits, settings },
+    data: {
+      streaks: habits,
+      settings,
+      ...(notes && notes.length > 0 ? { notes } : {}),
+    },
   };
 }
 
 export interface ParsedBackup {
+  version?: string;
   habits: Habit[];
   settings: HabitSettings;
+  notes?: StandaloneNote[];
   skipped: number;
   exportDate: string | null;
 }
@@ -266,7 +452,7 @@ interface Raw {
   id?: unknown; name?: unknown; title?: unknown; emoji?: unknown; createdAt?: unknown;
   completedDates?: unknown; history?: unknown; archivedAt?: unknown; archived?: unknown;
   isStarred?: unknown; starred?: unknown; bestStreak?: unknown;
-  data?: unknown; streaks?: unknown; settings?: unknown; exportDate?: unknown;
+  data?: unknown; streaks?: unknown; settings?: unknown; exportDate?: unknown; notes?: unknown; version?: unknown;
   [k: string]: unknown;
 }
 
@@ -292,6 +478,12 @@ function normalizeHabit(raw: unknown, today: string): Habit | null {
   const { title: _t, history: _h, archived: _a, starred: _s, ...rest } = r;
   void _t; void _h; void _a; void _s;
 
+  const rawNotes = typeof r.notes === "string" ? r.notes.slice(0, 1000) : "";
+  const rawCategory = typeof r.category === "string" && r.category.trim() ? r.category.trim() : undefined;
+  const rawOrderIndex = typeof r.orderIndex === "number" ? r.orderIndex : undefined;
+  const rawIsPaused = Boolean(r.isPaused);
+  const rawPausedAt = typeof r.pausedAt === "string" && r.pausedAt ? r.pausedAt : null;
+
   const habit: Habit = {
     ...(rest as Partial<Habit>),
     id,
@@ -304,6 +496,11 @@ function normalizeHabit(raw: unknown, today: string): Habit | null {
     completedDates: dates,
     isStarred: r.isStarred === true || r.starred === true,
     archivedAt,
+    notes: rawNotes,
+    category: rawCategory,
+    orderIndex: rawOrderIndex,
+    isPaused: rawIsPaused,
+    pausedAt: rawPausedAt,
   };
   return refresh(habit, today);
 }
@@ -319,6 +516,8 @@ export function parseBackup(text: string, today: string): ParsedBackup {
   let streaks: unknown;
   let settings: unknown;
   let exportDate: unknown;
+  let notes: StandaloneNote[] | undefined;
+
   if (Array.isArray(json)) {
     streaks = json;
   } else if (json && typeof json === "object") {
@@ -327,6 +526,20 @@ export function parseBackup(text: string, today: string): ParsedBackup {
     streaks = data.streaks;
     settings = data.settings;
     exportDate = o.exportDate ?? data.exportDate;
+    const rawNotesList = Array.isArray(data.notes) ? data.notes : Array.isArray(o.notes) ? o.notes : undefined;
+    if (Array.isArray(rawNotesList)) {
+      notes = rawNotesList
+        .filter((n): n is Record<string, unknown> => Boolean(n && typeof n === "object"))
+        .map((n) => ({
+          id: typeof n.id === "string" && n.id.trim() ? n.id : `note-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          title: typeof n.title === "string" && n.title.trim() ? n.title.trim() : "Untitled Note",
+          content: typeof n.content === "string" ? n.content : "",
+          createdAt: typeof n.createdAt === "string" ? n.createdAt : today,
+          updatedAt: typeof n.updatedAt === "string" ? n.updatedAt : today,
+          pinned: Boolean(n.pinned),
+          color: typeof n.color === "string" ? n.color : undefined,
+        }));
+    }
   }
   if (!Array.isArray(streaks)) {
     throw new BackupError("No habits found in this file. Is it a Daily Spark backup?");
@@ -346,13 +559,55 @@ export function parseBackup(text: string, today: string): ParsedBackup {
   }
 
   return {
+    version: typeof (json as Raw)?.version === "string" ? ((json as Raw).version as string) : "1",
     habits,
     settings: {
       ...DEFAULT_SETTINGS,
       ...(settings && typeof settings === "object" ? (settings as Partial<HabitSettings>) : {}),
     },
+    notes,
     skipped,
     exportDate: typeof exportDate === "string" ? exportDate : null,
+  };
+}
+
+export interface BackupPreview {
+  version: string;
+  exportDate: string | null;
+  totalStreaks: number;
+  activeCount: number;
+  archivedCount: number;
+  totalCompletions: number;
+  notesCount: number;
+  settings: HabitSettings;
+}
+
+export interface BackupInspection {
+  parsed: ParsedBackup;
+  preview: BackupPreview;
+  notes: StandaloneNote[];
+}
+
+export function inspectBackup(text: string, today: string): BackupInspection {
+  const parsed = parseBackup(text, today);
+  const activeCount = parsed.habits.filter((h) => !isArchived(h)).length;
+  const archivedCount = parsed.habits.filter((h) => isArchived(h)).length;
+  const completions = totalCompletions(parsed.habits);
+  const notes = parsed.notes ?? [];
+
+  return {
+    parsed,
+    preview: {
+      version: parsed.version ?? "1",
+      exportDate: parsed.exportDate,
+      totalStreaks: parsed.habits.length,
+      activeCount,
+      archivedCount,
+      totalCompletions: completions,
+      notesCount: notes.length,
+      settings: parsed.settings,
+    },
+    notes,
   };
 }
 
@@ -424,7 +679,7 @@ export function parseCsvHabits(
 
   let nameIdx = headers.findIndex((h) => h === "name" || h === "title");
   let emojiIdx = headers.findIndex((h) => h === "emoji");
-  let startDateIdx = headers.findIndex((h) => h === "start_date" || h === "createdat" || h === "created_at");
+  const startDateIdx = headers.findIndex((h) => h === "start_date" || h === "createdat" || h === "created_at");
 
   if (nameIdx === -1) {
     nameIdx = 0;
@@ -471,3 +726,162 @@ export function parseCsvHabits(
     errors,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Phase 3: Flexible Frequencies, Milestones & Data Freedom           */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Checks whether a habit is scheduled / due on a specific calendar date (YYYY-MM-DD).
+ * Default is daily. Respects pause state, specific days of week, and weekly targets.
+ */
+export function isHabitDueToday(habit: Habit, dateKey: string): boolean {
+  if (habit.isPaused) return false;
+  if (!habit.frequencyType || habit.frequencyType === "daily") return true;
+
+  if (habit.frequencyType === "specific_days") {
+    if (!Array.isArray(habit.customDays) || habit.customDays.length === 0) return true;
+    const d = new Date(dateKey + "T12:00:00Z");
+    const dayOfWeek = d.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    return habit.customDays.includes(dayOfWeek);
+  }
+
+  if (habit.frequencyType === "weekly_target") {
+    // If already completed on this date, it's satisfied
+    if (habit.completedDates.includes(dateKey)) return true;
+    const target = habit.targetDaysPerWeek ?? 1;
+
+    // Calculate completions in current ISO week (Mon - Sun)
+    const d = new Date(dateKey + "T12:00:00Z");
+    const dayOfWeek = d.getUTCDay();
+    const monOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = addDays(dateKey, monOffset);
+    let completionsThisWeek = 0;
+    for (let i = 0; i < 7; i++) {
+      const day = addDays(monday, i);
+      if (habit.completedDates.includes(day)) {
+        completionsThisWeek++;
+      }
+    }
+    return completionsThisWeek < target;
+  }
+
+  return true;
+}
+
+/**
+ * Calculates calm milestones reached and the next upcoming milestone.
+ */
+export function getMilestones(streakCount: number): {
+  reached: MilestoneDef[];
+  nextMilestone: MilestoneDef | null;
+} {
+  const count = Math.max(0, streakCount);
+  const reached = MILESTONES.filter((m) => count >= m.days);
+  const nextMilestone = MILESTONES.find((m) => count < m.days) ?? null;
+  return { reached, nextMilestone };
+}
+
+/**
+ * Pauses a habit cleanly with an optional reason, preserving its current streak without penalty.
+ */
+export function pauseHabit(habit: Habit, reason?: string, today?: string): Habit {
+  return {
+    ...habit,
+    isPaused: true,
+    pausedAt: today ?? new Date().toISOString().slice(0, 10),
+    pauseReason: reason?.trim() || undefined,
+  };
+}
+
+/**
+ * Resumes a paused habit.
+ */
+export function resumeHabit(habit: Habit, today?: string): Habit {
+  const updated: Habit = {
+    ...habit,
+    isPaused: false,
+    pausedAt: null,
+    pauseReason: undefined,
+  };
+  return today ? refresh(updated, today) : updated;
+}
+
+/**
+ * Applies a weekly or monthly grace day to forgive a missed yesterday.
+ */
+export function applyGrace(habit: Habit, type: "weekly" | "monthly", today: string): Habit {
+  const yesterday = addDays(today, -1);
+  if (habit.completedDates.includes(yesterday)) {
+    return habit;
+  }
+  const updated = togglePastDay(habit, yesterday, today);
+  if (type === "weekly") {
+    return { ...updated, graceUsedThisWeek: true };
+  } else {
+    return { ...updated, graceUsedThisMonth: true };
+  }
+}
+
+/**
+ * Exports all habits, stats, and standalone notes as a clean, beautiful Markdown report.
+ */
+export function exportToMarkdown(habits: Habit[], notes: StandaloneNote[] = []): string {
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const lines: string[] = [
+    `# 🌱 Daily Spark — Habit & Journal Export`,
+    ``,
+    `> **Exported on:** ${dateStr}  `,
+    `> **Philosophy:** Offline-first, calm consistency, zero telemetry.`,
+    ``,
+    `---`,
+    ``,
+    `## 📊 Summary`,
+    `- **Total Habits:** ${habits.length}`,
+    `- **Active Habits:** ${habits.filter((h) => !isArchived(h)).length}`,
+    `- **Archived Habits:** ${habits.filter((h) => isArchived(h)).length}`,
+    `- **Total Historical Completions:** ${totalCompletions(habits)}`,
+    `- **Standalone Journal Notes:** ${notes.length}`,
+    ``,
+    `---`,
+    ``,
+    `## 🏃 Habits`,
+    ``,
+  ];
+
+  if (habits.length === 0) {
+    lines.push(`_No habits recorded yet._\n`);
+  } else {
+    for (const h of habits) {
+      const status = isArchived(h) ? "Archived" : h.isPaused ? "Paused" : "Active";
+      lines.push(`### ${h.emoji} ${h.name} (${status})`);
+      lines.push(`- **Current Streak:** ${h.currentStreak} days`);
+      lines.push(`- **Best Streak:** ${h.bestStreak} days`);
+      lines.push(`- **Created At:** ${h.createdAt}`);
+      lines.push(`- **Total Completions:** ${h.completedDates.length}`);
+      if (h.category) lines.push(`- **Category:** #${h.category}`);
+      if (h.frequencyType && h.frequencyType !== "daily") {
+        lines.push(`- **Frequency:** ${h.frequencyType}`);
+      }
+      if (h.notes) {
+        lines.push(`- **Habit Notes:**\n> ${h.notes.replace(/\n/g, "\n> ")}`);
+      }
+      lines.push(``);
+    }
+  }
+
+  if (notes.length > 0) {
+    lines.push(`---`, ``, `## 📝 Reflections & Journal Notes`, ``);
+    for (const n of notes) {
+      const pin = n.pinned ? "📌 " : "";
+      lines.push(`### ${pin}${n.title}`);
+      lines.push(`_Updated: ${n.updatedAt.slice(0, 10)}_`);
+      lines.push(``);
+      lines.push(n.content || `_No content._`);
+      lines.push(``);
+    }
+  }
+
+  return lines.join("\n");
+}
+

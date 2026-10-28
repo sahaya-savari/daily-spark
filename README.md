@@ -8,7 +8,7 @@ No login. No ads. No tracking. Just you and your progress.
 
 [![Release](https://img.shields.io/github/v/release/sahaya-savari/daily-spark?style=for-the-badge&label=Release&color=2ea44f)](https://github.com/sahaya-savari/daily-spark/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](#license--disclaimer)
-[![Phase-1](https://img.shields.io/badge/Phase--1-Stable%20%26%20Locked-success?style=for-the-badge)](#phase-1-status-locked)
+[![Status](https://img.shields.io/badge/Status-Stable%20%26%20Offline--First-success?style=for-the-badge)](#core-principles)
 [![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](#installation)
 
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
@@ -29,18 +29,20 @@ Built to be **quiet, stable, and honest** — not addictive.
 
 - [Overview](#overview)
 - [Core Principles](#core-principles)
-- [Core Features (Phase-1 Stable)](#core-features-phase-1-stable)
-  - [1. Daily Streak Tracking](#1-daily-streak-tracking)
-  - [2. Calendar View](#2-calendar-view-honest-progress)
-  - [3. Reminders](#3-reminders-optional--safe)
-  - [4. Backup & Restore](#4-backup--restore-important)
-  - [5. Offline-First & Data Safety](#5-offline-first--data-safety)
+- [Core Features](#core-features)
+  - [1. Daily Streak Tracking & Flexible Schedules](#1-daily-streak-tracking--flexible-schedules)
+  - [2. Calendar View (Honest Progress)](#2-calendar-view-honest-progress)
+  - [3. Notes & Distraction-Free Journal](#3-notes--distraction-free-journal)
+  - [4. Progress, Activity Heatmap & Milestones](#4-progress-activity-heatmap--milestones)
+  - [5. Reminders (Optional & Gentle)](#5-reminders-optional--gentle)
+  - [6. Backup, Restore & Data Freedom](#6-backup-restore--data-freedom)
+  - [7. Privacy & App Lock](#7-privacy--app-lock)
+  - [8. Offline-First & Data Safety](#8-offline-first--data-safety)
 - [What Daily Spark Does NOT Do](#what-daily-spark-does-not-do)
 - [Who This App Is For](#who-this-app-is-for)
 - [App Navigation](#app-navigation)
-- [Phase-1 Status (Locked)](#phase-1-status-locked)
-- [Phase-2 (Planned)](#phase-2-planned-not-yet-released)
-- [Backup Schema (Strict)](#backup-schema-strict)
+- [Product Architecture & Principles](#product-architecture--principles)
+- [Backup Schema & Data Format](#backup-schema--data-format)
 - [Installation](#installation)
 - [Technical Overview](#technical-overview-for-developers)
 - [Data Responsibility Notice](#data-responsibility-notice)
@@ -65,27 +67,29 @@ Daily Spark helps you build consistency by tracking **one action per day, per ha
 
 ---
 
-## Core Features (Phase-1 Stable)
+## Core Features
 
-### 1. Daily Streak Tracking
+### 1. Daily Streak Tracking & Flexible Schedules
 
-Create streaks for any habit or task. Each streak can be completed once per calendar day.
+Create streaks for any habit, daily routine, or weekly practice.
 
 **You can:**
 
-- ✏️ Create streaks with custom names & emojis
-- ✅ Complete a streak once per calendar day
+- ✏️ Create habits with custom names, line icons, emojis, and color swatches
+- 📅 Pick schedules: **Daily**, **Weekly Target** (e.g. 3x/week), or **Selected Days** (e.g. Mon, Wed, Fri)
+- ✅ Complete a streak with one tap (tactile haptic feedback on mobile)
 - ↩️ Undo today's completion (mistake-friendly)
-- ⭐ Star important streaks
-- 📦 Move streaks between **Active** and **Archived**
-- 🗑️ Edit or delete streaks anytime
+- 🌟 Star important habits to pin them to the top
+- ⏸️ Vacation / Pause mode to freeze streaks without penalty during travel or illness
+- 📦 Move habits between **Active** and **Archived**
+- 🗑️ Edit, reorder, or delete habits anytime
 
 **Design rules:**
 
 - One completion per day
 - No over-counting
 - No punishment for breaks
-- Calm recovery mindset (24-hour grace period)
+- 24-hour grace recovery allowance (weekly & monthly grace)
 
 ---
 
@@ -101,101 +105,81 @@ Visualize your consistency over time. Each day shows a completion ratio (e.g. `2
 | 🟢 Green | All completed (perfect day) |
 | 🔵 Blue ring | Today |
 
-No fake achievements. Just clarity.
-
-> [!TIP]
-> Still have questions? Check the [FAQ](./FAQ.md).
+Tap any day to see the exact breakdown of completed habits and review historical check-ins.
 
 ---
 
-### 3. Reminders (Optional & Safe)
+### 3. Notes & Distraction-Free Journal
+
+Keep thoughts, triggers, and daily reflections close to your habits.
+
+- 📝 **Per-Habit Notes:** Record personal guidelines, triggers, or book notes directly on any habit (up to 1,000 characters). Auto-saved offline.
+- 📓 **Standalone Journal:** Calm, markdown-friendly scratchpad for daily reflections, study logs, or goal setting. Instant search, color swatches, and pin-to-top.
+
+---
+
+### 4. Progress, Activity Heatmap & Milestones
+
+Honest analytics built for self-reflection, not dopamine addiction.
+
+- 📊 **Consistency Rates:** 7-day, 30-day, and all-time completion percentages
+- 🟩 **6-Month Heatmap:** GitHub-style activity grid showing your real check-in volume
+- 🏆 **Calm Milestones:** Quiet recognition for consistency milestones (7 Days · 21 Days · 50 Days · 100 Days · 365 Days) without loud or flashing confetti
+
+---
+
+### 5. Reminders (Optional & Gentle)
 
 Gentle reminders — only if you want them.
 
-- Enable per streak
-- Choose time & days of the week
-- Disable anytime (or turn off all notifications in Settings)
-- App never crashes if permission is denied
+- Enable per habit
+- Choose specific times & days
+- Reschedule or snooze (30m, 1h, tomorrow 9am)
+- Fails safely: app never crashes if permission is denied
 
-Notifications are **optional**, not forced.
+Notifications are **strictly optional**, never nagging.
 
 ---
 
-### 4. Backup & Restore (IMPORTANT)
+### 6. Backup, Restore & Data Freedom (IMPORTANT)
 
 > [!IMPORTANT]
 > Daily Spark stores everything locally. **Export a JSON backup regularly** — it is the only way to fully restore your data.
 
-#### JSON Backup — Full Restore
+#### Full JSON Backup & Pre-Validation Restore
 
-Use JSON backups to **fully protect your data**.
+- **Full export:** All habits, streak counters, history dates, per-habit notes, and standalone journal entries.
+- **Inspect Before Restore:** Daily Spark features an inspection dialog previewing file version, streak counts, completions, and settings *before* applying.
+- **Auto Rolling Snapshots:** Automated rolling 7-day local backups saved to device storage.
 
-**Includes:** all streaks · full completion history · reminder settings · star/archive status
+#### CSV Import & Export
 
-**When to use:**
+- Export habits as CSV for spreadsheets.
+- Bulk import new habit ideas via CSV (`name,emoji` format).
 
-- Before switching phones
-- Before resetting your device
-- Before reinstalling the app
-- Regularly (weekly or monthly recommended)
+#### Markdown Summary Export
 
-**How to export:**
-
-1. Go to **Settings → Backup & Restore**
-2. Tap **Export Full Backup (JSON)**
-3. Save via the Android Share Sheet (Drive, Files, WhatsApp, etc.)
-
-**How to restore:** Settings → **Restore from JSON**, then select your file.
-
-Filenames are timestamped, e.g. `daily_spark_backup_2026-02-08_21-45.json`
-
-#### CSV Import — Add New Streaks Only
-
-CSV is for **bulk adding new streak ideas**.
-
-- Starts at Day 1 (no history)
-- Never overwrites existing streaks
-- Adds only new entries
-
-**CSV format:**
-
-```csv
-name,emoji
-Morning Jog,🏃
-Read 30 mins,📚
-Drink Water,💧
-Meditate,🧘
-```
-
-**How to import:**
-
-1. Go to **Settings → Backup & Restore**
-2. Tap **Import from CSV**
-3. Select your CSV file
-4. New streaks are added to your Active list
-
-#### JSON vs CSV at a glance
-
-| | JSON Backup | CSV Import |
-|---|---|---|
-| **Purpose** | Restore your entire app | Add new streak ideas in bulk |
-| **Streaks** | All, with settings | New entries only |
-| **History** | ✅ Full completion history | ❌ None (starts at Day 1) |
-| **Overwrites existing data** | Restores from backup | Never |
-
-> [!TIP]
-> Still have questions? Check the [FAQ](./FAQ.md).
+- Export your complete habit status, metrics, and journal entries as a clean, beautiful Markdown report for Obsidian, Notion, or personal archives.
 
 ---
 
-### 5. Offline-First & Data Safety
+### 7. Privacy & App Lock
+
+Protect your private habits and reflections on shared devices:
+
+- 🔒 4-digit PIN protection hashed locally with SHA-256 via Web Crypto API
+- ⏳ Automatic 5-minute inactivity timeout & lock on backgrounding
+- 📲 Native biometric unlock (fingerprint / face) supported on mobile
+
+---
+
+### 8. Offline-First & Data Safety
 
 Daily Spark uses **local storage only**. Your data never leaves your phone.
 
-- Works without internet
+- Works 100% without internet
 - No cloud service needed
 - No account or login required
-- App updates should not reset your data
 - You own your data completely
 
 ---
@@ -205,12 +189,12 @@ Daily Spark uses **local storage only**. Your data never leaves your phone.
 These are intentionally missing to keep the app simple and calm:
 
 - No AI coaching
-- No gamification or achievements
-- No social sharing
+- No gamification or forced competitions
+- No social sharing or public profiles
 - No leaderboards
 - No forced reminders
-- No animations or celebrations
-- No data syncing
+- No addictive confetti animations
+- No third-party data tracking
 
 **Why?** Focus on consistency and calm usage, not addiction or comparison.
 
@@ -223,7 +207,7 @@ These are intentionally missing to keep the app simple and calm:
 | Students building study habits | People who want cloud sync across multiple devices |
 | Developers tracking daily coding or exercise | People who need social competition or leaderboards |
 | Anyone building habits quietly | People who want AI-powered coaching |
-| Minimalists who dislike noisy productivity apps | People who want heavy analytics and charts |
+| Minimalists who dislike noisy productivity apps | People who want heavy corporate tracking |
 | People who prefer local control over cloud services | |
 | People wanting honest feedback, not false achievements | |
 
@@ -235,46 +219,25 @@ For legal details, see → [Terms](./TERMS.md)
 
 | Screen | What it does |
 |---|---|
-| **Home** | Daily streak list with today's completion status. Tap the button to complete a streak. |
-| **Streaks** | Add, edit, move between Active/Archived, or delete streaks. |
-| **Calendar** | Monthly completion history. |
-| **Settings** | Notifications, reminders, backup & restore, app info. |
+| **Today** | Daily check-in list, 1-tap completions, today focus mode, and next-up card. |
+| **Habits & Journal** | Manage habits, search & filter, bulk actions, reordering, and offline journal notes. |
+| **Progress** | Consistency percentages, 6-month activity heatmap, and calm milestone badges. |
+| **Calendar** | Monthly completion history, day ratios, and historical review. |
+| **Settings** | Backup & restore, CSV/Markdown export, app PIN lock, gentle reminders, and themes. |
 
 ---
 
-## Phase-1 Status (Locked)
+## Product Architecture & Principles
 
-Phase-1 is **fully complete and stable**. All planned features have been implemented, tested on real devices, and released publicly.
+Daily Spark is engineered around a single invariant: **Zero cloud dependency, zero data lock-in, and 100% local user ownership.**
 
-No additional features will be added to Phase-1. Only critical bug fixes or data-safety fixes are allowed.
-
-### Not Included in Phase-1 (By Design)
-
-- Home-screen widgets
-- Cloud sync / login
-- Notes per streak
-- Charts or analytics
-- Editing past dates
-- Cross-device sync
-
-> [!NOTE]
-> These are **not bugs**. They are reserved for **Phase-2**.
+- **Backward Compatibility:** All backup files and localStorage structures remain 100% compatible across versions.
+- **Strictly Offline:** Zero remote tracking, zero telemetry, zero background network calls.
+- **Data Auto-Healing:** Startup data integrity checks automatically heal ID drifts or corrupted objects into local recovery stashes.
 
 ---
 
-## Phase-2 (Planned, Not Yet Released)
-
-**Planned features:**
-
-- Simple notes per streak (optional)
-- Additional notification customization
-- UX refinements based on user feedback
-
-**Promise:** Phase-2 will be 100% backward compatible. Your streaks and history are safe.
-
----
-
-## Backup Schema (Strict)
+## Backup Schema & Data Format
 
 > [!WARNING]
 > The Phase-1 backup schema is **strict**. Invalid backups may load partially but block individual streak pages.
