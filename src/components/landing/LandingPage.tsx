@@ -186,13 +186,13 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <DiaTextReveal
                   text="Keep going."
                   delay={0.48}
-                  textColor="oklch(0.755 0.135 52.1)"
+                  textColor="oklch(0.740 0.139 51.5)"
                   colors={[
-                    "oklch(0.755 0.135 52.1)",
-                    "oklch(0.68 0.12 50)",
-                    "oklch(0.978 0.004 56.4)",
-                    "oklch(0.66 0.11 52)",
-                    "oklch(0.755 0.135 52.1)",
+                    "oklch(0.740 0.139 51.5)",
+                    "oklch(0.680 0.125 50.0)",
+                    "oklch(0.780 0.142 53.0)",
+                    "oklch(0.710 0.130 51.0)",
+                    "oklch(0.740 0.139 51.5)",
                   ]}
                 />
               </span>

@@ -35,6 +35,17 @@ import {
   QrCode,
   ShieldAlert,
 } from "lucide-react";
+import {
+  PixelHome,
+  PixelCheckList,
+  PixelPlus,
+  PixelChart,
+  PixelSettings,
+  PixelCalendar,
+  PixelFire,
+  PixelStar,
+  PixelCheck,
+} from "@/components/ui/pixel-icon";
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App as CapacitorApp } from "@capacitor/app";
@@ -139,6 +150,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
   const [activeTab, setActiveTab] = useState<number>(0);
   const [subTab, setSubTab] = useState<"habits" | "notes">("habits");
+  const [progressSubTab, setProgressSubTab] = useState<"overview" | "calendar">("overview");
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 
   // Filter state for Habits tab
@@ -605,22 +617,36 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     <div
       className={cn(
         "relative w-full bg-background font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
-        embedded ? "h-[680px] overflow-hidden select-none" : "min-h-screen pb-28"
+        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen pb-28"
       )}
     >
+      {embedded && (
+        <div className="flex h-11 items-center justify-between px-6 text-[13px] font-semibold select-none pt-2 shrink-0">
+          <span>9:41</span>
+          <span className="flex items-center gap-1.5">
+            <span className="flex items-end gap-[2px]">
+              {[4, 6, 8, 10].map((x) => (
+                <i key={x} className="w-[3px] rounded-[1px] bg-foreground" style={{ height: x }} />
+              ))}
+            </span>
+            <span className="h-[11px] w-[22px] rounded-[3px] border border-foreground/70 p-[1.5px]">
+              <i className="block h-full w-3/4 rounded-[1px] bg-foreground" />
+            </span>
+          </span>
+        </div>
+      )}
       {/* Top Header Bar */}
       <header
         className={cn(
-          "sticky top-0 z-30 flex items-center justify-between border-b border-border/40 bg-surface/85 px-4 backdrop-blur-md shrink-0",
-          embedded ? "pt-10 pb-2 h-20" : "h-14"
+          "sticky top-0 z-30 flex items-center justify-between border-b border-border/40 bg-surface/85 px-4 backdrop-blur-md shrink-0 h-14"
         )}
       >
         <div className="flex items-center gap-2.5">
           <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember shadow-sm">
-            <Flame className="size-4" />
+            <PixelFire className="size-4 text-ember" />
           </span>
           <div>
-            <h1 className="font-display text-[15px] font-bold leading-none tracking-tight">Daily Spark</h1>
+            <h1 className="font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
             <p className="text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
           </div>
         </div>
@@ -680,7 +706,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
           {progressStats.globalStreak > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember ml-1">
-              <Flame className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}
+              <PixelFire className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}
             </span>
           )}
 
@@ -1046,14 +1072,70 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         )}
 
         {/* ============================================================== */}
-        {/* TAB 2: PROGRESS & INSIGHTS                                     */}
+        {/* TAB 2: PROGRESS & ANALYTICS                                    */}
         {/* ============================================================== */}
         {activeTab === 2 && (
           <div className="space-y-4">
-            <div>
-              <p className="kicker">Insights</p>
-              <p className="font-display text-[22px] font-bold leading-tight">Progress &amp; Activity</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="kicker">Progress &amp; Analytics</p>
+                <p className="font-display text-[22px] font-bold leading-tight">
+                  {progressSubTab === "overview" ? "Insights & Momentum" : formatMonthYear(currentMonthDate)}
+                </p>
+              </div>
+
+              {progressSubTab === "calendar" && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setCurrentMonthDate((prev) => addMonths(prev, -1))}
+                    className="size-8 rounded-full"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setCurrentMonthDate((prev) => addMonths(prev, 1))}
+                    className="size-8 rounded-full"
+                  >
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </div>
+              )}
             </div>
+
+            {/* Segmented Switcher: Overview vs Calendar */}
+            <div className="flex rounded-full bg-surface p-1">
+              <button
+                type="button"
+                onClick={() => setProgressSubTab("overview")}
+                className={cn(
+                  "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+                  progressSubTab === "overview"
+                    ? "bg-surface-2 text-foreground shadow-sm"
+                    : "text-faint hover:text-muted-foreground"
+                )}
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                onClick={() => setProgressSubTab("calendar")}
+                className={cn(
+                  "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+                  progressSubTab === "calendar"
+                    ? "bg-surface-2 text-ember shadow-sm"
+                    : "text-faint hover:text-muted-foreground"
+                )}
+              >
+                Calendar
+              </button>
+            </div>
+
+            {progressSubTab === "overview" ? (
+              <div className="space-y-4">
 
             {/* 4 Metric Cards */}
             <div className="grid grid-cols-2 gap-2.5">
@@ -1247,41 +1329,8 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
             </div>
           </div>
-        )}
-
-        {/* ============================================================== */}
-        {/* TAB 3: CALENDAR                                                */}
-        {/* ============================================================== */}
-        {activeTab === 3 && (
+        ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="kicker">Calendar</p>
-                <p className="font-display text-[22px] font-bold leading-tight">
-                  {formatMonthYear(currentMonthDate)}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentMonthDate((prev) => addMonths(prev, -1))}
-                  className="size-8 rounded-full"
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentMonthDate((prev) => addMonths(prev, 1))}
-                  className="size-8 rounded-full"
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
-              </div>
-            </div>
-
             {/* Monthly Calendar Grid */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4">
               <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
@@ -1407,16 +1456,18 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             </div>
           </div>
         )}
+      </div>
+    )}
 
-        {/* ============================================================== */}
-        {/* TAB 4: SETTINGS                                                */}
-        {/* ============================================================== */}
-        {activeTab === 4 && (
-          <div className="space-y-4">
-            <div>
-              <p className="kicker">Settings</p>
-              <p className="font-display text-[22px] font-bold leading-tight">Preferences &amp; Backups</p>
-            </div>
+    {/* ============================================================== */}
+    {/* TAB 3: SETTINGS                                                */}
+    {/* ============================================================== */}
+    {activeTab === 3 && (
+      <div className="space-y-4">
+        <div>
+          <p className="kicker">Settings</p>
+          <p className="font-display text-[22px] font-bold leading-tight">Preferences &amp; Backups</p>
+        </div>
 
             {/* Tri-Modal Appearance & Solar Circadian Engine */}
             <AppearanceSwitcher />
@@ -1692,7 +1743,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           )}
         >
           <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 0 && "bg-ember-soft")}>
-            <House className="size-4" />
+            <PixelHome className="size-4" />
           </span>
           Today
         </Button>
@@ -1706,7 +1757,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           )}
         >
           <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 1 && "bg-ember-soft")}>
-            <ListChecks className="size-4" />
+            <PixelCheckList className="size-4" />
           </span>
           Habits
         </Button>
@@ -1716,10 +1767,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="fab"
           size="fab"
           onClick={() => setIsAddOpen(true)}
-          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-background shadow-[0_4px_16px_oklch(0.755_0.135_52.1_/_35%)] border border-ember/30 hover:brightness-110 mx-1 flex items-center justify-center"
+          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_16px_oklch(0.74_0.139_51.5_/_35%)] border border-ember/30 hover:brightness-110 mx-1 flex items-center justify-center p-0"
           aria-label="Add new habit"
         >
-          <Plus className="size-6" strokeWidth={2.5} />
+          <PixelPlus className="size-6 text-white" />
         </Button>
 
         <Button
@@ -1731,7 +1782,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           )}
         >
           <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 2 && "bg-ember-soft")}>
-            <ChartColumn className="size-4" />
+            <PixelChart className="size-4" />
           </span>
           Progress
         </Button>
@@ -1745,21 +1796,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           )}
         >
           <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 3 && "bg-ember-soft")}>
-            <CalendarIcon className="size-4" />
-          </span>
-          Calendar
-        </Button>
-
-        <Button
-          variant="ghost"
-          onClick={() => setActiveTab(4)}
-          className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[10px] font-semibold transition-colors",
-            activeTab === 4 ? "text-ember font-bold" : "text-faint hover:text-foreground"
-          )}
-        >
-          <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 4 && "bg-ember-soft")}>
-            <Settings2 className="size-4" />
+            <PixelSettings className="size-4" />
           </span>
           Settings
         </Button>

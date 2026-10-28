@@ -32,6 +32,18 @@ import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitS
 import { type BackupInspection, createHabit } from "@/lib/habits/logic";
 import { DEFAULT_SETTINGS } from "@/lib/habits/types";
 import { DailySparkApp } from "@/components/app/DailySparkApp";
+import {
+  PixelHome,
+  PixelCheckList,
+  PixelPlus,
+  PixelChart,
+  PixelSettings,
+  PixelCalendar,
+  PixelFire,
+  PixelStar,
+  PixelCheck,
+  PixelLock,
+} from "@/components/ui/pixel-icon";
 
 /*
  * Landing-page demo. Screens are laid out at 390×844 (a real phone) and
@@ -120,9 +132,9 @@ export function Device({ children, tilt }: { children: React.ReactNode; tilt?: {
       className="bezel relative w-[285px] sm:w-[310px] max-w-[calc(100vw-2rem)] rounded-[38px] p-2.5 transition-transform duration-500 shadow-2xl"
       style={{ transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined }}
     >
-      <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
-      <span className="absolute -left-[3px] top-[162px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
-      <span className="absolute -right-[3px] top-[148px] h-[54px] w-[3px] rounded-[3px] bg-border-hi" />
+      <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-neutral-700/80 border-r border-black/40" />
+      <span className="absolute -left-[3px] top-[162px] h-[38px] w-[3px] rounded-[3px] bg-neutral-700/80 border-r border-black/40" />
+      <span className="absolute -right-[3px] top-[148px] h-[54px] w-[3px] rounded-[3px] bg-neutral-700/80 border-l border-black/40" />
       <div ref={innerRef} className="relative overflow-hidden rounded-[33px] shadow-[inset_0_0_0_1px_oklch(1_0_0/5%)]">
         <span className="pointer-events-none absolute left-1/2 top-2.5 z-40 h-[17px] w-[66px] -translate-x-1/2 rounded-xl bg-background shadow-[inset_0_0_0_1px_oklch(1_0_0/6%)]" />
         <Scaled width={innerWidth}>{children}</Scaled>
@@ -152,11 +164,11 @@ export function MiniPhone({ children }: { children: React.ReactNode }) {
 /* ------------------------------------------------------------------ */
 
 const NAV = [
-  { label: "Today", Icon: House },
-  { label: "Habits", Icon: ListChecks },
+  { label: "Today", Icon: PixelHome },
+  { label: "Habits", Icon: PixelCheckList },
   null,
-  { label: "Progress", Icon: ChartColumn },
-  { label: "Settings", Icon: Settings2 },
+  { label: "Progress", Icon: PixelChart },
+  { label: "Settings", Icon: PixelSettings },
 ] as const;
 
 const NavCtx = createContext<((i: number) => void) | undefined>(undefined);
@@ -213,9 +225,9 @@ function Screen({
               onClick={() => onNav?.(5)}
               variant="fab"
               size="fab"
-              className="size-14 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-background shadow-[0_4px_18px_oklch(0.755_0.135_52.1_/_35%)] border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0"
+              className="size-14 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_18px_oklch(0.68_0.12_50_/_35%)] border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0"
             >
-              <Plus className="size-6 text-background" strokeWidth={2.8} />
+              <PixelPlus className="size-6 text-white" />
             </Button>
           ) : (
             <Button variant="ghost"
@@ -229,7 +241,7 @@ function Screen({
                 active === i ? "text-ember" : "text-faint",
               )}
             >
-              <span className={cn("grid h-8 w-12 place-items-center rounded-full", active === i && "bg-ember-soft")}><n.Icon className="size-5" strokeWidth={active === i ? 2.3 : 2} /></span>
+              <span className={cn("grid h-8 w-12 place-items-center rounded-full", active === i && "bg-ember-soft")}><n.Icon className="size-5" /></span>
               <span className="text-[9.5px] font-semibold">{n.label}</span>
             </Button>
           ),
@@ -278,7 +290,7 @@ export function HomeScreen({
           <p className="text-[19px] font-extrabold">Monday 26 Oct</p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-[11px] py-1.5 text-xs font-semibold text-ember">
-          <Flame className="size-3.5" /> 18
+          <PixelFire className="size-3.5" /> 18
         </span>
       </div>
 
@@ -295,10 +307,10 @@ export function HomeScreen({
           onClick={() => next && onToggle?.(next.id)}
           className={cn(
             "mt-4 flex h-[52px] w-full items-center justify-center gap-2 rounded-full text-[15px] font-extrabold transition-transform active:scale-[0.975]",
-            next ? "bg-primary text-primary-foreground" : "bg-surface-2 text-faint",
+            next ? "bg-primary text-primary-foreground font-bold shadow-sm" : "bg-surface-2 text-faint",
           )}
         >
-          <Check className="size-4" strokeWidth={3} /> {next ? "Check in" : "See you tomorrow"}
+          <PixelCheck className="size-4" /> {next ? "Check in" : "See you tomorrow"}
         </Button>
       </div>
 
@@ -312,11 +324,11 @@ export function HomeScreen({
                 <span
                   className={cn(
                     "grid size-[30px] place-items-center rounded-full",
-                    full ? "bg-primary text-primary-foreground" : (week[i] ?? 0) > 0 ? "bg-ember-soft text-ember" : "bg-surface-2",
+                    full ? "bg-primary text-primary-foreground font-bold" : (week[i] ?? 0) > 0 ? "bg-ember-soft text-ember" : "bg-surface-2",
                     i === 0 && !full && "shadow-[inset_0_0_0_2px_var(--ember)]",
                   )}
                 >
-                  {full ? <Check className="size-3.5" strokeWidth={3} /> : <span className="text-[10px] font-extrabold">{week[i]}</span>}
+                  {full ? <PixelCheck className="size-3.5" /> : <span className="text-[10px] font-extrabold">{week[i]}</span>}
                 </span>
               </div>
             );
@@ -333,10 +345,10 @@ export function HomeScreen({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <p className={cn("break-words font-mono text-[14px] font-semibold", x.done && "text-muted-foreground")}>{x.name}</p>
-                  {x.starred && <Star className="size-3.5 fill-gold text-gold shrink-0" />}
+                  {x.starred && <PixelStar className="size-3.5 fill-gold text-gold shrink-0" />}
                 </div>
                 <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
-                  <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
+                  <PixelFire className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
                 </p>
                 <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
                   <div className={cn("h-full rounded-full bg-gradient-to-r from-ember to-heat-4 transition-[width] duration-500", x.done ? "w-full" : "w-0")} />
@@ -353,7 +365,7 @@ export function HomeScreen({
                   x.done ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-surface-2 text-faint",
                 )}
               >
-                <Check className="size-4" strokeWidth={3} />
+                <PixelCheck className="size-4" />
               </Button>
             </div>
           ))}
@@ -368,7 +380,7 @@ export function HomeScreen({
       >
         <div className="flex items-center gap-3">
           <span className="grid size-8 place-items-center rounded-lg bg-ember-soft text-ember">
-            <Flame className="size-4" />
+            <PixelFire className="size-4" />
           </span>
           <div>
             <p className="kicker text-[10px]">Overview</p>
@@ -440,13 +452,13 @@ export function ProgressScreen({ onNav }: { onNav?: ((i: number) => void) | unde
 
 export function CalendarScreen() {
   const sampleRatios = [
-    { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 },
-    { done: 2, total: 4 }, { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 },
-    { done: 4, total: 4 }, { done: 1, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 },
-    { done: 3, total: 4 }, { done: 4, total: 4 }, { done: 0, total: 4 }, { done: 4, total: 4 },
-    { done: 4, total: 4 }, { done: 2, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 },
-    { done: 3, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 }, { done: 1, total: 4 },
-    { done: 4, total: 4 }, { done: 2, total: 4 },
+    { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 2, total: 4 }, { done: 4, total: 4 },
+    { done: 1, total: 4 }, { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 },
+    { done: 0, total: 4 }, { done: 2, total: 4 }, { done: 4, total: 4 }, { done: 3, total: 4 },
+    { done: 4, total: 4 }, { done: 4, total: 4 }, { done: 1, total: 4 }, { done: 3, total: 4 },
+    { done: 4, total: 4 }, { done: 2, total: 4 }, { done: 4, total: 4 }, { done: 3, total: 4 },
+    { done: 4, total: 4 }, { done: 1, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 },
+    { done: 2, total: 4 }, { done: 2, total: 4 },
   ];
 
   return (
@@ -471,7 +483,7 @@ export function CalendarScreen() {
             if (!isFuture && ratio && ratio.done > 0) {
               const pct = ratio.done / ratio.total;
               if (pct === 1) heatClass = "bg-primary text-primary-foreground font-bold";
-              else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-bold";
+              else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-medium";
               else if (pct >= 0.3) heatClass = "bg-heat-2 text-foreground font-medium";
               else heatClass = "bg-heat-1 text-foreground";
             }
@@ -662,7 +674,7 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
               }}
               className="w-full text-xs gap-1.5 font-semibold text-ember border-ember/20 hover:bg-ember/10"
             >
-              <Check className="size-3.5 text-ember" strokeWidth={3} /> Complete Missed Yesterday (+1 Streak)
+              <PixelCheck className="size-3.5 text-ember" /> Complete Missed Yesterday (+1 Streak)
             </Button>
           </Card>
 
@@ -754,11 +766,11 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <p className="break-words font-mono text-[14px] font-semibold">{x.name}</p>
-                        {x.starred && <Star className="size-3 fill-gold text-gold shrink-0" />}
+                        {x.starred && <PixelStar className="size-3 fill-gold text-gold shrink-0" />}
                         {x.archived && <span className="text-[10px] text-faint border px-1 rounded">Archived</span>}
                       </div>
                       <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
-                        <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
+                        <PixelFire className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
                         {x.category && <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">#{x.category}</span>}
                       </p>
                     </div>
@@ -863,7 +875,7 @@ export function SettingsScreen() {
       </div>
 
       {/* Backup Safety Alert matching DailySparkApp */}
-      <div className="rounded-2xl border border-ember/30 bg-ember-soft p-3 flex items-start gap-2.5 text-xs text-muted-foreground">
+      <div className="rounded-2xl border border-border/80 bg-surface-2 p-3 flex items-start gap-2.5 text-xs text-muted-foreground">
         <ShieldAlert className="size-4 shrink-0 text-ember mt-0.5" />
         <p>
           <strong className="font-semibold text-foreground">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
@@ -922,7 +934,7 @@ export function SettingsScreen() {
           className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-surface-2 transition-colors"
         >
           <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-            <Lock className="size-4" />
+            <PixelLock className="size-4" />
           </span>
           <div className="flex-1">
             <p className="text-[14px] font-bold">App Lock &amp; PIN</p>
@@ -966,7 +978,7 @@ export function SettingsScreen() {
           <div className="flex items-center justify-between border-t border-border/30 pt-2.5">
             <div className="flex items-center gap-2.5">
               <span className="grid size-8 place-items-center rounded-xl bg-surface-2 text-ember">
-                <Flame className="size-4" />
+                <PixelFire className="size-4" />
               </span>
               <div>
                 <p className="text-[13px] font-bold">Today Focus Mode</p>
