@@ -559,3 +559,52 @@
   65% { transform: scale(1.2) rotate(5deg); }
   100% { transform: scale(1) rotate(0); }
 }
+
+/* Tri-Modal Appearance & Solar Circadian Theme Styles */
+.theme-classic {
+  --background: #121316;
+  --surface: #1C1E22;
+  --surface-2: #25282F;
+  --card: #1C1E22;
+  --foreground: #F5F2EB;
+  --muted-foreground: #A8A398;
+  --primary: #D97706;
+  --ember: #D97706;
+  --radius: 14px;
+}
+
+.theme-minimal {
+  --background: #000000;
+  --surface: #0D0D0D;
+  --surface-2: #171717;
+  --card: #0D0D0D;
+  --foreground: #FFFFFF;
+  --muted-foreground: #71717A;
+  --primary: #FF5722;
+  --ember: #FF5722;
+  --radius: 4px;
+}
+
+.theme-expressive {
+  --background: #06050C;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-2: rgba(255, 255, 255, 0.09);
+  --card: rgba(255, 255, 255, 0.05);
+  --foreground: #F1F5F9;
+  --muted-foreground: #94A3B8;
+  --primary: #06B6D4;
+  --ember: #06B6D4;
+  --radius: 24px;
+}
+
+/* Circadian Amber Overlay */
+:root[style*="--circadian-amber-tint"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--circadian-amber-tint, transparent);
+  mix-blend-mode: multiply;
+  z-index: 9999;
+}
+

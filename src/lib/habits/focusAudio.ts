@@ -3,7 +3,9 @@
  * 0 KB asset overhead, 100% offline-first, $0 server cost.
  */
 
-export type SoundscapeType = "none" | "brown" | "rain";
+import { binauralEngine, type BinauralWaveType } from "./binaural";
+
+export type SoundscapeType = "none" | "brown" | "rain" | BinauralWaveType;
 
 class FocusAudioManager {
   private ctx: AudioContext | null = null;
@@ -104,6 +106,11 @@ class FocusAudioManager {
     this.stopSoundscape();
     if (type === "none") return;
 
+    if (type === "alpha" || type === "theta" || type === "beta") {
+      binauralEngine.play(type, volume);
+      return;
+    }
+
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -124,6 +131,7 @@ class FocusAudioManager {
    * Stops active procedural soundscape.
    */
   public stopSoundscape(): void {
+    binauralEngine.stop();
     if (this.currentSource) {
       try {
         this.currentSource.disconnect();
@@ -170,6 +178,7 @@ class FocusAudioManager {
 
   public setMuted(muted: boolean): void {
     this.isMuted = muted;
+    binauralEngine.setMuted(muted);
     if (this.gainNode && this.ctx) {
       this.gainNode.gain.setValueAtTime(muted ? 0 : 0.5, this.ctx.currentTime);
     }

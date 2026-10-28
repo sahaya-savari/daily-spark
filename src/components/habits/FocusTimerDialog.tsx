@@ -254,6 +254,36 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               Silent
             </button>
             <button
+              onClick={() => setSoundscape("alpha")}
+              className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
+                soundscape === "alpha"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 font-medium"
+                  : "bg-white/5 text-white/60 hover:bg-white/10"
+              }`}
+            >
+              <Radio className="w-3 h-3" /> Alpha 10Hz
+            </button>
+            <button
+              onClick={() => setSoundscape("theta")}
+              className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
+                soundscape === "theta"
+                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-medium"
+                  : "bg-white/5 text-white/60 hover:bg-white/10"
+              }`}
+            >
+              <Radio className="w-3 h-3" /> Theta 6Hz
+            </button>
+            <button
+              onClick={() => setSoundscape("beta")}
+              className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
+                soundscape === "beta"
+                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-medium"
+                  : "bg-white/5 text-white/60 hover:bg-white/10"
+              }`}
+            >
+              <Radio className="w-3 h-3" /> Beta 18Hz
+            </button>
+            <button
               onClick={() => setSoundscape("brown")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "brown"

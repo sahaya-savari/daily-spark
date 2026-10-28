@@ -31,6 +31,9 @@ import {
   Trash2,
   Upload,
   X,
+  Trophy,
+  QrCode,
+  ShieldAlert,
 } from "lucide-react";
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -83,6 +86,16 @@ import { UniversalImportDialog } from "@/components/habits/UniversalImportDialog
 import { CircadianAnalyticsDialog } from "@/components/habits/CircadianAnalyticsDialog";
 import { VaultSyncDialog } from "@/components/habits/VaultSyncDialog";
 import { VoxelIsland } from "@/components/habits/VoxelIsland";
+import { AppearanceSwitcher } from "@/components/habits/AppearanceSwitcher";
+import { AirGappedSyncDialog } from "@/components/habits/AirGappedSyncDialog";
+import { ShareCardDialog } from "@/components/habits/ShareCardDialog";
+import { getAtRiskHabits, getMiniRecoveryPrompt } from "@/lib/habits/elastic";
+import { predictNextHabit } from "@/lib/habits/markovPredictor";
+import { generateFrictionDiagnostics } from "@/lib/habits/bottleneckDetector";
+import { generateArchaeologyReport } from "@/lib/habits/archaeology";
+import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
+import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
+import { hapticEngine } from "@/lib/habits/haptics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -119,6 +132,11 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     habitActions.seedDemoIfEmpty();
   }, []);
 
+  useEffect(() => {
+    const warmth = settings.solarCircadianGlide !== false ? calculateCircadianWarmth() : 0;
+    applyThemeToDocument(settings.themeMode || getStoredTheme(), warmth);
+  }, [settings.themeMode, settings.solarCircadianGlide]);
+
   const [activeTab, setActiveTab] = useState<number>(0);
   const [subTab, setSubTab] = useState<"habits" | "notes">("habits");
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
@@ -132,6 +150,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
   // Today Focus state
   const [todayFocus, setTodayFocus] = useState<boolean>(false);
+  const [lastCheckedHabitId, setLastCheckedHabitId] = useState<string | null>(null);
 
   // Dialogs
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -146,6 +165,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   const [isUniversalImportOpen, setIsUniversalImportOpen] = useState(false);
   const [isCircadianOpen, setIsCircadianOpen] = useState(false);
   const [isVaultSyncOpen, setIsVaultSyncOpen] = useState(false);
+  // Phase 6 & 7 Dialogs
+  const [isAirGappedOpen, setIsAirGappedOpen] = useState(false);
+  const [isShareCardOpen, setIsShareCardOpen] = useState(false);
 
   // Calendar month state
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
@@ -161,6 +183,8 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     isAddOpen,
     isBackupPreviewOpen,
     isAppLockDialogOpen,
+    isAirGappedOpen,
+    isShareCardOpen,
     activeTab,
   });
 
@@ -172,6 +196,8 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       isAddOpen,
       isBackupPreviewOpen,
       isAppLockDialogOpen,
+      isAirGappedOpen,
+      isShareCardOpen,
       activeTab,
     };
   });
@@ -198,6 +224,14 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         }
         if (s.isAddOpen) {
           setIsAddOpen(false);
+          return;
+        }
+        if (s.isAirGappedOpen) {
+          setIsAirGappedOpen(false);
+          return;
+        }
+        if (s.isShareCardOpen) {
+          setIsShareCardOpen(false);
           return;
         }
         if (s.isBackupPreviewOpen) {
@@ -290,9 +324,24 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
   // Check-in toggle handler
   const handleToggleHabit = (id: string) => {
-    triggerLightHaptic();
+    hapticEngine.crescendoPulse();
+    setLastCheckedHabitId(id);
     habitActions.toggleToday(id);
   };
+
+  // Phase 6 & 7 computed metrics
+  const atRiskHabits = useMemo(() => getAtRiskHabits(habits, today), [habits, today]);
+  const markovSuggestion = useMemo(() => {
+    if (lastCheckedHabitId) {
+      return predictNextHabit(lastCheckedHabitId, habits, today);
+    }
+    if (nextHabit) {
+      return predictNextHabit(nextHabit.id, habits, today);
+    }
+    return null;
+  }, [lastCheckedHabitId, nextHabit, habits, today]);
+  const frictionAnomalies = useMemo(() => generateFrictionDiagnostics(habits, today), [habits, today]);
+  const archaeology = useMemo(() => generateArchaeologyReport(habits), [habits]);
 
   // Export full JSON backup
   const handleExportBackup = async () => {
@@ -596,6 +645,24 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             <ShieldCheck className="size-4 text-emerald-400" />
           </button>
 
+          <button
+            type="button"
+            onClick={() => setIsAirGappedOpen(true)}
+            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+            title="Air-Gapped Optical QR Handshake"
+          >
+            <QrCode className="size-4 text-purple-400" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsShareCardOpen(true)}
+            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+            title="Vector Milestone Share Card"
+          >
+            <Trophy className="size-4 text-amber-400" />
+          </button>
+
           {progressStats.globalStreak > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember ml-1">
               <Flame className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}
@@ -673,6 +740,55 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 </Button>
               )}
             </div>
+
+            {/* The Two-Day Rule & Never Miss Twice Safety Cushion */}
+            {atRiskHabits.length > 0 && (
+              <div className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-2">
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                  <ShieldAlert className="size-4" /> The Two-Day Rule: Save Your Streak
+                </div>
+                <p className="text-xs text-foreground/80 leading-relaxed">
+                  You missed yesterday on <span className="font-bold text-foreground">{atRiskHabits[0].name}</span>. Missing two days breaks habit momentum. Complete a low-friction Mini target today to protect your spark:
+                </p>
+                <div className="flex items-center justify-between pt-1">
+                  <p className="text-xs font-semibold text-amber-300">
+                    {getMiniRecoveryPrompt(atRiskHabits[0])}
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => handleToggleHabit(atRiskHabits[0].id)}
+                    className="h-8 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs px-3 shadow-sm"
+                  >
+                    Save Streak
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* On-Device Markov Routine Suggestion */}
+            {markovSuggestion && (
+              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="text-base">{markovSuggestion.emoji}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-purple-300 truncate">
+                      Next Spark: {markovSuggestion.habitName}
+                    </p>
+                    <p className="text-[11px] text-faint truncate">
+                      {markovSuggestion.reason}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleToggleHabit(markovSuggestion.habitId)}
+                  className="h-7 rounded-full text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 text-[11px] font-bold px-2.5 shrink-0"
+                >
+                  Check In
+                </Button>
+              </div>
+            )}
 
             {/* Mini 7-Day Consistency Bar */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4">
@@ -1013,6 +1129,81 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
             </div>
 
+            {/* Milestone Archaeology & Historical Retrospective */}
+            <div className="rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-surface to-surface p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="kicker">Milestone Archaeology</p>
+                  <p className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                    <Trophy className="size-4 text-amber-400" /> Historical Retrospective
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setIsShareCardOpen(true)}
+                  className="h-8 rounded-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-1.5"
+                >
+                  <Share2 className="size-3.5" /> Share Card
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-3 rounded-2xl bg-surface-2/70 border border-border/30">
+                  <p className="text-[11px] text-faint">All-Time Longest Run</p>
+                  <p className="text-lg font-bold font-mono text-amber-400 mt-0.5">
+                    {archaeology.longestRun ? `${archaeology.longestRun.streakLength} Days` : "None yet"}
+                  </p>
+                  <p className="text-[10px] text-faint truncate">
+                    {archaeology.longestRun ? `${archaeology.longestRun.habitName}` : "Start a streak today"}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-surface-2/70 border border-border/30">
+                  <p className="text-[11px] text-faint">Comeback Resilience</p>
+                  <p className="text-lg font-bold font-mono text-emerald-400 mt-0.5">
+                    {archaeology.resilienceScore}%
+                  </p>
+                  <p className="text-[10px] text-faint">
+                    {archaeology.totalMissedDayRecoveries} 1-day recoveries
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Friction Bottleneck Diagnostics */}
+            <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <p className="text-[15px] font-bold">Friction Bottlenecks</p>
+                <span className="text-[11px] font-medium text-faint">Offline Diagnostic</span>
+              </div>
+
+              {frictionAnomalies.length === 0 ? (
+                <div className="p-3 rounded-2xl bg-surface-2/60 border border-border/30 text-xs text-muted-foreground">
+                  <p className="font-semibold text-foreground">Zero Friction Anomalies</p>
+                  <p className="text-[11px] text-faint mt-0.5">
+                    Your routines show steady consistency across all days of the week.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {frictionAnomalies.slice(0, 2).map((a, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-400">{a.title}</span>
+                        <span className="text-[10px] uppercase font-bold text-amber-500/80">{a.severity}</span>
+                      </div>
+                      <p className="text-foreground/80 text-[11px]">{a.detail}</p>
+                      <p className="text-amber-300 font-medium text-[11px] pt-0.5">💡 {a.recommendation}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Per-Habit Consistency Bars */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4">
               <p className="mb-3 text-[15px] font-bold">Habit Consistency</p>
@@ -1180,6 +1371,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               <p className="font-display text-[22px] font-bold leading-tight">Preferences &amp; Backups</p>
             </div>
 
+            {/* Tri-Modal Appearance & Solar Circadian Engine */}
+            <AppearanceSwitcher />
+
             {/* Backup & Restore Card */}
             <div>
               <p className="kicker mb-2">Data &amp; Backups</p>
@@ -1272,6 +1466,36 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Zero-Cloud Encrypted Vault &amp; BYOC</p>
                     <p className="text-xs text-faint">AES-GCM-256 encrypted vault &amp; Google Drive AppData sync</p>
+                  </div>
+                  <ChevronRight className="size-4 text-faint" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAirGappedOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
+                >
+                  <span className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
+                    <QrCode className="size-4" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">Air-Gapped Optical QR Vault Handshake</p>
+                    <p className="text-xs text-faint">100% offline device-to-device migration via sequential animated QR codes</p>
+                  </div>
+                  <ChevronRight className="size-4 text-faint" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsShareCardOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
+                >
+                  <span className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-500">
+                    <Trophy className="size-4" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">Vector Milestone Share Card (1080x1920)</p>
+                    <p className="text-xs text-faint">Spotify-Wrapped style visual story export for stories &amp; social</p>
                   </div>
                   <ChevronRight className="size-4 text-faint" />
                 </button>
@@ -1575,6 +1799,18 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         onSyncComplete={(merged) => {
           habitActions.replaceAll(merged, settings);
         }}
+      />
+
+      {/* Air-Gapped Optical QR Handshake Dialog */}
+      <AirGappedSyncDialog
+        open={isAirGappedOpen}
+        onOpenChange={setIsAirGappedOpen}
+      />
+
+      {/* Spotify-Wrapped Style Share Card Dialog */}
+      <ShareCardDialog
+        open={isShareCardOpen}
+        onOpenChange={setIsShareCardOpen}
       />
     </div>
   );

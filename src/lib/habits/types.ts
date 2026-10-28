@@ -48,7 +48,18 @@ export interface Habit {
   // Phase 5 additions
   completionTimes?: Record<string, string> | undefined; // dateKey -> ISO string or HH:MM
   totalFocusMinutes?: number | undefined;
+  // Phase 6 & 7 additions
+  elasticTargets?: ElasticTargets | undefined;
+  cueText?: string | undefined;
+  afterHabitId?: string | undefined;
   [extra: string]: unknown;
+}
+
+export interface ElasticTargets {
+  mini: number;
+  plus: number;
+  elite: number;
+  unit?: string | undefined;
 }
 
 export interface RelapseEntry {
@@ -93,6 +104,8 @@ export interface HabitSettings {
   respectDND?: boolean | undefined;
   preTaskReminderOffsetMinutes?: number | undefined;
   autoBackupHistoryEnabled?: boolean | undefined;
+  themeMode?: "classic" | "minimal" | "expressive" | undefined;
+  solarCircadianGlide?: boolean | undefined;
   [extra: string]: unknown;
 }
 
@@ -102,6 +115,8 @@ export const DEFAULT_SETTINGS: HabitSettings = {
   respectDND: true,
   preTaskReminderOffsetMinutes: 5,
   autoBackupHistoryEnabled: true,
+  themeMode: "classic",
+  solarCircadianGlide: true,
 };
 
 export const COLOR_OPTIONS = [

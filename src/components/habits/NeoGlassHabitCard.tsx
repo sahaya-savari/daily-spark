@@ -15,13 +15,16 @@ import {
   CheckCircle2,
   Circle,
 } from "lucide-react";
-import { calculateHabitStrength } from "@/lib/habits/strength";
+import { calculateHabitStrength, isNeutralOn } from "@/lib/habits/strength";
 import { getQuantProgress, getQuickAddOptions } from "@/lib/habits/quantitative";
 import { calculateCleanStreak, calculateMoneySaved } from "@/lib/habits/avoid";
 import { getSubtaskProgress, isSubtaskCompleted } from "@/lib/habits/subtasks";
-import { isNeutralOn } from "@/lib/habits/strength";
 import { HabitIcon } from "@/lib/habits/icons";
 import { COLOR_SWATCH, type Habit } from "@/lib/habits/types";
+import { getElasticProgress } from "@/lib/habits/elastic";
+import { ElasticProgressRing } from "./ElasticProgressRing";
+import { formatCueAnchor } from "@/lib/habits/cueAnchor";
+import { hapticEngine } from "@/lib/habits/haptics";
 
 interface NeoGlassHabitCardProps {
   habit: Habit;
@@ -74,6 +77,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
   const hasSubtasks = habit.subtasks && habit.subtasks.length > 0;
 
   const accentColor = (habit.color && COLOR_SWATCH[habit.color]) || "#38BDF8";
+  const elasticProgress = getElasticProgress(habit, today);
 
   return (
     <div
@@ -116,6 +120,12 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 </span>
               )}
             </div>
+
+            {habit.cueText && (
+              <p className="text-[11px] text-amber-400/90 font-medium truncate mt-0.5">
+                ⚓ After {habit.cueText}
+              </p>
+            )}
 
             <div className="flex items-center gap-3 mt-1 text-xs text-white/50">
               {kind === "avoid" ? (
@@ -239,9 +249,12 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 </span>
               )}
             </span>
-            <span className="font-mono text-cyan-400 font-semibold">
-              {quantProgress.totalPercent}%
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-mono text-cyan-400 font-semibold">
+                {quantProgress.totalPercent}%
+              </span>
+              <ElasticProgressRing progress={elasticProgress} size={28} strokeWidth={2.5} showBadge={false} />
+            </div>
           </div>
 
           {/* Segmented Futuristic Progress Bar */}
@@ -271,7 +284,10 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
             {quickChips.map((amount) => (
               <button
                 key={amount}
-                onClick={() => onQuantIncrement(habit.id, amount)}
+                onClick={() => {
+                  hapticEngine.tickTap();
+                  onQuantIncrement(habit.id, amount);
+                }}
                 className="px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/15 text-[11px] font-medium text-white/80 hover:text-white border border-white/5 transition-all flex items-center gap-0.5"
               >
                 <Plus className="w-3 h-3 text-cyan-400" />
@@ -279,7 +295,10 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               </button>
             ))}
             <button
-              onClick={() => onQuantIncrement(habit.id, -(quickChips[0] || 1))}
+              onClick={() => {
+                hapticEngine.tickTap();
+                onQuantIncrement(habit.id, -(quickChips[0] || 1));
+              }}
               disabled={currentQuant <= 0}
               className="px-2 py-1 rounded-xl bg-white/5 hover:bg-white/15 text-[11px] text-white/50 hover:text-white border border-white/5 transition-all disabled:opacity-30 ml-auto"
               title="Undo last step"
@@ -317,7 +336,10 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 return (
                   <button
                     key={sub.id}
-                    onClick={() => onToggleSubtask(habit.id, sub.id)}
+                    onClick={() => {
+                      hapticEngine.doubleClack();
+                      onToggleSubtask(habit.id, sub.id);
+                    }}
                     className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] text-left transition-all"
                   >
                     {done ? (
