@@ -176,13 +176,6 @@ export function SiteHeader() {
           >
             Download
           </Link>
-          <Link
-            to="/app"
-            className={navLnk}
-            activeProps={{ className: "text-foreground bg-surface/90 shadow-sm font-semibold" }}
-          >
-            Web App
-          </Link>
         </nav>
 
         {/* Header Action Buttons */}
@@ -190,10 +183,10 @@ export function SiteHeader() {
           <a
             href={SITE.apk.url}
             download={SITE.apk.filename}
-            className="inline-flex h-11 items-center gap-1 sm:h-auto sm:gap-1.5 rounded-full cta-solid px-2.5 sm:px-3.5 sm:py-1.5 text-[11px] sm:text-xs font-semibold transition-all hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3 py-1.5 text-xs font-semibold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
           >
-            <Download className="size-3 sm:size-3.5 shrink-0" />
-            <span><span className="hidden sm:inline">Download </span>APK</span>
+            <Download className="size-3.5 shrink-0" />
+            <span>APK <span className="text-[10px] opacity-75 font-mono">{SITE.apk.version}</span></span>
           </a>
 
           <a
@@ -212,15 +205,15 @@ export function SiteHeader() {
             ref={toggleRef}
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="grid size-11 place-items-center rounded-full border border-white/20 bg-surface-2/90 text-foreground shadow-sm transition-all hover:border-ember/50 hover:text-ember active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember lg:hidden shrink-0"
+            className="grid size-9 place-items-center rounded-full border border-white/20 bg-surface-2/90 text-foreground shadow-sm transition-all hover:border-ember/50 hover:text-ember active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember lg:hidden shrink-0"
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
           >
             {mobileMenuOpen ? (
-              <X className="size-5 text-ember stroke-[2.2]" />
+              <X className="size-4.5 text-ember stroke-[2.2]" />
             ) : (
-              <Menu className="size-5 text-foreground stroke-[2.2]" />
+              <Menu className="size-4.5 text-foreground stroke-[2.2]" />
             )}
           </button>
         </div>
@@ -281,18 +274,6 @@ export function SiteHeader() {
                   <span>Download</span>
                 </span>
                 <span className="text-xs text-muted-foreground font-mono">04</span>
-              </Link>
-              <Link
-                to="/app"
-                onClick={() => closeMenu("route")}
-                className={menuItem}
-                activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
-              >
-                <span className="flex items-center gap-2">
-                  <SparkMark className="size-4 text-ember" />
-                  <span>Launch Web App</span>
-                </span>
-                <span className="text-xs text-muted-foreground font-mono">05</span>
               </Link>
               <a
                 href={SITE.repo}

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useRouter } from "@tanstack/react-router";
+import { useLocation, useRouter } from "@tanstack/react-router";
 import {
   Download,
   Github,
-  Globe,
   UserX,
   WifiOff,
   Bug,
@@ -343,9 +342,15 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </p>
           </div>
           <div className="min-w-0 w-full">
-            <div className="flex flex-wrap justify-start gap-2 sm:gap-2.5 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
               {NOT_DOING.map((t) => (
-                <Pill key={t}>{t}</Pill>
+                <div
+                  key={t}
+                  className="glass-pill flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-foreground/90 transition-all hover:bg-surface-2"
+                >
+                  <span className="size-2 rounded-full bg-ember shadow-xs shadow-ember/50 shrink-0" aria-hidden="true" />
+                  <span>{t}</span>
+                </div>
               ))}
             </div>
           </div>
@@ -399,20 +404,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                   </span>
                 </span>
               </a>
-              <Link
-                to="/app"
-                className="glass-pill inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
-              >
-                <Globe aria-hidden="true" />
-                <span className="leading-none">
-                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-ember">
-                    Web App
-                  </span>
-                  <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide">
-                    Launch in Browser
-                  </span>
-                </span>
-              </Link>
               <a
                 href={SITE.releases}
                 target="_blank"
@@ -467,11 +458,3 @@ function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: str
   );
 }
 
-function Pill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="glass-pill inline-flex items-center gap-2 rounded-full px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-medium text-foreground/90 transition-all hover:scale-[1.02]">
-      <span className="size-1.5 rounded-full bg-ember shadow-sm shadow-ember/50" aria-hidden="true" />
-      {children}
-    </span>
-  );
-}

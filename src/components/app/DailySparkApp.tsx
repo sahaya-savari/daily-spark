@@ -1233,7 +1233,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                       </div>
                       <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
                         <div
-                          className="h-full bg-ember rounded-full transition-all duration-500"
+                          className="h-full bg-gradient-to-r from-ember to-amber-400 rounded-full transition-all duration-500"
                           style={{ width: `${Math.max(5, pct)}%` }}
                         />
                       </div>
@@ -1345,7 +1345,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   <span>1–2/x — Few completions</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="size-3 rounded bg-heat-2 border border-border/30" />
+                  <span className="size-3 rounded bg-heat-3 border border-border/30" />
                   <span>3–4/x — Most completions</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1712,7 +1712,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="fab"
           size="fab"
           onClick={() => setIsAddOpen(true)}
-          className="size-12 shrink-0 rounded-full bg-ember text-white shadow-md hover:bg-ember/90 mx-1 flex items-center justify-center"
+          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-amber-400 text-background shadow-[0_4px_16px_oklch(0.755_0.135_52.1_/_40%)] border border-amber-300/30 hover:brightness-110 mx-1 flex items-center justify-center"
           aria-label="Add new habit"
         >
           <Plus className="size-6" strokeWidth={2.5} />

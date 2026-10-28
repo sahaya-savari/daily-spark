@@ -1,5 +1,6 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { DailySparkApp } from "@/components/app/DailySparkApp";
 import { siteUrl } from "@/lib/site";
 
 const title = "Daily Spark - Calm, offline habit tracker";
@@ -7,16 +8,20 @@ const description =
   "Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK.";
 const socialTitle = "Daily Spark - Show up. Tick it. Keep going.";
 
+export function RootPage() {
+  const isNative =
+    typeof window !== "undefined" &&
+    (Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
+     Boolean((window as unknown as { androidBridge?: unknown }).androidBridge));
+
+  if (isNative) {
+    return <DailySparkApp />;
+  }
+
+  return <LandingPage />;
+}
+
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    if (
-      typeof window !== "undefined" &&
-      (Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
-       Boolean((window as unknown as { androidBridge?: unknown }).androidBridge))
-    ) {
-      throw redirect({ to: "/app" });
-    }
-  },
   head: () => ({
     meta: [
       { title },
@@ -31,5 +36,5 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: siteUrl("/") }],
   }),
-  component: () => <LandingPage />,
+  component: RootPage,
 });

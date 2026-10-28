@@ -5,6 +5,7 @@ import {
   Check,
   ChartColumn,
   ChevronRight,
+  Clock,
   Download,
   Flame,
   House,
@@ -12,6 +13,8 @@ import {
   Lock,
   Plus,
   Settings2,
+  ShieldAlert,
+  Sparkles,
   Star,
   Trash2,
   Upload,
@@ -208,9 +211,11 @@ function Screen({
               aria-hidden={onNav ? undefined : true}
               aria-label="Add habit"
               onClick={() => onNav?.(5)}
-              variant="fab" size="fab" className="shrink-0"
+              variant="fab"
+              size="fab"
+              className="size-14 shrink-0 rounded-full bg-gradient-to-tr from-ember to-amber-400 text-background shadow-[0_4px_18px_oklch(0.755_0.135_52.1_/_45%)] border border-amber-300/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0"
             >
-              <Plus className="size-6" strokeWidth={2.6} />
+              <Plus className="size-6 text-background" strokeWidth={2.8} />
             </Button>
           ) : (
             <Button variant="ghost"
@@ -326,11 +331,16 @@ export function HomeScreen({
             <div key={x.id} className="flex items-center gap-3 rounded-3xl bg-surface p-4">
               <HabitIcon habit={h(x)} />
               <div className="min-w-0 flex-1">
-                <p className={cn("break-words font-mono text-[14px] font-semibold", x.done && "text-muted-foreground")}>{x.name}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className={cn("break-words font-mono text-[14px] font-semibold", x.done && "text-muted-foreground")}>{x.name}</p>
+                  {x.starred && <Star className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />}
+                </div>
                 <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
                   <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
                 </p>
-                <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2"><div className={cn("h-full rounded-full bg-ember transition-[width] duration-500", x.done ? "w-full" : "w-0")} /></div>
+                <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
+                  <div className={cn("h-full rounded-full bg-gradient-to-r from-ember to-amber-400 transition-[width] duration-500", x.done ? "w-full" : "w-0")} />
+                </div>
               </div>
               <Button variant="ghost"
                 type="button"
@@ -413,8 +423,11 @@ export function ProgressScreen({ onNav }: { onNav?: ((i: number) => void) | unde
                   <span>{x.name}</span>
                   <span className="text-muted-foreground">{[94, 100, 63, 40][i]}%</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-heat-0">
-                  <div className="h-full rounded-full bg-ember" style={{ width: `${[94, 100, 63, 40][i]}%` }} />
+                <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-ember to-amber-400"
+                    style={{ width: `${[94, 100, 63, 40][i]}%` }}
+                  />
                 </div>
               </div>
             </div>
@@ -426,7 +439,16 @@ export function ProgressScreen({ onNav }: { onNav?: ((i: number) => void) | unde
 }
 
 export function CalendarScreen() {
-  const lv = seeded(31, 3);
+  const sampleRatios = [
+    { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 },
+    { done: 2, total: 4 }, { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 },
+    { done: 4, total: 4 }, { done: 1, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 },
+    { done: 3, total: 4 }, { done: 4, total: 4 }, { done: 0, total: 4 }, { done: 4, total: 4 },
+    { done: 4, total: 4 }, { done: 2, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 },
+    { done: 3, total: 4 }, { done: 4, total: 4 }, { done: 4, total: 4 }, { done: 1, total: 4 },
+    { done: 4, total: 4 }, { done: 2, total: 4 },
+  ];
+
   return (
     <Screen active={3}>
       <div>
@@ -442,23 +464,65 @@ export function CalendarScreen() {
           {[0, 1, 2].map((i) => <span key={`e${i}`} />)}
           {Array.from({ length: 31 }, (_, i) => {
             const d = i + 1;
-            const l = d > 26 ? -1 : (lv[i] ?? 0);
+            const isFuture = d > 26;
+            const isToday = d === 26;
+            const ratio = !isFuture ? (sampleRatios[i] ?? { done: 0, total: 4 }) : null;
+            let heatClass = "bg-surface-2 text-faint";
+            if (!isFuture && ratio && ratio.done > 0) {
+              const pct = ratio.done / ratio.total;
+              if (pct === 1) heatClass = "bg-primary text-primary-foreground font-bold";
+              else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-bold";
+              else if (pct >= 0.3) heatClass = "bg-heat-2 text-foreground font-medium";
+              else heatClass = "bg-heat-1 text-foreground";
+            }
             return (
-              <span
+              <div
                 key={d}
                 className={cn(
-                  "grid aspect-square place-items-center rounded-[10px] text-[12px] font-bold",
-                  l < 0 ? "text-faint-dim" : ["bg-heat-0", "bg-heat-1", "bg-heat-2", "bg-heat-3", "bg-heat-4"][l],
-                  l >= 3 && "text-primary-foreground",
-                  d === 26 && "shadow-[inset_0_0_0_2px_var(--ember)]",
+                  "flex flex-col items-center justify-center aspect-square rounded-[10px] p-0.5 text-[11px] transition-all",
+                  isFuture ? "text-faint-dim bg-surface-2/40" : heatClass,
+                  isToday && "ring-2 ring-ember shadow-sm scale-105",
                 )}
               >
-                {d}
-              </span>
+                <span className="font-bold leading-none">{d}</span>
+                {!isFuture && ratio ? (
+                  <span className="text-[8.5px] font-medium opacity-85 leading-none mt-0.5">
+                    {ratio.done}/{ratio.total}
+                  </span>
+                ) : null}
+              </div>
             );
           })}
         </div>
       </Card>
+
+      {/* Calendar Legend Card matching DailySparkApp */}
+      <Card className="p-3.5 space-y-2">
+        <p className="font-semibold text-xs text-foreground">Legend</p>
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded bg-surface-2 border border-border/40" />
+            <span>0/x — No completions</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded bg-heat-1 border border-border/30" />
+            <span>1–2/x — Few completions</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded bg-heat-3 border border-border/30" />
+            <span>3–4/x — Most completions</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded bg-primary" />
+            <span>x/x — All completed</span>
+          </div>
+          <div className="flex items-center gap-1.5 col-span-2">
+            <span className="size-2.5 rounded ring-2 ring-ember bg-transparent" />
+            <span>Today</span>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid grid-cols-[1fr_auto] gap-[11px]">
         <Card>
           <p className="kicker">Mon 26 Oct</p>
@@ -798,6 +862,14 @@ export function SettingsScreen() {
         <p className="font-display text-[26px] font-bold leading-tight">Settings</p>
       </div>
 
+      {/* Backup Safety Alert matching DailySparkApp */}
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 flex items-start gap-2.5 text-xs text-amber-200">
+        <ShieldAlert className="size-4 shrink-0 text-amber-400 mt-0.5" />
+        <p>
+          <strong className="font-semibold text-amber-300">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
+        </p>
+      </div>
+
       <div>
         <p className="kicker mb-2.5">Your data &amp; Backups</p>
         <Card className="px-4 py-1">
@@ -862,20 +934,53 @@ export function SettingsScreen() {
 
       <div>
         <p className="kicker mb-2.5">Reminders</p>
-        <Card className="flex items-center gap-3 px-4 py-3">
-          <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-            <Bell className="size-4" />
-          </span>
-          <span className="flex-1 text-[14px] font-bold">Gentle reminders</span>
-          <span className="h-5 w-9 rounded-full bg-primary p-0.5">
-            <i className="ml-auto block size-4 rounded-full bg-background" />
-          </span>
+        <Card className="p-3.5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember">
+                <Bell className="size-4" />
+              </span>
+              <div>
+                <p className="text-[13px] font-bold">Daily Reminders</p>
+                <p className="text-[11px] text-faint">Get reminded to complete streaks</p>
+              </div>
+            </div>
+            <Switch checked={true} />
+          </div>
+
+          <div className="flex items-center justify-between border-t border-border/30 pt-2.5">
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint">
+                <Clock className="size-4" />
+              </span>
+              <div>
+                <p className="text-[13px] font-bold">Pre-task Reminder</p>
+                <p className="text-[11px] text-faint">Notify before scheduled time</p>
+              </div>
+            </div>
+            <span className="rounded-xl border border-border/50 bg-surface-2 px-2 py-1 text-[11px] font-medium text-foreground">
+              5 mins before
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between border-t border-border/30 pt-2.5">
+            <div className="flex items-center gap-2.5">
+              <span className="grid size-8 place-items-center rounded-xl bg-surface-2 text-ember">
+                <Flame className="size-4" />
+              </span>
+              <div>
+                <p className="text-[13px] font-bold">Today Focus Mode</p>
+                <p className="text-[11px] text-faint">Show only today's tasks</p>
+              </div>
+            </div>
+            <Switch checked={false} />
+          </div>
         </Card>
       </div>
 
       <Card className="flex items-center gap-3 px-4 py-3">
-        <Star className="size-4 fill-gold text-gold" />
-        <span className="text-[13px] font-semibold text-muted-foreground">No account · No ads · No tracking</span>
+        <Sparkles className="size-4 text-ember shrink-0" />
+        <span className="text-[13px] font-semibold text-muted-foreground">Daily Spark · No account · No ads · 100% offline</span>
       </Card>
 
       <BackupPreviewDialog
