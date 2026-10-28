@@ -41,7 +41,7 @@ export const SITE = {
   // The website's own unreleased version. Mirrors "version" in package.json;
   // do not surface it next to the APK download. The download UI must use
   // SITE.apk.version instead.
-  webVersion: "1.0.3",
+  webVersion: "1.0.1",
   // Social preview card, 1200x630 PNG. Source document lives at
   // og/og-card.html (outside public/ so it is never served); re-render it to
   // public/og-image.png after editing.

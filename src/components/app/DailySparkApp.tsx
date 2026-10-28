@@ -323,10 +323,21 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   }, [habits]);
 
   // Check-in toggle handler
+  const [celebrationHabit, setCelebrationHabit] = useState<Habit | null>(null);
+
   const handleToggleHabit = (id: string) => {
     hapticEngine.crescendoPulse();
     setLastCheckedHabitId(id);
-    habitActions.toggleToday(id);
+    const result = habitActions.toggleToday(id);
+    if (result === "done") {
+      const h = habits.find((item) => item.id === id);
+      if (h) {
+        setCelebrationHabit(h);
+        setTimeout(() => {
+          setCelebrationHabit((prev) => (prev?.id === id ? null : prev));
+        }, 2200);
+      }
+    }
   };
 
   // Phase 6 & 7 computed metrics
@@ -1302,18 +1313,50 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                           type="button"
                           onClick={() => setSelectedCalendarDate(dateStr)}
                           className={cn(
-                            "grid aspect-square place-items-center rounded-xl text-[12px] transition-all",
+                            "flex flex-col items-center justify-center aspect-square rounded-xl p-1 text-[12px] transition-all",
                             heatClass,
                             isSelected && "ring-2 ring-ember shadow-sm scale-105",
-                            isToday && !isSelected && "ring-1 ring-ember/60"
+                            isToday && !isSelected && "ring-2 ring-ember"
                           )}
                         >
-                          {dayNum}
+                          <span className="font-bold leading-none">{dayNum}</span>
+                          {!isFuture && ratio.total > 0 ? (
+                            <span className="text-[9px] font-medium opacity-85 leading-none mt-0.5">
+                              {ratio.done}/{ratio.total}
+                            </span>
+                          ) : null}
                         </button>
                       );
                     })}
                   </div>
                 ))}
+            </div>
+
+            {/* Calendar Legend (matching previous app) */}
+            <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-2.5">
+              <p className="font-semibold text-xs text-foreground">Legend</p>
+              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <span className="size-3 rounded bg-surface-2 border border-border/40" />
+                  <span>0/x — No completions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="size-3 rounded bg-heat-1 border border-border/30" />
+                  <span>1–2/x — Few completions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="size-3 rounded bg-heat-2 border border-border/30" />
+                  <span>3–4/x — Most completions</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="size-3 rounded bg-primary" />
+                  <span>x/x — All completed</span>
+                </div>
+                <div className="flex items-center gap-2 col-span-2">
+                  <span className="size-3 rounded ring-2 ring-ember bg-transparent" />
+                  <span>Today</span>
+                </div>
+              </div>
             </div>
 
             {/* Selected Date Breakdown */}
@@ -1376,7 +1419,18 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
             {/* Backup & Restore Card */}
             <div>
-              <p className="kicker mb-2">Data &amp; Backups</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="kicker">Data &amp; Backups</p>
+                <span className="text-xs text-faint">
+                  Last backup: {settings.lastBackupDate ? formatDisplayDate(String(settings.lastBackupDate)) : "Never"}
+                </span>
+              </div>
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 mb-2 flex items-start gap-2.5 text-xs text-amber-200">
+                <ShieldAlert className="size-4 shrink-0 text-amber-400 mt-0.5" />
+                <p>
+                  <strong className="font-semibold text-amber-300">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
+                </p>
+              </div>
               <div className="rounded-3xl border border-border/40 bg-surface p-2 space-y-1">
                 <button
                   type="button"
@@ -1538,30 +1592,74 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
             </div>
 
-            {/* Reminders */}
+            {/* Reminders & Automation */}
             <div>
               <p className="kicker mb-2">Reminders</p>
-              <div className="rounded-3xl border border-border/40 bg-surface p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <Bell className="size-4" />
-                  </span>
-                  <div>
-                    <p className="font-semibold text-sm">Gentle Reminders</p>
-                    <p className="text-xs text-faint">Local notification at chosen time</p>
+              <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
+                      <Bell className="size-4" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-sm">Daily Reminders</p>
+                      <p className="text-xs text-faint">Get reminded to complete streaks</p>
+                    </div>
                   </div>
+                  <Switch
+                    checked={settings.enabled}
+                    onCheckedChange={(checked) => habitActions.updateSettings({ enabled: checked })}
+                  />
                 </div>
-                <Switch
-                  checked={settings.enabled}
-                  onCheckedChange={(checked) => habitActions.updateSettings({ enabled: checked })}
-                />
+
+                <div className="flex items-center justify-between border-t border-border/30 pt-3">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint">
+                      <Clock className="size-4" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-sm">Pre-task Reminder</p>
+                      <p className="text-xs text-faint">Notify before scheduled time</p>
+                    </div>
+                  </div>
+                  <select
+                    value={settings.preTaskReminderOffsetMinutes ?? 5}
+                    onChange={(e) =>
+                      habitActions.updateSettings({
+                        preTaskReminderOffsetMinutes: parseInt(e.target.value, 10),
+                      })
+                    }
+                    className="rounded-xl border border-border/50 bg-surface-2 px-2.5 py-1 text-xs font-medium text-foreground focus:outline-hidden focus:ring-1 focus:ring-ember"
+                  >
+                    <option value={5}>5 minutes before</option>
+                    <option value={10}>10 minutes before</option>
+                    <option value={15}>15 minutes before</option>
+                    <option value={30}>30 minutes before</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-border/30 pt-3">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-9 place-items-center rounded-xl bg-surface-2 text-ember">
+                      <Flame className="size-4" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-sm">Today Focus Mode</p>
+                      <p className="text-xs text-faint">Show only today's tasks</p>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={todayFocus}
+                    onCheckedChange={(checked) => setTodayFocus(checked)}
+                  />
+                </div>
               </div>
             </div>
 
             {/* App Info & Principles */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-2 text-foreground font-bold">
-                <Sparkles className="size-4 text-ember" /> Daily Spark v1.0.3
+                <Sparkles className="size-4 text-ember" /> Daily Spark v1.0.1
               </div>
               <p>No login · No ads · No tracking · Works 100% offline.</p>
               <p className="text-[11px] text-faint">
@@ -1813,6 +1911,32 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         open={isShareCardOpen}
         onOpenChange={setIsShareCardOpen}
       />
+
+      {/* Streak Celebration Popup Modal (matching previous app) */}
+      {celebrationHabit && (
+        <div
+          role="dialog"
+          aria-live="polite"
+          onClick={() => setCelebrationHabit(null)}
+          className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-xs p-4 cursor-pointer animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex flex-col items-center gap-2.5 rounded-3xl bg-surface/95 border border-ember/30 p-6 shadow-2xl backdrop-blur-xl text-center max-w-xs w-full animate-in zoom-in-95 duration-200"
+          >
+            <div className="size-20 rounded-2xl bg-gradient-to-br from-ember to-amber-500 grid place-items-center shadow-lg shadow-ember/30">
+              <Flame className="size-10 text-white fill-white" />
+            </div>
+            <p className="font-semibold text-xs text-muted-foreground truncate max-w-[200px]">
+              {celebrationHabit.name}
+            </p>
+            <h3 className="font-display text-lg font-bold text-foreground">
+              Streak Continued! 🔥
+            </h3>
+            <p className="text-xs text-faint">Keep it up!</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
