@@ -68,7 +68,7 @@ Orchestration of nuanced physical vibration feedback via `@capacitor/haptics`:
 
 ---
 
-## 5. Phase 7 Implementation Deliverables (Status: ✅ Completed & Shipped in v1.0.3)
+## 5. Phase 7 Implementation Deliverables (Status: ✅ Completed & Shipped in v1.0.1)
 
 1. **`src/lib/habits/binaural.ts` & `src/lib/habits/binaural.test.ts`** ✅:
    - Web Audio stereo panner and frequency detune generator for Alpha, Theta, and Beta binaural beats with procedural pink noise.

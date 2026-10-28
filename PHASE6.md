@@ -97,7 +97,7 @@ To prevent "all-or-nothing" cognitive burnout, habits can define 3 flexible tier
 
 ---
 
-## 4. Phase 6 Implementation Deliverables (Status: ✅ Completed & Shipped in v1.0.3)
+## 4. Phase 6 Implementation Deliverables (Status: ✅ Completed & Shipped in v1.0.1)
 
 1. **`src/lib/habits/appearance.ts` & `src/lib/habits/appearance.test.ts`** ✅:
    - Tri-modal theme definitions (Classic, Minimal, Expressive), typography variable injects, and persistence in `localStorage`.
