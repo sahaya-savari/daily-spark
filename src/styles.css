@@ -183,11 +183,6 @@
 
   body {
     background-color: var(--color-background);
-    background-image:
-      radial-gradient(60rem 40rem at 50% -10%, var(--aurora-1), transparent 70%),
-      radial-gradient(46rem 34rem at 92% 8%, var(--aurora-2), transparent 72%),
-      radial-gradient(52rem 38rem at 4% 100%, var(--aurora-3), transparent 74%);
-    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-variant-numeric: tabular-nums;

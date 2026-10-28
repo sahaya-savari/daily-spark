@@ -19,6 +19,7 @@ import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
+import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
 import { DiaTextReveal } from "@/components/magicui/dia-text-reveal";
 import {
   CalendarScreen,
@@ -94,6 +95,7 @@ const NOT_DOING = [
   "No pushy streaks",
   "No forced reminders",
   "No data syncing",
+  "No paywalls or ads",
 ] as const;
 
 const btn =
@@ -139,7 +141,10 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   }, [targetSection, location.hash, router]);
 
   return (
-    <div className="min-h-screen bg-background w-full max-w-full">
+    <div className="relative min-h-screen bg-background w-full max-w-full">
+      {/* Overall atmospheric dithercn background */}
+      <SiteDitherBackground />
+
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[90] focus:rounded-[10px] focus:bg-ember focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground"
