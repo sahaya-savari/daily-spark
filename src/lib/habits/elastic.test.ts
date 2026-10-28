@@ -78,7 +78,15 @@ describe("elastic.ts", () => {
       completedDates: ["2026-10-27"], // completed yesterday
     };
 
-    const atRisk = getAtRiskHabits([h1, h2], today);
+    const h3 = {
+      ...createHabit({
+        name: "Old Habit",
+        emoji: "🏃",
+      }, today),
+      completedDates: ["2026-09-01"], // Dormant for weeks: should NOT be flagged as missing yesterday
+    };
+
+    const atRisk = getAtRiskHabits([h1, h2, h3], today);
     expect(atRisk.length).toBe(1);
     expect(atRisk[0].name).toBe("Reading");
 

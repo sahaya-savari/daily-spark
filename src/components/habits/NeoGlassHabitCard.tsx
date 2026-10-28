@@ -402,6 +402,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               </button>
               <button
                 onClick={() => {
+                  hapticEngine.gentleThud();
                   onLogRelapse(habit.id, Number(relapseCost) || 0, relapseReason);
                   setShowRelapseModal(false);
                 }}

@@ -168,6 +168,21 @@ export function generateQrMatrix(text: string): boolean[][] {
   placeFinder(0, size - 7);
   placeFinder(size - 7, 0);
 
+  // Place 5x5 Alignment Pattern for QR Version 2 through 6 (size > 21)
+  function placeAlignment(row: number, col: number) {
+    for (let r = -2; r <= 2; r++) {
+      for (let c = -2; c <= 2; c++) {
+        const dist = Math.max(Math.abs(r), Math.abs(c));
+        const isBlack = dist === 2 || dist === 0;
+        setModule(row + r, col + c, isBlack);
+      }
+    }
+  }
+
+  if (size > 21) {
+    placeAlignment(size - 7, size - 7);
+  }
+
   // Timing patterns
   for (let i = 8; i < size - 8; i++) {
     const isDark = i % 2 === 0;

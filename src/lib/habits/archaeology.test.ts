@@ -38,6 +38,20 @@ describe("archaeology.ts", () => {
     const res = calculateResilienceScore([habit]);
     expect(res.recoveries).toBe(1);
     expect(res.score).toBe(100);
+
+    // Now test a habit with 1 recovery (day 1 to 3) and 1 unrecovered multi-day lapse (day 3 to 10)
+    const habit2 = {
+      ...createHabit({
+        name: "Reading",
+        emoji: "📚",
+      }, today),
+      completedDates: ["2026-10-01", "2026-10-03", "2026-10-10"],
+    };
+
+    const res2 = calculateResilienceScore([habit2]);
+    expect(res2.recoveries).toBe(1);
+    expect(res2.singleMisses).toBe(2);
+    expect(res2.score).toBe(50);
   });
 
   it("generates complete archaeology report", () => {

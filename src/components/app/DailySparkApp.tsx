@@ -1722,6 +1722,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               size="sm"
               onClick={() => {
                 if (streakToDelete) {
+                  hapticEngine.gentleThud();
                   habitActions.remove(streakToDelete.id);
                   if (selectedHabit?.id === streakToDelete.id) {
                     setSelectedHabit(null);

@@ -76,41 +76,35 @@ export function calculateResilienceScore(habits: Habit[]): {
   singleMisses: number;
 } {
   let recoveries = 0;
-  let singleMisses = 0;
+  let totalOpportunities = 0;
 
   for (const habit of habits) {
-    const dateSet = new Set(habit.completedDates || []);
     const dates = normalizeDates(habit.completedDates || []);
+    if (dates.length < 2) continue;
 
-    for (const date of dates) {
-      const yesterday = addDays(date, -1);
-      const dayBefore = addDays(date, -2);
+    for (let i = 1; i < dates.length; i++) {
+      const prev = dates[i - 1];
+      const curr = dates[i];
 
-      // If completed dayBefore, missed yesterday, and completed today: recovery!
-      if (dateSet.has(dayBefore) && !dateSet.has(yesterday)) {
-        recoveries++;
-        singleMisses++;
+      // Exact next day (no miss)
+      if (curr === addDays(prev, 1)) {
+        continue;
       }
-    }
 
-    // Also check for unresolved single misses
-    for (const date of dates) {
-      const tomorrow = addDays(date, 1);
-      const dayAfter = addDays(date, 2);
-      if (!dateSet.has(tomorrow) && !dateSet.has(dayAfter)) {
-        // Multi-day gap, not a single miss
-      } else if (!dateSet.has(tomorrow) && dateSet.has(dayAfter)) {
-        // Already counted in the recovery loop above
+      // Missed 1 day and recovered immediately on day 2
+      totalOpportunities++;
+      if (curr === addDays(prev, 2)) {
+        recoveries++;
       }
     }
   }
 
-  const score = singleMisses > 0 ? Math.min(100, Math.round((recoveries / singleMisses) * 100)) : 100;
+  const score = totalOpportunities > 0 ? Math.min(100, Math.round((recoveries / totalOpportunities) * 100)) : 100;
 
   return {
     score,
     recoveries,
-    singleMisses,
+    singleMisses: totalOpportunities,
   };
 }
 

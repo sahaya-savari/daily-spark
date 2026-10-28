@@ -46,6 +46,7 @@ export class BinauralEngine {
   private ctx: AudioContext | null = null;
   private oscLeft: OscillatorNode | null = null;
   private oscRight: OscillatorNode | null = null;
+  private noiseSource: AudioBufferSourceNode | null = null;
   private noiseNode: AudioNode | null = null;
   private masterGain: GainNode | null = null;
   private isMuted = false;
@@ -88,16 +89,16 @@ export class BinauralEngine {
       b6 = white * 0.115926;
     }
 
-    const noiseSource = ctx.createBufferSource();
-    noiseSource.buffer = buffer;
-    noiseSource.loop = true;
+    this.noiseSource = ctx.createBufferSource();
+    this.noiseSource.buffer = buffer;
+    this.noiseSource.loop = true;
 
     const noiseFilter = ctx.createBiquadFilter();
     noiseFilter.type = "lowpass";
     noiseFilter.frequency.setValueAtTime(600, ctx.currentTime);
 
-    noiseSource.connect(noiseFilter);
-    noiseSource.start();
+    this.noiseSource.connect(noiseFilter);
+    this.noiseSource.start();
     return noiseFilter;
   }
 
@@ -172,6 +173,15 @@ export class BinauralEngine {
         /* ignore */
       }
       this.oscRight = null;
+    }
+    if (this.noiseSource) {
+      try {
+        this.noiseSource.stop();
+        this.noiseSource.disconnect();
+      } catch {
+        /* ignore */
+      }
+      this.noiseSource = null;
     }
     if (this.noiseNode) {
       try {

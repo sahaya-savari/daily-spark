@@ -145,6 +145,45 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
     }
   };
 
+  const isScanningRef = useRef(false);
+
+  const startScanningLoop = () => {
+    isScanningRef.current = true;
+    if (typeof window === "undefined" || !("BarcodeDetector" in window)) {
+      return;
+    }
+
+    try {
+      const detector = new (window as unknown as { BarcodeDetector: new (opts: { formats: string[] }) => { detect: (src: ImageBitmapSource) => Promise<Array<{ rawValue?: string }>> } }).BarcodeDetector({ formats: ["qr_code"] });
+
+      const scanLoop = async () => {
+        if (!isScanningRef.current) return;
+        const video = videoRef.current;
+        if (video && video.readyState >= 2) {
+          try {
+            const barcodes = await detector.detect(video);
+            if (barcodes && barcodes.length > 0) {
+              for (const code of barcodes) {
+                if (code.rawValue) {
+                  processChunk(code.rawValue);
+                }
+              }
+            }
+          } catch {
+            /* ignore individual frame read error */
+          }
+        }
+        if (isScanningRef.current) {
+          requestAnimationFrame(scanLoop);
+        }
+      };
+
+      requestAnimationFrame(scanLoop);
+    } catch {
+      /* BarcodeDetector initialization fallback */
+    }
+  };
+
   const handleStartCamera = async () => {
     try {
       setCameraActive(true);
@@ -154,6 +193,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
+        startScanningLoop();
       }
     } catch {
       setStatusMessage("Camera permission not available. Use manual paste below.");
@@ -162,6 +202,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
   };
 
   const handleStopCamera = () => {
+    isScanningRef.current = false;
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach((t) => t.stop());

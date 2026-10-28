@@ -14,4 +14,14 @@ describe("qrMatrix.ts", () => {
     expect(svg).toContain("shape-rendering=\"crispEdges\"");
     expect(svg).toContain("</svg>");
   });
+
+  it("generates multi-version QR codes with alignment patterns for larger payloads", () => {
+    // 60-byte payload requires Version >= 3 (size >= 29)
+    const longText = "DS:1:5:eyJzdHJlYWtzIjpbeyJuYW1lIjoiTW9ybmluZyBNZWRpdGF0aW9uIn1dfQ==";
+    const matrix = generateQrMatrix(longText);
+    expect(matrix.length).toBeGreaterThan(21);
+    const size = matrix.length;
+    // Check center of alignment pattern at (size - 7, size - 7)
+    expect(matrix[size - 7][size - 7]).toBe(true);
+  });
 });

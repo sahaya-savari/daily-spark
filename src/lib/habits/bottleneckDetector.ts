@@ -31,7 +31,7 @@ export function detectDayOfWeekBottlenecks(habits: Habit[], referenceDate: strin
   for (let i = 0; i < windowDays; i++) {
     const d = addDays(referenceDate, -i);
     const dateObj = new Date(d + "T12:00:00Z");
-    const dayOfWeek = dateObj.getDay();
+    const dayOfWeek = dateObj.getUTCDay();
     daysByWeekday[dayOfWeek].push(d);
   }
 

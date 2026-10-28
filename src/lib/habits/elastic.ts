@@ -118,11 +118,10 @@ export function getAtRiskHabits(habits: Habit[], today: string): Habit[] {
     const completedYesterday = isDoneOn(h, yesterday);
     if (completedYesterday) return false;
 
-    // Did they have momentum prior to yesterday?
+    // Under the Two-Day Rule ("Never Miss Twice"), a habit is at risk today
+    // if and only if it had active momentum on the day before yesterday and missed yesterday.
     const completedDayBefore = isDoneOn(h, dayBeforeYesterday);
-    const hasHistory = h.completedDates.length > 0;
-
-    return completedDayBefore || hasHistory;
+    return completedDayBefore;
   });
 }
 
