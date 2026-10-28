@@ -117,7 +117,7 @@ export function Device({ children, tilt }: { children: React.ReactNode; tilt?: {
   const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(280);
   return (
     <div
-      className="bezel relative w-[300px] sm:w-[330px] max-w-[calc(100vw-2.5rem)] rounded-[42px] p-2.5 transition-transform duration-500 shadow-2xl"
+      className="bezel relative w-[285px] sm:w-[310px] max-w-[calc(100vw-2rem)] rounded-[38px] p-2.5 transition-transform duration-500 shadow-2xl"
       style={{ transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined }}
     >
       <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
@@ -213,7 +213,7 @@ function Screen({
               onClick={() => onNav?.(5)}
               variant="fab"
               size="fab"
-              className="size-14 shrink-0 rounded-full bg-gradient-to-tr from-ember to-amber-400 text-background shadow-[0_4px_18px_oklch(0.755_0.135_52.1_/_45%)] border border-amber-300/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0"
+              className="size-14 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-background shadow-[0_4px_18px_oklch(0.755_0.135_52.1_/_35%)] border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0"
             >
               <Plus className="size-6 text-background" strokeWidth={2.8} />
             </Button>
@@ -333,13 +333,13 @@ export function HomeScreen({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <p className={cn("break-words font-mono text-[14px] font-semibold", x.done && "text-muted-foreground")}>{x.name}</p>
-                  {x.starred && <Star className="size-3.5 fill-amber-400 text-amber-400 shrink-0" />}
+                  {x.starred && <Star className="size-3.5 fill-gold text-gold shrink-0" />}
                 </div>
                 <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
                   <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
                 </p>
                 <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
-                  <div className={cn("h-full rounded-full bg-gradient-to-r from-ember to-amber-400 transition-[width] duration-500", x.done ? "w-full" : "w-0")} />
+                  <div className={cn("h-full rounded-full bg-gradient-to-r from-ember to-heat-4 transition-[width] duration-500", x.done ? "w-full" : "w-0")} />
                 </div>
               </div>
               <Button variant="ghost"
@@ -425,7 +425,7 @@ export function ProgressScreen({ onNav }: { onNav?: ((i: number) => void) | unde
                 </div>
                 <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-ember to-amber-400"
+                    className="h-full rounded-full bg-gradient-to-r from-ember to-heat-4"
                     style={{ width: `${[94, 100, 63, 40][i]}%` }}
                   />
                 </div>
@@ -863,10 +863,10 @@ export function SettingsScreen() {
       </div>
 
       {/* Backup Safety Alert matching DailySparkApp */}
-      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 flex items-start gap-2.5 text-xs text-amber-200">
-        <ShieldAlert className="size-4 shrink-0 text-amber-400 mt-0.5" />
+      <div className="rounded-2xl border border-ember/30 bg-ember-soft p-3 flex items-start gap-2.5 text-xs text-muted-foreground">
+        <ShieldAlert className="size-4 shrink-0 text-ember mt-0.5" />
         <p>
-          <strong className="font-semibold text-amber-300">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
+          <strong className="font-semibold text-foreground">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
         </p>
       </div>
 

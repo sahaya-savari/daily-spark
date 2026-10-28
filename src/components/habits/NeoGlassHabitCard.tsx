@@ -112,7 +112,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 {habit.name}
               </h3>
               {habit.isStarred && (
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                <Star className="w-3.5 h-3.5 fill-gold text-gold shrink-0" />
               )}
               {isVacationToday && (
                 <span className="px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 text-[10px] font-medium flex items-center gap-1">
@@ -122,7 +122,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
             </div>
 
             {habit.cueText && (
-              <p className="text-[11px] text-amber-400/90 font-medium truncate mt-0.5">
+              <p className="text-[11px] text-ember/90 font-medium truncate mt-0.5">
                 ⚓ After {habit.cueText}
               </p>
             )}
@@ -142,8 +142,8 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 </div>
               ) : (
                 <div className="flex items-center gap-1.5">
-                  <span className="text-amber-400 font-semibold flex items-center gap-1">
-                    <Flame className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span className="text-ember font-semibold flex items-center gap-1">
+                    <Flame className="w-3.5 h-3.5 fill-ember text-ember" />
                     {habit.currentStreak}d streak
                   </span>
                   {habit.bestStreak > 0 && (
