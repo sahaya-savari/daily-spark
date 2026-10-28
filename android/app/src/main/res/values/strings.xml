@@ -4,4 +4,7 @@
     <string name="title_activity_main">Daily Spark</string>
     <string name="package_name">com.santhosh.dailyspark2</string>
     <string name="custom_url_scheme">com.santhosh.dailyspark2</string>
+    <string name="widget_today_description">Quickly see and check off today\'s habits.</string>
+    <string name="widget_streak_description">View your current streak flame at a glance.</string>
+    <string name="widget_heatmap_description">Glanceable 90-day consistency heatmap grid.</string>
 </resources>

@@ -28,6 +28,7 @@ import { NotesView } from "@/components/habits/NotesView";
 import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitSearchFilter";
 import { type BackupInspection, createHabit } from "@/lib/habits/logic";
 import { DEFAULT_SETTINGS } from "@/lib/habits/types";
+import { DailySparkApp } from "@/components/app/DailySparkApp";
 
 /*
  * Landing-page demo. Screens are laid out at 390×844 (a real phone) and
@@ -110,17 +111,17 @@ function useAutoWidth<T extends HTMLElement>(fallback: number) {
 
 /** Large hero device with side keys and a soft 3D tilt. */
 export function Device({ children, tilt }: { children: React.ReactNode; tilt?: { x: number; y: number } }) {
-  const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(270);
+  const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(280);
   return (
     <div
-      className="bezel relative w-[290px] max-w-[calc(100vw-2.5rem)] rounded-[42px] p-2.5 transition-transform duration-500"
+      className="bezel relative w-[300px] sm:w-[330px] max-w-[calc(100vw-2.5rem)] rounded-[42px] p-2.5 transition-transform duration-500 shadow-2xl"
       style={{ transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined }}
     >
       <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
       <span className="absolute -left-[3px] top-[162px] h-[38px] w-[3px] rounded-[3px] bg-border-hi" />
       <span className="absolute -right-[3px] top-[148px] h-[54px] w-[3px] rounded-[3px] bg-border-hi" />
       <div ref={innerRef} className="relative overflow-hidden rounded-[33px] shadow-[inset_0_0_0_1px_oklch(1_0_0/5%)]">
-        <span className="absolute left-1/2 top-2.5 z-10 h-[17px] w-[66px] -translate-x-1/2 rounded-xl bg-background shadow-[inset_0_0_0_1px_oklch(1_0_0/6%)]" />
+        <span className="pointer-events-none absolute left-1/2 top-2.5 z-40 h-[17px] w-[66px] -translate-x-1/2 rounded-xl bg-background shadow-[inset_0_0_0_1px_oklch(1_0_0/6%)]" />
         <Scaled width={innerWidth}>{children}</Scaled>
       </div>
     </div>
@@ -896,18 +897,13 @@ export function SettingsScreen() {
 /* ------------------------------------------------------------------ */
 
 export function DemoPhone() {
-  const [tab, setTab] = useState(0);
-  const [habits, setHabits] = useState(INITIAL);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const ref = useRef<HTMLDivElement>(null);
-
-  const toggle = (id: string) =>
-    setHabits((hs) => hs.map((x) => (x.id === id ? { ...x, done: !x.done, streak: x.streak + (x.done ? -1 : 1) } : x)));
-  const nav = (i: number) => setTab(i);
 
   return (
     <div
       ref={ref}
+      id="demo-phone"
       className="flex flex-col items-center gap-4 w-full max-w-full"
       onPointerMove={(e) => {
         if (e.pointerType !== "mouse") return;
@@ -915,29 +911,16 @@ export function DemoPhone() {
         if (!r) return;
         const px = (e.clientX - r.left) / r.width - 0.5;
         const py = (e.clientY - r.top) / r.height - 0.5;
-        setTilt({ x: -py * 6, y: px * 8 });
+        setTilt({ x: -py * 5, y: px * 6 });
       }}
       onPointerLeave={() => setTilt({ x: 0, y: 0 })}
     >
-      <NavCtx.Provider value={nav}>
-        <Device tilt={tilt}>
-          {tab === 0 && <HomeScreen habits={habits} onToggle={toggle} />}
-          {tab === 1 && <HabitScreen />}
-          {tab === 3 && <ProgressScreen />}
-          {tab === 4 && <SettingsScreen />}
-          {tab === 5 && <NewHabitScreen />}
-        </Device>
-      </NavCtx.Provider>
-      {tab !== 0 && (
-        <Button variant="ghost" type="button" onClick={() => setTab(0)} className="text-[13.5px] text-faint hover:text-foreground">
-          ← Back to Today
-        </Button>
-      )}
-      {tab === 0 && (
-        <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
-          <span className="text-ember">Live demo.</span> Tap “Check in”, or use the tabs inside the phone. Sample data only.
-        </p>
-      )}
+      <Device tilt={tilt}>
+        <DailySparkApp embedded />
+      </Device>
+      <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
+        <span className="text-ember font-bold">Interactive live app.</span> Tap habits, start focus timer, track laps, or check progress. 100% offline.
+      </p>
     </div>
   );
 }

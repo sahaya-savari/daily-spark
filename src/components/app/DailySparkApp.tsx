@@ -2,12 +2,14 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Archive,
   ArrowLeft,
+  Activity,
   Bell,
   Calendar as CalendarIcon,
   ChartColumn,
   Check,
   ChevronLeft,
   ChevronRight,
+  ShieldCheck,
   Clock,
   Download,
   FileText,
@@ -16,6 +18,7 @@ import {
   House,
   ListChecks,
   Lock,
+  Palmtree,
   Pause,
   Play,
   Plus,
@@ -74,6 +77,12 @@ import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitS
 import { BackupPreviewDialog } from "@/components/habits/BackupPreviewDialog";
 import { AppLockDialog } from "@/components/habits/AppLockDialog";
 import { SnoozeDialog } from "@/components/habits/SnoozeDialog";
+import { NeoGlassHabitCard } from "@/components/habits/NeoGlassHabitCard";
+import { FocusTimerDialog } from "@/components/habits/FocusTimerDialog";
+import { UniversalImportDialog } from "@/components/habits/UniversalImportDialog";
+import { CircadianAnalyticsDialog } from "@/components/habits/CircadianAnalyticsDialog";
+import { VaultSyncDialog } from "@/components/habits/VaultSyncDialog";
+import { VoxelIsland } from "@/components/habits/VoxelIsland";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -99,12 +108,16 @@ async function triggerLightHaptic() {
   }
 }
 
-export function DailySparkApp() {
+export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {}) {
   const { habits, settings } = useHabitStore();
   const { notes } = useNotesStore();
   const { isLocked, isEnabled: isLockEnabled } = useAppLockStore();
   const [unlockPin, setUnlockPin] = useState("");
   const [unlockError, setUnlockError] = useState<string | null>(null);
+
+  useEffect(() => {
+    habitActions.seedDemoIfEmpty();
+  }, []);
 
   const [activeTab, setActiveTab] = useState<number>(0);
   const [subTab, setSubTab] = useState<"habits" | "notes">("habits");
@@ -127,6 +140,12 @@ export function DailySparkApp() {
   const [isAppLockDialogOpen, setIsAppLockDialogOpen] = useState(false);
   const [streakToDelete, setStreakToDelete] = useState<Habit | null>(null);
   const [snoozeHabit, setSnoozeHabit] = useState<Habit | null>(null);
+  // Phase 4 & 5 Dialogs
+  const [isFocusTimerOpen, setIsFocusTimerOpen] = useState(false);
+  const [focusHabit, setFocusHabit] = useState<Habit | null>(null);
+  const [isUniversalImportOpen, setIsUniversalImportOpen] = useState(false);
+  const [isCircadianOpen, setIsCircadianOpen] = useState(false);
+  const [isVaultSyncOpen, setIsVaultSyncOpen] = useState(false);
 
   // Calendar month state
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
@@ -457,7 +476,12 @@ export function DailySparkApp() {
     };
 
     return (
-      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 text-foreground font-app selection:bg-ember/30">
+      <div
+        className={cn(
+          "w-full bg-background flex flex-col items-center justify-center p-6 text-foreground font-app selection:bg-ember/30",
+          embedded ? "h-[844px] overflow-hidden" : "min-h-screen"
+        )}
+      >
         <div className="w-full max-w-sm rounded-3xl border border-border/50 bg-surface p-7 shadow-2xl space-y-6 text-center backdrop-blur-md">
           <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-ember-soft text-ember shadow-sm">
             <Lock className="size-7" />
@@ -518,9 +542,19 @@ export function DailySparkApp() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-background font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30 pb-28">
+    <div
+      className={cn(
+        "relative w-full bg-background font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
+        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen pb-28"
+      )}
+    >
       {/* Top Header Bar */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border/40 bg-surface/85 px-4 backdrop-blur-md">
+      <header
+        className={cn(
+          "sticky top-0 z-30 flex items-center justify-between border-b border-border/40 bg-surface/85 px-4 backdrop-blur-md shrink-0",
+          embedded ? "pt-10 pb-2 h-20" : "h-14"
+        )}
+      >
         <div className="flex items-center gap-2.5">
           <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember shadow-sm">
             <Flame className="size-4" />
@@ -531,9 +565,39 @@ export function DailySparkApp() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setFocusHabit(null);
+              setIsFocusTimerOpen(true);
+            }}
+            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+            title="Focus Timer"
+          >
+            <Clock className="size-4 text-cyan-400" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsCircadianOpen(true)}
+            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+            title="Circadian & Stacking Analytics"
+          >
+            <Activity className="size-4 text-purple-400" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setIsVaultSyncOpen(true)}
+            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+            title="Encrypted Vault Sync & BYOC"
+          >
+            <ShieldCheck className="size-4 text-emerald-400" />
+          </button>
+
           {progressStats.globalStreak > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember">
+            <span className="inline-flex items-center gap-1 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember ml-1">
               <Flame className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}
             </span>
           )}
@@ -552,7 +616,12 @@ export function DailySparkApp() {
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 pt-4">
+      <main
+        className={cn(
+          "mx-auto w-full max-w-lg flex-1 px-4",
+          embedded ? "overflow-y-auto overscroll-contain scrollbar-none pt-3 pb-24" : "pt-4"
+        )}
+      >
         {/* ============================================================== */}
         {/* TAB 0: TODAY (HOME)                                            */}
         {/* ============================================================== */}
@@ -654,93 +723,38 @@ export function DailySparkApp() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {todayHabits.map((h) => {
-                    const done = isDoneOn(h, today);
-                    const due = isHabitDueToday(h, today);
-                    return (
-                      <div
-                        key={h.id}
-                        className={cn(
-                          "flex items-center gap-3 rounded-3xl border border-border/40 bg-surface p-4 transition-all hover:border-border",
-                          done && "opacity-90"
-                        )}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setSelectedHabit(h)}
-                          className="shrink-0 focus:outline-none"
-                        >
-                          <HabitIcon habit={{ icon: h.icon, emoji: h.emoji, color: h.color }} />
-                        </button>
-
-                        <div
-                          className="min-w-0 flex-1 cursor-pointer"
-                          onClick={() => setSelectedHabit(h)}
-                        >
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <p className={cn("break-words font-mono text-[14px] font-semibold", done && "text-muted-foreground line-through decoration-ember/60")}>
-                              {h.name}
-                            </p>
-                            {h.isStarred && <Star className="size-3 fill-gold text-gold shrink-0" />}
-                            {h.category && (
-                              <span className="text-[10px] bg-surface-2 px-1.5 py-0.5 rounded-full text-muted-foreground">
-                                #{h.category}
-                              </span>
-                            )}
-                            {!due && !h.isPaused && (
-                              <span className="text-[10px] bg-surface-2 text-faint px-1.5 py-0.5 rounded-full">
-                                Rest day
-                              </span>
-                            )}
-                            {h.isPaused && (
-                              <span className="text-[10px] bg-surface-2 text-ember px-1.5 py-0.5 rounded-full">
-                                Paused
-                              </span>
-                            )}
-                            {h.snoozedUntil && Date.now() < h.snoozedUntil && (
-                              <span className="text-[10px] bg-ember-soft text-ember font-medium px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                                <Clock className="size-2.5" /> Snoozed
-                              </span>
-                            )}
-                          </div>
-                          <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint mt-0.5">
-                            <Flame className={cn("size-3", h.currentStreak > 0 && "text-ember")} /> {h.currentStreak} days streak
-                            {h.bestStreak > 0 && ` · Best: ${h.bestStreak}`}
-                          </p>
-                        </div>
-
-                        {/* Quick Snooze Button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSnoozeHabit(h);
-                          }}
-                          aria-label={`Snooze reminder for ${h.name}`}
-                          className="size-8 shrink-0 rounded-full text-faint hover:text-foreground"
-                          title="Snooze Reminder"
-                        >
-                          <Clock className="size-3.5" />
-                        </Button>
-
-                        {/* Check-In Orb Button */}
-                        <Button
-                          variant="ghost"
-                          onClick={() => handleToggleHabit(h.id)}
-                          aria-label={`Mark ${h.name} as ${done ? "incomplete" : "complete"}`}
-                          className={cn(
-                            "check-orb grid size-12 shrink-0 place-items-center rounded-full p-0 transition-transform active:scale-90",
-                            done
-                              ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                              : "bg-surface-2 text-faint hover:text-foreground"
-                          )}
-                        >
-                          <Check className="size-4" strokeWidth={3} />
-                        </Button>
-                      </div>
-                    );
-                  })}
+                  {todayHabits.map((h) => (
+                    <NeoGlassHabitCard
+                      key={h.id}
+                      habit={h}
+                      today={today}
+                      onToggleToday={(id) => {
+                        triggerLightHaptic();
+                        handleToggleHabit(id);
+                      }}
+                      onQuantIncrement={(id, delta) => {
+                        triggerLightHaptic();
+                        habitActions.incrementQuant(id, today, delta);
+                      }}
+                      onLogRelapse={(id, cost, reason) => {
+                        triggerLightHaptic();
+                        habitActions.logRelapse(id, today, cost, reason);
+                      }}
+                      onUndoRelapse={(id) => {
+                        triggerLightHaptic();
+                        habitActions.undoRelapse(id, today);
+                      }}
+                      onToggleSubtask={(id, subtaskId) => {
+                        triggerLightHaptic();
+                        habitActions.toggleSubtask(id, subtaskId, today);
+                      }}
+                      onOpenFocusTimer={(targetHabit) => {
+                        setFocusHabit(targetHabit);
+                        setIsFocusTimerOpen(true);
+                      }}
+                      onToggleStar={(id) => habitActions.star(id)}
+                    />
+                  ))}
                 </div>
               )}
             </div>
@@ -935,6 +949,30 @@ export function DailySparkApp() {
                 <p className="text-[26px] font-extrabold">{progressStats.totalCompletionsCount}</p>
                 <p className="text-[11px] text-faint">Total completions</p>
               </div>
+            </div>
+
+            {/* Calm Offline Voxel Island */}
+            <VoxelIsland
+              habits={habits}
+              overallStreak={progressStats.globalStreak}
+              totalCompletions={progressStats.totalCompletionsCount}
+            />
+
+            {/* Circadian & Stacking Intelligence Launcher */}
+            <div
+              onClick={() => setIsCircadianOpen(true)}
+              className="rounded-3xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-transparent p-4 flex items-center justify-between cursor-pointer hover:border-cyan-500/40 transition-all shadow-md"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300">
+                  <Activity className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-white">Circadian Analytics &amp; Stacking</h4>
+                  <p className="text-xs text-white/50">24h Gaussian curve &amp; conditional stacking rules</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-white/40" />
             </div>
 
             {/* 6-Month Real Heatmap */}
@@ -1207,6 +1245,36 @@ export function DailySparkApp() {
                   </div>
                   <ChevronRight className="size-4 text-faint" />
                 </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsUniversalImportOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
+                >
+                  <span className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
+                    <Upload className="size-4" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">Universal Multi-Format Importer</p>
+                    <p className="text-xs text-faint">Migrate from Loop, HabitKit, Habitica, HabitBull, CSV</p>
+                  </div>
+                  <ChevronRight className="size-4 text-faint" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsVaultSyncOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
+                >
+                  <span className="grid size-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                    <ShieldCheck className="size-4" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">Zero-Cloud Encrypted Vault &amp; BYOC</p>
+                    <p className="text-xs text-faint">AES-GCM-256 encrypted vault &amp; Google Drive AppData sync</p>
+                  </div>
+                  <ChevronRight className="size-4 text-faint" />
+                </button>
               </div>
             </div>
 
@@ -1281,7 +1349,14 @@ export function DailySparkApp() {
       </main>
 
       {/* Floating Bottom Navigation Bar */}
-      <nav className="fixed inset-x-4 bottom-3 z-30 mx-auto max-w-lg flex h-[68px] items-center justify-between rounded-full border border-border/40 bg-surface/90 px-3 backdrop-blur-xl shadow-lg">
+      <nav
+        className={cn(
+          "z-30 mx-auto max-w-lg flex items-center justify-between rounded-full border border-border/40 bg-surface/90 px-3 backdrop-blur-xl shadow-lg",
+          embedded
+            ? "absolute inset-x-3 bottom-3 h-[64px]"
+            : "fixed inset-x-4 bottom-3 h-[68px]"
+        )}
+      >
         <Button
           variant="ghost"
           onClick={() => setActiveTab(0)}
@@ -1463,6 +1538,44 @@ export function DailySparkApp() {
         open={isAppLockDialogOpen}
         onOpenChange={setIsAppLockDialogOpen}
       />
+
+      {/* Focus Timer Dialog */}
+      <FocusTimerDialog
+        open={isFocusTimerOpen}
+        onOpenChange={setIsFocusTimerOpen}
+        habit={focusHabit}
+        onCompleteHabit={(habitId, durationMinutes) => {
+          handleToggleHabit(habitId);
+          habitActions.addFocusMinutes(habitId, durationMinutes);
+        }}
+      />
+
+      {/* Universal Multi-Format Importer Dialog */}
+      <UniversalImportDialog
+        open={isUniversalImportOpen}
+        onOpenChange={setIsUniversalImportOpen}
+        onImportHabits={(imported) => {
+          habitActions.mergeHabits(imported);
+        }}
+      />
+
+      {/* Circadian Analytics Dialog */}
+      <CircadianAnalyticsDialog
+        open={isCircadianOpen}
+        onOpenChange={setIsCircadianOpen}
+        habits={habits}
+      />
+
+      {/* Encrypted Vault Sync Dialog */}
+      <VaultSyncDialog
+        open={isVaultSyncOpen}
+        onOpenChange={setIsVaultSyncOpen}
+        habits={habits}
+        settings={settings}
+        onSyncComplete={(merged) => {
+          habitActions.replaceAll(merged, settings);
+        }}
+      />
     </div>
   );
 }
@@ -1478,6 +1591,14 @@ function AddHabitForm({
   onCancel: () => void;
 }) {
   const [name, setName] = useState("");
+  const [kind, setKind] = useState<"boolean" | "quantitative" | "avoid">("boolean");
+  const [targetValue, setTargetValue] = useState<number>(2000);
+  const [unit, setUnit] = useState("ml");
+  const [stepIncrement, setStepIncrement] = useState<number>(250);
+  const [dailyCost, setDailyCost] = useState<number>(15);
+  const [subtasks, setSubtasks] = useState<Array<{ id: string; title: string }>>([]);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
+
   const [icon, setIcon] = useState("flame");
   const [color, setColor] = useState("fire");
   const [category, setCategory] = useState("daily");
@@ -1486,12 +1607,31 @@ function AddHabitForm({
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [notes, setNotes] = useState("");
 
+  const handleAddSubtask = () => {
+    if (!newSubtaskTitle.trim()) return;
+    setSubtasks((prev) => [
+      ...prev,
+      { id: `sub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, title: newSubtaskTitle.trim() },
+    ]);
+    setNewSubtaskTitle("");
+  };
+
+  const handleRemoveSubtask = (id: string) => {
+    setSubtasks((prev) => prev.filter((s) => s.id !== id));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     onAdd({
       name: name.trim(),
       emoji: "🔥",
+      kind,
+      targetValue: kind === "quantitative" ? targetValue : undefined,
+      unit: kind === "quantitative" ? unit : undefined,
+      stepIncrement: kind === "quantitative" ? stepIncrement : undefined,
+      dailyCost: kind === "avoid" ? dailyCost : undefined,
+      subtasks: subtasks.length > 0 ? subtasks : undefined,
       icon,
       color,
       category,
@@ -1514,6 +1654,125 @@ function AddHabitForm({
           autoFocus
           className="text-sm bg-surface-2"
         />
+      </div>
+
+      {/* Habit Kind Selector */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-muted-foreground uppercase">Tracking Type</label>
+        <div className="grid grid-cols-3 gap-1.5">
+          {[
+            { id: "boolean", label: "Standard", desc: "Done / Not done" },
+            { id: "quantitative", label: "Quantitative", desc: "Target & units" },
+            { id: "avoid", label: "Avoid / Quit", desc: "Clean streak & cost" },
+          ].map((k) => (
+            <button
+              key={k.id}
+              type="button"
+              onClick={() => setKind(k.id as typeof kind)}
+              className={cn(
+                "rounded-xl p-2 text-left border transition-all",
+                kind === k.id
+                  ? "bg-surface-2 border-ember text-foreground shadow-sm"
+                  : "border-border/30 text-faint hover:text-foreground"
+              )}
+            >
+              <span className="text-xs font-bold block">{k.label}</span>
+              <span className="text-[10px] text-faint block">{k.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Quantitative Settings */}
+      {kind === "quantitative" && (
+        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-2xl bg-surface-2 border border-border/40">
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Target Goal</label>
+            <Input
+              type="number"
+              value={targetValue}
+              onChange={(e) => setTargetValue(Number(e.target.value) || 1)}
+              className="h-8 text-xs bg-surface"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Unit Label</label>
+            <Input
+              type="text"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              placeholder="ml, pages, min"
+              className="h-8 text-xs bg-surface"
+            />
+          </div>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Step (+)</label>
+            <Input
+              type="number"
+              value={stepIncrement}
+              onChange={(e) => setStepIncrement(Number(e.target.value) || 1)}
+              className="h-8 text-xs bg-surface"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Avoid Settings */}
+      {kind === "avoid" && (
+        <div className="p-2.5 rounded-2xl bg-surface-2 border border-border/40">
+          <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Daily Cost Saved ($ / day)</label>
+          <Input
+            type="number"
+            value={dailyCost}
+            onChange={(e) => setDailyCost(Number(e.target.value) || 0)}
+            placeholder="e.g. 15"
+            className="h-8 text-xs bg-surface"
+          />
+        </div>
+      )}
+
+      {/* Subtasks checklist input */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-muted-foreground uppercase">Subtasks Checklist (Optional)</label>
+        <div className="flex gap-1.5">
+          <Input
+            value={newSubtaskTitle}
+            onChange={(e) => setNewSubtaskTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddSubtask();
+              }
+            }}
+            placeholder="e.g. Put on shoes, Fill water bottle..."
+            className="text-xs h-8 bg-surface-2"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAddSubtask}
+            className="h-8 px-2.5 text-xs rounded-xl"
+          >
+            Add Step
+          </Button>
+        </div>
+        {subtasks.length > 0 && (
+          <div className="space-y-1 pt-1">
+            {subtasks.map((st) => (
+              <div key={st.id} className="flex items-center justify-between text-xs px-2 py-1 rounded-lg bg-surface-2">
+                <span>• {st.title}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSubtask(st.id)}
+                  className="text-faint hover:text-destructive"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Icon Selector */}
@@ -1687,8 +1946,21 @@ function HabitDetailModal({
 }) {
   const [notes, setNotes] = useState(habit.notes ?? "");
   const [isPaused, setIsPaused] = useState(Boolean(habit.isPaused));
+  const [showVacationInput, setShowVacationInput] = useState(false);
+  const [vacStart, setVacStart] = useState("");
+  const [vacEnd, setVacEnd] = useState("");
+  const [vacReason, setVacReason] = useState("");
   const today = todayKey();
   const milestones = getMilestones(habit.bestStreak);
+
+  const handleAddVacation = () => {
+    if (!vacStart || !vacEnd) return;
+    habitActions.addVacation(habit.id, vacStart, vacEnd, vacReason);
+    setVacStart("");
+    setVacEnd("");
+    setVacReason("");
+    setShowVacationInput(false);
+  };
 
   // Compute recent 14 days for quick check-in fill-in
   const recent14Days = useMemo(() => {
@@ -1807,24 +2079,116 @@ function HabitDetailModal({
         </Button>
       </div>
 
-      {/* Vacation / Pause Mode */}
-      <div className="rounded-2xl border border-border/40 bg-surface-2/60 p-3 flex items-center justify-between">
-        <div>
-          <p className="font-semibold text-xs">Vacation / Pause Habit</p>
-          <p className="text-[11px] text-faint">Freeze streak safely during travel or illness</p>
+      {/* Vacation / Pause Mode & Multi-period Vacation Ranges */}
+      <div className="rounded-2xl border border-border/40 bg-surface-2/60 p-3 space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-xs flex items-center gap-1.5">
+              <Palmtree className="size-3.5 text-cyan-400" /> Vacation &amp; Pause
+            </p>
+            <p className="text-[11px] text-faint">Freeze streak safely during travel or illness</p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowVacationInput(!showVacationInput)}
+              className="text-xs font-bold gap-1 border-border text-faint hover:text-foreground"
+            >
+              <Plus className="size-3" /> Interval
+            </Button>
+            <Button
+              variant={isPaused ? "default" : "outline"}
+              size="sm"
+              onClick={handleTogglePause}
+              className={cn(
+                "text-xs font-bold gap-1",
+                isPaused ? "bg-ember text-white" : "border-border text-faint hover:text-foreground"
+              )}
+            >
+              {isPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
+              {isPaused ? "Resume" : "Pause"}
+            </Button>
+          </div>
         </div>
-        <Button
-          variant={isPaused ? "default" : "outline"}
-          size="sm"
-          onClick={handleTogglePause}
-          className={cn(
-            "text-xs font-bold gap-1",
-            isPaused ? "bg-ember text-white" : "border-border text-faint hover:text-foreground"
-          )}
-        >
-          {isPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
-          {isPaused ? "Resume" : "Pause"}
-        </Button>
+
+        {/* Form to add a vacation range */}
+        {showVacationInput && (
+          <div className="p-2.5 rounded-xl bg-surface border border-border/40 space-y-2 text-xs">
+            <p className="font-semibold text-[11px] text-muted-foreground uppercase">Add Vacation Range</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] text-faint block mb-0.5">Start Date</label>
+                <Input
+                  type="date"
+                  value={vacStart}
+                  onChange={(e) => setVacStart(e.target.value)}
+                  className="h-7 text-xs bg-surface-2"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-faint block mb-0.5">End Date</label>
+                <Input
+                  type="date"
+                  value={vacEnd}
+                  onChange={(e) => setVacEnd(e.target.value)}
+                  className="h-7 text-xs bg-surface-2"
+                />
+              </div>
+            </div>
+            <Input
+              type="text"
+              placeholder="Reason (optional, e.g. Summer holiday, flu)"
+              value={vacReason}
+              onChange={(e) => setVacReason(e.target.value)}
+              className="h-7 text-xs bg-surface-2"
+            />
+            <div className="flex justify-end gap-1.5 pt-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowVacationInput(false)}
+                className="h-7 px-2 text-xs text-faint"
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleAddVacation}
+                disabled={!vacStart || !vacEnd}
+                className="h-7 px-3 text-xs bg-cyan-600 text-white hover:bg-cyan-500"
+              >
+                Save Range
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Existing vacation ranges list */}
+        {habit.vacationRanges && habit.vacationRanges.length > 0 && (
+          <div className="space-y-1 pt-1 border-t border-border/20">
+            <p className="text-[10px] font-semibold text-faint uppercase">Scheduled Vacations</p>
+            {habit.vacationRanges.map((vr, idx) => (
+              <div
+                key={idx}
+                className="flex items-center justify-between text-xs px-2 py-1 rounded-lg bg-surface/60 border border-border/20"
+              >
+                <span className="font-mono text-[11px] text-cyan-300">
+                  {vr.start} → {vr.end}
+                  {vr.reason && <span className="font-sans text-faint ml-1.5 font-normal">({vr.reason})</span>}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => habitActions.removeVacation(habit.id, idx)}
+                  className="text-faint hover:text-destructive text-xs ml-2"
+                  title="Remove vacation range"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Snooze Reminder */}

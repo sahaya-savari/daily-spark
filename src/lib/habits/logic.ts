@@ -1,5 +1,7 @@
-import { addDays, isValidKey, lastNDays } from "./dates";
+import { addDays, isValidKey, lastNDays, todayKey } from "./dates";
 import { DEFAULT_SETTINGS, MILESTONES, type Habit, type HabitSettings, type MilestoneDef, type StandaloneNote } from "./types";
+import { calculateCleanStreak } from "./avoid";
+import { currentStreakWithNeutral } from "./vacation";
 
 /* ------------------------------------------------------------------ */
 /* Streak rules                                                        */
@@ -43,31 +45,64 @@ export function longestStreak(dates: string[]): number {
 /** Recompute derived counters from completedDates. */
 export function refresh(habit: Habit, today: string): Habit {
   const completedDates = normalizeDates(habit.completedDates);
-  const cur = currentStreak(completedDates, today);
+  let cur: number;
+  let bestRun: number;
+
+  if (habit.kind === "avoid") {
+    cur = calculateCleanStreak(habit, today);
+    bestRun = cur;
+  } else if (habit.vacationRanges && habit.vacationRanges.length > 0) {
+    cur = currentStreakWithNeutral(completedDates, habit, today);
+    bestRun = longestStreak(completedDates);
+  } else {
+    cur = currentStreak(completedDates, today);
+    bestRun = longestStreak(completedDates);
+  }
+
   return {
     ...habit,
     completedDates,
     currentStreak: cur,
-    bestStreak: Math.max(habit.bestStreak || 0, longestStreak(completedDates), cur),
-    lastCompletedDate: completedDates.at(-1) ?? null,
+    bestStreak: Math.max(habit.bestStreak || 0, bestRun, cur),
+    lastCompletedDate: habit.kind === "avoid" ? null : (completedDates.at(-1) ?? null),
   };
 }
 
 export function isDoneOn(habit: Habit, day: string): boolean {
+  if (habit.kind === "avoid") {
+    const createdKey = habit.createdAt ? habit.createdAt.slice(0, 10) : "";
+    if (createdKey && day < createdKey) return false;
+    if (day > todayKey()) return false;
+    const hasRelapse = habit.relapses?.some((r) => r.date === day);
+    return !hasRelapse;
+  }
   return habit.completedDates.includes(day);
 }
 
 /** Mark today as done. Doing it twice in one day changes nothing. */
-export function completeToday(habit: Habit, today: string): Habit {
+export function completeToday(habit: Habit, today: string, timeStr?: string): Habit {
   if (isDoneOn(habit, today)) return habit;
-  return refresh({ ...habit, completedDates: [...habit.completedDates, today] }, today);
+  const nextTimes = { ...(habit.completionTimes || {}) };
+  nextTimes[today] = timeStr || new Date().toISOString();
+  return refresh({
+    ...habit,
+    completedDates: [...habit.completedDates, today],
+    completionTimes: nextTimes,
+  }, today);
 }
 
 /** Undo today's completion (mistake-friendly). Only today can be undone. */
 export function undoToday(habit: Habit, today: string): Habit {
   if (!isDoneOn(habit, today)) return habit;
   const completedDates = habit.completedDates.filter((d) => d !== today);
-  const next = refresh({ ...habit, completedDates, bestStreak: 0 }, today);
+  const nextTimes = { ...(habit.completionTimes || {}) };
+  delete nextTimes[today];
+  const next = refresh({
+    ...habit,
+    completedDates,
+    completionTimes: nextTimes,
+    bestStreak: 0,
+  }, today);
   // Best streak never drops below the longest run still in history.
   return { ...next, bestStreak: Math.max(longestStreak(completedDates), next.currentStreak) };
 }
@@ -85,18 +120,21 @@ export function togglePastDay(habit: Habit, dateStr: string, today: string): Hab
     ? habit.completedDates.filter((d) => d !== dateStr)
     : [...habit.completedDates, dateStr];
 
-  const sortedDates = normalizeDates(nextDates);
-  const cur = currentStreak(sortedDates, today);
-  const longest = longestStreak(sortedDates);
-  const best = Math.max(isCompleted ? longest : (habit.bestStreak || 0), longest, cur);
+  const nextTimes = { ...(habit.completionTimes || {}) };
+  if (isCompleted) {
+    delete nextTimes[dateStr];
+  } else if (!nextTimes[dateStr]) {
+    nextTimes[dateStr] = new Date().toISOString();
+  }
 
-  return {
+  const sortedDates = normalizeDates(nextDates);
+  const updatedHabit = {
     ...habit,
     completedDates: sortedDates,
-    currentStreak: cur,
-    bestStreak: best,
-    lastCompletedDate: sortedDates.at(-1) ?? null,
+    completionTimes: nextTimes,
+    bestStreak: isCompleted ? 0 : (habit.bestStreak || 0),
   };
+  return refresh(updatedHabit, today);
 }
 
 export type HabitStatus = "done" | "pending" | "broken";
@@ -295,10 +333,16 @@ export function verifyAndHealIntegrity(habits: Habit[], today: string): Integrit
     }
 
     // 4. Streak counter drift
-    const correctCurrent = currentStreak(normalized, today);
-    const longest = longestStreak(normalized);
+    let correctCurrent = currentStreak(normalized, today);
+    let longest = longestStreak(normalized);
+    if (habit.kind === "avoid") {
+      correctCurrent = calculateCleanStreak(habit, today);
+      longest = correctCurrent;
+    } else if (habit.vacationRanges && habit.vacationRanges.length > 0) {
+      correctCurrent = currentStreakWithNeutral(normalized, habit, today);
+    }
     const correctBest = Math.max(habit.bestStreak || 0, longest, correctCurrent);
-    const correctLastCompleted = normalized.at(-1) ?? null;
+    const correctLastCompleted = habit.kind === "avoid" ? null : (normalized.at(-1) ?? null);
 
     if (
       habit.currentStreak !== correctCurrent ||

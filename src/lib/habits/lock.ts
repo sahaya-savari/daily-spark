@@ -213,13 +213,42 @@ export const lockActions = {
   },
 };
 
+let cachedSnapshot: LockState = {
+  isPinSet: false,
+  isEnabled: false,
+  isLocked: false,
+  timeoutMinutes: DEFAULT_TIMEOUT_MINUTES,
+};
+
+const SERVER_SNAPSHOT: LockState = {
+  isPinSet: false,
+  isEnabled: false,
+  isLocked: false,
+  timeoutMinutes: DEFAULT_TIMEOUT_MINUTES,
+};
+
 function getLockSnapshot(): LockState {
-  return {
-    isPinSet: isPinSet(),
-    isEnabled: isLockEnabled(),
-    isLocked: isSessionLocked(),
-    timeoutMinutes: getLockTimeoutMinutes(),
+  const nextPinSet = isPinSet();
+  const nextEnabled = isLockEnabled();
+  const nextLocked = isSessionLocked();
+  const nextTimeout = getLockTimeoutMinutes();
+
+  if (
+    cachedSnapshot.isPinSet === nextPinSet &&
+    cachedSnapshot.isEnabled === nextEnabled &&
+    cachedSnapshot.isLocked === nextLocked &&
+    cachedSnapshot.timeoutMinutes === nextTimeout
+  ) {
+    return cachedSnapshot;
+  }
+
+  cachedSnapshot = {
+    isPinSet: nextPinSet,
+    isEnabled: nextEnabled,
+    isLocked: nextLocked,
+    timeoutMinutes: nextTimeout,
   };
+  return cachedSnapshot;
 }
 
 export function useAppLockStore(): LockState {
@@ -229,12 +258,7 @@ export function useAppLockStore(): LockState {
       return () => listeners.delete(cb);
     },
     getLockSnapshot,
-    () => ({
-      isPinSet: false,
-      isEnabled: false,
-      isLocked: false,
-      timeoutMinutes: DEFAULT_TIMEOUT_MINUTES,
-    }),
+    () => SERVER_SNAPSHOT,
   );
 }
 

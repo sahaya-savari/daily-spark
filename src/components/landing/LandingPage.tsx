@@ -19,6 +19,8 @@ import {
   ShieldCheck,
   Pause,
   Play,
+  Activity,
+  Clock,
 } from "lucide-react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
@@ -41,43 +43,43 @@ import { SITE } from "@/lib/site";
 const FEATURES = [
   {
     icon: CheckCircle2,
-    title: "Check in",
-    body: "One tap per habit, once a day. No over-counting. Made a mistake? Undo today's tick.",
+    title: "Check in & Multi-Lap",
+    body: "Standard, quantitative targets (ml, pages, reps) with quick chips, or avoid clean streaks.",
   },
   {
     icon: Flame,
-    title: "Streaks",
-    body: "Yesterday's check-in keeps today open. Miss a day and you start again - your best run stays.",
+    title: "Half-Life Strength HUD",
+    body: "90-day window with 12-day exponential half-life decay gauge. Miss a day without losing everything.",
   },
   {
-    icon: Calendar,
-    title: "Calendar",
-    body: "Every day shows done out of total, from an empty square to a full apricot one. No fake badges.",
+    icon: Activity,
+    title: "Circadian & Stacking",
+    body: "24-hour Gaussian performance curve and conditional habit-stacking probability insights.",
   },
   {
-    icon: LineChart,
-    title: "Progress",
-    body: "Weekly and monthly consistency, perfect days, best runs and a 6-month activity heatmap.",
-  },
-  {
-    icon: Bell,
-    title: "Reminders",
-    body: "Optional, per habit, at the time you pick. Off by default. Never nagging.",
-  },
-  {
-    icon: HardDrive,
-    title: "Backup and restore",
-    body: "Export everything to one file and restore it anywhere. Old Daily Spark backups work too.",
+    icon: Clock,
+    title: "Procedural Focus Timer",
+    body: "Synthesized Web Audio ambient rain, brown noise, and finish chime with zero cloud assets.",
   },
   {
     icon: Sparkles,
-    title: "Organise",
-    body: "Line icons, color tags, notes, starred habits on top, and an archive for the ones on pause.",
+    title: "3D Voxel Island",
+    body: "A calm isometric voxel sanctuary that organically blossoms with your consistency.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Zero-Cloud Encrypted Vault",
+    body: "AES-GCM-256 encrypted vault with Set-Union conflict-free sync across devices.",
+  },
+  {
+    icon: Calendar,
+    title: "Calendar & Heatmap",
+    body: "Glanceable monthly matrix and 6-month activity heatmap. Honest, verified metrics.",
   },
   {
     icon: Smartphone,
-    title: "Lightweight APK",
-    body: "Small 4.1 MB download, runs completely offline, no account required.",
+    title: "Android Widgets & Health",
+    body: "Home-screen glanceable widgets (4x2, 1x1, heatmap) and Health Connect bridge.",
   },
 ] as const;
 
@@ -401,7 +403,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </a>
               <Link
                 to="/app"
-                className="glass-pill inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                className="glass-pill inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
               >
                 <Globe aria-hidden="true" />
                 <span className="leading-none">

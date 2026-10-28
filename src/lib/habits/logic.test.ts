@@ -21,6 +21,7 @@ import {
   resumeHabit,
   applyGrace,
   exportToMarkdown,
+  isDoneOn,
 } from "./logic";
 import { DEFAULT_SETTINGS, type Habit, type StandaloneNote } from "./types";
 
@@ -513,6 +514,47 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
     expect(md).toContain("Focus on breath");
     expect(md).toContain("### 📌 Mindfulness Log");
     expect(md).toContain("Feeling calmer this week.");
+  });
+
+  it("evaluates isDoneOn accurately for avoid habits", () => {
+    const avoidHabit: Habit = {
+      ...createHabit({ name: "Quit Smoking", emoji: "🚭" }, "2026-10-01"),
+      kind: "avoid",
+      relapses: [{ date: "2026-10-15" }],
+    };
+
+    expect(isDoneOn(avoidHabit, "2026-10-14")).toBe(true); // Clean day
+    expect(isDoneOn(avoidHabit, "2026-10-15")).toBe(false); // Relapse day
+    expect(isDoneOn(avoidHabit, "2026-09-20")).toBe(false); // Before creation
+    expect(isDoneOn(avoidHabit, "2099-01-01")).toBe(false); // Future date
+  });
+
+  it("preserves avoid streaks and vacation ranges during verifyAndHealIntegrity", () => {
+    const avoidHabit: Habit = {
+      ...createHabit({ name: "No Sugar", emoji: "🍬" }, "2026-10-01"),
+      kind: "avoid",
+      relapses: [],
+      currentStreak: 26,
+      bestStreak: 26,
+    };
+
+    const vacationHabit: Habit = {
+      ...createHabit({ name: "Running", emoji: "🏃" }, "2026-10-20"),
+      completedDates: ["2026-10-20", "2026-10-21", "2026-10-24", "2026-10-25", TODAY],
+      vacationRanges: [{ start: "2026-10-22", end: "2026-10-23" }],
+      currentStreak: 5,
+      bestStreak: 5,
+    };
+
+    const result = verifyAndHealIntegrity([avoidHabit, vacationHabit], TODAY);
+    expect(result.healed[0].currentStreak).toBe(26);
+    expect(result.healed[1].currentStreak).toBe(5);
+  });
+
+  it("records completion timestamp into completionTimes on check-in", () => {
+    const h = createHabit({ name: "Read", emoji: "📚" }, TODAY);
+    const completed = completeToday(h, TODAY, "2026-10-26T08:30:00.000Z");
+    expect(completed.completionTimes?.[TODAY]).toBe("2026-10-26T08:30:00.000Z");
   });
 });
 

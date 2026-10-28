@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { todayKey } from "./dates";
+import { todayKey, addDays } from "./dates";
 import {
   completeToday,
   createHabit,
@@ -13,6 +13,12 @@ import {
   resumeHabit,
   applyGrace,
 } from "./logic";
+import { setQuantValue, incrementQuantValue } from "./quantitative";
+import { logRelapse as logHabitRelapse, undoRelapse as undoHabitRelapse } from "./avoid";
+import { toggleSubtask as toggleHabitSubtask, addSubtaskToHabit, removeSubtaskFromHabit } from "./subtasks";
+import { addVacationRange as addHabitVacation, removeVacationRange as removeHabitVacation } from "./vacation";
+import { mergeVaultHabits } from "./vaultSync";
+import { syncWidgetData } from "./widgetBridge";
 import { DEFAULT_SETTINGS, type Habit, type HabitSettings } from "./types";
 
 /**
@@ -131,6 +137,7 @@ function persist() {
     localStorage.setItem(STORAGE_KEYS.habits, JSON.stringify(state.habits));
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
     saveRollingBackup(state.habits, state.settings);
+    syncWidgetData(state.habits).catch(() => {});
   } catch (e) {
     console.error("[daily-spark] could not save", e);
   }
@@ -302,5 +309,149 @@ export const habitActions = {
       habitActions.replaceAll(target.habits, target.settings);
     }
   },
+  // Phase 4 & 5 additions
+  setQuant(id: string, dateKey: string, value: number) {
+    const today = todayKey();
+    mapHabit(id, (h) => setQuantValue(h, dateKey, value, today));
+  },
+  incrementQuant(id: string, dateKey: string, delta: number) {
+    const today = todayKey();
+    mapHabit(id, (h) => incrementQuantValue(h, dateKey, delta, today));
+  },
+  logRelapse(id: string, dateKey: string, cost?: number, reason?: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => logHabitRelapse(h, dateKey, cost, reason, today));
+  },
+  undoRelapse(id: string, dateKey: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => undoHabitRelapse(h, dateKey, today));
+  },
+  toggleSubtask(id: string, subtaskId: string, dateKey: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => toggleHabitSubtask(h, subtaskId, dateKey, today));
+  },
+  addSubtask(id: string, title: string) {
+    mapHabit(id, (h) => addSubtaskToHabit(h, title));
+  },
+  removeSubtask(id: string, subtaskId: string) {
+    mapHabit(id, (h) => removeSubtaskFromHabit(h, subtaskId));
+  },
+  addVacation(id: string, start: string, end: string, reason?: string) {
+    const today = todayKey();
+    mapHabit(id, (h) => addHabitVacation(h, start, end, reason, today));
+  },
+  removeVacation(id: string, index: number) {
+    const today = todayKey();
+    mapHabit(id, (h) => removeHabitVacation(h, index, today));
+  },
+  addFocusMinutes(id: string, minutes: number) {
+    mapHabit(id, (h) => ({
+      ...h,
+      totalFocusMinutes: (h.totalFocusMinutes || 0) + minutes,
+    }));
+  },
+  mergeHabits(remoteHabits: Habit[]) {
+    load();
+    const merged = mergeVaultHabits(state.habits, remoteHabits);
+    set({ habits: merged });
+  },
+  seedDemoIfEmpty() {
+    load();
+    if (state.habits.length > 0) return;
+    if (typeof window !== "undefined" && localStorage.getItem("streakflame_cleared_by_user") === "1") {
+      return;
+    }
+    const today = todayKey();
+    const demoHabits = getInitialSeedHabits(today);
+    set({ habits: demoHabits });
+  },
 };
+
+export function getInitialSeedHabits(today: string): Habit[] {
+  const pastDates12 = Array.from({ length: 12 }, (_, i) => addDays(today, -i));
+  const pastDates31 = Array.from({ length: 31 }, (_, i) => addDays(today, -i));
+  const pastDates4 = Array.from({ length: 4 }, (_, i) => addDays(today, -(i + 1)));
+
+  return [
+    refresh({
+      ...createHabit({
+        id: "demo-read",
+        name: "Read 20 minutes",
+        emoji: "📚",
+        icon: "read",
+        color: "fire",
+        category: "study",
+        isStarred: true,
+        notes: "Chapter 3: How to build good habits.",
+        completedDates: pastDates12,
+      }, today),
+    }, today),
+    refresh({
+      ...createHabit({
+        id: "demo-water",
+        name: "Drink water",
+        emoji: "💧",
+        icon: "water",
+        color: "ocean",
+        category: "health",
+        isStarred: true,
+        kind: "quantitative",
+        targetValue: 2000,
+        unit: "ml",
+        stepIncrement: 250,
+        quantitativeValues: { [today]: 1250 },
+        completedDates: pastDates31,
+        notes: "Target 2.5L daily with a pinch of lemon.",
+      }, today),
+    }, today),
+    refresh({
+      ...createHabit({
+        id: "demo-nosugar",
+        name: "No Sugary Drinks",
+        emoji: "🛡️",
+        icon: "shield",
+        color: "ember",
+        category: "health",
+        kind: "avoid",
+        dailyCost: 5,
+        startDate: addDays(today, -14),
+        relapses: [],
+        completedDates: Array.from({ length: 14 }, (_, i) => addDays(today, -i)),
+        notes: "Clean streak! Saving $5 every day without soda.",
+      }, today),
+    }, today),
+    refresh({
+      ...createHabit({
+        id: "demo-routine",
+        name: "Morning Routine",
+        emoji: "✨",
+        icon: "sparkles",
+        color: "gold",
+        category: "daily",
+        subtasks: [
+          { id: "sub-1", title: "Make bed" },
+          { id: "sub-2", title: "5 min stretch" },
+          { id: "sub-3", title: "Glass of water" },
+        ],
+        subtaskCompletions: {
+          [today]: ["sub-1", "sub-2"],
+        },
+        completedDates: [addDays(today, -1)],
+        notes: "Small checklist to start the day with clarity.",
+      }, today),
+    }, today),
+    refresh({
+      ...createHabit({
+        id: "demo-walk",
+        name: "Evening walk",
+        emoji: "🚶",
+        icon: "run",
+        color: "forest",
+        category: "health",
+        completedDates: pastDates4,
+        notes: "Gentle 30-min walk after dinner.",
+      }, today),
+    }, today),
+  ];
+}
 

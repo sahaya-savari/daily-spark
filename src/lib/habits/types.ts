@@ -34,7 +34,47 @@ export interface Habit {
   milestonesReached?: number[] | undefined;
   pauseReason?: string | undefined;
   snoozedUntil?: number | undefined; // Unix timestamp in ms
+  // Phase 4 additions
+  kind?: "boolean" | "quantitative" | "avoid" | undefined;
+  targetValue?: number | undefined;
+  unit?: string | undefined;
+  stepIncrement?: number | undefined;
+  quantitativeValues?: Record<string, number> | undefined;
+  dailyCost?: number | undefined;
+  relapses?: RelapseEntry[] | undefined;
+  subtasks?: SubtaskItem[] | undefined;
+  subtaskCompletions?: Record<string, string[]> | undefined; // dateKey -> array of subtask IDs
+  vacationRanges?: VacationRange[] | undefined;
+  // Phase 5 additions
+  completionTimes?: Record<string, string> | undefined; // dateKey -> ISO string or HH:MM
+  totalFocusMinutes?: number | undefined;
   [extra: string]: unknown;
+}
+
+export interface RelapseEntry {
+  date: string; // YYYY-MM-DD
+  timestamp?: string | undefined;
+  cost?: number | undefined;
+  reason?: string | undefined;
+}
+
+export interface SubtaskItem {
+  id: string;
+  title: string;
+}
+
+export interface VacationRange {
+  start: string; // YYYY-MM-DD
+  end: string; // YYYY-MM-DD
+  reason?: string | undefined;
+}
+
+export interface QuantProgress {
+  laps: number;
+  fraction: number;
+  reachedGoal: boolean;
+  exceededGoal: boolean;
+  totalPercent: number;
 }
 
 export interface StandaloneNote {
