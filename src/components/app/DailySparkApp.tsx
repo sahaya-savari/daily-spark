@@ -605,7 +605,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     <div
       className={cn(
         "relative w-full bg-background font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
-        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen pb-28"
+        embedded ? "h-[680px] overflow-hidden select-none" : "min-h-screen pb-28"
       )}
     >
       {/* Top Header Bar */}
@@ -626,53 +626,57 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         </div>
 
         <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => {
-              setFocusHabit(null);
-              setIsFocusTimerOpen(true);
-            }}
-            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-            title="Focus Timer"
-          >
-            <Clock className="size-4 text-cyan-400" />
-          </button>
+          {!embedded && (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setFocusHabit(null);
+                  setIsFocusTimerOpen(true);
+                }}
+                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+                title="Focus Timer"
+              >
+                <Clock className="size-4 text-cyan-400" />
+              </button>
 
-          <button
-            type="button"
-            onClick={() => setIsCircadianOpen(true)}
-            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-            title="Circadian & Stacking Analytics"
-          >
-            <Activity className="size-4 text-purple-400" />
-          </button>
+              <button
+                type="button"
+                onClick={() => setIsCircadianOpen(true)}
+                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+                title="Circadian & Stacking Analytics"
+              >
+                <Activity className="size-4 text-purple-400" />
+              </button>
 
-          <button
-            type="button"
-            onClick={() => setIsVaultSyncOpen(true)}
-            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-            title="Encrypted Vault Sync & BYOC"
-          >
-            <ShieldCheck className="size-4 text-emerald-400" />
-          </button>
+              <button
+                type="button"
+                onClick={() => setIsVaultSyncOpen(true)}
+                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+                title="Encrypted Vault Sync & BYOC"
+              >
+                <ShieldCheck className="size-4 text-emerald-400" />
+              </button>
 
-          <button
-            type="button"
-            onClick={() => setIsAirGappedOpen(true)}
-            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-            title="Air-Gapped Optical QR Handshake"
-          >
-            <QrCode className="size-4 text-purple-400" />
-          </button>
+              <button
+                type="button"
+                onClick={() => setIsAirGappedOpen(true)}
+                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+                title="Air-Gapped Optical QR Handshake"
+              >
+                <QrCode className="size-4 text-purple-400" />
+              </button>
 
-          <button
-            type="button"
-            onClick={() => setIsShareCardOpen(true)}
-            className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-            title="Vector Milestone Share Card"
-          >
-            <Trophy className="size-4 text-amber-400" />
-          </button>
+              <button
+                type="button"
+                onClick={() => setIsShareCardOpen(true)}
+                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
+                title="Vector Milestone Share Card"
+              >
+                <Trophy className="size-4 text-ember" />
+              </button>
+            </>
+          )}
 
           {progressStats.globalStreak > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember ml-1">
@@ -1712,7 +1716,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="fab"
           size="fab"
           onClick={() => setIsAddOpen(true)}
-          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-amber-400 text-background shadow-[0_4px_16px_oklch(0.755_0.135_52.1_/_40%)] border border-amber-300/30 hover:brightness-110 mx-1 flex items-center justify-center"
+          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-background shadow-[0_4px_16px_oklch(0.755_0.135_52.1_/_35%)] border border-ember/30 hover:brightness-110 mx-1 flex items-center justify-center"
           aria-label="Add new habit"
         >
           <Plus className="size-6" strokeWidth={2.5} />

@@ -10,9 +10,17 @@
  * JetBrains Mono body and habit titles. All tokens live here.
  */
 
+@font-face {
+  font-family: "Block Craft";
+  src: url("./assets/fonts/BlockCraft.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --font-sans: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-display: "Arvo", serif;
+  --font-display: "Block Craft", "Arvo", serif;
   --font-app: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
