@@ -1,26 +1,20 @@
 import { useEffect, useState } from "react";
 import { useLocation, useRouter } from "@tanstack/react-router";
 import {
-  Download,
-  Github,
-  UserX,
-  WifiOff,
-  Bug,
-  Star,
-  CheckCircle2,
-  Flame,
-  Calendar,
-  LineChart,
-  Bell,
-  HardDrive,
-  Sparkles,
-  Smartphone,
-  ShieldCheck,
-  Pause,
-  Play,
-  Activity,
-  Clock,
-} from "lucide-react";
+  PixelAndroid,
+  PixelBug,
+  PixelCalendar,
+  PixelChart,
+  PixelCheckCircle,
+  PixelClock,
+  PixelDownload,
+  PixelFire,
+  PixelGithub,
+  PixelLock,
+  PixelShieldCheck,
+  PixelSparkles,
+  PixelStar,
+} from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
@@ -42,42 +36,42 @@ import { SITE } from "@/lib/site";
 
 const FEATURES = [
   {
-    icon: CheckCircle2,
+    icon: PixelCheckCircle,
     title: "Check in & Multi-Lap",
     body: "Standard, quantitative targets (ml, pages, reps) with quick chips, or avoid clean streaks.",
   },
   {
-    icon: Flame,
+    icon: PixelFire,
     title: "Half-Life Strength HUD",
     body: "90-day window with 12-day exponential half-life decay gauge. Miss a day without losing everything.",
   },
   {
-    icon: Activity,
+    icon: PixelChart,
     title: "Circadian & Stacking",
     body: "24-hour Gaussian performance curve and conditional habit-stacking probability insights.",
   },
   {
-    icon: Clock,
+    icon: PixelClock,
     title: "Procedural Focus Timer",
     body: "Synthesized Web Audio ambient rain, brown noise, and finish chime with zero cloud assets.",
   },
   {
-    icon: Sparkles,
+    icon: PixelSparkles,
     title: "3D Voxel Island",
     body: "A calm isometric voxel sanctuary that organically blossoms with your consistency.",
   },
   {
-    icon: ShieldCheck,
+    icon: PixelShieldCheck,
     title: "Zero-Cloud Encrypted Vault",
     body: "AES-GCM-256 encrypted vault with Set-Union conflict-free sync across devices.",
   },
   {
-    icon: Calendar,
+    icon: PixelCalendar,
     title: "Calendar & Heatmap",
     body: "Glanceable monthly matrix and 6-month activity heatmap. Honest, verified metrics.",
   },
   {
-    icon: Smartphone,
+    icon: PixelAndroid,
     title: "Android Widgets & Health",
     body: "Home-screen glanceable widgets (4x2, 1x1, heatmap) and Health Connect bridge.",
   },
@@ -116,7 +110,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   const [motionPaused, setMotionPaused] = useState(false);
 
   useEffect(() => {
-    // If user arrived with a legacy # hash in the URL, cleanly replace with clean route slug
     const hash = window.location.hash.replace(/^#/, "");
     if (hash === "get") {
       router.navigate({ to: "/download", replace: true });
@@ -165,16 +158,22 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           <HeatmapBackdrop />
 
           <div className="order-1 md:order-1 flex min-w-0 flex-col items-start text-left w-full max-w-full">
+            {/* Unified hero badge with optical alignment */}
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <SparkMark className="size-5 sm:size-[26px] shrink-0" />
-              <b className="font-display text-sm sm:text-[18px] font-bold tracking-[0.02em] text-foreground">Open Source Android App</b>
-              <span className="rounded-full bg-ember-soft px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">100% Offline</span>
+              <SparkMark className="size-5 sm:size-6 shrink-0" />
+              <span className="font-display text-[15px] sm:text-[17px] font-bold tracking-[0.02em] text-foreground leading-none pt-0.5">
+                Open Source Android App
+              </span>
+              <span className="rounded-full bg-ember/20 border border-ember/30 px-2.5 py-1 text-[11px] sm:text-[12px] font-bold text-ember leading-none">
+                100% Offline
+              </span>
             </a>
+
             <h1 className="font-display text-[clamp(28px,8.2vw,36px)] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-left max-w-full">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
@@ -186,13 +185,13 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <DiaTextReveal
                   text="Keep going."
                   delay={0.48}
-                  textColor="oklch(0.740 0.139 51.5)"
+                  textColor="#ec894c"
                   colors={[
-                    "oklch(0.740 0.139 51.5)",
-                    "oklch(0.680 0.125 50.0)",
-                    "oklch(0.780 0.142 53.0)",
-                    "oklch(0.710 0.130 51.0)",
-                    "oklch(0.740 0.139 51.5)",
+                    "#ec894c",
+                    "#f0995c",
+                    "#ec894c",
+                    "#bf7245",
+                    "#ec894c",
                   ]}
                 />
               </span>
@@ -205,17 +204,18 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className={`${btn} cta-solid border-transparent px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base transition-all hover:scale-[1.03] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background`}
+                className={`${btn} cta-solid border-transparent px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base transition-all hover:scale-[1.03] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background leading-none`}
               >
-                <span>Download Daily Spark APK</span> <Download className="size-4 sm:size-[19px] shrink-0" />
+                <span className="pt-0.5">Download Daily Spark APK</span>
+                <PixelDownload className="size-4 sm:size-5 shrink-0" />
               </a>
               <a
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`glass-pill ${btn} border-white/10 px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember`}
+                className={`glass-pill ${btn} border-white/10 px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none`}
               >
-                GitHub Releases
+                <span className="pt-0.5">GitHub Releases</span>
               </a>
             </div>
             <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint text-left">Android APK · 100% Offline · No account · No ads</p>
@@ -273,8 +273,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 aria-label={motionPaused ? "Play screenshots" : "Pause screenshots"}
                 className="hidden sm:inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 text-[13.5px] font-medium text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
-                {motionPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
-                <span aria-hidden="true">{motionPaused ? "Play" : "Pause"}</span>
+                <span>{motionPaused ? "Play" : "Pause"}</span>
               </button>
             </div>
             <p className="sr-only">
@@ -325,9 +324,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </p>
             </div>
             <div className="flex min-w-0 flex-col gap-3.5 w-full">
-              <RowLink icon={<UserX />} title="No account" sub="Install and start immediately" />
-              <RowLink icon={<WifiOff />} title="Offline first" sub="Tracking needs zero internet" />
-              <RowLink icon={<ShieldCheck />} title="Privacy by design" sub="No ads or hidden telemetry" />
+              <RowLink icon={<PixelLock />} title="No account" sub="Install and start immediately" />
+              <RowLink icon={<PixelShieldCheck />} title="Offline first" sub="Tracking needs zero internet" />
+              <RowLink icon={<PixelShieldCheck />} title="Privacy by design" sub="No ads or hidden telemetry" />
             </div>
           </div>
         </section>
@@ -369,9 +368,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </p>
             </div>
             <div className="flex min-w-0 flex-col gap-3.5 w-full">
-              <RowLink icon={<Github />} title={SITE.author} sub={`github.com/${SITE.author}`} href={SITE.authorUrl} />
-              <RowLink icon={<Star />} title="Give it a star" sub="Star on GitHub" href={SITE.repo} />
-              <RowLink icon={<Bug />} title="Report an issue" sub="GitHub issues" href={SITE.issues} />
+              <RowLink icon={<PixelGithub />} title={SITE.author} sub={`github.com/${SITE.author}`} href={SITE.authorUrl} />
+              <RowLink icon={<PixelStar />} title="Give it a star" sub="Star on GitHub" href={SITE.repo} />
+              <RowLink icon={<PixelBug />} title="Report an issue" sub="GitHub issues" href={SITE.issues} />
             </div>
           </div>
         </section>
@@ -393,7 +392,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 download={SITE.apk.filename}
                 className="inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full cta-solid px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                <Download />
+                <PixelDownload />
                 <span className="leading-none">
                   <span className="block text-[10px] font-semibold uppercase tracking-wider text-cta-foreground/80">
                     Download APK
@@ -409,7 +408,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 rel="noreferrer"
                 className="glass-pill inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
-                <Github />
+                <PixelGithub />
                 <span className="leading-none">
                   <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                     View on
@@ -422,7 +421,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </div>
             <p className="text-xs sm:text-sm text-faint">
               Android only · APK{" "}
-              <code className="font-mono rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[12px] sm:text-[13px] text-muted-foreground">
+              <code className="rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[12px] sm:text-[13px] text-muted-foreground">
                 {SITE.apk.version}
               </code>{" "}
               · {SITE.apk.size} · 100% offline and privacy-first.
@@ -439,7 +438,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: string; sub: string; href?: string }) {
   const inner = (
     <>
-      <span className="grid size-11 flex-none place-items-center rounded-xl border border-white/10 bg-surface/80 text-ember shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:border-ember/40 group-hover:bg-surface [&_svg]:size-5 [&_svg]:stroke-[1.8]">
+      <span className="grid size-11 flex-none place-items-center rounded-xl border border-white/10 bg-surface/80 text-ember shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:border-ember/40 group-hover:bg-surface [&_svg]:size-5">
         {icon}
       </span>
       <span className="text-left flex-1 min-w-0">
@@ -456,4 +455,3 @@ function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: str
     <div className="glass-inset group flex w-full items-center gap-3 sm:gap-3.5 rounded-2xl px-3.5 py-3 sm:px-4 sm:py-3.5">{inner}</div>
   );
 }
-

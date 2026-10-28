@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Download as DownloadIcon, Github, ShieldCheck, Smartphone } from "lucide-react";
+import {
+  PixelAndroid,
+  PixelCheckCircle,
+  PixelDownload,
+  PixelGithub,
+  PixelShieldCheck,
+} from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SITE, siteUrl } from "@/lib/site";
 
@@ -58,7 +64,7 @@ function Download() {
         {/* Primary install card */}
         <section className="glass-panel glass-sheen mt-10 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ember">
-            <Smartphone aria-hidden="true" className="size-4" />
+            <PixelAndroid aria-hidden="true" className="size-4" />
             <span>Android only</span>
           </div>
 
@@ -68,7 +74,7 @@ function Download() {
               download={SITE.apk.filename}
               className="inline-flex h-[52px] sm:h-[54px] w-full sm:w-auto items-center justify-center gap-3 rounded-full cta-solid px-7 text-left transition-all hover:scale-[1.02]"
             >
-              <DownloadIcon aria-hidden="true" className="size-5 sm:size-6" />
+              <PixelDownload aria-hidden="true" className="size-5 sm:size-6" />
               <span className="leading-none">
                 <span className="block text-[10px] font-semibold uppercase tracking-wider text-cta-foreground/80">
                   Download APK
@@ -84,7 +90,7 @@ function Download() {
               rel="noreferrer"
               className="glass-pill inline-flex h-[52px] sm:h-[54px] w-full sm:w-auto items-center justify-center gap-3 rounded-full px-7 text-left transition-all hover:scale-[1.02]"
             >
-              <Github aria-hidden="true" className="size-5 sm:size-6" />
+              <PixelGithub aria-hidden="true" className="size-5 sm:size-6" />
               <span className="leading-none">
                 <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                   View on
@@ -99,15 +105,15 @@ function Download() {
           <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2 border-t border-border pt-5 text-sm sm:grid-cols-2">
             <div className="flex items-baseline justify-between gap-3 sm:block">
               <dt className="text-faint">Version</dt>
-              <dd className="font-mono text-muted-foreground">{SITE.apk.version}</dd>
+              <dd className="text-muted-foreground">{SITE.apk.version}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 sm:block">
               <dt className="text-faint">Download size</dt>
-              <dd className="font-mono text-muted-foreground">{SITE.apk.size}</dd>
+              <dd className="text-muted-foreground">{SITE.apk.size}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 sm:col-span-2 sm:mt-1 sm:block">
               <dt className="text-faint">File</dt>
-              <dd className="break-all font-mono text-muted-foreground">{SITE.apk.filename}</dd>
+              <dd className="break-all text-muted-foreground">{SITE.apk.filename}</dd>
             </div>
           </dl>
         </section>
@@ -118,7 +124,7 @@ function Download() {
           <ol className="mt-5 space-y-0">
             {STEPS.map((step, index) => (
               <li key={step.title} className="flex gap-4 border-t border-border py-5 first:border-t-0 first:pt-0">
-                <span className="grid size-8 flex-none place-items-center rounded-full border border-white/10 bg-surface-2/80 font-mono text-sm text-ember">
+                <span className="grid size-8 flex-none place-items-center rounded-full border border-white/10 bg-surface-2/80 font-display text-sm text-ember">
                   {index + 1}
                 </span>
                 <div className="min-w-0">
@@ -146,7 +152,7 @@ function Download() {
         {/* Privacy / provenance */}
         <section className="glass-surface mt-8 rounded-2xl p-5 sm:p-6">
           <h2 className="flex items-center gap-2 font-display text-lg sm:text-xl font-semibold tracking-wide">
-            <ShieldCheck aria-hidden="true" className="size-5 text-ember" />
+            <PixelShieldCheck aria-hidden="true" className="size-5 text-ember" />
             What you are installing
           </h2>
           <p className="mt-2 text-sm sm:text-[15px] leading-relaxed text-muted-foreground">
@@ -156,7 +162,7 @@ function Download() {
           <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
             {["No account or sign-up", "Works fully offline", "No ads, analytics, or tracking"].map((item) => (
               <li key={item} className="flex items-start gap-2.5">
-                <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 flex-none text-ember" />
+                <PixelCheckCircle aria-hidden="true" className="mt-0.5 size-4 flex-none text-ember" />
                 <span>{item}</span>
               </li>
             ))}

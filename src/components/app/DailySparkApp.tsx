@@ -1767,7 +1767,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="fab"
           size="fab"
           onClick={() => setIsAddOpen(true)}
-          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_16px_oklch(0.74_0.139_51.5_/_35%)] border border-ember/30 hover:brightness-110 mx-1 flex items-center justify-center p-0"
+          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_16px_rgba(236,137,76,0.35)] border border-ember/30 hover:brightness-110 mx-1 flex items-center justify-center p-0"
           aria-label="Add new habit"
         >
           <PixelPlus className="size-6 text-white" />

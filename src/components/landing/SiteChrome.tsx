@@ -1,27 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bug, Download, Github, Menu, ShieldCheck, X } from "lucide-react";
+import {
+  PixelBug,
+  PixelClose,
+  PixelDownload,
+  PixelGithub,
+  PixelMenu,
+  PixelShieldCheck,
+} from "@/components/ui/pixel-icon";
 import { SparkMark } from "@/components/brand/Logo";
 import { SITE } from "@/lib/site";
 
 const navLnk =
-  "whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13.5px] font-medium text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
+  "whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center";
 
 const menuItem =
-  "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[15px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
+  "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[14px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
 
 const footerLink =
   "inline-flex min-h-11 items-center gap-2 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember rounded-lg";
 
 /**
  * Move focus to <main> once a route change has committed.
- *
- * A route swap replaces the whole tree, so the <main> that exists on the next
- * animation frame still belongs to the outgoing page and is detached a moment
- * later (taking focus with it). Retry on a short bounded schedule instead, so
- * the last attempt lands on the incoming <main>; bail as soon as something
- * else meaningful has focus so a keyboard user who is already navigating is
- * never pulled back.
  */
 function focusMainWhenReady() {
   const deadline = performance.now() + 240;
@@ -46,17 +46,13 @@ export function SiteHeader() {
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
-    // Move focus into the tray so keyboard users land on the first destination.
     restoreFocus.current = false;
     const getItems = () =>
       Array.from(
         menuRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])') ?? [],
       );
 
-    // The trigger is mounted for the whole app lifetime; capture it once so the
-    // cleanup below never dereferences a ref whose value may have changed.
     const toggleEl = toggleRef.current;
-
     getItems()[0]?.focus({ preventScroll: true });
 
     const onKey = (e: KeyboardEvent) => {
@@ -86,9 +82,7 @@ export function SiteHeader() {
       if (menuRef.current?.contains(target) || toggleRef.current?.contains(target)) return;
       setMobileMenuOpen(false);
     };
-    // The tray is only rendered below the header's lg breakpoint. If the
-    // viewport grows past it while open, close without restoring focus to the
-    // now-hidden toggle.
+
     const desktop = window.matchMedia("(min-width: 1024px)");
     const onBreakpoint = (e: MediaQueryListEvent) => {
       if (!e.matches) return;
@@ -110,7 +104,6 @@ export function SiteHeader() {
       document.removeEventListener("pointerdown", onPointerDown);
       desktop.removeEventListener("change", onBreakpoint);
       document.body.style.overflow = previous;
-      // Escape closes back to the trigger; pointer/link closes leave focus alone.
       if (restoreFocus.current) {
         restoreFocus.current = false;
         toggleEl?.focus({ preventScroll: true });
@@ -118,9 +111,6 @@ export function SiteHeader() {
     };
   }, [mobileMenuOpen]);
 
-  // Menu items navigate away from the tray, so its DOM disappears before the
-  // browser can restore focus. Send keyboard users to <main> instead, except
-  // for in-page anchors, which keep the existing return-to-trigger behaviour.
   const closeMenu = (destination: "hash" | "route" | "external" = "external") => {
     restoreFocus.current = destination === "hash";
     setMobileMenuOpen(false);
@@ -130,17 +120,17 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-2.5 sm:top-3.5 z-50 px-3 sm:px-6 w-full max-w-full pt-[env(safe-area-inset-top)]">
-      <div className="glass-strong mx-auto flex max-w-[1100px] items-center justify-between gap-1.5 sm:gap-3 rounded-full px-2.5 py-1.5 sm:px-4.5 sm:py-2.5 transition-all duration-300 hover:border-white/15">
-        {/* Brand Logo & Title */}
+      <div className="glass-strong mx-auto flex max-w-[1100px] items-center justify-between gap-1.5 sm:gap-3 rounded-full px-3 py-1.5 sm:px-4.5 sm:py-2.5 transition-all duration-300 hover:border-white/15">
+        {/* Brand Logo & Title with perfect vertical optical baseline */}
         <Link
           to="/"
           aria-label="Daily Spark home"
-          className="group flex min-h-11 items-center gap-2 rounded-full px-1 transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0"
+          className="group flex min-h-11 items-center gap-2.5 rounded-full px-1 transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0"
         >
           <SparkMark className="size-5 sm:size-6 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-          <b className="font-display text-[15px] sm:text-[17.5px] font-bold tracking-tight text-foreground whitespace-nowrap">
+          <span className="font-display text-[16px] sm:text-[18px] font-bold tracking-tight text-foreground whitespace-nowrap leading-none pt-0.5">
             Daily Spark
-          </b>
+          </span>
         </Link>
 
         {/* Center Navigation Tray */}
@@ -183,21 +173,21 @@ export function SiteHeader() {
           <a
             href={SITE.apk.url}
             download={SITE.apk.filename}
-            className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3 py-1.5 text-xs font-semibold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3 py-1.5 text-xs font-semibold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
           >
-            <Download className="size-3.5 shrink-0" />
-            <span>Download APK</span>
+            <PixelDownload className="size-3.5 shrink-0" />
+            <span className="pt-0.5">Download APK</span>
           </a>
 
           <a
             href={SITE.repo}
             target="_blank"
             rel="noreferrer"
-            className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 sm:py-2 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 sm:py-2 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
             aria-label="View Daily Spark source code on GitHub"
           >
-            <Github className="size-3.5" />
-            <span>GitHub</span>
+            <PixelGithub className="size-3.5 shrink-0" />
+            <span className="pt-0.5">GitHub</span>
           </a>
 
           {/* Mobile Menu Toggle Button */}
@@ -211,9 +201,9 @@ export function SiteHeader() {
             aria-controls="mobile-nav"
           >
             {mobileMenuOpen ? (
-              <X className="size-4.5 text-ember stroke-[2.2]" />
+              <PixelClose className="size-4 text-ember" />
             ) : (
-              <Menu className="size-4.5 text-foreground stroke-[2.2]" />
+              <PixelMenu className="size-4 text-foreground" />
             )}
           </button>
         </div>
@@ -240,7 +230,7 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
               >
                 <span>What it does</span>
-                <span className="text-xs text-muted-foreground font-mono">01</span>
+                <span className="text-xs text-muted-foreground">01</span>
               </Link>
               <Link
                 to="/screens"
@@ -249,7 +239,7 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
               >
                 <span>Screens</span>
-                <span className="text-xs text-muted-foreground font-mono">02</span>
+                <span className="text-xs text-muted-foreground">02</span>
               </Link>
               <Link
                 to="/privacy"
@@ -258,10 +248,10 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
               >
                 <span className="flex items-center gap-2">
-                  <ShieldCheck className="size-4 text-emerald-400" />
+                  <PixelShieldCheck className="size-4 text-ember" />
                   <span>Privacy</span>
                 </span>
-                <span className="text-xs text-muted-foreground font-mono">03</span>
+                <span className="text-xs text-muted-foreground">03</span>
               </Link>
               <Link
                 to="/download"
@@ -270,10 +260,10 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 font-semibold border border-white/10" }}
               >
                 <span className="flex items-center gap-2">
-                  <Download className="size-4 text-ember" />
+                  <PixelDownload className="size-4 text-ember" />
                   <span>Download</span>
                 </span>
-                <span className="text-xs text-muted-foreground font-mono">04</span>
+                <span className="text-xs text-muted-foreground">04</span>
               </Link>
               <a
                 href={SITE.repo}
@@ -283,10 +273,10 @@ export function SiteHeader() {
                 className={`${menuItem} mt-1 border-t border-white/5 pt-3 text-muted-foreground`}
               >
                 <span className="flex items-center gap-2">
-                  <Github className="size-4" />
+                  <PixelGithub className="size-4" />
                   <span>GitHub Repository</span>
                 </span>
-                <span className="text-xs text-muted-foreground font-mono">v{SITE.apk.version}</span>
+                <span className="text-xs text-muted-foreground">v{SITE.apk.version}</span>
               </a>
             </nav>
           </div>
@@ -306,16 +296,16 @@ export function SiteFooter() {
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-1">
           <Link to="/download" className={footerLink}>
-            <Download className="size-4" /> Download
+            <PixelDownload className="size-4" /> Download
           </Link>
           <a href={SITE.repo} target="_blank" rel="noreferrer" className={footerLink}>
-            <Github className="size-4" /> Source
+            <PixelGithub className="size-4" /> Source
           </a>
           <Link to="/privacy" className={footerLink}>
-            <ShieldCheck className="size-4" /> Privacy
+            <PixelShieldCheck className="size-4" /> Privacy
           </Link>
           <a href={SITE.issues} target="_blank" rel="noreferrer" className={footerLink}>
-            <Bug className="size-4" /> Report an issue
+            <PixelBug className="size-4" /> Report an issue
           </a>
         </div>
       </div>

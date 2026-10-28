@@ -1,24 +1,4 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import {
-  Archive,
-  Bell,
-  Check,
-  ChartColumn,
-  ChevronRight,
-  Clock,
-  Download,
-  Flame,
-  House,
-  ListChecks,
-  Lock,
-  Plus,
-  Settings2,
-  ShieldAlert,
-  Sparkles,
-  Star,
-  Trash2,
-  Upload,
-} from "lucide-react";
 import { Heatmap } from "@/components/habits/Heatmap";
 import { HabitIcon, HABIT_ICONS, getIcon } from "@/lib/habits/icons";
 import { cn } from "@/lib/utils";
@@ -43,6 +23,11 @@ import {
   PixelStar,
   PixelCheck,
   PixelLock,
+  PixelShieldCheck,
+  PixelDownload,
+  PixelClock,
+  PixelSparkles,
+  PixelArrowRight,
 } from "@/components/ui/pixel-icon";
 
 /*
@@ -280,7 +265,7 @@ export function HomeScreen({
 }) {
   const done = habits.filter((x) => x.done).length;
   const next = habits.find((x) => !x.done);
-  const Ghost = next ? getIcon(next.icon) : Check;
+  const Ghost = next ? getIcon(next.icon) : PixelCheck;
   const week = [4, 4, 3, 4, 2, 4, done];
   return (
     <Screen active={0} onNav={onNav}>
@@ -387,7 +372,7 @@ export function HomeScreen({
             <p className="font-mono text-sm font-semibold">View 6-Month Activity &amp; Stats</p>
           </div>
         </div>
-        <ChevronRight className="size-4 text-faint" />
+        <PixelArrowRight className="size-4 text-faint" />
       </button>
     </Screen>
   );
@@ -774,7 +759,7 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
                         {x.category && <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">#{x.category}</span>}
                       </p>
                     </div>
-                    <ChevronRight className="size-4 text-faint shrink-0" />
+                    <PixelArrowRight className="size-4 text-faint shrink-0" />
                   </button>
                 </div>
               ))
@@ -876,7 +861,7 @@ export function SettingsScreen() {
 
       {/* Backup Safety Alert matching DailySparkApp */}
       <div className="rounded-2xl border border-border/80 bg-surface-2 p-3 flex items-start gap-2.5 text-xs text-muted-foreground">
-        <ShieldAlert className="size-4 shrink-0 text-ember mt-0.5" />
+        <PixelShieldCheck className="size-4 shrink-0 text-ember mt-0.5" />
         <p>
           <strong className="font-semibold text-foreground">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
         </p>
@@ -890,13 +875,13 @@ export function SettingsScreen() {
             className="flex w-full items-center gap-3 border-b border-border py-3 text-left focus-visible:outline-none"
           >
             <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-              <Download className="size-4" />
+              <PixelDownload className="size-4" />
             </span>
             <div className="flex-1">
               <p className="text-[14px] font-bold">Export backup</p>
               <p className="text-[11.5px] font-semibold text-faint">Includes habits and notes (.json)</p>
             </div>
-            <ChevronRight className="size-4 text-faint" />
+            <PixelArrowRight className="size-4 text-faint" />
           </button>
 
           <button
@@ -905,13 +890,13 @@ export function SettingsScreen() {
             className="flex w-full items-center gap-3 py-3 text-left focus-visible:outline-none"
           >
             <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-              <Upload className="size-4" />
+              <PixelDownload className="size-4" />
             </span>
             <div className="flex-1">
               <p className="text-[14px] font-bold">Inspect &amp; Restore file</p>
               <p className="text-[11.5px] font-semibold text-faint">Safe pre-validation preview</p>
             </div>
-            <ChevronRight className="size-4 text-faint" />
+            <PixelArrowRight className="size-4 text-faint" />
           </button>
         </Card>
       </div>
@@ -940,7 +925,7 @@ export function SettingsScreen() {
             <p className="text-[14px] font-bold">App Lock &amp; PIN</p>
             <p className="text-[11.5px] font-semibold text-faint">SHA-256 protected with 5-min timeout</p>
           </div>
-          <ChevronRight className="size-4 text-faint" />
+          <PixelArrowRight className="size-4 text-faint" />
         </Card>
       </div>
 
@@ -950,7 +935,7 @@ export function SettingsScreen() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember">
-                <Bell className="size-4" />
+                <PixelClock className="size-4" />
               </span>
               <div>
                 <p className="text-[13px] font-bold">Daily Reminders</p>
@@ -963,7 +948,7 @@ export function SettingsScreen() {
           <div className="flex items-center justify-between border-t border-border/30 pt-2.5">
             <div className="flex items-center gap-2.5">
               <span className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint">
-                <Clock className="size-4" />
+                <PixelClock className="size-4" />
               </span>
               <div>
                 <p className="text-[13px] font-bold">Pre-task Reminder</p>
@@ -991,7 +976,7 @@ export function SettingsScreen() {
       </div>
 
       <Card className="flex items-center gap-3 px-4 py-3">
-        <Sparkles className="size-4 text-ember shrink-0" />
+        <PixelSparkles className="size-4 text-ember shrink-0" />
         <span className="text-[13px] font-semibold text-muted-foreground">Daily Spark · No account · No ads · 100% offline</span>
       </Card>
 

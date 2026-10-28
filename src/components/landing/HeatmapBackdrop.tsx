@@ -54,8 +54,8 @@ export function HeatmapBackdrop() {
                 : level === 1
                 ? "border border-ember/15 bg-ember/15"
                 : level === 2
-                ? "border border-ember/30 bg-ember/45 shadow-[0_0_12px_rgba(242,149,89,0.2)]"
-                : "border border-ember/50 bg-ember/80 shadow-[0_0_18px_rgba(242,149,89,0.35)]"
+                ? "border border-ember/30 bg-ember/45 shadow-[0_0_12px_rgba(236,137,76,0.2)]"
+                : "border border-ember/50 bg-ember/80 shadow-[0_0_18px_rgba(236,137,76,0.35)]"
             }`}
           />
         ))}
