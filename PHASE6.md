@@ -97,15 +97,17 @@ To prevent "all-or-nothing" cognitive burnout, habits can define 3 flexible tier
 
 ---
 
-## 4. Phase 6 Implementation Deliverables
+## 4. Phase 6 Implementation Deliverables (Status: ✅ Completed & Shipped in v1.0.3)
 
-1. **`src/lib/habits/appearance.ts`**:
-   - Tri-modal theme definitions, typography variable injects, and persistence in `localStorage`.
-2. **`src/components/habits/AppearanceSwitcher.tsx`**:
+1. **`src/lib/habits/appearance.ts` & `src/lib/habits/appearance.test.ts`** ✅:
+   - Tri-modal theme definitions (Classic, Minimal, Expressive), typography variable injects, and persistence in `localStorage`.
+2. **`src/components/habits/AppearanceSwitcher.tsx`** ✅:
    - Interactive 3-way visual toggle with live font preview cards.
-3. **`src/lib/habits/elastic.ts`**:
-   - Tiered calculation engine (`mini`, `plus`, `elite`) supporting quantitative and checklist habits.
-4. **`src/components/habits/ElasticProgressRing.tsx`**:
+3. **`src/lib/habits/elastic.ts` & `src/lib/habits/elastic.test.ts`** ✅:
+   - Tiered calculation engine (`mini`, `plus`, `elite`) supporting quantitative and checklist habits, plus Two-Day Rule ("Never Miss Twice") detection.
+4. **`src/components/habits/ElasticProgressRing.tsx`** ✅:
    - Multi-tier progress ring visually reflecting Mini, Plus, and Elite completions.
-5. **`src/lib/habits/cueAnchor.ts`**:
+5. **`src/lib/habits/cueAnchor.ts` & `src/lib/habits/cueAnchor.test.ts`** ✅:
    - Habit stacking cue links (`afterHabitId`, `cueText`) and contextual prompt generation.
+6. **`src/lib/habits/archaeology.ts` & `src/lib/habits/archaeology.test.ts`** ✅:
+   - Historical milestone retrospective tracking all-time longest streak, total volume, and comeback resilience rate.

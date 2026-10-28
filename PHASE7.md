@@ -68,17 +68,19 @@ Orchestration of nuanced physical vibration feedback via `@capacitor/haptics`:
 
 ---
 
-## 5. Phase 7 Implementation Deliverables
+## 5. Phase 7 Implementation Deliverables (Status: ✅ Completed & Shipped in v1.0.3)
 
-1. **`src/lib/habits/binaural.ts`**:
-   - Web Audio stereo panner and frequency detune generator for Alpha, Theta, and Beta binaural beats.
-2. **`src/lib/habits/haptics.ts`**:
-   - Polyphonic tactile patterns (Tick, Double Clack, Milestone Crescendo).
-3. **`src/lib/habits/markovPredictor.ts`**:
+1. **`src/lib/habits/binaural.ts` & `src/lib/habits/binaural.test.ts`** ✅:
+   - Web Audio stereo panner and frequency detune generator for Alpha, Theta, and Beta binaural beats with procedural pink noise.
+2. **`src/lib/habits/haptics.ts` & `src/lib/habits/haptics.test.ts`** ✅:
+   - Polyphonic tactile patterns (Tick Tap, Double Clack, Milestone Crescendo, and Gentle Thud warning).
+3. **`src/lib/habits/circadianGlide.ts` & `src/lib/habits/circadianGlide.test.ts`** ✅:
+   - Solar Circadian theme glide with offline astronomical zenith computation and amber night tint.
+4. **`src/lib/habits/markovPredictor.ts` & `src/lib/habits/markovPredictor.test.ts`** ✅:
    - Local on-device sequence transition matrix and next-habit suggestion engine.
-4. **`src/lib/habits/bottleneckDetector.ts`**:
+5. **`src/lib/habits/bottleneckDetector.ts` & `src/lib/habits/bottleneckDetector.test.ts`** ✅:
    - Day-of-week and time-of-day completion variance anomaly detection.
-5. **`src/components/habits/AirGappedSyncDialog.tsx`**:
-   - Animated QR generator and camera scanner for air-gapped vault migration.
-6. **`src/components/habits/ShareCardDialog.tsx`**:
-   - Client-side Canvas rendering engine exporting downloadable visual milestone cards.
+6. **`src/lib/habits/qrMatrix.ts` & `src/components/habits/AirGappedSyncDialog.tsx`** ✅:
+   - Animated QR generator with ISO alignment patterns and active optical camera scanner for air-gapped vault migration.
+7. **`src/components/habits/ShareCardDialog.tsx`** ✅:
+   - Client-side Canvas rendering engine exporting downloadable visual 1080x1920 milestone story cards.
