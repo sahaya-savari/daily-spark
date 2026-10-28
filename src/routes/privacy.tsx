@@ -34,7 +34,7 @@ export const Route = createFileRoute("/privacy")({
 
 const SECTIONS = [
   ["What we collect", "Nothing. Daily Spark has no account system, no analytics, no ads and no tracking. We never see your habits."],
-  ["Where your data lives", "In the Android app, habits are saved in the app's own storage on your phone. Uninstalling removes them. There is no web version yet; if one ships, this page will describe where it stores data."],
+  ["Where your data lives", "In both the Android app and Web App, your habits and notes are stored strictly on your device (IndexedDB / local storage). Nothing is uploaded to any remote server. If you use Google Drive backup, your encrypted data is sent directly to your own personal Google Drive AppData folder with zero intermediary servers."],
   ["Backups", "Backups are files you create and keep. They're saved wherever you choose and are never uploaded by Daily Spark."],
   ["Reminders", "Reminders are optional. If you turn them on in the Android app, your phone asks for notification permission. Notifications are created on your device."],
   ["Links", "The website links to GitHub for source code and APK downloads. GitHub's own privacy policy applies there."],

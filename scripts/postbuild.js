@@ -99,8 +99,12 @@ const ROUTES = {
     noindex: true,
   },
   '/app': {
-    title: 'Redirecting - Daily Spark',
-    noindex: true,
+    title: 'Daily Spark App - Calm, offline habit tracker',
+    description:
+      'Track your daily habits, streaks, and reflections offline with Daily Spark. Free, private, and 100% offline-first web app.',
+    canonical: `${SITE_URL}app/`,
+    ogType: 'website',
+    twitterCard: 'summary_large_image',
   },
   '/404': {
     title: 'Page not found - Daily Spark',
