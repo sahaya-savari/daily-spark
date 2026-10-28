@@ -25,6 +25,7 @@ import {
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
+import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
 import { DiaTextReveal } from "@/components/magicui/dia-text-reveal";
 import {
   CalendarScreen,
@@ -158,11 +159,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
       <main id="main" tabIndex={-1} className="w-full max-w-full outline-none">
         {/* Hero */}
         <section className="relative mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] items-center gap-10 sm:gap-11 px-4 sm:px-6 pb-8 pt-6 sm:pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px] overflow-hidden">
-          {/* Ambient light glow */}
-          <div
-            className="aurora-field pointer-events-none absolute -top-24 left-1/2 -z-10 h-[450px] w-full max-w-[800px] -translate-x-1/2 rounded-full"
-            aria-hidden="true"
-          />
+          {/* dithercn Ember Hero Aura Shader */}
+          <EmberHeroDither />
 
           {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
           <HeatmapBackdrop />
