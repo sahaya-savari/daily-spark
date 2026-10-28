@@ -92,12 +92,12 @@
   --primary-foreground: oklch(0.207 0.012 285.3);
   --ember: oklch(0.755 0.135 52.1); /* sunlit apricot #F29559 */
   --ember-soft: color-mix(in oklab, var(--ember) 16%, transparent);
-  --brass: oklch(0.769 0.087 60.2); /* #DDA77B */
+  --brass: oklch(0.66 0.11 52); /* warm amber-bronze */
   /* Solid CTA fill: matching Sunlit Apricot button in Image 5 */
   --cta: var(--ember);
   --cta-foreground: oklch(0.207 0.012 285.3);
   --cta-ring: color-mix(in oklab, var(--cta) 55%, transparent);
-  --gold: oklch(0.769 0.087 60.2); /* secondary progress #DDA77B */
+  --gold: oklch(0.66 0.11 52); /* warm amber-bronze (sampled from Image 1) */
   --sage: oklch(0.7 0.07 140);
   --secondary: oklch(0.28 0.012 285.5);
   --secondary-foreground: oklch(0.978 0.004 56.4);
@@ -120,12 +120,12 @@
 
   --heat-0: oklch(0.24 0.02 50 / 40%);
   --heat-1: oklch(0.45 0.08 55);
-  --heat-2: oklch(0.62 0.12 55);
-  --heat-3: oklch(0.75 0.14 55);
-  --heat-4: oklch(0.86 0.15 65);
+  --heat-2: oklch(0.56 0.10 52);
+  --heat-3: oklch(0.64 0.11 51);
+  --heat-4: oklch(0.68 0.12 50); /* rich warm terracotta from Image 1 */
 
   --chart-1: oklch(0.755 0.135 52.1);
-  --chart-2: oklch(0.769 0.087 60.2);
+  --chart-2: oklch(0.66 0.11 52);
   --chart-3: oklch(0.7 0.07 140);
   --chart-4: oklch(0.68 0.04 250);
   --chart-5: oklch(0.55 0.01 285);
@@ -157,7 +157,7 @@
   --glass-sheen: linear-gradient(158deg, oklch(1 0 0 / 10%) 0%, transparent 40%, transparent 100%);
   --glass-blur: 24px;
   --aurora-1: oklch(0.755 0.135 52.1 / 14%);
-  --aurora-2: oklch(0.769 0.087 60.2 / 12%);
+  --aurora-2: oklch(0.66 0.11 52 / 12%);
   --aurora-3: oklch(0.68 0.04 250 / 9%);
 }
 

@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 
 const DEFAULT_SPARK_COLORS = [
   "oklch(0.755 0.135 52.1)", // Sunlit apricot / ember
-  "oklch(0.85 0.12 70)",     // Warm gold glow
+  "oklch(0.68 0.12 50)",     // Warm terracotta (sampled from image)
   "oklch(0.978 0.004 56.4)",  // Pearl highlight
-  "oklch(0.769 0.087 60.2)",  // Brass
+  "oklch(0.66 0.11 52)",     // Warm amber-bronze
   "oklch(0.755 0.135 52.1)",  // Ember
 ];
 

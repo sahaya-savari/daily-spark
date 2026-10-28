@@ -172,9 +172,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <SparkMark className="size-5 sm:size-[26px] shrink-0" />
-              <b className="font-display text-sm sm:text-[18px] font-bold tracking-[0.02em] text-foreground">Daily Spark</b>
-              <span className="rounded-full bg-ember-soft px-1.5 sm:px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">{SITE.apk.version}</span>
-              <span className="hidden sm:inline">· Free &amp; Open Source</span>
+              <b className="font-display text-sm sm:text-[18px] font-bold tracking-[0.02em] text-foreground">Open Source Android App</b>
+              <span className="rounded-full bg-ember-soft px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-ember">100% Offline</span>
             </a>
             <h1 className="font-display text-[clamp(28px,8.2vw,36px)] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-left max-w-full">
               <span className="block pb-0.5">
@@ -190,9 +189,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                   textColor="oklch(0.755 0.135 52.1)"
                   colors={[
                     "oklch(0.755 0.135 52.1)",
-                    "oklch(0.85 0.12 70)",
+                    "oklch(0.68 0.12 50)",
                     "oklch(0.978 0.004 56.4)",
-                    "oklch(0.769 0.087 60.2)",
+                    "oklch(0.66 0.11 52)",
                     "oklch(0.755 0.135 52.1)",
                   ]}
                 />
