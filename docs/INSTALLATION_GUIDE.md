@@ -1,39 +1,54 @@
-# 📱 Daily Spark - Installation & Update Guide
+# 📱 Daily Spark - Complete Installation & Distribution Guide
 
-## ✨ NEW: In-Place Updates Work Now!
-
-Your app now **properly supports updates**. You can install new versions directly without deleting the old one. Here's how:
+Daily Spark is a calm, 100% offline-first habit tracker available across **Android (APK, Obtainium, F-Droid)** and **Desktop (Windows, Linux, macOS PWA)**.
 
 ---
 
-## 🎯 First Installation
+## 🎯 Android Installation Options
 
-### Option 1: Download APK (Easiest)
-1. Go to [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases/latest)
-2. Download the APK file (e.g., `app-release.apk`)
-3. Open the file on your Android phone
-4. Tap **"Install"**
-5. Your data is automatically saved locally
+### Option 1: Direct APK Download (Fastest)
+1. Download `Daily-Spark-v1.0.1.apk` (4.1 MB) from the [official website](https://sahaya-savari.github.io/daily-spark/download) or [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases/latest).
+2. Open the downloaded `.apk` on your Android device.
+3. If prompted, toggle **"Allow from this source"** for your browser.
+4. Tap **"Install"**. All your data stays 100% private on your device.
 
-### Option 2: Via Google Play (Coming Soon)
-- Download from Play Store
-- Automatic updates enabled by default
+### Option 2: Obtainium (Automated Updates)
+Obtainium lets you install and automatically update apps directly from GitHub Releases:
+1. Install [Obtainium](https://github.com/ImranR98/Obtainium/releases/latest) on your Android device.
+2. In Obtainium, tap **"Add App"**.
+3. Paste the Daily Spark repository URL:
+   `https://github.com/sahaya-savari/daily-spark`
+4. Obtainium will automatically parse the latest `v1.0.1` release, download `Daily-Spark-v1.0.1.apk`, and notify you whenever a new release is published.
+
+### Option 3: F-Droid Build from Source
+Daily Spark provides a reproducible F-Droid recipe in the repository:
+- Recipe path: [`.fdroid.yml`](https://github.com/sahaya-savari/daily-spark/blob/main/.fdroid.yml)
+- Package ID: `com.santhosh.dailyspark2`
+- Builds directly from source with zero proprietary binaries.
 
 ---
 
-## 🔄 Updating to a New Version
+## 💻 Desktop Installation (Windows & Linux)
 
-### Before: Had to uninstall old version ❌
-### Now: Just install the new APK directly ✅
+Daily Spark is engineered as a fully installable, offline-first Progressive Web Application (PWA):
 
-**Steps to update:**
-1. Download the new APK from [releases](https://github.com/sahaya-savari/daily-spark/releases/latest)
-2. Open the APK on your phone
-3. Android will show: **"This will replace the existing app"**
-4. Tap **"Install"**
-5. Done! Your streaks and settings are preserved
+### Windows (Edge, Chrome, Brave)
+1. Visit [Daily Spark Web](https://sahaya-savari.github.io/daily-spark/) in your browser.
+2. Click the **Install** icon in the address bar (or menu `...` → **Apps** → **Install Daily Spark**).
+3. Daily Spark installs as a standalone native Windows desktop application with Start Menu, Taskbar pinning, and offline storage.
 
-> ✅ **Your data is always safe** - saved locally on your phone
+### Linux (Chrome, Chromium, Brave)
+1. Open the [Daily Spark Web App](https://sahaya-savari.github.io/daily-spark/) in Chromium / Chrome.
+2. In the browser menu, select **Install Daily Spark** (or **Save and Share** → **Install page as app**).
+3. The app is added to your desktop application launcher (`.desktop` entry) and runs isolated without browser address bars.
+
+---
+
+## 🔄 In-Place APK Updates
+When updating to a new APK release:
+1. Simply download and tap the new APK.
+2. Android will prompt: **"Do you want to update this app?"**
+3. Tap **"Update"**. Your streaks, habits, and preferences are fully preserved!
 
 ---
 

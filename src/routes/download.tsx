@@ -135,17 +135,63 @@ function Download() {
           </ol>
         </section>
 
-        {/* iOS / other platforms */}
-        <section className="glass-surface mt-12 rounded-2xl p-5 sm:p-6">
-          <h2 className="font-display text-lg sm:text-xl font-semibold tracking-wide">On iPhone, iPad, or the web</h2>
-          <p className="mt-2 text-sm sm:text-[15px] leading-relaxed text-muted-foreground">
-            There is no iOS build and no web app yet, so the Android APK is the only release today. Web and iOS versions
-            are planned for a later phase; announcements will land on{" "}
-            <a href={SITE.releases} target="_blank" rel="noreferrer" className="text-ember hover:underline">
-              GitHub Releases
+        {/* Alternative Android Installers: Obtainium & F-Droid */}
+        <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="glass-surface rounded-2xl p-5 sm:p-6">
+            <h3 className="font-display text-base sm:text-lg font-bold text-foreground">
+              Obtainium (Recommended)
+            </h3>
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Track and auto-update Daily Spark directly from GitHub Releases with zero third-party tracking.
+            </p>
+            <a
+              href="https://github.com/ImranR98/Obtainium"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3.5 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-ember hover:underline"
+            >
+              Get Obtainium setup guide →
             </a>
-            .
+          </div>
+
+          <div className="glass-surface rounded-2xl p-5 sm:p-6">
+            <h3 className="font-display text-base sm:text-lg font-bold text-foreground">
+              F-Droid Compatible
+            </h3>
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Built from 100% open source code. Clean reproducible build recipe (.fdroid.yml) ready for F-Droid repositories.
+            </p>
+            <a
+              href="https://github.com/sahaya-savari/daily-spark/blob/main/.fdroid.yml"
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3.5 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-ember hover:underline"
+            >
+              View .fdroid.yml build recipe →
+            </a>
+          </div>
+        </section>
+
+        {/* Windows, Linux, and Web PWA */}
+        <section className="glass-surface mt-8 rounded-2xl p-5 sm:p-6">
+          <h2 className="font-display text-lg sm:text-xl font-semibold tracking-wide">Desktop (Windows, Linux, macOS) & Web</h2>
+          <p className="mt-2 text-sm sm:text-[15px] leading-relaxed text-muted-foreground">
+            Daily Spark works in any modern browser with 100% offline local storage. On Windows and Linux, install it as a standalone native desktop application directly from Chrome, Edge, or Brave:
           </p>
+          <ul className="mt-3.5 space-y-2 text-sm text-muted-foreground">
+            <li className="flex items-center gap-2.5">
+              <PixelCheckCircle aria-hidden="true" className="size-4 flex-none text-ember" />
+              <span>Click <strong>Install Daily Spark</strong> or the app icon in your browser address bar</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <PixelCheckCircle aria-hidden="true" className="size-4 flex-none text-ember" />
+              <span>Launches in its own distraction-free desktop window with taskbar integration</span>
+            </li>
+            <li className="flex items-center gap-2.5">
+              <PixelCheckCircle aria-hidden="true" className="size-4 flex-none text-ember" />
+              <span>Full offline persistence: habits stay stored locally on your machine</span>
+            </li>
+          </ul>
         </section>
 
         {/* Privacy / provenance */}
