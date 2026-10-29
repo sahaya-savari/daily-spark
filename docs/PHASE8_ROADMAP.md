@@ -30,7 +30,7 @@ All Phase 1–7 core objectives, visual overhauls, typography unifications, and 
 - [ ] **Lighthouse Performance Gate**: Run Lighthouse audit to verify Core Web Vitals (LCP < 1.2s, CLS = 0, FID/INP < 50ms, 100% SEO, 100% Accessibility).
 
 ### Workstream 3: F-Droid & Alternative Store Preparation
-- [ ] **F-Droid Metadata**: Prepare `.fdroid.yml` recipe referencing the GitHub tag `v1.0.1` and offline reproducibility guidelines.
+- [x] **F-Droid Metadata**: Prepare `.fdroid.yml` recipe referencing the GitHub tag `v1.0.1` and offline reproducibility guidelines.
 - [x] **App Store Assets**: Verify screenshots and promotional banner dimensions using guidelines in `docs/APP_STORE_SUBMISSION.md`.
 - [ ] **Fastlane Configuration**: Setup optional automated screenshot generator for future multi-device releases.
 

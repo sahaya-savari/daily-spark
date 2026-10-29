@@ -1,0 +1,42 @@
+# F-Droid Build Metadata Recipe for Daily Spark
+# Package: com.santhosh.dailyspark2
+# Repository: https://github.com/sahaya-savari/daily-spark
+
+Categories:
+  - Time
+  - Sports & Health
+License: MIT
+AuthorName: Santhosh
+AuthorWebSite: https://sahaya-savari.github.io/daily-spark/
+SourceCode: https://github.com/sahaya-savari/daily-spark
+IssueTracker: https://github.com/sahaya-savari/daily-spark/issues
+Changelog: https://github.com/sahaya-savari/daily-spark/releases
+
+Name: Daily Spark
+AutoName: Daily Spark
+Summary: Calm, offline-first habit and streak tracker
+Description: |-
+  Daily Spark is a calm, distraction-free, 100% offline-first habit tracker.
+  Track one small action a day per habit. No account, no analytics, no ads,
+  no social feeds, and no pushy guilt-inducing streaks.
+
+  Key Features:
+  * 100% Offline-First: All habit records stay on your physical device.
+  * Home-Screen Android Widgets: Glanceable Today checklist, Streak counter, and Heatmap.
+  * Activity Matrix: 6-month GitHub-style habit activity heatmap.
+  * Zero Forced Permissions: Core tracking works without internet or special privileges.
+  * Open Data: Instant encrypted JSON backup export and import anytime.
+
+RepoType: git
+Repo: https://github.com/sahaya-savari/daily-spark.git
+
+Builds:
+  - versionName: 1.0.1
+    versionCode: 1
+    commit: v1.0.1
+    subdir: android/app
+    gradle:
+      - yes
+    prebuild:
+      - npm ci
+      - npm run build:android
