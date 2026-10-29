@@ -2,7 +2,7 @@
 
 **Date Target**: Tomorrow / Next Session  
 **Current Release Version**: `v1.0.1`  
-**Current Git State**: `origin/main` @ `d698775` (Working tree 100% clean, 140/140 tests passing)
+**Current Git State**: `origin/main` @ `d88c329` (Working tree 100% clean, 140/140 tests passing)
 
 ---
 
@@ -20,7 +20,7 @@ All Phase 1–7 core objectives, visual overhauls, typography unifications, and 
 ## 2. Phase 8 Workstreams for Tomorrow
 
 ### Workstream 1: APK & Release Artifact Distribution
-- [ ] **Android Native Build Validation**: Verify the Capacitor Android project build (`npx cap sync android` / `./gradlew assembleRelease`).
+- [x] **Android Native Build Validation**: Verify the Capacitor Android project build (`npx cap sync android` / `./gradlew assembleRelease`).
 - [ ] **Release Parity**: Confirm that `public/daily-spark-v1.0.1.apk` byte length and SHA-256 match the official GitHub Release asset on `v1.0.1`.
 - [ ] **Direct Download Verification**: Test APK direct install flow from `/download` route on physical Android device / emulator.
 
