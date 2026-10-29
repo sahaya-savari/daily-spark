@@ -36,7 +36,7 @@ All Phase 1–7 core objectives, visual overhauls, typography unifications, and 
 
 ### Workstream 4: User Experience & Habit HUD Polish
 - [ ] **Custom Pixel Icon Picker Expansion**: Allow users in `DailySparkApp` to pick from extended pixel icons in `D:\SOURCES` (meditation, sports, coding, nutrition).
-- [ ] **Export/Import Formats**: Add optional plain-text Markdown journal export alongside the encrypted JSON vault snapshot.
+- [x] **Export/Import Formats**: Add optional plain-text Markdown journal export alongside the encrypted JSON vault snapshot.
 - [ ] **Soundscape Enhancements**: Add optional gentle haptic tick patterns during multi-lap habit increments on native Android.
 
 ---
