@@ -720,7 +720,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       {/* Top Header Bar (Mobile only) */}
       <header
         className={cn(
-          "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4 lg:hidden",
+          "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4", !embedded && "lg:hidden",
           embedded ? "h-12" : "h-14"
         )}
       >
@@ -757,7 +757,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       {/* Main Content Area */}
       <main
         className={cn(
-          "mx-auto w-full max-w-lg lg:max-w-4xl flex-1 px-4 lg:px-8",
+          "mx-auto w-full max-w-lg flex-1 px-4", !embedded && "lg:max-w-4xl lg:px-8",
           embedded ? "overflow-y-auto overscroll-contain scrollbar-none pt-3 pb-24" : "pt-4"
         )}
       >
@@ -1388,7 +1388,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       <nav
         aria-label="Mobile navigation"
         className={cn(
-          "lg:hidden",
+          !embedded && "lg:hidden",
           "z-30 flex items-center justify-around rounded-full border border-border/40 bg-surface/90 px-2 backdrop-blur-xl shadow-lg",
           embedded
             ? "absolute inset-x-3 bottom-3 h-[64px]"
