@@ -823,9 +823,9 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
   );
 }
 
-export function NewHabitScreen() {
+export function NewHabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
   return (
-    <Screen active={-1}>
+    <Screen active={-1} onNav={onNav}>
       <div>
         <p className="kicker">New habit</p>
         <p className="font-display text-[26px] font-bold leading-tight">What will you show up for?</p>
@@ -856,7 +856,7 @@ export function NewHabitScreen() {
   );
 }
 
-export function SettingsScreen() {
+export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
   const [lockDialogOpen, setLockDialogOpen] = useState(false);
   const [autoRolling, setAutoRolling] = useState(true);
@@ -905,7 +905,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <Screen active={3}>
+    <Screen active={3} onNav={onNav}>
       <div>
         <p className="kicker">Daily Spark</p>
         <p className="font-display text-[26px] font-bold leading-tight">Settings</p>

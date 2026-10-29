@@ -722,7 +722,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   onClick={() => handleToggleHabit(nextHabit.id)}
                   className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98]"
                 >
-                  <Check className="size-4" strokeWidth={3} /> Check in now
+                  <PixelCheck className="size-4" /> Check in now
                 </Button>
               )}
             </div>
@@ -766,7 +766,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                           isToday && !isPerfect && "ring-2 ring-ember"
                         )}
                       >
-                        {isPerfect ? <Check className="size-3.5" strokeWidth={3} /> : d.done}
+                        {isPerfect ? <PixelCheck className="size-3.5" /> : d.done}
                       </span>
                     </div>
                   );
@@ -954,7 +954,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <p className="break-words font-mono text-[14px] font-semibold">{h.name}</p>
-                              {h.isStarred && <Star className="size-3 fill-gold text-gold shrink-0" />}
+                              {h.isStarred && <PixelStar className="size-3.5 fill-gold text-gold shrink-0" />}
                               {isArchived(h) && (
                                 <span className="text-[10px] text-faint border px-1 rounded">Archived</span>
                               )}
@@ -965,7 +965,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                               )}
                             </div>
                             <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint mt-0.5">
-                              <Flame className={cn("size-3", h.currentStreak > 0 && "text-ember")} /> {h.currentStreak} days
+                              <PixelFire className={cn("size-3", h.currentStreak > 0 && "text-ember")} /> {h.currentStreak} days
                               {h.category && (
                                 <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">
                                   #{h.category}
@@ -1518,7 +1518,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <div className="flex items-center justify-between border-t border-border/30 pt-3">
                   <div className="flex items-center gap-3">
                     <span className="grid size-9 place-items-center rounded-xl bg-surface-2 text-ember">
-                      <Flame className="size-4" />
+                      <PixelFire className="size-4" />
                     </span>
                     <div>
                       <p className="font-semibold text-sm">Today Focus Mode</p>
@@ -1781,7 +1781,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             className="flex flex-col items-center gap-2.5 rounded-3xl bg-surface/95 border border-ember/30 p-6 shadow-2xl backdrop-blur-xl text-center max-w-xs w-full animate-in zoom-in-95 duration-200"
           >
             <div className="size-20 rounded-2xl bg-gradient-to-br from-ember to-amber-500 grid place-items-center shadow-lg shadow-ember/30">
-              <Flame className="size-10 text-white fill-white" />
+              <PixelFire className="size-10 text-white fill-white" />
             </div>
             <p className="font-semibold text-xs text-muted-foreground truncate max-w-[200px]">
               {celebrationHabit.name}
@@ -2473,7 +2473,7 @@ function HabitDetailModal({
           }}
           className="text-xs gap-1.5 font-semibold text-faint hover:text-gold"
         >
-          <Star className={cn("size-3.5", habit.isStarred && "fill-gold text-gold")} />
+          <PixelStar className={cn("size-3.5", habit.isStarred && "fill-gold text-gold")} />
           {habit.isStarred ? "Starred" : "Star"}
         </Button>
 

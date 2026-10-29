@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Capacitor } from "@capacitor/core";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { DailySparkApp } from "@/components/app/DailySparkApp";
 import { siteUrl } from "@/lib/site";
@@ -11,7 +12,8 @@ const socialTitle = "Daily Spark - Show up. Tick it. Keep going.";
 export function RootPage() {
   const isNative =
     typeof window !== "undefined" &&
-    (Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
+    (Capacitor.isNativePlatform() ||
+     Boolean((window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.()) ||
      Boolean((window as unknown as { androidBridge?: unknown }).androidBridge));
 
   if (isNative) {

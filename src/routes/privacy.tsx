@@ -71,7 +71,7 @@ function Privacy() {
             </section>
           ))}
         </div>
-        <a href={SITE.issues} target="_blank" rel="noreferrer" className="text-ember hover:underline">
+        <a href={SITE.issues} target="_blank" rel="noreferrer" className="mt-8 inline-block text-base font-semibold text-ember hover:underline">
           Ask a question on GitHub →
         </a>
       </main>

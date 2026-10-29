@@ -81,8 +81,9 @@ const FEATURES = [
 const SHOTS = [
   ["Today", <HomeScreen key="h" habits={DEMO_HABITS} />],
   ["Habits", <HabitScreen key="d" />],
+  ["New habit", <NewHabitScreen key="n" />],
   ["Progress", <ProgressScreen key="p" initialSubTab="overview" />],
-  ["Calendar", <ProgressScreen key="c" initialSubTab="calendar" />],
+  ["Calendar", <CalendarScreen key="c" />],
   ["Settings", <SettingsScreen key="s" />],
 ] as const;
 

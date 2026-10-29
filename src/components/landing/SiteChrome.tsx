@@ -12,7 +12,7 @@ import { SparkMark } from "@/components/brand/Logo";
 import { SITE } from "@/lib/site";
 
 const navLnk =
-  "whitespace-nowrap rounded-full px-4 py-2 text-sm sm:text-[15px] font-semibold text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center";
+  "whitespace-nowrap rounded-full border border-transparent px-4 py-2 text-[14px] sm:text-[15px] font-bold text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center tracking-normal";
 
 const menuItem =
   "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[15.5px] font-semibold text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
