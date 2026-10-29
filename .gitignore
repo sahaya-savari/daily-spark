@@ -72,3 +72,8 @@ android/app/build/outputs/
 .playwright-mcp/
 .codex/
 dist-desktop/
+
+# Local-only planning documents (NEVER PUSH TO GITHUB)
+MASTER_ROADMAP_AND_PHASES.md
+*_plan.md
+*.plan.md

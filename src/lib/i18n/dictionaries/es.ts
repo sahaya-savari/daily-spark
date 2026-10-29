@@ -56,3 +56,4 @@ export const es: Record<TranslationKey, string> = {
   "common.close": "Cerrar",
   "common.version": "Versión {version}",
 };
+
