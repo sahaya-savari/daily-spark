@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
 import { SITE } from "@/lib/site";
 
 function NotFoundComponent() {
@@ -114,6 +115,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SiteDitherBackground />
       <Outlet />
       <Toaster theme="dark" position="top-center" />
     </QueryClientProvider>

@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
+import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
-import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
 import { DiaTextReveal } from "@/components/magicui/dia-text-reveal";
 import {
   CalendarScreen,
@@ -142,8 +142,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
   return (
     <div className="relative min-h-screen bg-background w-full max-w-full">
-      {/* Overall atmospheric dithercn background */}
-      <SiteDitherBackground />
 
       <a
         href="#main"
@@ -206,14 +204,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               grow - no account, no pressure.
             </p>
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-start gap-3 sm:gap-3.5 w-full sm:w-auto">
-              <a
-                href={SITE.apk.url}
-                download={SITE.apk.filename}
+              <DownloadApkButton
                 className={`${btn} cta-solid border-transparent px-5 sm:px-6 py-3.5 text-sm sm:text-base md:text-[17px] font-bold transition-all hover:scale-[1.03] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background leading-none`}
-              >
-                <span className="pt-0.5">Download Daily Spark APK</span>
-                <PixelDownload className="size-4 sm:size-5 shrink-0" />
-              </a>
+              />
               <a
                 href={SITE.releases}
                 target="_blank"
@@ -392,9 +385,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               Free, calm habit tracking directly on your Android phone.
             </p>
             <div className="mb-6 mt-7 sm:mt-8 flex flex-col sm:flex-row flex-wrap justify-center gap-3.5 sm:gap-4 w-full sm:w-auto">
-              <a
-                href={SITE.apk.url}
-                download={SITE.apk.filename}
+              <DownloadApkButton
                 className="inline-flex h-[56px] sm:h-[60px] items-center justify-center gap-3 rounded-full cta-solid px-8 sm:px-9 text-base sm:text-lg font-bold text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <PixelDownload />
@@ -406,7 +397,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                     Direct Install
                   </span>
                 </span>
-              </a>
+              </DownloadApkButton>
               <a
                 href={SITE.releases}
                 target="_blank"

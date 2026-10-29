@@ -7,6 +7,7 @@ import {
   PixelShieldCheck,
 } from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
+import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { SITE, siteUrl } from "@/lib/site";
 
 const title = "Download Daily Spark - Android APK";
@@ -69,9 +70,7 @@ function Download() {
           </div>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a
-              href={SITE.apk.url}
-              download={SITE.apk.filename}
+            <DownloadApkButton
               className="inline-flex h-[52px] sm:h-[54px] w-full sm:w-auto items-center justify-center gap-3 rounded-full cta-solid px-7 text-left transition-all hover:scale-[1.02]"
             >
               <PixelDownload aria-hidden="true" className="size-5 sm:size-6" />
@@ -83,7 +82,7 @@ function Download() {
                   Direct Install
                 </span>
               </span>
-            </a>
+            </DownloadApkButton>
             <a
               href={SITE.releases}
               target="_blank"

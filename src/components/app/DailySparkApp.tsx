@@ -1,50 +1,42 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
-  Archive,
-  ArrowLeft,
-  Activity,
-  Bell,
-  Calendar as CalendarIcon,
-  ChartColumn,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  ShieldCheck,
-  Clock,
-  Download,
-  FileText,
-  Flame,
-  HeartHandshake,
-  House,
-  ListChecks,
-  Lock,
-  Palmtree,
-  Pause,
-  Play,
-  Plus,
-  RotateCcw,
-  Search,
-  Settings2,
-  Share2,
-  Sparkles,
-  Star,
-  Trash2,
-  Upload,
-  X,
-  Trophy,
-  QrCode,
-  ShieldAlert,
-} from "lucide-react";
-import {
   PixelHome,
   PixelCheckList,
   PixelPlus,
+  PixelMinus,
   PixelChart,
   PixelSettings,
   PixelCalendar,
   PixelFire,
   PixelStar,
   PixelCheck,
+  PixelLock,
+  PixelTrophy,
+  PixelDownload,
+  PixelUpload,
+  PixelShieldCheck,
+  PixelClose,
+  PixelClock,
+  PixelSparkles,
+  PixelSearch,
+  PixelArrowLeft,
+  PixelArrowRight,
+  PixelChevronLeft,
+  PixelChevronRight,
+  PixelChevronDown,
+  PixelChevronUp,
+  PixelTrash,
+  PixelArchive,
+  PixelRotateCcw,
+  PixelPlay,
+  PixelPause,
+  PixelBell,
+  PixelShare,
+  PixelAlertTriangle,
+  PixelCog,
+  PixelHeart,
+  PixelNotebook,
+  PixelQrCode,
 } from "@/components/ui/pixel-icon";
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
@@ -553,7 +545,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       >
         <div className="w-full max-w-sm rounded-3xl border border-border/50 bg-surface p-7 shadow-2xl space-y-6 text-center backdrop-blur-md">
           <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-ember-soft text-ember shadow-sm">
-            <Lock className="size-7" />
+            <PixelLock className="size-7" />
           </div>
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight">Daily Spark Locked</h2>
@@ -613,7 +605,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   return (
     <div
       className={cn(
-        "relative w-full bg-background font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
+        "relative w-full bg-background bg-dots font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
         embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen pb-28"
       )}
     >
@@ -635,36 +627,39 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       {/* Top Header Bar */}
       <header
         className={cn(
-          "sticky top-0 z-30 flex items-center justify-between border-b border-border/40 bg-surface/85 px-4 backdrop-blur-md shrink-0 h-14"
+          "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4",
+          embedded ? "h-12" : "h-14"
         )}
       >
-        <div className="flex items-center gap-2.5">
-          <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember shadow-sm">
-            <PixelFire className="size-4 text-ember" />
-          </span>
-          <div>
-            <h1 className="font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
-            <p className="text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {progressStats.globalStreak > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember">
-              <PixelFire className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}d
+        <div className="mx-auto flex h-full w-full max-w-lg items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember shadow-sm">
+              <PixelFire className="size-4 text-ember" />
             </span>
-          )}
+            <div>
+              <h1 className="font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
+              <p className="text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
+            </div>
+          </div>
 
-          {isLockEnabled && (
-            <button
-              type="button"
-              onClick={() => setIsAppLockDialogOpen(true)}
-              className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground"
-              title="App Lock Settings"
-            >
-              <Lock className="size-4" />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {progressStats.globalStreak > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember">
+                <PixelFire className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}d
+              </span>
+            )}
+
+            {isLockEnabled && (
+              <button
+                type="button"
+                onClick={() => setIsAppLockDialogOpen(true)}
+                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground"
+                title="App Lock Settings"
+              >
+                <PixelLock className="size-4" />
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -698,7 +693,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                     : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80"
                 )}
               >
-                <Sparkles className="size-3" />
+                <PixelSparkles className="size-3" />
                 {todayFocus ? "Pending only" : "All habits"}
               </button>
             </div>
@@ -785,7 +780,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
               {todayHabits.length === 0 ? (
                 <div className="rounded-3xl border border-border/40 bg-surface p-8 text-center text-muted-foreground">
-                  <Sparkles className="mx-auto size-8 text-ember mb-2 opacity-80" />
+                  <PixelSparkles className="mx-auto size-8 text-ember mb-2 opacity-80" />
                   <p className="font-semibold text-sm">No pending habits for today</p>
                   <p className="text-xs text-faint mt-1">
                     {todayFocus ? "All habits scheduled for today are complete." : "Add a habit to get started."}
@@ -973,7 +968,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                               )}
                             </p>
                           </div>
-                          <ChevronRight className="size-4 text-faint shrink-0" />
+                          <PixelChevronRight className="size-4 text-faint shrink-0" />
                         </button>
                       </div>
                     ))
@@ -1005,7 +1000,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                     onClick={() => setCurrentMonthDate((prev) => addMonths(prev, -1))}
                     className="size-8 rounded-full"
                   >
-                    <ChevronLeft className="size-4" />
+                    <PixelChevronLeft className="size-4" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -1013,7 +1008,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                     onClick={() => setCurrentMonthDate((prev) => addMonths(prev, 1))}
                     className="size-8 rounded-full"
                   >
-                    <ChevronRight className="size-4" />
+                    <PixelChevronRight className="size-4" />
                   </Button>
                 </div>
               )}
@@ -1303,7 +1298,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 </span>
               </div>
               <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 mb-2 flex items-start gap-2.5 text-xs text-amber-200">
-                <ShieldAlert className="size-4 shrink-0 text-amber-400 mt-0.5" />
+                <PixelAlertTriangle className="size-4 shrink-0 text-amber-400 mt-0.5" />
                 <p>
                   <strong className="font-semibold text-amber-300">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
                 </p>
@@ -1315,18 +1310,18 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <Download className="size-4" />
+                    <PixelDownload className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Export Full Backup (.json)</p>
                     <p className="text-xs text-faint">Includes all streaks, history, and journal notes</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <label className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors cursor-pointer">
                   <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <Upload className="size-4" />
+                    <PixelUpload className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Inspect &amp; Restore Backup</p>
@@ -1338,7 +1333,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                     onChange={handleFileUpload}
                     className="hidden"
                   />
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </label>
 
                 <button
@@ -1347,13 +1342,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <FileText className="size-4" />
+                    <PixelNotebook className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Export Markdown Summary</p>
                     <p className="text-xs text-faint">Data freedom: readable report for Obsidian/Notion</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <button
@@ -1362,13 +1357,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <Share2 className="size-4" />
+                    <PixelShare className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Export CSV</p>
                     <p className="text-xs text-faint">Spreadsheet format for habits</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <button
@@ -1377,13 +1372,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
-                    <Upload className="size-4" />
+                    <PixelUpload className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Universal Multi-Format Importer</p>
                     <p className="text-xs text-faint">Migrate from Loop, HabitKit, Habitica, HabitBull, CSV</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <button
@@ -1392,13 +1387,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400">
-                    <ShieldCheck className="size-4" />
+                    <PixelShieldCheck className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Zero-Cloud Encrypted Vault &amp; BYOC</p>
                     <p className="text-xs text-faint">AES-GCM-256 encrypted vault &amp; Google Drive AppData sync</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <button
@@ -1407,13 +1402,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
-                    <QrCode className="size-4" />
+                    <PixelQrCode className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Air-Gapped Optical QR Vault Handshake</p>
                     <p className="text-xs text-faint">100% offline device-to-device migration via sequential animated QR codes</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <button
@@ -1422,13 +1417,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-500">
-                    <Trophy className="size-4" />
+                    <PixelTrophy className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">Vector Milestone Share Card (1080x1920)</p>
                     <p className="text-xs text-faint">Spotify-Wrapped style visual story export for stories &amp; social</p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
               </div>
             </div>
@@ -1443,7 +1438,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   className="flex w-full items-center gap-3 text-left hover:bg-surface-2 rounded-2xl p-2 transition-colors"
                 >
                   <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <Lock className="size-4" />
+                    <PixelLock className="size-4" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold text-sm">App Lock &amp; PIN</p>
@@ -1451,7 +1446,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                       {isLockEnabled ? "PIN enabled · 5-minute timeout" : "Protect habits and notes with a 4-digit PIN"}
                     </p>
                   </div>
-                  <ChevronRight className="size-4 text-faint" />
+                  <PixelChevronRight className="size-4 text-faint" />
                 </button>
 
                 <div className="flex items-center justify-between p-2">
@@ -1476,7 +1471,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                      <Bell className="size-4" />
+                      <PixelBell className="size-4" />
                     </span>
                     <div>
                       <p className="font-semibold text-sm">Daily Reminders</p>
@@ -1492,7 +1487,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <div className="flex items-center justify-between border-t border-border/30 pt-3">
                   <div className="flex items-center gap-3">
                     <span className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint">
-                      <Clock className="size-4" />
+                      <PixelClock className="size-4" />
                     </span>
                     <div>
                       <p className="font-semibold text-sm">Pre-task Reminder</p>
@@ -1536,7 +1531,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             {/* App Info & Principles */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-2 text-foreground font-bold">
-                <Sparkles className="size-4 text-ember" /> Daily Spark v1.0.1
+                <PixelSparkles className="size-4 text-ember" /> Daily Spark v1.0.1
               </div>
               <p>No login · No ads · No tracking · Works 100% offline.</p>
               <p className="text-[11px] text-faint">
@@ -1549,11 +1544,12 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
       {/* Floating Bottom Navigation Bar */}
       <nav
+        aria-label="Mobile navigation"
         className={cn(
-          "z-30 mx-auto max-w-lg flex items-center justify-between rounded-full border border-border/40 bg-surface/90 px-3 backdrop-blur-xl shadow-lg",
+          "z-30 flex items-center justify-around rounded-full border border-border/40 bg-surface/90 px-2 backdrop-blur-xl shadow-lg",
           embedded
             ? "absolute inset-x-3 bottom-3 h-[64px]"
-            : "fixed inset-x-4 bottom-3 h-[68px]"
+            : "fixed left-1/2 -translate-x-1/2 bottom-3 sm:bottom-4 h-[68px] w-[calc(100%-2rem)] max-w-lg"
         )}
       >
         <Button
@@ -1667,7 +1663,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         <DialogContent className="max-w-sm bg-card text-foreground border-border">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-destructive flex items-center gap-2">
-              <Trash2 className="size-4" /> Delete Habit?
+              <PixelTrash className="size-4" /> Delete Habit?
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Are you sure you want to permanently delete &ldquo;{streakToDelete?.name}&rdquo;?
@@ -2292,7 +2288,7 @@ function HabitDetailModal({
           onClick={handleApplyGrace}
           className="text-xs font-bold gap-1 text-ember border-ember/30 hover:bg-ember/10"
         >
-          <HeartHandshake className="size-3.5" /> Forgive
+          <PixelHeart className="size-3.5" /> Forgive
         </Button>
       </div>
 
@@ -2301,7 +2297,7 @@ function HabitDetailModal({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-xs flex items-center gap-1.5">
-              <Palmtree className="size-3.5 text-cyan-400" /> Vacation &amp; Pause
+              <PixelSparkles className="size-3.5 text-cyan-400" /> Vacation &amp; Pause
             </p>
             <p className="text-[11px] text-faint">Freeze streak safely during travel or illness</p>
           </div>
@@ -2312,7 +2308,7 @@ function HabitDetailModal({
               onClick={() => setShowVacationInput(!showVacationInput)}
               className="text-xs font-bold gap-1 border-border text-faint hover:text-foreground"
             >
-              <Plus className="size-3" /> Interval
+              <PixelPlus className="size-3" /> Interval
             </Button>
             <Button
               variant={isPaused ? "default" : "outline"}
@@ -2323,7 +2319,7 @@ function HabitDetailModal({
                 isPaused ? "bg-ember text-white" : "border-border text-faint hover:text-foreground"
               )}
             >
-              {isPaused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
+              {isPaused ? <PixelPlay className="size-3.5" /> : <PixelPause className="size-3.5" />}
               {isPaused ? "Resume" : "Pause"}
             </Button>
           </div>
@@ -2424,7 +2420,7 @@ function HabitDetailModal({
           onClick={() => onSnooze(habit)}
           className="text-xs font-bold gap-1 border-border text-faint hover:text-foreground"
         >
-          <Clock className="size-3.5" />
+          <PixelClock className="size-3.5" />
           {isCurrentlySnoozed ? "Change" : "Snooze"}
         </Button>
       </div>
@@ -2486,7 +2482,7 @@ function HabitDetailModal({
           }}
           className="text-xs gap-1.5 font-semibold text-faint hover:text-foreground"
         >
-          <Archive className="size-3.5" />
+          <PixelArchive className="size-3.5" />
           {isArchived(habit) ? "Unarchive" : "Archive"}
         </Button>
 
@@ -2496,7 +2492,7 @@ function HabitDetailModal({
           onClick={() => onDelete(habit)}
           className="text-xs gap-1.5 font-semibold text-red-500 hover:text-red-600 hover:bg-red-500/10"
         >
-          <Trash2 className="size-3.5" /> Delete
+          <PixelTrash className="size-3.5" /> Delete
         </Button>
       </div>
     </div>

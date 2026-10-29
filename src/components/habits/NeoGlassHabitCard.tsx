@@ -1,19 +1,16 @@
 import React, { useState } from "react";
 import {
-  ChevronDown,
-  ChevronUp,
-  AlertTriangle,
-  Palmtree,
-  CheckCircle2,
-  Circle,
-  Plus,
-  Minus,
-} from "lucide-react";
-import {
   PixelFire,
   PixelStar,
   PixelCheck,
   PixelClock,
+  PixelPlus,
+  PixelMinus,
+  PixelChevronDown,
+  PixelChevronUp,
+  PixelAlertTriangle,
+  PixelCheckCircle,
+  PixelSparkles,
 } from "@/components/ui/pixel-icon";
 import { getQuantProgress, getQuickAddOptions } from "@/lib/habits/quantitative";
 import { calculateCleanStreak, calculateMoneySaved } from "@/lib/habits/avoid";
@@ -119,7 +116,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               )}
               {isVacationToday && (
                 <span className="flex items-center gap-1 rounded-full border border-border/40 bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-faint">
-                  <Palmtree className="size-2.5" /> Vacation
+                  <PixelSparkles className="size-2.5 text-ember" /> Vacation
                 </span>
               )}
             </div>
@@ -248,7 +245,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               className="flex size-7 items-center justify-center rounded-lg border border-border/40 bg-surface-2 text-faint transition-colors hover:text-foreground disabled:opacity-30"
               title="Decrease"
             >
-              <Minus className="size-3.5" />
+              <PixelMinus className="size-3.5" />
             </button>
             {quickChips.slice(0, 3).map((amount) => (
               <button
@@ -260,7 +257,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 }}
                 className="flex items-center gap-1 rounded-xl border border-border/40 bg-surface-2 px-2.5 py-1 text-xs font-semibold text-foreground transition-colors hover:bg-surface"
               >
-                <Plus className="size-3 text-ember" />
+                <PixelPlus className="size-3 text-ember" />
                 {amount} {habit.unit || ""}
               </button>
             ))}
@@ -283,9 +280,9 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               )}
             </span>
             {showSubtasks ? (
-              <ChevronUp className="size-3.5" />
+              <PixelChevronUp className="size-3.5" />
             ) : (
-              <ChevronDown className="size-3.5" />
+              <PixelChevronDown className="size-3.5" />
             )}
           </button>
 
@@ -304,9 +301,9 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                     className="flex w-full items-center gap-2 rounded-xl bg-surface-2/60 px-2.5 py-1.5 text-left transition-colors hover:bg-surface-2"
                   >
                     {done ? (
-                      <CheckCircle2 className="size-4 shrink-0 text-ember" />
+                      <PixelCheckCircle className="size-4 shrink-0 text-ember" />
                     ) : (
-                      <Circle className="size-4 shrink-0 text-faint" />
+                      <span className="size-4 shrink-0 rounded-sm border-2 border-faint/60" />
                     )}
                     <span
                       className={cn(
@@ -330,8 +327,8 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
       {showRelapseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-surface p-5 shadow-2xl">
-            <div className="flex items-center gap-2 text-amber-400">
-              <AlertTriangle className="size-5" />
+            <div className="flex items-center gap-2 text-ember">
+              <PixelAlertTriangle className="size-5 text-ember" />
               <h4 className="text-sm font-semibold">Log Relapse</h4>
             </div>
             <p className="text-xs leading-relaxed text-muted-foreground">

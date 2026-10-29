@@ -442,3 +442,140 @@ export function PixelPen({ className, ...props }: PixelIconProps) {
     </svg>
   );
 }
+
+export function PixelChevronLeft({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="11 13 12 13 12 14 13 14 13 15 14 15 14 16 15 16 15 17 16 17 16 18 17 18 17 19 16 19 16 20 15 20 15 19 14 19 14 18 13 18 13 17 12 17 12 16 11 16 11 15 10 15 10 14 9 14 9 13 8 13 8 11 9 11 9 10 10 10 10 9 11 9 11 8 12 8 12 7 13 7 13 6 14 6 14 5 15 5 15 4 16 4 16 5 17 5 17 6 16 6 16 7 15 7 15 8 14 8 14 9 13 9 13 10 12 10 12 11 11 11 11 13" />
+    </svg>
+  );
+}
+
+export function PixelChevronRight({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="16 11 16 13 15 13 15 14 14 14 14 15 13 15 13 16 12 16 12 17 11 17 11 18 10 18 10 19 9 19 9 20 8 20 8 19 7 19 7 18 8 18 8 17 9 17 9 16 10 16 10 15 11 15 11 14 12 14 12 13 13 13 13 11 12 11 12 10 11 10 11 9 10 9 10 8 9 8 9 7 8 7 8 6 7 6 7 5 8 5 8 4 9 4 9 5 10 5 10 6 11 6 11 7 12 7 12 8 13 8 13 9 14 9 14 10 15 10 15 11 16 11" />
+    </svg>
+  );
+}
+
+export function PixelChevronUp({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="20 15 20 16 19 16 19 17 18 17 18 16 17 16 17 15 16 15 16 14 15 14 15 13 14 13 14 12 13 12 13 11 11 11 11 12 10 12 10 13 9 13 9 14 8 14 8 15 7 15 7 16 6 16 6 17 5 17 5 16 4 16 4 15 5 15 5 14 6 14 6 13 7 13 7 12 8 12 8 11 9 11 9 10 10 10 10 9 11 9 11 8 13 8 13 9 14 9 14 10 15 10 15 11 16 11 16 12 17 12 17 13 18 13 18 14 19 14 19 15 20 15" />
+    </svg>
+  );
+}
+
+export function PixelArrowLeft({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="23 11 23 13 5 13 5 14 6 14 6 15 7 15 7 16 8 16 8 17 9 17 9 18 10 18 10 19 11 19 11 20 12 20 12 21 13 21 13 22 12 22 12 23 11 23 11 22 10 22 10 21 9 21 9 20 8 20 8 19 7 19 7 18 6 18 6 17 5 17 5 16 4 16 4 15 3 15 3 14 2 14 2 13 1 13 1 11 2 11 2 10 3 10 3 9 4 9 4 8 5 8 5 7 6 7 6 6 7 6 7 5 8 5 8 4 9 4 9 3 10 3 10 2 11 2 11 1 12 1 12 2 13 2 13 3 12 3 12 4 11 4 11 5 10 5 10 6 9 6 9 7 8 7 8 8 7 8 7 9 6 9 6 10 5 10 5 11 23 11" />
+    </svg>
+  );
+}
+
+export function PixelTrash({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <path d="m4,6v8h1v8h1v1h12v-1h1v-8h1V6H4Zm14,7h-1v8H7v-8h-1v-5h12v5Z" />
+      <polygon points="21 3 21 5 3 5 3 3 4 3 4 2 9 2 9 1 15 1 15 2 20 2 20 3 21 3" />
+    </svg>
+  );
+}
+
+export function PixelArchive({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="17 16 17 18 16 18 16 19 8 19 8 18 7 18 7 16 8 16 8 15 16 15 16 16 17 16" />
+      <path d="M22,12V11H21V6H20V5H19V4H18V3H17V2H16V1H5V2H4V3H3V8H2V9H1V22H2v1H22V22h1V12ZM8,10V9H7V8H5V4H6V3h8V8h5v3H9V10ZM21,20H20v1H4V20H3V11H4V10H6v1H7v1H9v1H20v1h1Z" />
+    </svg>
+  );
+}
+
+export function PixelRotateCcw({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="23 14 23 15 22 15 22 17 21 17 21 19 20 19 20 20 19 20 19 21 17 21 17 22 15 22 15 23 9 23 9 22 7 22 7 21 5 21 5 20 3 20 3 21 2 21 2 22 1 22 1 15 8 15 8 16 7 16 7 17 6 17 6 19 7 19 7 20 9 20 9 21 15 21 15 20 17 20 17 19 19 19 19 17 20 17 20 14 23 14" />
+      <polygon points="23 2 23 9 16 9 16 8 17 8 17 7 18 7 18 5 17 5 17 4 15 4 15 3 9 3 9 4 7 4 7 5 5 5 5 7 4 7 4 10 1 10 1 9 2 9 2 7 3 7 3 5 4 5 4 4 5 4 5 3 7 3 7 2 9 2 9 1 15 1 15 2 17 2 17 3 19 3 19 4 21 4 21 3 22 3 22 2 23 2" />
+    </svg>
+  );
+}
+
+export function PixelPlay({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <path d="m21,11v-1h-1v-1h-2v-1h-2v-1h-1v-1h-2v-1h-2v-1h-1v-1h-2v-1h-2v-1h-3v1h-1v20h1v1h3v-1h2v-1h2v-1h1v-1h2v-1h2v-1h1v-1h2v-1h2v-1h1v-1h1v-2h-1Zm-2,2h-2v1h-2v1h-1v1h-2v1h-2v1h-1v1h-2v1h-2v1h-1V3h1v1h2v1h2v1h1v1h2v1h2v1h1v1h2v1h2v2Z" />
+    </svg>
+  );
+}
+
+export function PixelPause({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <path d="m9,1H2v1h-1v20h1v1h7v-1h1V2h-1v-1Zm-1,2v18H3V3h5Z" />
+      <path d="m22,2v-1h-7v1h-1v20h1v1h7v-1h1V2h-1Zm-1,1v18h-5V3h5Z" />
+    </svg>
+  );
+}
+
+export function PixelMinus({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <rect x="1" y="11" width="22" height="2" />
+    </svg>
+  );
+}
+
+export function PixelBell({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="15 20 15 22 14 22 14 23 10 23 10 22 9 22 9 20 15 20" />
+      <path d="m21,17v-1h-1v-2h-1v-6h-1v-2h-1v-1h-1v-1h-2v-1h-1V1h-2v2h-1v1h-2v1h-1v1h-1v2h-1v6h-1v2h-1v1h-1v1h1v1h18v-1h1v-1h-1Zm-15-1v-2h1v-6h1v-2h2v-1h4v1h2v2h1v6h1v2h1v1H5v-1h1Z" />
+    </svg>
+  );
+}
+
+export function PixelShare({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <path d="m20,9v-1h1v-2h1v-2h-1v-2h-1v-1h-5v1h-1v2h-1v2h-1v1h-1v1h-1v1h-1v-1h-5v1h-1v2h-1v2h1v2h1v1h5v-1h1v1h1v1h1v1h1v2h1v2h1v1h5v-1h1v-2h1v-2h-1v-2h-1v-1h-5v1h-2v-1h-1v-1h-1v-4h1v-1h1v-1h2v1h5Zm-11,4h-1v1h-3v-1h-1v-2h1v-1h3v1h1v2Zm6,5h1v-1h3v1h1v2h-1v1h-3v-1h-1v-2Zm0-14h1v-1h3v1h1v2h-1v1h-3v-1h-1v-2Z" />
+    </svg>
+  );
+}
+
+export function PixelAlertTriangle({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="14 11 14 14 13 14 13 17 11 17 11 14 10 14 10 11 14 11" />
+      <rect x="11" y="18" width="2" height="2" />
+      <path d="m22,20v-2h-1v-2h-1v-2h-1v-2h-1v-2h-1v-2h-1v-2h-1v-2h-1v-2h-1v-1h-2v1h-1v2h-1v2h-1v2h-1v2h-1v2h-1v2h-1v2h-1v2h-1v2h-1v2h1v1h20v-1h1v-2h-1Zm-19,1v-1h1v-2h1v-2h1v-2h1v-2h1v-2h1v-2h1v-2h1v-2h2v2h1v2h1v2h1v2h1v2h1v2h1v2h1v2h1v1H3Z" />
+    </svg>
+  );
+}
+
+export function PixelCog({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <path d="m21,10v-1h-1v-2h1v-2h-1v-1h-1v-1h-2v1h-2v-1h-1V1h-4v2h-1v1h-2v-1h-2v1h-1v1h-1v2h1v2h-1v1H1v4h2v1h1v2h-1v2h1v1h1v1h2v-1h2v1h1v2h4v-2h1v-1h2v1h2v-1h1v-1h1v-2h-1v-2h1v-1h2v-4h-2Zm0,3h-1v1h-1v1h-1v2h1v2h-2v-1h-2v1h-1v1h-1v1h-2v-1h-1v-1h-1v-1h-2v1h-2v-2h1v-2h-1v-1h-1v-1h-1v-2h1v-1h1v-1h1v-2h-1v-2h2v1h2v-1h1v-1h1v-1h2v1h1v1h1v1h2v-1h2v2h-1v2h1v1h1v1h1v2Z" />
+      <path d="m16,10v-1h-1v-1h-1v-1h-4v1h-1v1h-1v1h-1v4h1v1h1v1h1v1h4v-1h1v-1h1v-1h1v-4h-1Zm-1,4h-1v1h-4v-1h-1v-4h1v-1h4v1h1v4Z" />
+    </svg>
+  );
+}
+
+export function PixelUpload({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <polygon points="4 10 4 8 5 8 5 7 6 7 6 6 7 6 7 5 8 5 8 4 9 4 9 3 10 3 10 2 11 2 11 1 13 1 13 2 14 2 14 3 15 3 15 4 16 4 16 5 17 5 17 6 18 6 18 7 19 7 19 8 20 8 20 10 18 10 18 9 17 9 17 8 16 8 16 7 15 7 15 6 14 6 14 5 13 5 13 17 11 17 11 5 10 5 10 6 9 6 9 7 8 7 8 8 7 8 7 9 6 9 6 10 4 10" />
+      <rect x="2" y="20" width="20" height="3" />
+    </svg>
+  );
+}
+
+export function PixelQrCode({ className, ...props }: PixelIconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={cn("size-4 inline-block shrink-0", className)} {...props}>
+      <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm1 1h2v2H5V5zm9-3h8v8h-8V2zm2 2v4h4V4h-4zm1 1h2v2h-2V5zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm1 1h2v2H5v-2zm9-3h2v2h-2v-2zm4 0h4v2h-4v-2zm-4 4h2v4h-2v-4zm4 0h2v2h-2v-2zm2 2h2v2h-2v-2z" />
+    </svg>
+  );
+}
