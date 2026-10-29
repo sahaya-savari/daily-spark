@@ -35,8 +35,8 @@ export const SITE = {
     version: "v1.0.1",
     url: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
     filename: "Daily-Spark-v1.0.1.apk",
-    // Exact asset size at publish time: 4,095,513 bytes (shown as 4.1 MB).
-    size: "4.1 MB",
+    // Exact universal release APK size: 11,547,497 bytes (~11.0 MB).
+    size: "11.0 MB",
   },
   // The website's own unreleased version. Mirrors "version" in package.json;
   // do not surface it next to the APK download. The download UI must use
