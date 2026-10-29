@@ -42,6 +42,13 @@ export const SITE = {
     // Exact universal release APK size: 4,055,305 bytes (~4.1 MB).
     size: "4.1 MB",
   },
+  desktop: {
+    windowsZip: `${basePath}Daily-Spark-v1.0.1-windows.zip`,
+    windowsExe: `${basePath}Daily-Spark-v1.0.1-windows.exe`,
+    linuxTarGz: `${basePath}Daily-Spark-v1.0.1-linux.tar.gz`,
+    githubWindowsUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1-windows.zip",
+    githubLinuxUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1-linux.tar.gz",
+  },
   // The website's own unreleased version. Mirrors "version" in package.json;
   // do not surface it next to the APK download. The download UI must use
   // SITE.apk.version instead.

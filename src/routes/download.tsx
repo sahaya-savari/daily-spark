@@ -180,27 +180,25 @@ function Download() {
           </p>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <a
-              href={`${SITE.releases}/download/v1.0.1/Daily-Spark-v1.0.1-windows.zip`}
-              target="_blank"
-              rel="noreferrer"
+              href={SITE.desktop.windowsZip}
+              download="Daily-Spark-v1.0.1-windows.zip"
               className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
             >
               <div>
                 <p className="font-sans font-semibold text-sm text-foreground">Windows Portable (.zip)</p>
-                <p className="text-xs text-muted-foreground">v1.0.1 · Standalone .exe + assets</p>
+                <p className="text-xs text-muted-foreground">v1.0.1 · Standalone .exe + assets (Direct)</p>
               </div>
               <PixelDownload className="size-4 text-ember shrink-0" />
             </a>
 
             <a
-              href={`${SITE.releases}/download/v1.0.1/Daily-Spark-v1.0.1-linux.tar.gz`}
-              target="_blank"
-              rel="noreferrer"
+              href={SITE.desktop.linuxTarGz}
+              download="Daily-Spark-v1.0.1-linux.tar.gz"
               className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
             >
               <div>
                 <p className="font-sans font-semibold text-sm text-foreground">Linux Standalone (.tar.gz)</p>
-                <p className="text-xs text-muted-foreground">v1.0.1 · Native launcher + .desktop</p>
+                <p className="text-xs text-muted-foreground">v1.0.1 · Native launcher + .desktop (Direct)</p>
               </div>
               <PixelDownload className="size-4 text-ember shrink-0" />
             </a>
