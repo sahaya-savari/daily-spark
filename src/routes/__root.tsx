@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
 import { SITE } from "@/lib/site";
+import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
 
 function NotFoundComponent() {
   return (
@@ -112,6 +113,13 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Apply stored theme on mount so the landing page (and all non-app routes)
+  // reflect the user's chosen accent color (classic/minimal/expressive).
+  // DailySparkApp re-applies with circadian warmth on its own mount.
+  useEffect(() => {
+    applyThemeToDocument(getStoredTheme());
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

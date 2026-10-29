@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useLocation, useRouter } from "@tanstack/react-router";
 import {
   PixelAndroid,
@@ -33,6 +33,7 @@ import {
   SettingsScreen,
 } from "@/components/landing/DemoPhone";
 import { useReveal } from "@/hooks/use-reveal";
+import { useThemeAccent } from "@/hooks/use-theme-accent";
 import { SITE } from "@/lib/site";
 
 const FEATURES = [
@@ -110,6 +111,15 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   const location = useLocation();
   const router = useRouter();
   const [motionPaused, setMotionPaused] = useState(false);
+  const accent = useThemeAccent();
+
+  // Build a sweep color palette for the "Keep going." reveal that always
+  // centres on the active theme accent while cycling through the other two
+  // preset accents for visual interest.
+  const keepGoingColors = useMemo(
+    () => [accent, "#8B5CF6", "#E6B450", accent],
+    [accent],
+  );
 
   useEffect(() => {
     const hash = window.location.hash.replace(/^#/, "");
@@ -188,13 +198,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <DiaTextReveal
                   text="Keep going."
                   delay={0.48}
-                  textColor="#bf7245"
-                  colors={[
-                    "#bf7245",
-                    "#8B5CF6",
-                    "#E6B450",
-                    "#bf7245",
-                  ]}
+                  textColor={accent}
+                  colors={keepGoingColors}
                 />
               </span>
             </h1>
