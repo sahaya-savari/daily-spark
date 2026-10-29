@@ -113,13 +113,7 @@ import { cn } from "@/lib/utils";
 
 // Haptic feedback trigger for mobile
 async function triggerLightHaptic() {
-  if (Capacitor.isNativePlatform()) {
-    try {
-      await Haptics.impact({ style: ImpactStyle.Light });
-    } catch {
-      /* ignore */
-    }
-  }
+  await hapticEngine.tickTap();
 }
 
 export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {}) {

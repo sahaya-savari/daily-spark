@@ -2,7 +2,7 @@
 
 **Date Target**: Tomorrow / Next Session  
 **Current Release Version**: `v1.0.1`  
-**Current Git State**: `origin/main` @ `7a5da36` (Working tree 100% clean, 140/140 tests passing)
+**Current Git State**: `origin/main` @ `fc3f15f` (Working tree 100% clean, 140/140 tests passing)
 
 ---
 
@@ -23,7 +23,7 @@ All Phase 1–8 core objectives, visual overhauls, typography unifications, and 
 
 ### Workstream 1: APK & Release Artifact Distribution
 - [x] **Android Native Build Validation**: Verify the Capacitor Android project build (`npx cap sync android` / `./gradlew assembleRelease`).
-- [ ] **Release Parity**: Confirm that `public/daily-spark-v1.0.1.apk` byte length and SHA-256 match the official GitHub Release asset on `v1.0.1`.
+- [x] **Release Parity**: Confirm that `public/Daily-Spark-v1.0.1.apk` byte length (4,055,305 bytes) and SHA-256 (`90fb8d4ae1256932b211eeb08efc528c6e9ec362be342ac2c2c96e805e76cb62`) match the official GitHub Release asset on `v1.0.1`.
 - [ ] **Direct Download Verification**: Test APK direct install flow from `/download` route on physical Android device / emulator.
 
 ### Workstream 2: SEO, Social Cards & OpenGraph Validation
@@ -39,7 +39,7 @@ All Phase 1–8 core objectives, visual overhauls, typography unifications, and 
 ### Workstream 4: User Experience & Habit HUD Polish
 - [x] **Custom Pixel Icon Picker Expansion**: Allow users in `DailySparkApp` to pick from extended pixel icons in `D:\SOURCES` (meditation, sports, coding, nutrition).
 - [x] **Export/Import Formats**: Add optional plain-text Markdown journal export alongside the encrypted JSON vault snapshot.
-- [ ] **Soundscape Enhancements**: Add optional gentle haptic tick patterns during multi-lap habit increments on native Android.
+- [x] **Soundscape Enhancements**: Add optional gentle haptic tick patterns during multi-lap habit increments on native Android (delegated via unified `hapticEngine.tickTap()`).
 
 ---
 
