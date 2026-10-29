@@ -28,7 +28,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     surface2: "#2A2A34",
     fg: "#FAF7F5",
     muted: "#8F8D88",
-    accent: "oklch(0.68 0.12 50)",
+    accent: "#ec894c",
     border: "rgba(255, 255, 255, 0.09)",
     radius: "16px",
   },
@@ -43,7 +43,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     surface2: "#171717",
     fg: "#FFFFFF",
     muted: "#71717A",
-    accent: "#FF5722",
+    accent: "#ec894c",
     border: "rgba(255, 255, 255, 0.12)",
     radius: "4px",
   },
@@ -58,8 +58,8 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     surface2: "rgba(255, 255, 255, 0.09)",
     fg: "#F1F5F9",
     muted: "#94A3B8",
-    accent: "#06B6D4",
-    border: "rgba(6, 182, 212, 0.24)",
+    accent: "#ec894c",
+    border: "rgba(236, 137, 76, 0.24)",
     radius: "24px",
   },
 };
@@ -102,9 +102,9 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
 
   // Apply solar circadian warmth shift if night warmth is active (> 0)
   if (circadianWarmth > 0) {
-    // Soft amber warmth blend at night
+    // Soft ember warmth blend at night
     root.style.setProperty("--circadian-warmth", circadianWarmth.toFixed(3));
-    root.style.setProperty("--circadian-amber-tint", `rgba(217, 119, 6, ${(circadianWarmth * 0.08).toFixed(3)})`);
+    root.style.setProperty("--circadian-amber-tint", `rgba(236, 137, 76, ${(circadianWarmth * 0.08).toFixed(3)})`);
   } else {
     root.style.setProperty("--circadian-warmth", "0");
     root.style.setProperty("--circadian-amber-tint", "transparent");

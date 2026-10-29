@@ -578,8 +578,8 @@
   --card: #1C1E22;
   --foreground: #F5F2EB;
   --muted-foreground: #A8A398;
-  --primary: #D97706;
-  --ember: #D97706;
+  --primary: #ec894c;
+  --ember: #ec894c;
   --radius: 14px;
 }
 
@@ -590,8 +590,8 @@
   --card: #0D0D0D;
   --foreground: #FFFFFF;
   --muted-foreground: #71717A;
-  --primary: #FF5722;
-  --ember: #FF5722;
+  --primary: #ec894c;
+  --ember: #ec894c;
   --radius: 4px;
 }
 
@@ -602,8 +602,8 @@
   --card: rgba(255, 255, 255, 0.05);
   --foreground: #F1F5F9;
   --muted-foreground: #94A3B8;
-  --primary: #06B6D4;
-  --ember: #06B6D4;
+  --primary: #ec894c;
+  --ember: #ec894c;
   --radius: 24px;
 }
 
