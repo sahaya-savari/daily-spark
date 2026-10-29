@@ -25,13 +25,13 @@ All Phase 1–7 core objectives, visual overhauls, typography unifications, and 
 - [ ] **Direct Download Verification**: Test APK direct install flow from `/download` route on physical Android device / emulator.
 
 ### Workstream 2: SEO, Social Cards & OpenGraph Validation
-- [ ] **Social Preview Assets**: Verify `og:image` and `twitter:image` cards render pixel-accurate hero branding on Twitter/X, Discord, and Telegram previews.
-- [ ] **Structured Data (JSON-LD)**: Verify `SoftwareApplication` schema markup on `/` and `/download` with `"operatingSystem": "Android"`, `"applicationCategory": "HealthApplication"`, and `"offers": { "price": "0" }`.
+- [x] **Social Preview Assets**: Verify `og:image` and `twitter:image` cards render pixel-accurate hero branding on Twitter/X, Discord, and Telegram previews.
+- [x] **Structured Data (JSON-LD)**: Verify `SoftwareApplication` schema markup on `/` and `/download` with `"operatingSystem": "Android"`, `"applicationCategory": "HealthApplication"`, and `"offers": { "price": "0" }`.
 - [ ] **Lighthouse Performance Gate**: Run Lighthouse audit to verify Core Web Vitals (LCP < 1.2s, CLS = 0, FID/INP < 50ms, 100% SEO, 100% Accessibility).
 
 ### Workstream 3: F-Droid & Alternative Store Preparation
 - [ ] **F-Droid Metadata**: Prepare `.fdroid.yml` recipe referencing the GitHub tag `v1.0.1` and offline reproducibility guidelines.
-- [ ] **App Store Assets**: Verify screenshots and promotional banner dimensions using guidelines in `docs/APP_STORE_SUBMISSION.md`.
+- [x] **App Store Assets**: Verify screenshots and promotional banner dimensions using guidelines in `docs/APP_STORE_SUBMISSION.md`.
 - [ ] **Fastlane Configuration**: Setup optional automated screenshot generator for future multi-device releases.
 
 ### Workstream 4: User Experience & Habit HUD Polish

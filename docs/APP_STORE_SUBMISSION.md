@@ -55,8 +55,7 @@ Complete checklist for submitting to Google Play Store and Apple App Store.
 ### Data Safety Section
 ```
 Data collected:
-- Email address (for authentication)
-- User-generated content (streak names)
+- None. Daily Spark is 100% offline-first. No personal data, email, or analytics are collected.
 
 Data NOT collected:
 - Location
