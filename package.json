@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/postbuild.js",
+    "build:desktop": "node scripts/build-desktop.js",
     "build:dev": "vite build --mode development",
     "sync-version": "node scripts/sync-version.js",
     "cap:sync": "cap sync android",

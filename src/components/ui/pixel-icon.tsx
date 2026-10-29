@@ -29,6 +29,7 @@ import {
   MaterialMoon,
   MaterialMusic,
   MaterialNotifications,
+  MaterialPalette,
   MaterialPause,
   MaterialPen,
   MaterialPlayArrow,
@@ -39,10 +40,14 @@ import {
   MaterialSettings,
   MaterialShare,
   MaterialShieldCheck,
+  MaterialSmartphone,
   MaterialSparkles,
   MaterialStar,
+  MaterialStorage,
   MaterialSun,
   MaterialTrophy,
+  MaterialTune,
+  MaterialInfo,
   MaterialUpload,
   MaterialWarning,
   createMaterialIcon,
@@ -115,3 +120,8 @@ export const PixelAlertTriangle = MaterialWarning;
 export const PixelCog = MaterialSettings;
 export const PixelUpload = MaterialUpload;
 export const PixelQrCode = MaterialQrCode;
+export const PixelSmartphone = MaterialSmartphone;
+export const PixelPalette = MaterialPalette;
+export const PixelTune = MaterialTune;
+export const PixelStorage = MaterialStorage;
+export const PixelInfo = MaterialInfo;

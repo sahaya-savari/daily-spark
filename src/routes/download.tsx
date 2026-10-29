@@ -66,7 +66,7 @@ function Download() {
         <section className="glass-panel glass-sheen mt-10 rounded-3xl p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-ember">
             <PixelAndroid aria-hidden="true" className="size-4" />
-            <span>Android only</span>
+            <span>Android, Windows &amp; Linux</span>
           </div>
 
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -101,18 +101,18 @@ function Download() {
             </a>
           </div>
 
-          <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2 border-t border-border pt-5 text-sm sm:grid-cols-2">
+          <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2 border-t border-border pt-5 text-sm sm:grid-cols-3">
             <div className="flex items-baseline justify-between gap-3 sm:block">
               <dt className="text-faint">Version</dt>
-              <dd className="text-muted-foreground">{SITE.apk.version}</dd>
+              <dd className="text-muted-foreground font-semibold">{SITE.apk.version}</dd>
             </div>
             <div className="flex items-baseline justify-between gap-3 sm:block">
-              <dt className="text-faint">Download size</dt>
-              <dd className="text-muted-foreground">{SITE.apk.size}</dd>
+              <dt className="text-faint">Android APK</dt>
+              <dd className="text-muted-foreground">{SITE.apk.size} (Direct)</dd>
             </div>
-            <div className="flex items-baseline justify-between gap-3 sm:col-span-2 sm:mt-1 sm:block">
-              <dt className="text-faint">File</dt>
-              <dd className="break-all text-muted-foreground">{SITE.apk.filename}</dd>
+            <div className="flex items-baseline justify-between gap-3 sm:block">
+              <dt className="text-faint">Desktop Binaries</dt>
+              <dd className="text-muted-foreground">Windows &amp; Linux</dd>
             </div>
           </dl>
         </section>
@@ -172,26 +172,39 @@ function Download() {
           </div>
         </section>
 
-        {/* Windows, Linux, and Web PWA */}
+        {/* Windows, Linux, and Web Desktop Standalone */}
         <section className="glass-surface mt-8 rounded-2xl p-5 sm:p-6">
-          <h2 className="font-display text-lg sm:text-xl font-semibold tracking-wide">Desktop (Windows, Linux, macOS) & Web</h2>
+          <h2 className="font-display text-lg sm:text-xl font-semibold tracking-wide">Desktop Standalone (Windows &amp; Linux)</h2>
           <p className="mt-2 text-sm sm:text-[15px] leading-relaxed text-muted-foreground">
-            Daily Spark works in any modern browser with 100% offline local storage. On Windows and Linux, install it as a standalone native desktop application directly from Chrome, Edge, or Brave:
+            Daily Spark runs as a standalone desktop application on Windows and Linux with zero cloud requirements, 100% offline local persistence, and dedicated desktop workspace.
           </p>
-          <ul className="mt-3.5 space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2.5">
-              <PixelCheckCircle aria-hidden="true" className="size-4 flex-none text-ember" />
-              <span>Click <strong>Install Daily Spark</strong> or the app icon in your browser address bar</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <PixelCheckCircle aria-hidden="true" className="size-4 flex-none text-ember" />
-              <span>Launches in its own distraction-free desktop window with taskbar integration</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <PixelCheckCircle aria-hidden="true" className="size-4 flex-none text-ember" />
-              <span>Full offline persistence: habits stay stored locally on your machine</span>
-            </li>
-          </ul>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <a
+              href={`${SITE.releases}/download/v1.0.1/Daily-Spark-v1.0.1-windows.zip`}
+              target="_blank"
+              rel="noreferrer"
+              className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
+            >
+              <div>
+                <p className="font-sans font-semibold text-sm text-foreground">Windows Portable (.zip)</p>
+                <p className="text-xs text-muted-foreground">v1.0.1 · Standalone .exe + assets</p>
+              </div>
+              <PixelDownload className="size-4 text-ember shrink-0" />
+            </a>
+
+            <a
+              href={`${SITE.releases}/download/v1.0.1/Daily-Spark-v1.0.1-linux.tar.gz`}
+              target="_blank"
+              rel="noreferrer"
+              className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
+            >
+              <div>
+                <p className="font-sans font-semibold text-sm text-foreground">Linux Standalone (.tar.gz)</p>
+                <p className="text-xs text-muted-foreground">v1.0.1 · Native launcher + .desktop</p>
+              </div>
+              <PixelDownload className="size-4 text-ember shrink-0" />
+            </a>
+          </div>
         </section>
 
         {/* Privacy / provenance */}

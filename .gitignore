@@ -68,3 +68,4 @@ android/app/build/outputs/
 # Playwright MCP scratch artifacts
 .playwright-mcp/
 .codex/
+dist-desktop/

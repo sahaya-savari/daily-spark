@@ -171,18 +171,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           <HeatmapBackdrop />
 
           <div className="order-1 md:order-1 flex min-w-0 flex-col items-start text-left w-full max-w-full">
-            {/* Unified hero badge with optical alignment */}
+            {/* Hero badge with optical alignment and cross-platform version tag */}
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-2 sm:py-2.5 pl-2.5 sm:pl-3 pr-4 sm:pr-5 text-sm sm:text-[15.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-4 sm:pr-5 text-sm sm:text-[15.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
-              <SparkMark className="size-5 sm:size-6 shrink-0" />
-              <span className="font-display text-[16px] sm:text-[18px] font-bold tracking-[0.02em] text-foreground leading-none pt-0.5">
-                Open Source Android App
+              <span className="rounded-full bg-ember/15 border border-ember/30 px-2.5 py-0.5 text-xs sm:text-[12.5px] font-bold text-ember tracking-wide">
+                v1.0.1
               </span>
-              <span className="rounded-full bg-ember/20 border border-ember/30 px-3 py-1 text-xs sm:text-[13px] font-bold text-ember leading-none">
+              <span className="font-sans text-[15px] sm:text-[16.5px] font-semibold tracking-normal text-foreground leading-none pt-0.5">
+                Android &amp; Desktop
+              </span>
+              <span className="rounded-full bg-surface-2/80 border border-white/10 px-2.5 py-0.5 text-xs sm:text-[12px] font-semibold text-muted-foreground leading-none">
                 100% Offline
               </span>
             </a>

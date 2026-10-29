@@ -97,6 +97,8 @@ import { generateArchaeologyReport } from "@/lib/habits/archaeology";
 import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
 import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
 import { hapticEngine } from "@/lib/habits/haptics";
+import { ModernSettingsView } from "@/components/settings/ModernSettingsView";
+import { SparkMark } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -600,7 +602,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     <div
       className={cn(
         "relative w-full bg-background bg-dots font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
-        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen pb-28"
+        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen flex flex-col lg:flex-row pb-28 lg:pb-0"
       )}
     >
       {embedded && (
@@ -618,18 +620,113 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           </span>
         </div>
       )}
-      {/* Top Header Bar */}
+            {/* Desktop Sidebar Navigation Rail (matching Image 4 on wide viewports) */}
+      {!embedded && (
+        <aside className="hidden lg:flex w-64 flex-col justify-between border-r border-border/40 bg-surface/80 backdrop-blur-md p-5 shrink-0 min-h-screen sticky top-0 h-screen select-none">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 px-2">
+              <SparkMark className="size-8" />
+              <div>
+                <h1 className="font-display text-[17px] font-bold text-foreground">Daily Spark</h1>
+                <p className="text-[11px] text-muted-foreground">Calm &amp; Offline</p>
+              </div>
+            </div>
+
+            <nav className="space-y-1.5" aria-label="Desktop navigation">
+              <button
+                type="button"
+                onClick={() => setActiveTab(0)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  activeTab === 0
+                    ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
+                    : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
+                )}
+              >
+                <PixelHome className="size-4.5" />
+                <span>Today</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab(1)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  activeTab === 1
+                    ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
+                    : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
+                )}
+              >
+                <PixelCheckList className="size-4.5" />
+                <span>Habits</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab(2)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  activeTab === 2
+                    ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
+                    : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
+                )}
+              >
+                <PixelChart className="size-4.5" />
+                <span>Progress &amp; Stats</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab(3)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  activeTab === 3
+                    ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
+                    : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
+                )}
+              >
+                <PixelSettings className="size-4.5" />
+                <span>Settings</span>
+              </button>
+            </nav>
+          </div>
+
+          <div className="pt-4 border-t border-border/40 space-y-3">
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2.5">
+                <span className="size-8 rounded-full bg-ember-soft text-ember font-bold text-xs grid place-items-center border border-ember/25">
+                  {progressStats.globalStreak}d
+                </span>
+                <div className="text-left">
+                  <p className="text-xs font-bold text-foreground">Active Streak</p>
+                  <p className="text-[10px] text-muted-foreground">{todayCompletedCount} of {activeHabits.length} done</p>
+                </div>
+              </div>
+              {isLockEnabled && (
+                <button
+                  type="button"
+                  onClick={() => setIsAppLockDialogOpen(true)}
+                  className="p-1.5 rounded-lg text-faint hover:text-foreground transition-colors"
+                  title="App Lock"
+                >
+                  <PixelLock className="size-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </aside>
+      )}
+
+      {/* Top Header Bar (Mobile only) */}
       <header
         className={cn(
-          "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4",
+          "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4 lg:hidden",
           embedded ? "h-12" : "h-14"
         )}
       >
         <div className="mx-auto flex h-full w-full max-w-lg items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember shadow-sm">
-              <PixelFire className="size-4 text-ember" />
-            </span>
+            <SparkMark className="size-8" />
             <div>
               <h1 className="font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
               <p className="text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
@@ -660,7 +757,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       {/* Main Content Area */}
       <main
         className={cn(
-          "mx-auto w-full max-w-lg flex-1 px-4",
+          "mx-auto w-full max-w-lg lg:max-w-4xl flex-1 px-4 lg:px-8",
           embedded ? "overflow-y-auto overscroll-contain scrollbar-none pt-3 pb-24" : "pt-4"
         )}
       >
@@ -1273,266 +1370,17 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     {/* ============================================================== */}
     {/* TAB 3: SETTINGS                                                */}
     {/* ============================================================== */}
-    {activeTab === 3 && (
-      <div className="space-y-4">
-        <div>
-          <p className="kicker">Settings</p>
-          <p className="font-display text-[22px] font-bold leading-tight">Preferences &amp; Backups</p>
-        </div>
-
-            {/* Tri-Modal Appearance & Solar Circadian Engine */}
-            <AppearanceSwitcher />
-
-            {/* Backup & Restore Card */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="kicker">Data &amp; Backups</p>
-                <span className="text-xs text-faint">
-                  Last backup: {settings.lastBackupDate ? formatDisplayDate(String(settings.lastBackupDate)) : "Never"}
-                </span>
-              </div>
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 mb-2 flex items-start gap-2.5 text-xs text-amber-200">
-                <PixelAlertTriangle className="size-4 shrink-0 text-amber-400 mt-0.5" />
-                <p>
-                  <strong className="font-semibold text-amber-300">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
-                </p>
-              </div>
-              <div className="rounded-3xl border border-border/40 bg-surface p-2 space-y-1">
-                <button
-                  type="button"
-                  onClick={handleExportBackup}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <PixelDownload className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Export Full Backup (.json)</p>
-                    <p className="text-xs text-faint">Includes all streaks, history, and journal notes</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <label className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors cursor-pointer">
-                  <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <PixelUpload className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Inspect &amp; Restore Backup</p>
-                    <p className="text-xs text-faint">Safe preview dialog before restoring data</p>
-                  </div>
-                  <input
-                    type="file"
-                    accept=".json,.csv"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <PixelChevronRight className="size-4 text-faint" />
-                </label>
-
-                <button
-                  type="button"
-                  onClick={handleExportMarkdown}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <PixelNotebook className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Export Markdown Summary</p>
-                    <p className="text-xs text-faint">Data freedom: readable report for Obsidian/Notion</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleExportCsv}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <PixelShare className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Export CSV</p>
-                    <p className="text-xs text-faint">Spreadsheet format for habits</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsUniversalImportOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
-                    <PixelUpload className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Universal Multi-Format Importer</p>
-                    <p className="text-xs text-faint">Migrate from Loop, HabitKit, Habitica, HabitBull, CSV</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsVaultSyncOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-emerald-500/10 text-emerald-400">
-                    <PixelShieldCheck className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Zero-Cloud Encrypted Vault &amp; BYOC</p>
-                    <p className="text-xs text-faint">AES-GCM-256 encrypted vault &amp; Google Drive AppData sync</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsAirGappedOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400">
-                    <PixelQrCode className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Air-Gapped Optical QR Vault Handshake</p>
-                    <p className="text-xs text-faint">100% offline device-to-device migration via sequential animated QR codes</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsShareCardOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-2xl p-3 text-left hover:bg-surface-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-500">
-                    <PixelTrophy className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">Vector Milestone Share Card (1080x1920)</p>
-                    <p className="text-xs text-faint">Spotify-Wrapped style visual story export for stories &amp; social</p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-              </div>
-            </div>
-
-            {/* Privacy & App Lock */}
-            <div>
-              <p className="kicker mb-2">Privacy &amp; Security</p>
-              <div className="rounded-3xl border border-border/40 bg-surface p-3 space-y-3">
-                <button
-                  type="button"
-                  onClick={() => setIsAppLockDialogOpen(true)}
-                  className="flex w-full items-center gap-3 text-left hover:bg-surface-2 rounded-2xl p-2 transition-colors"
-                >
-                  <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                    <PixelLock className="size-4" />
-                  </span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">App Lock &amp; PIN</p>
-                    <p className="text-xs text-faint">
-                      {isLockEnabled ? "PIN enabled · 5-minute timeout" : "Protect habits and notes with a 4-digit PIN"}
-                    </p>
-                  </div>
-                  <PixelChevronRight className="size-4 text-faint" />
-                </button>
-
-                <div className="flex items-center justify-between p-2">
-                  <div>
-                    <p className="font-semibold text-sm">Auto Local Snapshots</p>
-                    <p className="text-xs text-faint">Rolling 7-day backup points on this device</p>
-                  </div>
-                  <Switch
-                    checked={settings.autoBackupHistoryEnabled !== false}
-                    onCheckedChange={(checked) =>
-                      habitActions.updateSettings({ autoBackupHistoryEnabled: checked })
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Reminders & Automation */}
-            <div>
-              <p className="kicker mb-2">Reminders</p>
-              <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                      <PixelBell className="size-4" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">Daily Reminders</p>
-                      <p className="text-xs text-faint">Get reminded to complete streaks</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={settings.enabled}
-                    onCheckedChange={(checked) => habitActions.updateSettings({ enabled: checked })}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between border-t border-border/30 pt-3">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint">
-                      <PixelClock className="size-4" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">Pre-task Reminder</p>
-                      <p className="text-xs text-faint">Notify before scheduled time</p>
-                    </div>
-                  </div>
-                  <select
-                    value={settings.preTaskReminderOffsetMinutes ?? 5}
-                    onChange={(e) =>
-                      habitActions.updateSettings({
-                        preTaskReminderOffsetMinutes: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="rounded-xl border border-border/50 bg-surface-2 px-2.5 py-1 text-xs font-medium text-foreground focus:outline-hidden focus:ring-1 focus:ring-ember"
-                  >
-                    <option value={5}>5 minutes before</option>
-                    <option value={10}>10 minutes before</option>
-                    <option value={15}>15 minutes before</option>
-                    <option value={30}>30 minutes before</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center justify-between border-t border-border/30 pt-3">
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-9 place-items-center rounded-xl bg-surface-2 text-ember">
-                      <PixelFire className="size-4" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-sm">Today Focus Mode</p>
-                      <p className="text-xs text-faint">Show only today's tasks</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={todayFocus}
-                    onCheckedChange={(checked) => setTodayFocus(checked)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* App Info & Principles */}
-            <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2 text-foreground font-bold">
-                <PixelSparkles className="size-4 text-ember" /> Daily Spark v1.0.1
-              </div>
-              <p>No login · No ads · No tracking · Works 100% offline.</p>
-              <p className="text-[11px] text-faint">
-                Your data stays exclusively on your device. Export regular backups to prevent accidental data loss.
-              </p>
-            </div>
-          </div>
+        {activeTab === 3 && (
+          <ModernSettingsView
+            onExportBackup={handleExportBackup}
+            onFileUpload={handleFileUpload}
+            onExportMarkdown={handleExportMarkdown}
+            onExportCsv={handleExportCsv}
+            onOpenAirGapped={() => setIsAirGappedOpen(true)}
+            onOpenVaultSync={() => setIsVaultSyncOpen(true)}
+            onOpenAppLock={() => setIsAppLockDialogOpen(true)}
+            embedded={embedded}
+          />
         )}
       </main>
 
@@ -1540,6 +1388,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       <nav
         aria-label="Mobile navigation"
         className={cn(
+          "lg:hidden",
           "z-30 flex items-center justify-around rounded-full border border-border/40 bg-surface/90 px-2 backdrop-blur-xl shadow-lg",
           embedded
             ? "absolute inset-x-3 bottom-3 h-[64px]"
