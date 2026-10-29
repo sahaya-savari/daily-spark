@@ -1,50 +1,65 @@
+import type { ComponentType } from "react";
 import {
-  Apple, Bike, BookOpen, Brain, Code, Coffee, Droplet, Dumbbell, Flame, Flower2, Footprints,
-  HandHeart, Heart, Languages, Laptop, Leaf, Lightbulb, Moon, Music, NotebookPen, Palette,
-  PenLine, Pill, Salad, Smile, Sprout, Star, Sun, Target, Timer, Wallet, Waves, Wind,
-  type LucideIcon,
-} from "lucide-react";
+  PixelBolt,
+  PixelBook,
+  PixelClock,
+  PixelCode,
+  PixelFire,
+  PixelHeart,
+  PixelIconProps,
+  PixelLightbulb,
+  PixelMoon,
+  PixelMusic,
+  PixelNotebook,
+  PixelPen,
+  PixelSparkles,
+  PixelStar,
+  PixelSun,
+  PixelTrophy,
+} from "@/components/ui/pixel-icon";
 import { cn } from "@/lib/utils";
 import { COLOR_SWATCH, type Habit } from "./types";
 
+export type HabitIconComponent = ComponentType<PixelIconProps>;
+
 /**
- * Line-icon set for habits. `emoji` is kept only so backups stay readable
- * by the original Daily Spark Android app; it is never rendered.
+ * Pixel-icon set for habits strictly derived from D:\SOURCES.
+ * `emoji` is kept only so backups stay readable by the original Daily Spark Android app.
  */
-export const HABIT_ICONS: { key: string; label: string; Icon: LucideIcon; emoji: string }[] = [
-  { key: "flame", label: "Spark", Icon: Flame, emoji: "🔥" },
-  { key: "dumbbell", label: "Strength", Icon: Dumbbell, emoji: "💪" },
-  { key: "run", label: "Run", Icon: Footprints, emoji: "🏃" },
-  { key: "bike", label: "Cycle", Icon: Bike, emoji: "🚴" },
-  { key: "swim", label: "Swim", Icon: Waves, emoji: "🏊" },
-  { key: "mindful", label: "Meditate", Icon: Flower2, emoji: "🧘" },
-  { key: "breathe", label: "Breathe", Icon: Wind, emoji: "🌬️" },
-  { key: "water", label: "Water", Icon: Droplet, emoji: "💧" },
-  { key: "food", label: "Eat well", Icon: Salad, emoji: "🥗" },
-  { key: "fruit", label: "Fruit", Icon: Apple, emoji: "🍎" },
-  { key: "sleep", label: "Sleep", Icon: Moon, emoji: "💤" },
-  { key: "morning", label: "Morning", Icon: Sun, emoji: "☀️" },
-  { key: "read", label: "Read", Icon: BookOpen, emoji: "📚" },
-  { key: "write", label: "Write", Icon: PenLine, emoji: "✍️" },
-  { key: "journal", label: "Journal", Icon: NotebookPen, emoji: "📝" },
-  { key: "learn", label: "Learn", Icon: Brain, emoji: "🧠" },
-  { key: "language", label: "Language", Icon: Languages, emoji: "🗣️" },
-  { key: "code", label: "Code", Icon: Code, emoji: "💻" },
-  { key: "work", label: "Deep work", Icon: Laptop, emoji: "🖥️" },
-  { key: "focus", label: "Focus", Icon: Target, emoji: "🎯" },
-  { key: "timer", label: "Timer", Icon: Timer, emoji: "⏱️" },
-  { key: "idea", label: "Ideas", Icon: Lightbulb, emoji: "💡" },
-  { key: "art", label: "Art", Icon: Palette, emoji: "🎨" },
-  { key: "music", label: "Music", Icon: Music, emoji: "🎵" },
-  { key: "grow", label: "Grow", Icon: Sprout, emoji: "🌱" },
-  { key: "nature", label: "Nature", Icon: Leaf, emoji: "🍃" },
-  { key: "heart", label: "Care", Icon: Heart, emoji: "❤️" },
-  { key: "gratitude", label: "Gratitude", Icon: HandHeart, emoji: "🙏" },
-  { key: "mood", label: "Mood", Icon: Smile, emoji: "🙂" },
-  { key: "star", label: "Goal", Icon: Star, emoji: "🌟" },
-  { key: "meds", label: "Meds", Icon: Pill, emoji: "💊" },
-  { key: "money", label: "Money", Icon: Wallet, emoji: "💰" },
-  { key: "coffee", label: "Less coffee", Icon: Coffee, emoji: "☕" },
+export const HABIT_ICONS: { key: string; label: string; Icon: HabitIconComponent; emoji: string }[] = [
+  { key: "flame", label: "Spark", Icon: PixelFire, emoji: "🔥" },
+  { key: "dumbbell", label: "Strength", Icon: PixelBolt, emoji: "💪" },
+  { key: "run", label: "Run", Icon: PixelFire, emoji: "🏃" },
+  { key: "bike", label: "Cycle", Icon: PixelBolt, emoji: "🚴" },
+  { key: "swim", label: "Swim", Icon: PixelSparkles, emoji: "🏊" },
+  { key: "mindful", label: "Meditate", Icon: PixelSun, emoji: "🧘" },
+  { key: "breathe", label: "Breathe", Icon: PixelSparkles, emoji: "🌬️" },
+  { key: "water", label: "Water", Icon: PixelSparkles, emoji: "💧" },
+  { key: "food", label: "Eat well", Icon: PixelSun, emoji: "🥗" },
+  { key: "fruit", label: "Fruit", Icon: PixelHeart, emoji: "🍎" },
+  { key: "sleep", label: "Sleep", Icon: PixelMoon, emoji: "💤" },
+  { key: "morning", label: "Morning", Icon: PixelSun, emoji: "☀️" },
+  { key: "read", label: "Read", Icon: PixelBook, emoji: "📚" },
+  { key: "write", label: "Write", Icon: PixelPen, emoji: "✍️" },
+  { key: "journal", label: "Journal", Icon: PixelNotebook, emoji: "📝" },
+  { key: "learn", label: "Learn", Icon: PixelLightbulb, emoji: "🧠" },
+  { key: "language", label: "Language", Icon: PixelBook, emoji: "🗣️" },
+  { key: "code", label: "Code", Icon: PixelCode, emoji: "💻" },
+  { key: "work", label: "Deep work", Icon: PixelCode, emoji: "🖥️" },
+  { key: "focus", label: "Focus", Icon: PixelTrophy, emoji: "🎯" },
+  { key: "timer", label: "Timer", Icon: PixelClock, emoji: "⏱️" },
+  { key: "idea", label: "Ideas", Icon: PixelLightbulb, emoji: "💡" },
+  { key: "art", label: "Art", Icon: PixelSparkles, emoji: "🎨" },
+  { key: "music", label: "Music", Icon: PixelMusic, emoji: "🎵" },
+  { key: "grow", label: "Grow", Icon: PixelSun, emoji: "🌱" },
+  { key: "nature", label: "Nature", Icon: PixelSun, emoji: "🍃" },
+  { key: "heart", label: "Care", Icon: PixelHeart, emoji: "❤️" },
+  { key: "gratitude", label: "Gratitude", Icon: PixelHeart, emoji: "🙏" },
+  { key: "mood", label: "Mood", Icon: PixelStar, emoji: "🙂" },
+  { key: "star", label: "Goal", Icon: PixelStar, emoji: "🌟" },
+  { key: "meds", label: "Meds", Icon: PixelHeart, emoji: "💊" },
+  { key: "money", label: "Money", Icon: PixelTrophy, emoji: "💰" },
+  { key: "coffee", label: "Less coffee", Icon: PixelSun, emoji: "☕" },
 ];
 
 const BY_KEY = new Map(HABIT_ICONS.map((i) => [i.key, i]));
@@ -67,11 +82,11 @@ export function emojiForIcon(key: string): string {
   return BY_KEY.get(key)?.emoji ?? "🔥";
 }
 
-export function getIcon(key: string): LucideIcon {
-  return BY_KEY.get(key)?.Icon ?? Flame;
+export function getIcon(key: string): HabitIconComponent {
+  return BY_KEY.get(key)?.Icon ?? PixelFire;
 }
 
-/** Rounded tile with the habit's line icon, tinted by its color tag. */
+/** Rounded tile with the habit's pixel icon, tinted by its color tag. */
 export function HabitIcon({
   habit,
   size = "md",
@@ -90,7 +105,7 @@ export function HabitIcon({
       className={cn("grid shrink-0 place-items-center border border-border bg-surface-2", box, className)}
       style={{ color: tint }}
     >
-      <Icon className={ic} strokeWidth={1.9} />
+      <Icon className={ic} />
     </span>
   );
 }
