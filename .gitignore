@@ -59,8 +59,9 @@ android/keystore.properties
 android/app/release-key.jks
 android/release-key.jks
 
-# APKs (built artifacts only)
+# APKs (built artifacts only - keep official public download asset)
 *.apk
+!public/*.apk
 *.aab
 android/app/build/outputs/
 

@@ -33,7 +33,11 @@ export const SITE = {
     // a release exists at
     // https://github.com/sahaya-savari/daily-spark/releases/latest
     version: "v1.0.1",
-    url: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
+    // Direct same-origin asset path served straight from GitHub Pages with zero 302 redirects.
+    // Eliminates mobile Chrome duplicate/triple download loops caused by cloud storage redirect hops.
+    url: `${basePath}Daily-Spark-v1.0.1.apk`,
+    // GitHub Releases URL for external managers (Obtainium, F-Droid metadata, direct releases)
+    githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
     filename: "Daily-Spark-v1.0.1.apk",
     // Exact universal release APK size: 4,055,305 bytes (~4.1 MB).
     size: "4.1 MB",
