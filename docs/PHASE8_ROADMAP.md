@@ -7,12 +7,14 @@
 ---
 
 ## 1. Executive Summary & Current State
-All Phase 1–7 core objectives, visual overhauls, typography unifications, and dithercn shader integrations have been completed, verified, and pushed to GitHub:
-- **Pixel Typography**: Exclusively powered by `BlockCraft.otf` from `D:\SOURCES` with browser faux-bold synthesis disabled (`font-synthesis: none`).
-- **Pixel Icons**: Pure SVG pixel icon set derived directly from `D:\SOURCES\pixel-icon.zip` (5,043 icons), removing all third-party icon libraries.
-- **Color Harmony**: Unified dark charcoal (`#121214`) and terracotta ember (`#ec894c`, `#bf7245`, `#925c3e`, `#634231`, `#211c1b`) palette strictly applied.
+All Phase 1–8 core objectives, visual overhauls, typography unifications, and dithercn shader integrations have been completed, verified, and validated:
+- **Modern Typography**: Exclusively powered by Google Fonts `Mozilla Headline` (variable 200..700) for headers and display, paired with `JetBrains Mono` for body and habit metrics, eliminating local font caching issues.
+- **Material Design Icons**: Official Google Material Design SVGs integrated in `src/components/ui/material-icon.tsx` and cleanly mapped through `src/components/ui/pixel-icon.tsx` across the app and marketing site.
+- **Tri-Theme Color Presets**: Distinct theme color accents restored and calibrated — Classic (Terracotta Brown `#bf7245`), Minimal (Solar Amber Yellow `#E6B450`), and Expressive (Electric Ocean Blue `#06B6D4`).
+- **APK Download Guard**: Debounced download protection with active feedback implemented in `DownloadApkButton.tsx`.
 - **dithercn Background**: Atmospheric WebGL background shader running quietly with whisper intensity (`0.20`), preserving >7:1 text contrast.
-- **Balanced Grid**: "What it doesn't do" section now features a symmetrical 4×2 grid (8 items) with no orphan cards.
+- **Balanced Grid**: "What it doesn't do" section features a symmetrical 4×2 grid (8 items) with no orphan cards.
+- **Native Android Build**: Capacitor native project sync (`npm run build:android`) verified with updated plugins and assets.
 - **Protected Elements**: LOCK A (Interactive Demo Phone) and LOCK B (Screens Carousel Parade) verified and preserved.
 
 ---

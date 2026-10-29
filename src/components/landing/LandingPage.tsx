@@ -188,13 +188,12 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <DiaTextReveal
                   text="Keep going."
                   delay={0.48}
-                  textColor="#ec894c"
+                  textColor="#bf7245"
                   colors={[
-                    "#ec894c",
-                    "#f0995c",
-                    "#ec894c",
                     "#bf7245",
-                    "#ec894c",
+                    "#06B6D4",
+                    "#E6B450",
+                    "#bf7245",
                   ]}
                 />
               </span>

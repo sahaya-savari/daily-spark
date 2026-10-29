@@ -1,65 +1,64 @@
 import type { ComponentType } from "react";
 import {
-  PixelBolt,
-  PixelBook,
-  PixelClock,
-  PixelCode,
-  PixelFire,
-  PixelHeart,
-  PixelIconProps,
-  PixelLightbulb,
-  PixelMoon,
-  PixelMusic,
-  PixelNotebook,
-  PixelPen,
-  PixelSparkles,
-  PixelStar,
-  PixelSun,
-  PixelTrophy,
-} from "@/components/ui/pixel-icon";
+  MaterialBolt,
+  MaterialBook,
+  MaterialClock,
+  MaterialCode,
+  MaterialFlame,
+  MaterialHeart,
+  MaterialIconProps,
+  MaterialLightbulb,
+  MaterialMoon,
+  MaterialMusic,
+  MaterialPen,
+  MaterialSparkles,
+  MaterialStar,
+  MaterialSun,
+  MaterialTrophy,
+} from "@/components/ui/material-icon";
 import { cn } from "@/lib/utils";
 import { COLOR_SWATCH, type Habit } from "./types";
 
-export type HabitIconComponent = ComponentType<PixelIconProps>;
+export type HabitIconComponent = ComponentType<MaterialIconProps>;
 
 /**
- * Pixel-icon set for habits strictly derived from D:\SOURCES.
+ * Habit icon set using official Google Material Design Icons (Apache 2.0).
  * `emoji` is kept only so backups stay readable by the original Daily Spark Android app.
  */
 export const HABIT_ICONS: { key: string; label: string; Icon: HabitIconComponent; emoji: string }[] = [
-  { key: "flame", label: "Spark", Icon: PixelFire, emoji: "🔥" },
-  { key: "dumbbell", label: "Strength", Icon: PixelBolt, emoji: "💪" },
-  { key: "run", label: "Run", Icon: PixelFire, emoji: "🏃" },
-  { key: "bike", label: "Cycle", Icon: PixelBolt, emoji: "🚴" },
-  { key: "swim", label: "Swim", Icon: PixelSparkles, emoji: "🏊" },
-  { key: "mindful", label: "Meditate", Icon: PixelSun, emoji: "🧘" },
-  { key: "breathe", label: "Breathe", Icon: PixelSparkles, emoji: "🌬️" },
-  { key: "water", label: "Water", Icon: PixelSparkles, emoji: "💧" },
-  { key: "food", label: "Eat well", Icon: PixelSun, emoji: "🥗" },
-  { key: "fruit", label: "Fruit", Icon: PixelHeart, emoji: "🍎" },
-  { key: "sleep", label: "Sleep", Icon: PixelMoon, emoji: "💤" },
-  { key: "morning", label: "Morning", Icon: PixelSun, emoji: "☀️" },
-  { key: "read", label: "Read", Icon: PixelBook, emoji: "📚" },
-  { key: "write", label: "Write", Icon: PixelPen, emoji: "✍️" },
-  { key: "journal", label: "Journal", Icon: PixelNotebook, emoji: "📝" },
-  { key: "learn", label: "Learn", Icon: PixelLightbulb, emoji: "🧠" },
-  { key: "language", label: "Language", Icon: PixelBook, emoji: "🗣️" },
-  { key: "code", label: "Code", Icon: PixelCode, emoji: "💻" },
-  { key: "work", label: "Deep work", Icon: PixelCode, emoji: "🖥️" },
-  { key: "focus", label: "Focus", Icon: PixelTrophy, emoji: "🎯" },
-  { key: "timer", label: "Timer", Icon: PixelClock, emoji: "⏱️" },
-  { key: "idea", label: "Ideas", Icon: PixelLightbulb, emoji: "💡" },
-  { key: "art", label: "Art", Icon: PixelSparkles, emoji: "🎨" },
-  { key: "music", label: "Music", Icon: PixelMusic, emoji: "🎵" },
-  { key: "grow", label: "Grow", Icon: PixelSun, emoji: "🌱" },
-  { key: "nature", label: "Nature", Icon: PixelSun, emoji: "🍃" },
-  { key: "heart", label: "Care", Icon: PixelHeart, emoji: "❤️" },
-  { key: "gratitude", label: "Gratitude", Icon: PixelHeart, emoji: "🙏" },
-  { key: "mood", label: "Mood", Icon: PixelStar, emoji: "🙂" },
-  { key: "star", label: "Goal", Icon: PixelStar, emoji: "🌟" },
-  { key: "meds", label: "Meds", Icon: PixelHeart, emoji: "💊" },
-  { key: "money", label: "Money", Icon: PixelTrophy, emoji: "💰" },
-  { key: "coffee", label: "Less coffee", Icon: PixelSun, emoji: "☕" },
+  { key: "flame", label: "Spark", Icon: MaterialFlame, emoji: "🔥" },
+  { key: "dumbbell", label: "Strength", Icon: MaterialBolt, emoji: "💪" },
+  { key: "run", label: "Run", Icon: MaterialFlame, emoji: "🏃" },
+  { key: "bike", label: "Cycle", Icon: MaterialBolt, emoji: "🚴" },
+  { key: "swim", label: "Swim", Icon: MaterialSparkles, emoji: "🏊" },
+  { key: "mindful", label: "Meditate", Icon: MaterialSun, emoji: "🧘" },
+  { key: "breathe", label: "Breathe", Icon: MaterialSparkles, emoji: "🌬️" },
+  { key: "water", label: "Water", Icon: MaterialSparkles, emoji: "💧" },
+  { key: "food", label: "Eat well", Icon: MaterialSun, emoji: "🥗" },
+  { key: "fruit", label: "Fruit", Icon: MaterialHeart, emoji: "🍎" },
+  { key: "sleep", label: "Sleep", Icon: MaterialMoon, emoji: "💤" },
+  { key: "morning", label: "Morning", Icon: MaterialSun, emoji: "☀️" },
+  { key: "read", label: "Read", Icon: MaterialBook, emoji: "📚" },
+  { key: "write", label: "Write", Icon: MaterialPen, emoji: "✍️" },
+  { key: "journal", label: "Journal", Icon: MaterialPen, emoji: "📝" },
+  { key: "learn", label: "Learn", Icon: MaterialLightbulb, emoji: "🧠" },
+  { key: "language", label: "Language", Icon: MaterialBook, emoji: "🗣️" },
+  { key: "code", label: "Code", Icon: MaterialCode, emoji: "💻" },
+  { key: "work", label: "Deep work", Icon: MaterialCode, emoji: "🖥️" },
+  { key: "focus", label: "Focus", Icon: MaterialTrophy, emoji: "🎯" },
+  { key: "timer", label: "Timer", Icon: MaterialClock, emoji: "⏱️" },
+  { key: "idea", label: "Ideas", Icon: MaterialLightbulb, emoji: "💡" },
+  { key: "art", label: "Art", Icon: MaterialSparkles, emoji: "🎨" },
+  { key: "music", label: "Music", Icon: MaterialMusic, emoji: "🎵" },
+  { key: "grow", label: "Grow", Icon: MaterialSun, emoji: "🌱" },
+  { key: "nature", label: "Nature", Icon: MaterialSun, emoji: "🍃" },
+  { key: "heart", label: "Care", Icon: MaterialHeart, emoji: "❤️" },
+  { key: "gratitude", label: "Gratitude", Icon: MaterialHeart, emoji: "🙏" },
+  { key: "mood", label: "Mood", Icon: MaterialStar, emoji: "🙂" },
+  { key: "star", label: "Goal", Icon: MaterialStar, emoji: "🌟" },
+  { key: "meds", label: "Meds", Icon: MaterialHeart, emoji: "💊" },
+  { key: "money", label: "Money", Icon: MaterialTrophy, emoji: "💰" },
+  { key: "coffee", label: "Less coffee", Icon: MaterialSun, emoji: "☕" },
 ];
 
 const BY_KEY = new Map(HABIT_ICONS.map((i) => [i.key, i]));
@@ -83,7 +82,7 @@ export function emojiForIcon(key: string): string {
 }
 
 export function getIcon(key: string): HabitIconComponent {
-  return BY_KEY.get(key)?.Icon ?? PixelFire;
+  return BY_KEY.get(key)?.Icon ?? MaterialFlame;
 }
 
 /** Rounded tile with the habit's pixel icon, tinted by its color tag. */

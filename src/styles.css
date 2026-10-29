@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Mozilla+Headline:wght@200..700&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -10,19 +11,12 @@
  * JetBrains Mono body and habit titles. All tokens live here.
  */
 
-@font-face {
-  font-family: "Block Craft";
-  src: url("./assets/fonts/BlockCraft.otf") format("opentype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
 
 @theme inline {
-  --font-sans: "Block Craft", monospace, sans-serif;
-  --font-display: "Block Craft", monospace, sans-serif;
-  --font-app: "Block Craft", monospace, sans-serif;
-  --font-mono: "Block Craft", monospace;
+  --font-sans: "Mozilla Headline", system-ui, -apple-system, sans-serif;
+  --font-display: "Mozilla Headline", system-ui, -apple-system, sans-serif;
+  --font-app: "Mozilla Headline", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -578,8 +572,8 @@
   --card: #1C1E22;
   --foreground: #F5F2EB;
   --muted-foreground: #A8A398;
-  --primary: #ec894c;
-  --ember: #ec894c;
+  --primary: #bf7245;
+  --ember: #bf7245;
   --radius: 14px;
 }
 
@@ -590,8 +584,8 @@
   --card: #0D0D0D;
   --foreground: #FFFFFF;
   --muted-foreground: #71717A;
-  --primary: #ec894c;
-  --ember: #ec894c;
+  --primary: #E6B450;
+  --ember: #E6B450;
   --radius: 4px;
 }
 
@@ -602,8 +596,8 @@
   --card: rgba(255, 255, 255, 0.05);
   --foreground: #F1F5F9;
   --muted-foreground: #94A3B8;
-  --primary: #ec894c;
-  --ember: #ec894c;
+  --primary: #06B6D4;
+  --ember: #06B6D4;
   --radius: 24px;
 }
 
