@@ -18,13 +18,23 @@
   --font-app: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: 16px;
+  /* Strict Multi-Radius Hierarchy by Role */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  --radius-xl: 18px;
+  --radius-2xl: 20px;
   --radius-3xl: 28px;
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-4xl: 36px;
+
+  /* Motion Tokens */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -567,6 +577,53 @@
 }
 
 /* Tri-Modal Appearance & Solar Circadian Theme Styles */
+
+.light {
+  --radius: 0.875rem;
+  --background: #F8F6F2;
+  --foreground: #1A1A1E;
+  --surface: #EFECE6;
+  --surface-2: #E4E0D8;
+  --card: #EFECE6;
+  --card-foreground: #1A1A1E;
+  --popover: #EFECE6;
+  --popover-foreground: #1A1A1E;
+  --primary: #D96B27;
+  --primary-foreground: #FFFFFF;
+  --ember: #D96B27;
+  --ember-soft: color-mix(in srgb, var(--ember) 14%, transparent);
+  --brass: #A6562E;
+  --cta: var(--ember);
+  --cta-foreground: #FFFFFF;
+  --cta-ring: color-mix(in srgb, var(--cta) 45%, transparent);
+  --gold: #A6562E;
+  --sage: #5E6655;
+  --secondary: #EFECE6;
+  --secondary-foreground: #1A1A1E;
+  --muted: #E4E0D8;
+  --muted-foreground: #6E6A64;
+  --faint: #8C877E;
+  --faint-dim: #A8A39A;
+  --accent: #E4E0D8;
+  --accent-foreground: #1A1A1E;
+  --destructive: #C93B2B;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hi: rgba(217, 107, 39, 0.35);
+  --input: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.12);
+  --scrim: rgba(0, 0, 0, 0.45);
+  --ring: #D96B27;
+  --spark-ember: #D96B27;
+  --spark-root: #A6562E;
+  --spark-bg: #F8F6F2;
+  --spark-surface: #EFECE6;
+  --spark-surface-2: #E4E0D8;
+  --spark-text: #1A1A1E;
+  --spark-muted: #6E6A64;
+  --spark-border: rgba(0, 0, 0, 0.08);
+}
+
 .theme-classic {
   --background: #121316;
   --surface: #1C1E22;
@@ -629,3 +686,10 @@
   z-index: 9999;
 }
 
+
+
+@utility focus-ring {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ember) 25%, transparent);
+}
