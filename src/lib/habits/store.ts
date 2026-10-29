@@ -137,7 +137,7 @@ function persist() {
     localStorage.setItem(STORAGE_KEYS.habits, JSON.stringify(state.habits));
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
     saveRollingBackup(state.habits, state.settings);
-    syncWidgetData(state.habits).catch(() => {});
+    syncWidgetData(state.habits, state.settings).catch(() => {});
   } catch (e) {
     console.error("[daily-spark] could not save", e);
   }

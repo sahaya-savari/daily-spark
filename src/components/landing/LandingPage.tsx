@@ -191,7 +191,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                   textColor="#bf7245"
                   colors={[
                     "#bf7245",
-                    "#06B6D4",
+                    "#8B5CF6",
                     "#E6B450",
                     "#bf7245",
                   ]}

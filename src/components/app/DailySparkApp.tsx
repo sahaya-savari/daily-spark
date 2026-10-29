@@ -2291,7 +2291,7 @@ function HabitDetailModal({
         <div className="flex items-center justify-between">
           <div>
             <p className="font-semibold text-xs flex items-center gap-1.5">
-              <PixelSparkles className="size-3.5 text-cyan-400" /> Vacation &amp; Pause
+              <PixelSparkles className="size-3.5 text-ember" /> Vacation &amp; Pause
             </p>
             <p className="text-[11px] text-faint">Freeze streak safely during travel or illness</p>
           </div>
@@ -2363,7 +2363,7 @@ function HabitDetailModal({
                 size="sm"
                 onClick={handleAddVacation}
                 disabled={!vacStart || !vacEnd}
-                className="h-7 px-3 text-xs bg-cyan-600 text-white hover:bg-cyan-500"
+                className="h-7 px-3 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 Save Range
               </Button>
@@ -2380,7 +2380,7 @@ function HabitDetailModal({
                 key={idx}
                 className="flex items-center justify-between text-xs px-2 py-1 rounded-lg bg-surface/60 border border-border/20"
               >
-                <span className="font-mono text-[11px] text-cyan-300">
+                <span className="font-mono text-[11px] text-ember">
                   {vr.start} → {vr.end}
                   {vr.reason && <span className="font-sans text-faint ml-1.5 font-normal">({vr.reason})</span>}
                 </span>

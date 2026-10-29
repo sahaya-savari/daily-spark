@@ -2,14 +2,14 @@ import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { todayKey, addDays } from "./dates";
 import { overallStreak, isDoneOn } from "./logic";
-import type { Habit } from "./types";
+import type { Habit, HabitSettings } from "./types";
 
 /**
  * Shared Storage Bridge for Android Home-Screen Widgets.
  * Updates context.filesDir/widget_habits.json via Capacitor Filesystem bridge.
  * 100% offline-first, $0 server cost.
  */
-export async function syncWidgetData(habits: Habit[]): Promise<void> {
+export async function syncWidgetData(habits: Habit[], settings?: HabitSettings): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
 
   try {
@@ -52,6 +52,7 @@ export async function syncWidgetData(habits: Habit[]): Promise<void> {
 
     const payload = JSON.stringify({
       overallStreak: streak,
+      themeMode: settings?.themeMode || "classic",
       pendingHabits,
       recentHeatLevels,
     });

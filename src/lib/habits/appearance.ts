@@ -50,7 +50,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
   expressive: {
     id: "expressive",
     name: "Expressive",
-    subtitle: "Electric Ocean Blue",
+    subtitle: "Electric Violet",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Mozilla Headline", system-ui, sans-serif',
     bg: "#06050C",
@@ -58,8 +58,8 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     surface2: "rgba(255, 255, 255, 0.09)",
     fg: "#F1F5F9",
     muted: "#94A3B8",
-    accent: "#06B6D4",
-    border: "rgba(6, 182, 212, 0.24)",
+    accent: "#8B5CF6",
+    border: "rgba(139, 92, 246, 0.24)",
     radius: "24px",
   },
 };

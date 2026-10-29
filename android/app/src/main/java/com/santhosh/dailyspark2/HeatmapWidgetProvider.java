@@ -49,14 +49,10 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
         Paint paint = new Paint();
         paint.setAntiAlias(true);
 
-        // Heat colors
-        int[] palette = {
-                Color.parseColor("#1F2430"), // Level 0 (inactive)
-                Color.parseColor("#1E3A5F"), // Level 1
-                Color.parseColor("#0284C7"), // Level 2
-                Color.parseColor("#38BDF8"), // Level 3
-                Color.parseColor("#F29559")  // Level 4 (peak ember)
-        };
+        // Classic is the safe fallback. The mode is replaced after reading the
+        // web app's shared widget payload, so every appearance mode stays one
+        // cohesive color family.
+        int[] palette = paletteForTheme("classic");
 
         // Try reading heat levels from widget_habits.json
         int[] levels = new int[70];
@@ -69,6 +65,7 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
                 fis.close();
                 if (read > 0) {
                     JSONObject json = new JSONObject(new String(data, StandardCharsets.UTF_8));
+                    palette = paletteForTheme(json.optString("themeMode", "classic"));
                     JSONArray arr = json.optJSONArray("recentHeatLevels");
                     if (arr != null) {
                         for (int i = 0; i < Math.min(arr.length(), levels.length); i++) {
@@ -105,6 +102,34 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
 
         views.setImageViewBitmap(R.id.widget_heatmap_image, bitmap);
         manager.updateAppWidget(appWidgetId, views);
+    }
+
+    private static int[] paletteForTheme(String themeMode) {
+        if ("expressive".equals(themeMode)) {
+            return new int[] {
+                    Color.parseColor("#171024"),
+                    Color.parseColor("#39225B"),
+                    Color.parseColor("#5B3991"),
+                    Color.parseColor("#7546B5"),
+                    Color.parseColor("#8B5CF6")
+            };
+        }
+        if ("minimal".equals(themeMode)) {
+            return new int[] {
+                    Color.parseColor("#242018"),
+                    Color.parseColor("#665127"),
+                    Color.parseColor("#9D7831"),
+                    Color.parseColor("#C99A3F"),
+                    Color.parseColor("#E6B450")
+            };
+        }
+        return new int[] {
+                Color.parseColor("#211C1B"),
+                Color.parseColor("#634231"),
+                Color.parseColor("#925C3E"),
+                Color.parseColor("#BF7245"),
+                Color.parseColor("#EC894C")
+        };
     }
 }
 

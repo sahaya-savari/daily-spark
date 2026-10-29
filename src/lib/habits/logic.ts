@@ -192,7 +192,13 @@ export function totalCompletions(habits: Habit[]): number {
   return habits.reduce((n, h) => n + h.completedDates.length, 0);
 }
 
-/** 0-4 intensity level for heatmaps. */
+/**
+ * 0-4 intensity level for heatmaps.
+ *
+ * The selected appearance mode maps these intensity levels to one cohesive
+ * hue family; this function only determines intensity and never assigns a
+ * color itself.
+ */
 export function heatLevel(done: number, total: number): 0 | 1 | 2 | 3 | 4 {
   if (done <= 0 || total <= 0) return 0;
   const r = done / total;

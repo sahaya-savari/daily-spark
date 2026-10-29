@@ -118,6 +118,8 @@
   --ring: #ec894c;
 
   --heat-0: #211c1b;
+  /* Classic's complete heatmap ramp stays in the warm brown family. Theme
+     classes below replace this with their own single-hue ramps. */
   --heat-1: #634231;
   --heat-2: #925c3e;
   --heat-3: #bf7245;
@@ -574,6 +576,11 @@
   --muted-foreground: #A8A398;
   --primary: #bf7245;
   --ember: #bf7245;
+  --heat-0: #211c1b;
+  --heat-1: #634231;
+  --heat-2: #925c3e;
+  --heat-3: #bf7245;
+  --heat-4: #ec894c;
   --radius: 14px;
 }
 
@@ -586,6 +593,11 @@
   --muted-foreground: #71717A;
   --primary: #E6B450;
   --ember: #E6B450;
+  --heat-0: #242018;
+  --heat-1: #665127;
+  --heat-2: #9d7831;
+  --heat-3: #c99a3f;
+  --heat-4: #e6b450;
   --radius: 4px;
 }
 
@@ -596,8 +608,13 @@
   --card: rgba(255, 255, 255, 0.05);
   --foreground: #F1F5F9;
   --muted-foreground: #94A3B8;
-  --primary: #06B6D4;
-  --ember: #06B6D4;
+  --primary: #8B5CF6;
+  --ember: #8B5CF6;
+  --heat-0: #171024;
+  --heat-1: #39225b;
+  --heat-2: #5b3991;
+  --heat-3: #7546b5;
+  --heat-4: #8b5cf6;
   --radius: 24px;
 }
 

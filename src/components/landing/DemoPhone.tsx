@@ -515,8 +515,8 @@ export function ProgressScreen({
                 if (!isFuture && ratio && ratio.done > 0) {
                   const pct = ratio.done / ratio.total;
                   if (pct === 1) heatClass = "bg-primary text-primary-foreground font-bold";
-                  else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-medium";
-                  else if (pct >= 0.3) heatClass = "bg-heat-2 text-foreground font-medium";
+                  else if (pct >= 0.5) heatClass = "bg-heat-3 text-white font-medium";
+                  else if (pct >= 0.25) heatClass = "bg-heat-2 text-foreground font-medium";
                   else heatClass = "bg-heat-1 text-foreground";
                 }
                 return (
