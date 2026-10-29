@@ -80,10 +80,9 @@ const FEATURES = [
 
 const SHOTS = [
   ["Today", <HomeScreen key="h" habits={DEMO_HABITS} />],
-  ["New habit", <NewHabitScreen key="n" />],
-  ["Habit", <HabitScreen key="d" />],
-  ["Progress", <ProgressScreen key="p" />],
-  ["Calendar", <CalendarScreen key="c" />],
+  ["Habits", <HabitScreen key="d" />],
+  ["Progress", <ProgressScreen key="p" initialSubTab="overview" />],
+  ["Calendar", <ProgressScreen key="c" initialSubTab="calendar" />],
   ["Settings", <SettingsScreen key="s" />],
 ] as const;
 
@@ -99,7 +98,7 @@ const NOT_DOING = [
 ] as const;
 
 const btn =
-  "inline-flex items-center justify-center gap-2 sm:gap-[9px] rounded-full border px-5 sm:px-6 py-3 sm:py-[13px] font-display text-xs sm:text-sm font-bold tracking-normal transition-all duration-200 max-w-full";
+  "inline-flex items-center justify-center gap-2.5 sm:gap-3 rounded-full border px-6 sm:px-7 py-3.5 sm:py-4 font-display text-sm sm:text-base font-bold tracking-normal transition-all duration-200 max-w-full";
 
 interface LandingPageProps {
   targetSection?: "features" | "screens" | "get";
@@ -168,18 +167,18 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-3.5 sm:pr-4 text-xs sm:text-[14.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-2 sm:py-2.5 pl-2.5 sm:pl-3 pr-4 sm:pr-5 text-sm sm:text-[15.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <SparkMark className="size-5 sm:size-6 shrink-0" />
-              <span className="font-display text-[15px] sm:text-[17px] font-bold tracking-[0.02em] text-foreground leading-none pt-0.5">
+              <span className="font-display text-[16px] sm:text-[18px] font-bold tracking-[0.02em] text-foreground leading-none pt-0.5">
                 Open Source Android App
               </span>
-              <span className="rounded-full bg-ember/20 border border-ember/30 px-2.5 py-1 text-[11px] sm:text-[12px] font-bold text-ember leading-none">
+              <span className="rounded-full bg-ember/20 border border-ember/30 px-3 py-1 text-xs sm:text-[13px] font-bold text-ember leading-none">
                 100% Offline
               </span>
             </a>
 
-            <h1 className="font-display text-[clamp(28px,8.2vw,36px)] sm:text-[54px] lg:text-[72px] font-bold leading-[1.14] text-left max-w-full">
+            <h1 className="font-display text-[clamp(34px,8vw,44px)] sm:text-[58px] lg:text-[76px] font-bold leading-[1.14] text-left max-w-full">
               <span className="block pb-0.5">
                 <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
               </span>
@@ -201,7 +200,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 />
               </span>
             </h1>
-            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[15px] sm:text-[20px] lg:text-[22px] leading-relaxed text-muted-foreground text-left">
+            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[17px] sm:text-[21px] lg:text-[23px] leading-relaxed text-muted-foreground text-left">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
@@ -209,7 +208,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className={`${btn} cta-solid border-transparent px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base transition-all hover:scale-[1.03] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background leading-none`}
+                className={`${btn} cta-solid border-transparent px-5 sm:px-6 py-3.5 text-sm sm:text-base md:text-[17px] font-bold transition-all hover:scale-[1.03] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background leading-none`}
               >
                 <span className="pt-0.5">Download Daily Spark APK</span>
                 <PixelDownload className="size-4 sm:size-5 shrink-0" />
@@ -218,12 +217,12 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.releases}
                 target="_blank"
                 rel="noreferrer"
-                className={`glass-pill ${btn} border-white/10 px-5 sm:px-6 py-3.5 text-xs sm:text-sm md:text-base text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none`}
+                className={`glass-pill ${btn} border-white/10 px-5 sm:px-6 py-3.5 text-sm sm:text-base md:text-[17px] font-semibold text-foreground transition-all hover:scale-[1.02] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none`}
               >
                 <span className="pt-0.5">GitHub Releases</span>
               </a>
             </div>
-            <p className="mt-5 sm:mt-6 text-xs sm:text-[15.5px] text-faint text-left">Android APK · 100% Offline · No account · No ads</p>
+            <p className="mt-5 sm:mt-6 text-sm sm:text-[16.5px] text-faint text-left font-medium">Android APK · 100% Offline · No account · No ads</p>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
@@ -235,8 +234,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         {/* What it does */}
         <section id="features" className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
           <div className="mb-8 text-left">
-            <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">What it does</h2>
-            <p className="mt-2 text-[15px] sm:text-base text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
+            <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">What it does</h2>
+            <p className="mt-2 text-base sm:text-lg text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
           </div>
           <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
             {FEATURES.map(({ icon: Icon, title, body }) => (
@@ -248,8 +247,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                   <div className="mb-4 inline-flex size-11 items-center justify-center rounded-xl border border-ember/20 bg-gradient-to-br from-ember/15 to-transparent text-ember shadow-sm shadow-ember/10 transition-transform duration-300 group-hover:scale-110 group-hover:border-ember/40">
                     <Icon className="size-5" />
                   </div>
-                  <h3 className="mb-2 font-display text-lg font-bold tracking-tight text-foreground">{title}</h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
+                  <h3 className="mb-2 font-display text-[19px] sm:text-[20px] font-bold tracking-tight text-foreground">{title}</h3>
+                  <p className="text-[14.5px] sm:text-[15.5px] leading-relaxed text-muted-foreground">{body}</p>
                 </div>
               </article>
             ))}
@@ -265,8 +264,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           <div className="reveal mx-auto max-w-[1100px] px-4 sm:px-6">
             <div className="mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 text-left">
               <div className="min-w-0 flex-1">
-                <h2 className="mb-3 font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Screens</h2>
-                <p className="max-w-[52ch] text-[15px] sm:text-base text-muted-foreground">
+                <h2 className="mb-3 font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">Screens</h2>
+                <p className="max-w-[52ch] text-base sm:text-lg text-muted-foreground">
                   The real layouts with sample habits. On a phone it is a rail you swipe yourself; on wider screens it
                   scrolls on its own and you can stop it.
                 </p>
@@ -304,7 +303,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                   aria-hidden={i >= SHOTS.length || undefined}
                 >
                   <MiniPhone>{screen}</MiniPhone>
-                  <figcaption className="mt-4 text-center text-[13px] font-medium text-faint transition-colors group-hover:text-muted-foreground">
+                  <figcaption className="mt-4 text-center text-[16px] sm:text-[17px] font-bold text-foreground/90 transition-colors group-hover:text-ember">
                     {label}
                   </figcaption>
                 </figure>
@@ -317,13 +316,13 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
-              <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold leading-tight">
+              <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold leading-tight">
                 Your data stays on your device
               </h2>
-              <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
+              <p className="mt-3 max-w-[54ch] text-base sm:text-[17px] text-muted-foreground">
                 Daily Spark has no account and no server, so there's nowhere for your habits to go. No analytics, no ads.
               </p>
-              <p className="mt-3.5 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
+              <p className="mt-3.5 max-w-[54ch] text-base sm:text-[17px] text-muted-foreground">
                 Everything is saved locally on your phone with the APK. Export a backup now and then, and
                 restore it on any device.
               </p>
@@ -339,8 +338,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         {/* What it doesn't do */}
         <section className="reveal mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 overflow-hidden items-center">
           <div className="min-w-0 text-left">
-            <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">What it doesn't do</h2>
-            <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
+            <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">What it doesn't do</h2>
+            <p className="mt-3 max-w-[54ch] text-base sm:text-[17px] text-muted-foreground">
               Left out on purpose, to keep it simple and calm. Focus on consistency - not addiction or comparison.
             </p>
           </div>
@@ -349,7 +348,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               {NOT_DOING.map((t) => (
                 <div
                   key={t}
-                  className="glass-pill flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-medium text-foreground/90 transition-all hover:bg-surface-2"
+                  className="glass-pill flex items-center gap-3 rounded-xl px-5 py-3.5 text-sm sm:text-base md:text-[16.5px] font-bold text-foreground/90 transition-all hover:bg-surface-2"
                 >
                   <span className="size-2 rounded-full bg-ember shadow-xs shadow-ember/50 shrink-0" aria-hidden="true" />
                   <span>{t}</span>
@@ -363,7 +362,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
-              <h2 className="font-display text-[28px] sm:text-[34px] md:text-[42px] font-bold">Why it exists</h2>
+              <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">Why it exists</h2>
               <p className="mt-3 max-w-[54ch] text-[15px] sm:text-base text-muted-foreground">
                 Most habit apps want your attention: badges, pressure, guilt when you miss a day. Daily Spark is built
                 to be quiet, stable and honest - not addictive.
@@ -387,19 +386,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               className="aurora-field pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-full max-w-96 -translate-x-1/2 rounded-full overflow-hidden"
               aria-hidden="true"
             />
-            <h2 className="mb-3 sm:mb-4 font-display text-[28px] sm:text-[36px] md:text-[44px] font-bold text-foreground">Get Daily Spark</h2>
-            <p className="mx-auto max-w-[52ch] text-[15px] sm:text-base text-muted-foreground">
+            <h2 className="mb-3 sm:mb-4 font-display text-[34px] sm:text-[42px] md:text-[50px] font-bold text-foreground">Get Daily Spark</h2>
+            <p className="mx-auto max-w-[52ch] text-base sm:text-lg text-muted-foreground">
               Free, calm habit tracking directly on your Android phone.
             </p>
             <div className="mb-6 mt-7 sm:mt-8 flex flex-col sm:flex-row flex-wrap justify-center gap-3.5 sm:gap-4 w-full sm:w-auto">
               <a
                 href={SITE.apk.url}
                 download={SITE.apk.filename}
-                className="inline-flex h-[52px] sm:h-[54px] items-center justify-center gap-3 rounded-full cta-solid px-6 sm:px-7 text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="inline-flex h-[56px] sm:h-[60px] items-center justify-center gap-3 rounded-full cta-solid px-8 sm:px-9 text-base sm:text-lg font-bold text-left transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <PixelDownload />
                 <span className="leading-none">
-                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-cta-foreground/80">
+                  <span className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-cta-foreground/90">
                     Download APK
                   </span>
                   <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-bold tracking-wide">
@@ -415,7 +414,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               >
                 <PixelGithub />
                 <span className="leading-none">
-                  <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <span className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-muted-foreground">
                     View on
                   </span>
                   <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide">
@@ -447,8 +446,8 @@ function RowLink({ icon, title, sub, href }: { icon: React.ReactNode; title: str
         {icon}
       </span>
       <span className="text-left flex-1 min-w-0">
-        <b className="block font-display text-[15px] sm:text-[15.5px] font-semibold uppercase leading-tight tracking-[0.04em] text-foreground truncate">{title}</b>
-        <small className="block text-[12.5px] sm:text-[13.5px] text-faint transition-colors group-hover:text-ember">{sub}</small>
+        <b className="block font-display text-[16px] sm:text-[17px] font-semibold uppercase leading-tight tracking-[0.04em] text-foreground truncate">{title}</b>
+        <small className="block text-[13.5px] sm:text-[14.5px] text-faint transition-colors group-hover:text-ember">{sub}</small>
       </span>
     </>
   );

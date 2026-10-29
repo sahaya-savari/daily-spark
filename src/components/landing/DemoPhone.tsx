@@ -148,13 +148,19 @@ export function MiniPhone({ children }: { children: React.ReactNode }) {
 /* App chrome inside the phone                                         */
 /* ------------------------------------------------------------------ */
 
-const NAV = [
-  { label: "Today", Icon: PixelHome },
-  { label: "Habits", Icon: PixelCheckList },
+interface NavItem {
+  id: number;
+  label: string;
+  Icon: React.ComponentType<{ className?: string }>;
+}
+
+const NAV: (NavItem | null)[] = [
+  { id: 0, label: "Today", Icon: PixelHome },
+  { id: 1, label: "Habits", Icon: PixelCheckList },
   null,
-  { label: "Progress", Icon: PixelChart },
-  { label: "Settings", Icon: PixelSettings },
-] as const;
+  { id: 2, label: "Progress", Icon: PixelChart },
+  { id: 3, label: "Settings", Icon: PixelSettings },
+];
 
 const NavCtx = createContext<((i: number) => void) | undefined>(undefined);
 
@@ -198,8 +204,8 @@ function Screen({
       >
         {children}
       </div>
-      <div className="nav-float absolute inset-x-3.5 bottom-3.5 z-[6] flex h-[88px] items-center justify-between rounded-full border-0 bg-surface/90 px-3 backdrop-blur-xl">
-        {NAV.map((n, i) =>
+      <div className="nav-float absolute inset-x-3.5 bottom-3.5 z-[6] flex h-[80px] items-center justify-between rounded-full border border-border/40 bg-surface/90 px-3 backdrop-blur-xl">
+        {NAV.map((n, idx) =>
           n === null ? (
             <Button
               key="go"
@@ -207,27 +213,30 @@ function Screen({
               tabIndex={onNav ? 0 : -1}
               aria-hidden={onNav ? undefined : true}
               aria-label="Add habit"
-              onClick={() => onNav?.(5)}
+              onClick={() => onNav?.(4)}
               variant="fab"
               size="fab"
-              className="size-14 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_18px_oklch(0.68_0.12_50_/_35%)] border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0"
+              className="size-13 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_18px_rgba(236,137,76,0.35)] border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0 mx-1"
             >
               <PixelPlus className="size-6 text-white" />
             </Button>
           ) : (
-            <Button variant="ghost"
-              key={n.label}
+            <Button
+              variant="ghost"
+              key={n.label || idx}
               type="button"
               tabIndex={onNav ? 0 : -1}
               aria-hidden={onNav ? undefined : true}
-              onClick={() => onNav?.(i)}
+              onClick={() => onNav?.(n.id)}
               className={cn(
-                "flex h-[60px] min-w-0 flex-1 flex-col items-center justify-center gap-[3px] rounded-full p-0 transition-colors",
-                active === i ? "text-ember" : "text-faint",
+                "flex h-[58px] min-w-0 flex-1 flex-col items-center justify-center gap-[2px] rounded-full p-0 transition-colors",
+                active === n.id ? "text-ember font-bold" : "text-faint hover:text-foreground",
               )}
             >
-              <span className={cn("grid h-8 w-12 place-items-center rounded-full", active === i && "bg-ember-soft")}><n.Icon className="size-5" /></span>
-              <span className="text-[9.5px] font-semibold">{n.label}</span>
+              <span className={cn("grid h-7 w-12 place-items-center rounded-full", active === n.id && "bg-ember-soft")}>
+                <n.Icon className="size-5" />
+              </span>
+              <span className="text-[11px] font-bold">{n.label}</span>
             </Button>
           ),
         )}
@@ -360,7 +369,7 @@ export function HomeScreen({
       <button
         type="button"
         tabIndex={onNav ? 0 : -1}
-        onClick={() => onNav?.(3)}
+        onClick={() => onNav?.(2)}
         className="flex w-full items-center justify-between rounded-2xl bg-surface p-4 text-left transition-colors hover:bg-surface-2"
       >
         <div className="flex items-center gap-3">
@@ -378,64 +387,15 @@ export function HomeScreen({
   );
 }
 
-export function ProgressScreen({ onNav }: { onNav?: ((i: number) => void) | undefined }) {
-  return (
-    <Screen active={3} onNav={onNav}>
-      <div>
-        <p className="kicker">Progress</p>
-        <p className="font-display text-[26px] font-bold leading-tight">Overview</p>
-      </div>
-      <div className="grid grid-cols-2 gap-[11px]">
-        {[
-          ["Last 7 days", "82%", true],
-          ["Last 30 days", "76%", false],
-          ["Days in a row", "18", false],
-          ["Check-ins", "412", false],
-        ].map(([k, v, a]) => (
-          <Card key={k as string} className="p-4">
-            <p className="kicker">{k as string}</p>
-            <p className={cn("mt-1 text-[26px] font-extrabold leading-none", a && "text-ember")}>{v as string}</p>
-          </Card>
-        ))}
-      </div>
-      <div>
-        <div className="mb-2.5 flex items-center justify-between">
-          <p className="text-[17px] font-extrabold">Activity</p>
-          <span className="flex items-center gap-1.5 text-[11.5px] font-bold text-muted-foreground">
-            <i className="size-[7px] rounded-full bg-gold" /> 37 perfect days
-          </span>
-        </div>
-        <Card>
-          <Heatmap levels={HEAT} />
-        </Card>
-      </div>
-      <div>
-        <p className="mb-2.5 text-[17px] font-extrabold">Consistency</p>
-        <Card className="px-3.5 py-1">
-          {INITIAL.map((x, i) => (
-            <div key={x.id} className="flex items-center gap-3 border-b border-border py-2.5 last:border-b-0">
-              <HabitIcon habit={h(x)} size="sm" />
-              <div className="flex-1">
-                <div className="mb-1 flex justify-between text-[13px] font-bold">
-                  <span>{x.name}</span>
-                  <span className="text-muted-foreground">{[94, 100, 63, 40][i]}%</span>
-                </div>
-                <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-ember to-heat-4"
-                    style={{ width: `${[94, 100, 63, 40][i]}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </Card>
-      </div>
-    </Screen>
-  );
-}
+export function ProgressScreen({
+  onNav,
+  initialSubTab = "overview",
+}: {
+  onNav?: ((i: number) => void) | undefined;
+  initialSubTab?: "overview" | "calendar";
+}) {
+  const [subTab, setSubTab] = useState<"overview" | "calendar">(initialSubTab);
 
-export function CalendarScreen() {
   const sampleRatios = [
     { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 2, total: 4 }, { done: 4, total: 4 },
     { done: 1, total: 4 }, { done: 4, total: 4 }, { done: 3, total: 4 }, { done: 4, total: 4 },
@@ -447,91 +407,183 @@ export function CalendarScreen() {
   ];
 
   return (
-    <Screen active={3}>
-      <div>
-        <p className="kicker">Progress</p>
-        <p className="font-display text-[26px] font-bold leading-tight">Calendar</p>
+    <Screen active={2} onNav={onNav}>
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="kicker">Progress &amp; Analytics</p>
+          <p className="font-display text-[26px] font-bold leading-tight">
+            {subTab === "overview" ? "Insights & Momentum" : "October 2026"}
+          </p>
+        </div>
+        <span className="text-xs font-semibold text-faint">
+          {subTab === "overview" ? "412 check-ins" : "Month view"}
+        </span>
       </div>
-      <Card>
-        <p className="mb-3 text-[17px] font-extrabold">October 2026</p>
-        <div className="grid grid-cols-7 gap-1.5 text-center">
-          {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
-            <span key={i} className="text-[11px] font-semibold text-faint">{d}</span>
-          ))}
-          {[0, 1, 2].map((i) => <span key={`e${i}`} />)}
-          {Array.from({ length: 31 }, (_, i) => {
-            const d = i + 1;
-            const isFuture = d > 26;
-            const isToday = d === 26;
-            const ratio = !isFuture ? (sampleRatios[i] ?? { done: 0, total: 4 }) : null;
-            let heatClass = "bg-surface-2 text-faint";
-            if (!isFuture && ratio && ratio.done > 0) {
-              const pct = ratio.done / ratio.total;
-              if (pct === 1) heatClass = "bg-primary text-primary-foreground font-bold";
-              else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-medium";
-              else if (pct >= 0.3) heatClass = "bg-heat-2 text-foreground font-medium";
-              else heatClass = "bg-heat-1 text-foreground";
-            }
-            return (
-              <div
-                key={d}
-                className={cn(
-                  "flex flex-col items-center justify-center aspect-square rounded-[10px] p-0.5 text-[11px] transition-all",
-                  isFuture ? "text-faint-dim bg-surface-2/40" : heatClass,
-                  isToday && "ring-2 ring-ember shadow-sm scale-105",
-                )}
-              >
-                <span className="font-bold leading-none">{d}</span>
-                {!isFuture && ratio ? (
-                  <span className="text-[8.5px] font-medium opacity-85 leading-none mt-0.5">
-                    {ratio.done}/{ratio.total}
-                  </span>
-                ) : null}
+
+      {/* Segmented Switcher: Overview vs Calendar */}
+      <div className="flex rounded-full bg-surface p-1 border border-border/40">
+        <button
+          type="button"
+          onClick={() => setSubTab("overview")}
+          className={cn(
+            "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+            subTab === "overview"
+              ? "bg-surface-2 text-foreground shadow-sm"
+              : "text-faint hover:text-muted-foreground",
+          )}
+        >
+          Overview
+        </button>
+        <button
+          type="button"
+          onClick={() => setSubTab("calendar")}
+          className={cn(
+            "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all",
+            subTab === "calendar"
+              ? "bg-surface-2 text-ember shadow-sm"
+              : "text-faint hover:text-muted-foreground",
+          )}
+        >
+          Calendar
+        </button>
+      </div>
+
+      {subTab === "overview" ? (
+        <>
+          <div className="grid grid-cols-2 gap-[11px]">
+            {[
+              ["Last 7 days", "82%", true],
+              ["Last 30 days", "76%", false],
+              ["Days in a row", "18", false],
+              ["Check-ins", "412", false],
+            ].map(([k, v, a]) => (
+              <Card key={k as string} className="p-4">
+                <p className="kicker">{k as string}</p>
+                <p className={cn("mt-1 text-[26px] font-extrabold leading-none", a && "text-ember")}>{v as string}</p>
+              </Card>
+            ))}
+          </div>
+          <div>
+            <div className="mb-2.5 flex items-center justify-between">
+              <p className="text-[17px] font-extrabold">Activity</p>
+              <span className="flex items-center gap-1.5 text-[11.5px] font-bold text-muted-foreground">
+                <i className="size-[7px] rounded-full bg-gold" /> 37 perfect days
+              </span>
+            </div>
+            <Card>
+              <Heatmap levels={HEAT} />
+            </Card>
+          </div>
+          <div>
+            <p className="mb-2.5 text-[17px] font-extrabold">Consistency</p>
+            <Card className="px-3.5 py-1">
+              {INITIAL.map((x, i) => (
+                <div key={x.id} className="flex items-center gap-3 border-b border-border py-2.5 last:border-b-0">
+                  <HabitIcon habit={h(x)} size="sm" />
+                  <div className="flex-1">
+                    <div className="mb-1 flex justify-between text-[13px] font-bold">
+                      <span>{x.name}</span>
+                      <span className="text-muted-foreground">{[94, 100, 63, 40][i]}%</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-ember to-heat-4"
+                        style={{ width: `${[94, 100, 63, 40][i]}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Card>
+          </div>
+        </>
+      ) : (
+        <>
+          <Card>
+            <p className="mb-3 text-[17px] font-extrabold">October 2026</p>
+            <div className="grid grid-cols-7 gap-1.5 text-center">
+              {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                <span key={i} className="text-[11px] font-semibold text-faint">{d}</span>
+              ))}
+              {[0, 1, 2].map((i) => <span key={`e${i}`} />)}
+              {Array.from({ length: 31 }, (_, i) => {
+                const d = i + 1;
+                const isFuture = d > 26;
+                const isToday = d === 26;
+                const ratio = !isFuture ? (sampleRatios[i] ?? { done: 0, total: 4 }) : null;
+                let heatClass = "bg-surface-2 text-faint";
+                if (!isFuture && ratio && ratio.done > 0) {
+                  const pct = ratio.done / ratio.total;
+                  if (pct === 1) heatClass = "bg-primary text-primary-foreground font-bold";
+                  else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-medium";
+                  else if (pct >= 0.3) heatClass = "bg-heat-2 text-foreground font-medium";
+                  else heatClass = "bg-heat-1 text-foreground";
+                }
+                return (
+                  <div
+                    key={d}
+                    className={cn(
+                      "flex flex-col items-center justify-center aspect-square rounded-[10px] p-0.5 text-[11px] transition-all",
+                      isFuture ? "text-faint-dim bg-surface-2/40" : heatClass,
+                      isToday && "ring-2 ring-ember shadow-sm scale-105",
+                    )}
+                  >
+                    <span className="font-bold leading-none">{d}</span>
+                    {!isFuture && ratio ? (
+                      <span className="text-[8.5px] font-medium opacity-85 leading-none mt-0.5">
+                        {ratio.done}/{ratio.total}
+                      </span>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          <Card className="p-3.5 space-y-2">
+            <p className="font-semibold text-xs text-foreground">Legend</p>
+            <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded bg-surface-2 border border-border/40" />
+                <span>0/x — No completions</span>
               </div>
-            );
-          })}
-        </div>
-      </Card>
+              <div className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded bg-heat-1 border border-border/30" />
+                <span>1–2/x — Few completions</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded bg-heat-3 border border-border/30" />
+                <span>3–4/x — Most completions</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded bg-primary" />
+                <span>x/x — All completed</span>
+              </div>
+              <div className="flex items-center gap-1.5 col-span-2">
+                <span className="size-2.5 rounded ring-2 ring-ember bg-transparent" />
+                <span>Today</span>
+              </div>
+            </div>
+          </Card>
 
-      {/* Calendar Legend Card matching DailySparkApp */}
-      <Card className="p-3.5 space-y-2">
-        <p className="font-semibold text-xs text-foreground">Legend</p>
-        <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded bg-surface-2 border border-border/40" />
-            <span>0/x — No completions</span>
+          <div className="grid grid-cols-[1fr_auto] gap-[11px]">
+            <Card>
+              <p className="kicker">Mon 26 Oct</p>
+              <p className="mt-1 text-[26px] font-extrabold leading-none">2<span className="text-faint"> / 4</span></p>
+            </Card>
+            <Card className="text-center">
+              <p className="kicker">Perfect</p>
+              <p className="mt-1 text-[26px] font-extrabold leading-none text-gold">9</p>
+            </Card>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded bg-heat-1 border border-border/30" />
-            <span>1–2/x — Few completions</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded bg-heat-3 border border-border/30" />
-            <span>3–4/x — Most completions</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded bg-primary" />
-            <span>x/x — All completed</span>
-          </div>
-          <div className="flex items-center gap-1.5 col-span-2">
-            <span className="size-2.5 rounded ring-2 ring-ember bg-transparent" />
-            <span>Today</span>
-          </div>
-        </div>
-      </Card>
-
-      <div className="grid grid-cols-[1fr_auto] gap-[11px]">
-        <Card>
-          <p className="kicker">Mon 26 Oct</p>
-          <p className="mt-1 text-[26px] font-extrabold leading-none">2<span className="text-faint"> / 4</span></p>
-        </Card>
-        <Card className="text-center">
-          <p className="kicker">Perfect</p>
-          <p className="mt-1 text-[26px] font-extrabold leading-none text-gold">9</p>
-        </Card>
-      </div>
+        </>
+      )}
     </Screen>
   );
+}
+
+export function CalendarScreen({ onNav }: { onNav?: ((i: number) => void) | undefined }) {
+  return <ProgressScreen onNav={onNav} initialSubTab="calendar" />;
 }
 
 export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefined }) {
@@ -853,7 +905,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <Screen active={4}>
+    <Screen active={3}>
       <div>
         <p className="kicker">Daily Spark</p>
         <p className="font-display text-[26px] font-bold leading-tight">Settings</p>

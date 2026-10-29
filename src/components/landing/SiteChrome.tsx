@@ -12,13 +12,13 @@ import { SparkMark } from "@/components/brand/Logo";
 import { SITE } from "@/lib/site";
 
 const navLnk =
-  "whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs sm:text-[14px] font-normal text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center";
+  "whitespace-nowrap rounded-full px-4 py-2 text-sm sm:text-[15px] font-semibold text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center";
 
 const menuItem =
-  "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[14px] font-medium text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
+  "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[15.5px] font-semibold text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
 
 const footerLink =
-  "inline-flex min-h-11 items-center gap-2 py-2 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember rounded-lg";
+  "inline-flex min-h-11 items-center gap-2 py-2 text-[14.5px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember rounded-lg";
 
 /**
  * Move focus to <main> once a route change has committed.
@@ -128,7 +128,7 @@ export function SiteHeader() {
           className="group flex min-h-11 items-center gap-2.5 rounded-full px-1 transition-opacity hover:opacity-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0"
         >
           <SparkMark className="size-5 sm:size-6 shrink-0 transition-transform duration-200 group-hover:scale-105" />
-          <span className="font-display text-[16px] sm:text-[18px] font-bold tracking-tight text-foreground whitespace-nowrap leading-none pt-0.5">
+          <span className="font-display text-[17px] sm:text-[19px] font-bold tracking-tight text-foreground whitespace-nowrap leading-none pt-0.5">
             Daily Spark
           </span>
         </Link>
@@ -173,7 +173,7 @@ export function SiteHeader() {
           <a
             href={SITE.apk.url}
             download={SITE.apk.filename}
-            className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3 py-1.5 text-xs font-semibold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+            className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
           >
             <PixelDownload className="size-3.5 shrink-0" />
             <span className="pt-0.5">Download APK</span>
@@ -183,7 +183,7 @@ export function SiteHeader() {
             href={SITE.repo}
             target="_blank"
             rel="noreferrer"
-            className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 sm:py-2 text-xs font-medium text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+            className="hidden lg:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-muted-foreground transition-all hover:border-white/20 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
             aria-label="View Daily Spark source code on GitHub"
           >
             <PixelGithub className="size-3.5 shrink-0" />
@@ -289,7 +289,7 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="border-t border-white/5 px-4 pt-10 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-10">
-      <div className="glass-surface mx-auto flex max-w-[1100px] flex-col gap-6 rounded-2xl p-6 text-[13.5px] text-faint sm:flex-row sm:items-center sm:justify-between sm:gap-x-8 sm:gap-y-2">
+      <div className="glass-surface mx-auto flex max-w-[1100px] flex-col gap-6 rounded-2xl p-6 text-[14.5px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-x-8 sm:gap-y-2">
         <div className="flex items-center gap-3">
           <SparkMark className="size-5 shrink-0 opacity-80" />
           <p>© {new Date().getFullYear()} {SITE.author} · MIT License</p>

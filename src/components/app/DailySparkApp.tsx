@@ -94,9 +94,7 @@ import { SnoozeDialog } from "@/components/habits/SnoozeDialog";
 import { NeoGlassHabitCard } from "@/components/habits/NeoGlassHabitCard";
 import { FocusTimerDialog } from "@/components/habits/FocusTimerDialog";
 import { UniversalImportDialog } from "@/components/habits/UniversalImportDialog";
-import { CircadianAnalyticsDialog } from "@/components/habits/CircadianAnalyticsDialog";
 import { VaultSyncDialog } from "@/components/habits/VaultSyncDialog";
-import { VoxelIsland } from "@/components/habits/VoxelIsland";
 import { AppearanceSwitcher } from "@/components/habits/AppearanceSwitcher";
 import { AirGappedSyncDialog } from "@/components/habits/AirGappedSyncDialog";
 import { ShareCardDialog } from "@/components/habits/ShareCardDialog";
@@ -175,7 +173,6 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   const [isFocusTimerOpen, setIsFocusTimerOpen] = useState(false);
   const [focusHabit, setFocusHabit] = useState<Habit | null>(null);
   const [isUniversalImportOpen, setIsUniversalImportOpen] = useState(false);
-  const [isCircadianOpen, setIsCircadianOpen] = useState(false);
   const [isVaultSyncOpen, setIsVaultSyncOpen] = useState(false);
   // Phase 6 & 7 Dialogs
   const [isAirGappedOpen, setIsAirGappedOpen] = useState(false);
@@ -651,62 +648,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {!embedded && (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  setFocusHabit(null);
-                  setIsFocusTimerOpen(true);
-                }}
-                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-                title="Focus Timer"
-              >
-                <Clock className="size-4 text-cyan-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsCircadianOpen(true)}
-                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-                title="Circadian & Stacking Analytics"
-              >
-                <Activity className="size-4 text-purple-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsVaultSyncOpen(true)}
-                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-                title="Encrypted Vault Sync & BYOC"
-              >
-                <ShieldCheck className="size-4 text-emerald-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsAirGappedOpen(true)}
-                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-                title="Air-Gapped Optical QR Handshake"
-              >
-                <QrCode className="size-4 text-purple-400" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsShareCardOpen(true)}
-                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground hover:bg-surface transition-colors"
-                title="Vector Milestone Share Card"
-              >
-                <Trophy className="size-4 text-ember" />
-              </button>
-            </>
-          )}
-
+        <div className="flex items-center gap-2">
           {progressStats.globalStreak > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember ml-1">
-              <PixelFire className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember">
+              <PixelFire className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}d
             </span>
           )}
 
@@ -714,7 +659,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             <button
               type="button"
               onClick={() => setIsAppLockDialogOpen(true)}
-              className="grid size-8 place-items-center rounded-lg bg-surface-2 text-faint hover:text-foreground"
+              className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground"
               title="App Lock Settings"
             >
               <Lock className="size-4" />
@@ -782,49 +727,17 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               )}
             </div>
 
-            {/* The Two-Day Rule & Never Miss Twice Safety Cushion */}
+            {/* The Two-Day Rule Gentle Banner */}
             {atRiskHabits.length > 0 && (
-              <div className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-2">
-                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                  <ShieldAlert className="size-4" /> The Two-Day Rule: Save Your Streak
-                </div>
-                <p className="text-xs text-foreground/80 leading-relaxed">
-                  You missed yesterday on <span className="font-bold text-foreground">{atRiskHabits[0].name}</span>. Missing two days breaks habit momentum. Complete a low-friction Mini target today to protect your spark:
-                </p>
-                <div className="flex items-center justify-between pt-1">
-                  <p className="text-xs font-semibold text-amber-300">
-                    {getMiniRecoveryPrompt(atRiskHabits[0])}
-                  </p>
-                  <Button
-                    size="sm"
-                    onClick={() => handleToggleHabit(atRiskHabits[0].id)}
-                    className="h-8 rounded-full bg-amber-500 hover:bg-amber-600 text-black font-extrabold text-xs px-3 shadow-sm"
-                  >
-                    Save Streak
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* On-Device Markov Routine Suggestion */}
-            {markovSuggestion && (
-              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="text-base">{markovSuggestion.emoji}</span>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-purple-300 truncate">
-                      Next Spark: {markovSuggestion.habitName}
-                    </p>
-                    <p className="text-[11px] text-faint truncate">
-                      {markovSuggestion.reason}
-                    </p>
-                  </div>
+              <div className="rounded-2xl border border-ember/25 bg-ember/10 p-3 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <PixelFire className="size-4 text-ember shrink-0" />
+                  <span className="truncate text-foreground/90 font-medium">Missed yesterday: <strong className="text-foreground">{atRiskHabits[0].name}</strong></span>
                 </div>
                 <Button
                   size="sm"
-                  variant="ghost"
-                  onClick={() => handleToggleHabit(markovSuggestion.habitId)}
-                  className="h-7 rounded-full text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 text-[11px] font-bold px-2.5 shrink-0"
+                  onClick={() => handleToggleHabit(atRiskHabits[0].id)}
+                  className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90"
                 >
                   Check In
                 </Button>
@@ -1164,35 +1077,17 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
             </div>
 
-            {/* Calm Offline Voxel Island */}
-            <VoxelIsland
-              habits={habits}
-              overallStreak={progressStats.globalStreak}
-              totalCompletions={progressStats.totalCompletionsCount}
-            />
-
-            {/* Circadian & Stacking Intelligence Launcher */}
-            <div
-              onClick={() => setIsCircadianOpen(true)}
-              className="rounded-3xl border border-cyan-500/20 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-transparent p-4 flex items-center justify-between cursor-pointer hover:border-cyan-500/40 transition-all shadow-md"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300">
-                  <Activity className="w-5 h-5" />
-                </div>
+            {/* Activity Heatmap */}
+            <div className="rounded-3xl border border-border/40 bg-surface p-5 shadow-sm">
+              <div className="mb-3.5 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-bold text-white">Circadian Analytics &amp; Stacking</h4>
-                  <p className="text-xs text-white/50">24h Gaussian curve &amp; conditional stacking rules</p>
+                  <p className="text-[16px] font-bold">Activity</p>
+                  <p className="text-[12px] text-faint">Past 12 weeks consistency</p>
                 </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-white/40" />
-            </div>
-
-            {/* 6-Month Real Heatmap */}
-            <div className="rounded-3xl border border-border/40 bg-surface p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="text-[15px] font-bold">Activity Heatmap</p>
-                <span className="text-[11px] font-medium text-faint">Past 12 weeks</span>
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-ember">
+                  <span className="size-2 rounded-full bg-ember animate-pulse" />
+                  {progressStats.globalStreak > 0 ? `${progressStats.globalStreak} day streak` : "Keep showing up"}
+                </span>
               </div>
               <Heatmap levels={heatmapData.levels} labels={heatmapData.labels} />
             </div>
@@ -1226,80 +1121,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
             </div>
 
-            {/* Milestone Archaeology & Historical Retrospective */}
-            <div className="rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 via-surface to-surface p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="kicker">Milestone Archaeology</p>
-                  <p className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                    <Trophy className="size-4 text-amber-400" /> Historical Retrospective
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setIsShareCardOpen(true)}
-                  className="h-8 rounded-full border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs font-bold flex items-center gap-1.5"
-                >
-                  <Share2 className="size-3.5" /> Share Card
-                </Button>
-              </div>
 
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-3 rounded-2xl bg-surface-2/70 border border-border/30">
-                  <p className="text-[11px] text-faint">All-Time Longest Run</p>
-                  <p className="text-lg font-bold font-mono text-amber-400 mt-0.5">
-                    {archaeology.longestRun ? `${archaeology.longestRun.streakLength} Days` : "None yet"}
-                  </p>
-                  <p className="text-[10px] text-faint truncate">
-                    {archaeology.longestRun ? `${archaeology.longestRun.habitName}` : "Start a streak today"}
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-2xl bg-surface-2/70 border border-border/30">
-                  <p className="text-[11px] text-faint">Comeback Resilience</p>
-                  <p className="text-lg font-bold font-mono text-emerald-400 mt-0.5">
-                    {archaeology.resilienceScore}%
-                  </p>
-                  <p className="text-[10px] text-faint">
-                    {archaeology.totalMissedDayRecoveries} 1-day recoveries
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Friction Bottleneck Diagnostics */}
-            <div className="rounded-3xl border border-border/40 bg-surface p-4 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <p className="text-[15px] font-bold">Friction Bottlenecks</p>
-                <span className="text-[11px] font-medium text-faint">Offline Diagnostic</span>
-              </div>
-
-              {frictionAnomalies.length === 0 ? (
-                <div className="p-3 rounded-2xl bg-surface-2/60 border border-border/30 text-xs text-muted-foreground">
-                  <p className="font-semibold text-foreground">Zero Friction Anomalies</p>
-                  <p className="text-[11px] text-faint mt-0.5">
-                    Your routines show steady consistency across all days of the week.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {frictionAnomalies.slice(0, 2).map((a, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-amber-400">{a.title}</span>
-                        <span className="text-[10px] uppercase font-bold text-amber-500/80">{a.severity}</span>
-                      </div>
-                      <p className="text-foreground/80 text-[11px]">{a.detail}</p>
-                      <p className="text-amber-300 font-medium text-[11px] pt-0.5">💡 {a.recommendation}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* Per-Habit Consistency Bars */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4">
@@ -1738,7 +1560,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="ghost"
           onClick={() => setActiveTab(0)}
           className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[10px] font-semibold transition-colors",
+            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
             activeTab === 0 ? "text-ember font-bold" : "text-faint hover:text-foreground"
           )}
         >
@@ -1752,7 +1574,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="ghost"
           onClick={() => setActiveTab(1)}
           className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[10px] font-semibold transition-colors",
+            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
             activeTab === 1 ? "text-ember font-bold" : "text-faint hover:text-foreground"
           )}
         >
@@ -1777,7 +1599,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="ghost"
           onClick={() => setActiveTab(2)}
           className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[10px] font-semibold transition-colors",
+            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
             activeTab === 2 ? "text-ember font-bold" : "text-faint hover:text-foreground"
           )}
         >
@@ -1791,7 +1613,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           variant="ghost"
           onClick={() => setActiveTab(3)}
           className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[10px] font-semibold transition-colors",
+            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
             activeTab === 3 ? "text-ember font-bold" : "text-faint hover:text-foreground"
           )}
         >
@@ -1921,13 +1743,6 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         onImportHabits={(imported) => {
           habitActions.mergeHabits(imported);
         }}
-      />
-
-      {/* Circadian Analytics Dialog */}
-      <CircadianAnalyticsDialog
-        open={isCircadianOpen}
-        onOpenChange={setIsCircadianOpen}
-        habits={habits}
       />
 
       {/* Encrypted Vault Sync Dialog */}

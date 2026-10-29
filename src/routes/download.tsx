@@ -63,7 +63,7 @@ function Download() {
 
         {/* Primary install card */}
         <section className="glass-panel glass-sheen mt-10 rounded-3xl p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-ember">
+          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-ember">
             <PixelAndroid aria-hidden="true" className="size-4" />
             <span>Android only</span>
           </div>
@@ -76,7 +76,7 @@ function Download() {
             >
               <PixelDownload aria-hidden="true" className="size-5 sm:size-6" />
               <span className="leading-none">
-                <span className="block text-[10px] font-semibold uppercase tracking-wider text-cta-foreground/80">
+                <span className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-cta-foreground/90">
                   Download APK
                 </span>
                 <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-bold tracking-wide">
@@ -92,7 +92,7 @@ function Download() {
             >
               <PixelGithub aria-hidden="true" className="size-5 sm:size-6" />
               <span className="leading-none">
-                <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-muted-foreground">
                   View on
                 </span>
                 <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide">

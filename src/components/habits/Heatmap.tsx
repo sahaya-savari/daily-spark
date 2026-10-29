@@ -27,7 +27,7 @@ export function Heatmap({
             <div
               key={di}
               title={labels?.[wi * 7 + di]}
-              className={cn(weeks.length > 16 ? "aspect-square rounded-[2px]" : "aspect-square rounded-[4px]", LEVEL_CLASS[lvl] ?? LEVEL_CLASS[0], cellClassName)}
+              className={cn(weeks.length > 16 ? "aspect-square rounded-[3px] sm:rounded-[4px]" : "aspect-square rounded-[5px] sm:rounded-[6px]", LEVEL_CLASS[lvl] ?? LEVEL_CLASS[0], cellClassName)}
             />
           ))}
         </div>
