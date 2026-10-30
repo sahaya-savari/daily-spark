@@ -404,7 +404,9 @@ export function FolderFloat({
     };
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      /* ignore pointer capture failure on synthetic or unsupported environments */
+    }
   };
 
   const move = (e: React.PointerEvent<HTMLButtonElement>, i: number) => {
@@ -439,7 +441,9 @@ export function FolderFloat({
     e.currentTarget.removeAttribute("data-drag");
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      /* ignore pointer release failure on synthetic or unsupported environments */
+    }
     if (!d.moved && e.type === "pointerup") pick(item, i);
   };
 
@@ -545,3 +549,4 @@ export function FolderFloat({
 }
 
 export default FolderFloat;
+

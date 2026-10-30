@@ -15,7 +15,7 @@ All Phase 1 through Phase 8 core objectives, visual overhauls, typography unific
 - **dithercn Background**: Atmospheric WebGL background shader running quietly with whisper intensity (`0.20`), preserving >7:1 text contrast.
 - **Balanced Grid**: "What it doesn't do" section features a symmetrical 4×2 grid (8 items) with no orphan cards.
 - **Native Android Build**: Capacitor native project sync (`npm run build:android`) verified with updated plugins and assets.
-- **Distribution Parity**: Full support for Direct APK (`Daily-Spark-v1.0.1.apk`, 4.1 MB), Obtainium auto-updating, F-Droid metadata (`.fdroid.yml`), and Desktop Windows/Linux PWA.
+- **Distribution Parity**: Full support for Direct APK (`Daily-Spark-v1.0.1.apk`, 4.2 MB), Obtainium auto-updating, F-Droid metadata (`.fdroid.yml`), and Desktop Windows/Linux PWA.
 - **Protected Elements**: LOCK A (Interactive Demo Phone) and LOCK B (Screens Carousel Parade) verified and preserved.
 
 ---

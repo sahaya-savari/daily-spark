@@ -7,7 +7,7 @@ Daily Spark is a calm, 100% offline-first habit tracker available across **Andro
 ## 🎯 Android Installation Options
 
 ### Option 1: Direct APK Download (Fastest)
-1. Download `Daily-Spark-v1.0.1.apk` (4.1 MB) from the [official website](https://sahaya-savari.github.io/daily-spark/download) or [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases/latest).
+1. Download `Daily-Spark-v1.0.1.apk` (4.2 MB) from the [official website](https://sahaya-savari.github.io/daily-spark/download) or [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases/latest).
 2. Open the downloaded `.apk` on your Android device.
 3. If prompted, toggle **"Allow from this source"** for your browser.
 4. Tap **"Install"**. All your data stays 100% private on your device.

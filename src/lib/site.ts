@@ -39,8 +39,8 @@ export const SITE = {
     // GitHub Releases URL for external managers (Obtainium, F-Droid metadata, direct releases)
     githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
     filename: "Daily-Spark-v1.0.1.apk",
-    // Exact universal release APK size: 4,055,305 bytes (~4.1 MB).
-    size: "4.1 MB",
+    // Exact universal release APK size: 4,442,803 bytes (~4.2 MB).
+    size: "4.2 MB",
   },
   desktop: {
     windowsZip: `${basePath}Daily-Spark-v1.0.1-windows.zip`,

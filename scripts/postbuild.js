@@ -79,7 +79,7 @@ const ROUTES = {
     // SoftwareApplication JSON-LD in index.html; they describe the published
     // APK, not the website's own version.
     description:
-      'Download the official Daily Spark v1.0.1 Android APK (4.1 MB). Free, offline habit tracking with no account, ads, or tracking. Android only.',
+      'Download the official Daily Spark v1.0.1 Android APK (4.2 MB). Free, offline habit tracking with no account, ads, or tracking. Android only.',
     canonical: `${SITE_URL}download/`,
     ogType: 'website',
     twitterCard: 'summary_large_image',
