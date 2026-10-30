@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Search, Pin, Plus, Trash2, Edit3, X, FileText } from "lucide-react";
+import FolderFloat from "@/components/ui/FolderFloat";
 
 export function NotesView() {
   const { notes } = useNotesStore();
@@ -38,6 +39,21 @@ export function NotesView() {
     setIsCreating(true);
     setEditingNote(null);
   };
+
+  const folderItems = useMemo(() => {
+    if (notes.length > 0) {
+      return notes.slice(0, 8).map((n) => ({
+        label: n.title.length > 22 ? `${n.title.slice(0, 20)}…` : n.title,
+        value: n.id,
+      }));
+    }
+    return [
+      { label: "Daily Reflection", value: "Daily Reflection" },
+      { label: "Morning Gratitude", value: "Morning Gratitude" },
+      { label: "Workout & Energy", value: "Workout & Energy" },
+      { label: "Evening Wind Down", value: "Evening Wind Down" },
+    ];
+  }, [notes]);
 
   const handleSave = () => {
     if (editingNote) {
@@ -91,6 +107,38 @@ export function NotesView() {
           <Plus className="h-4 w-4" />
           <span>New Note</span>
         </Button>
+      </div>
+
+      {/* Interactive Folder & Collection Float (matter-js zero-gravity pills) */}
+      <div className="flex flex-col items-center justify-center pt-1 pb-3 overflow-visible">
+        <FolderFloat
+          items={folderItems}
+          label="Notes Collection"
+          sublabel={notes.length > 0 ? `${notes.length} notes` : "Tap to open"}
+          trigger="click"
+          physics={true}
+          drift={0.35}
+          width={180}
+          height={115}
+          spread={150}
+          lift={24}
+          onSelect={(value) => {
+            if (notes.length > 0) {
+              const matched = notes.find((n) => n.id === value || n.title === value);
+              if (matched) handleStartEdit(matched);
+            } else {
+              setTitle(value);
+              setContent("");
+              setIsCreating(true);
+            }
+          }}
+          folderColor="var(--surface-2, #1E2433)"
+          frontColor="var(--surface, #141824)"
+          paperColor="var(--ember, #F59E0B)"
+          itemColor="var(--surface-2, #1E2433)"
+          itemTextColor="var(--foreground, #F8FAFC)"
+          labelColor="var(--foreground, #F8FAFC)"
+        />
       </div>
 
       {/* Editor Card (Creating or Editing) */}

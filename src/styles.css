@@ -99,20 +99,20 @@
   --card-foreground: #FAF7F5;
   --popover: #1c1d1f;
   --popover-foreground: #FAF7F5;
-  --primary: #ec894c;
-  --primary-foreground: #121214;
-  --ember: #ec894c;
-  --ember-soft: color-mix(in srgb, var(--ember) 18%, transparent);
+  --primary: #F59E0B;
+  --primary-foreground: #0B0F17;
+  --ember: #F59E0B;
+  --ember-soft: rgba(245, 158, 11, 0.18);
   /* dithercn Quiet Obsidian & Tactile Ember Tokens */
   --dither-cell: rgba(255, 255, 255, 0.05);
   --dither-ink: var(--ember);
   --dither-paper: var(--background);
-  --dither-bloom: #ec894c;
-  --brass: #bf7245;
+  --dither-bloom: #F59E0B;
+  --brass: #F59E0B;
   --cta: var(--ember);
-  --cta-foreground: #121214;
-  --cta-ring: color-mix(in srgb, var(--cta) 55%, transparent);
-  --gold: #bf7245;
+  --cta-foreground: #0B0F17;
+  --cta-ring: rgba(245, 158, 11, 0.55);
+  --gold: #F59E0B;
   --sage: #7a8270;
   --secondary: #1c1d1f;
   --secondary-foreground: #FAF7F5;
@@ -125,18 +125,18 @@
   --destructive: #d9534f;
   --destructive-foreground: #FAF7F5;
   --border: rgba(250, 247, 245, 0.09);
-  --border-hi: rgba(236, 137, 76, 0.28);
+  --border-hi: rgba(245, 158, 11, 0.28);
   --input: rgba(250, 247, 245, 0.12);
   --glass-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.5);
   --scrim: rgba(0, 0, 0, 0.75);
-  --ring: #ec894c;
+  --ring: #F59E0B;
 
   --heat-0: rgba(255, 255, 255, 0.05);
   /* Monochromatic heatmap ramp strictly follows intensity shades of active theme accent */
-  --heat-1: color-mix(in srgb, var(--ember) 25%, transparent);
-  --heat-2: color-mix(in srgb, var(--ember) 50%, transparent);
-  --heat-3: color-mix(in srgb, var(--ember) 75%, transparent);
-  --heat-4: var(--ember);
+  --heat-1: #45330A;
+  --heat-2: #785B0D;
+  --heat-3: #D99E0B;
+  --heat-4: #F59E0B;
 
   --chart-1: #ec894c;
   --chart-2: #bf7245;
@@ -654,9 +654,9 @@
   --ember: #F59E0B;
   --ember-foreground: #0B0F17;
   --heat-0: rgba(255, 255, 255, 0.05);
-  --heat-1: color-mix(in srgb, #F59E0B 25%, transparent);
-  --heat-2: color-mix(in srgb, #F59E0B 50%, transparent);
-  --heat-3: color-mix(in srgb, #F59E0B 75%, transparent);
+  --heat-1: #45330A;
+  --heat-2: #785B0D;
+  --heat-3: #D99E0B;
   --heat-4: #F59E0B;
   --radius: 16px;
 }
@@ -688,9 +688,9 @@
   --primary: #BF7245;
   --ember: #BF7245;
   --heat-0: rgba(255, 255, 255, 0.05);
-  --heat-1: color-mix(in srgb, #BF7245 25%, transparent);
-  --heat-2: color-mix(in srgb, #BF7245 50%, transparent);
-  --heat-3: color-mix(in srgb, #BF7245 75%, transparent);
+  --heat-1: #2E1B13;
+  --heat-2: #5A3320;
+  --heat-3: #8F4E2B;
   --heat-4: #BF7245;
   --radius: 16px;
 }
@@ -705,9 +705,9 @@
   --primary: #8B5CF6;
   --ember: #8B5CF6;
   --heat-0: rgba(255, 255, 255, 0.05);
-  --heat-1: color-mix(in srgb, #8B5CF6 25%, transparent);
-  --heat-2: color-mix(in srgb, #8B5CF6 50%, transparent);
-  --heat-3: color-mix(in srgb, #8B5CF6 75%, transparent);
+  --heat-1: #2E1065;
+  --heat-2: #5B21B6;
+  --heat-3: #7C3AED;
   --heat-4: #8B5CF6;
   --radius: 16px;
 }

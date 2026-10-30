@@ -15,6 +15,7 @@ export interface ThemeConfig {
   accentForeground: string;
   border: string;
   radius: string;
+  heat: [string, string, string, string, string];
 }
 
 export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
@@ -33,6 +34,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     accentForeground: "#0B0F17",
     border: "rgba(245, 158, 11, 0.24)",
     radius: "16px",
+    heat: ["rgba(255, 255, 255, 0.05)", "#45330A", "#785B0D", "#D99E0B", "#F59E0B"],
   },
   expressive: {
     id: "expressive",
@@ -49,6 +51,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     accentForeground: "#FFFFFF",
     border: "rgba(139, 92, 246, 0.24)",
     radius: "16px",
+    heat: ["rgba(255, 255, 255, 0.05)", "#2E1065", "#5B21B6", "#7C3AED", "#8B5CF6"],
   },
   minimal: {
     id: "minimal",
@@ -65,6 +68,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     accentForeground: "#FFFFFF",
     border: "rgba(191, 114, 69, 0.24)",
     radius: "16px",
+    heat: ["rgba(255, 255, 255, 0.05)", "#2E1B13", "#5A3320", "#8F4E2B", "#BF7245"],
   },
 };
 
@@ -119,11 +123,11 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
   root.style.setProperty("--primary", config.accent);
   root.style.setProperty("--ember-foreground", config.accentForeground);
   root.style.setProperty("--primary-foreground", config.accentForeground);
-  root.style.setProperty("--heat-0", "rgba(255, 255, 255, 0.05)");
-  root.style.setProperty("--heat-1", `color-mix(in srgb, ${config.accent} 25%, transparent)`);
-  root.style.setProperty("--heat-2", `color-mix(in srgb, ${config.accent} 50%, transparent)`);
-  root.style.setProperty("--heat-3", `color-mix(in srgb, ${config.accent} 75%, transparent)`);
-  root.style.setProperty("--heat-4", config.accent);
+  root.style.setProperty("--heat-0", config.heat[0]);
+  root.style.setProperty("--heat-1", config.heat[1]);
+  root.style.setProperty("--heat-2", config.heat[2]);
+  root.style.setProperty("--heat-3", config.heat[3]);
+  root.style.setProperty("--heat-4", config.heat[4]);
 
   // Update <meta name="theme-color"> dynamically
   try {
