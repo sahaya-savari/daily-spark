@@ -12,6 +12,7 @@ export interface ThemeConfig {
   fg: string;
   muted: string;
   accent: string;
+  accentForeground: string;
   border: string;
   radius: string;
 }
@@ -29,6 +30,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     fg: "#F8FAFC",
     muted: "#94A3B8",
     accent: "#E2E8F0",
+    accentForeground: "#0B0F17",
     border: "rgba(226, 232, 240, 0.24)",
     radius: "16px",
   },
@@ -44,6 +46,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     fg: "#FFFFFF",
     muted: "#A1A1AA",
     accent: "#8B5CF6",
+    accentForeground: "#FFFFFF",
     border: "rgba(139, 92, 246, 0.24)",
     radius: "16px",
   },
@@ -59,6 +62,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     fg: "#FAF7F5",
     muted: "#A8A29E",
     accent: "#BF7245",
+    accentForeground: "#FFFFFF",
     border: "rgba(191, 114, 69, 0.24)",
     radius: "16px",
   },
@@ -113,6 +117,8 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
   root.style.setProperty("--color-ember", config.accent);
   root.style.setProperty("--ember", config.accent);
   root.style.setProperty("--primary", config.accent);
+  root.style.setProperty("--ember-foreground", config.accentForeground);
+  root.style.setProperty("--primary-foreground", config.accentForeground);
   root.style.setProperty("--heat-0", "rgba(255, 255, 255, 0.05)");
   root.style.setProperty("--heat-1", `color-mix(in srgb, ${config.accent} 25%, transparent)`);
   root.style.setProperty("--heat-2", `color-mix(in srgb, ${config.accent} 50%, transparent)`);

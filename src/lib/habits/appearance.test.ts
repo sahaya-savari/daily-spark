@@ -41,18 +41,21 @@ describe("appearance.ts", () => {
   });
 
   it("verifies Tri-Modal theme configs have unified 16px radius and distinct palettes", () => {
-    // 1. Classic: Electric Grey / Silver (#E2E8F0) on #0B0F17
+    // 1. Classic: Electric Grey / Silver (#E2E8F0) on #0B0F17 with #0B0F17 foreground contrast
     expect(THEME_CONFIGS.classic.accent).toBe("#E2E8F0");
+    expect(THEME_CONFIGS.classic.accentForeground).toBe("#0B0F17");
     expect(THEME_CONFIGS.classic.bg).toBe("#0B0F17");
     expect(THEME_CONFIGS.classic.radius).toBe("16px");
 
     // 2. Expressive: Electric Violet (#8B5CF6) on Deep Obsidian (#06050C)
     expect(THEME_CONFIGS.expressive.accent).toBe("#8B5CF6");
+    expect(THEME_CONFIGS.expressive.accentForeground).toBe("#FFFFFF");
     expect(THEME_CONFIGS.expressive.bg).toBe("#06050C");
     expect(THEME_CONFIGS.expressive.radius).toBe("16px");
 
     // 3. Minimal: Warm Terracotta Brown (#BF7245) on #120D0A
     expect(THEME_CONFIGS.minimal.accent).toBe("#BF7245");
+    expect(THEME_CONFIGS.minimal.accentForeground).toBe("#FFFFFF");
     expect(THEME_CONFIGS.minimal.bg).toBe("#120D0A");
     expect(THEME_CONFIGS.minimal.radius).toBe("16px");
   });

@@ -106,14 +106,14 @@ export function MobileBottomNav({
       onClick={onAddClick}
       className={cn(
         !embedded && "lg:hidden",
-        "size-13 min-h-[48px] min-w-[48px] rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_6px_20px_rgba(236,137,76,0.4)] border border-ember/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+        "size-13 min-h-[48px] min-w-[48px] rounded-full bg-gradient-to-tr from-ember to-heat-4 text-[var(--ember-foreground,#FFFFFF)] shadow-[0_6px_20px_rgba(0,0,0,0.35)] border border-ember/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
         embedded
           ? "absolute right-4 bottom-20 z-30"
           : "fixed right-4 sm:right-6 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] z-40"
       )}
       aria-label="Add new habit"
     >
-      <PixelPlus className="size-6 text-white" />
+      <PixelPlus className="size-6 text-[var(--ember-foreground,#FFFFFF)]" />
     </Button>
   </>
   );

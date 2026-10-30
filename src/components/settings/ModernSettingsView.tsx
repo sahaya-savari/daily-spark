@@ -245,10 +245,10 @@ export function ModernSettingsView({
           </div>
           {/* Single edit pencil badge at bottom-right */}
           <span
-            className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-white grid place-items-center shadow-lg border-2 border-background transition-transform group-hover:scale-110"
+            className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-[var(--ember-foreground,#FFFFFF)] grid place-items-center shadow-lg border-2 border-background transition-transform group-hover:scale-110"
             aria-hidden="true"
           >
-            <PixelPen className="size-3.5" />
+            <PixelPen className="size-3.5 text-current" />
           </span>
         </div>
 

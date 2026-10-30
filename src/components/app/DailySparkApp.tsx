@@ -1610,8 +1610,8 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                       let heatClass = "bg-surface-2 text-faint";
                       if (!isFuture && ratio.total > 0 && ratio.done > 0) {
                         const pct = ratio.done / ratio.total;
-                        if (pct === 1) heatClass = "bg-ember text-white font-bold";
-                        else if (pct >= 0.75) heatClass = "bg-heat-3 text-white font-bold";
+                        if (pct === 1) heatClass = "bg-ember text-[var(--ember-foreground,#FFFFFF)] font-bold";
+                        else if (pct >= 0.75) heatClass = "bg-heat-3 text-[var(--ember-foreground,#FFFFFF)] font-bold";
                         else if (pct >= 0.5) heatClass = "bg-heat-2 text-foreground font-medium";
                         else heatClass = "bg-heat-1 text-foreground";
                       }

@@ -635,13 +635,43 @@
   --foreground: #F8FAFC;
   --muted-foreground: #94A3B8;
   --primary: #E2E8F0;
+  --primary-foreground: #0B0F17;
   --ember: #E2E8F0;
+  --ember-foreground: #0B0F17;
   --heat-0: rgba(255, 255, 255, 0.05);
   --heat-1: color-mix(in srgb, #E2E8F0 25%, transparent);
   --heat-2: color-mix(in srgb, #E2E8F0 50%, transparent);
   --heat-3: color-mix(in srgb, #E2E8F0 75%, transparent);
   --heat-4: #E2E8F0;
   --radius: 16px;
+}
+
+/* Ensure high-contrast dark text and icons on light silver/grey elements in Classic theme */
+.theme-classic .bg-ember,
+.theme-classic .bg-primary,
+.theme-classic button.bg-ember,
+.theme-classic [class*="bg-ember"] {
+  color: #0B0F17 !important;
+}
+
+.theme-classic .bg-ember svg,
+.theme-classic .bg-primary svg,
+.theme-classic button.bg-ember svg,
+.theme-classic [class*="bg-ember"] svg {
+  color: #0B0F17 !important;
+  stroke: #0B0F17 !important;
+}
+
+.theme-classic .text-white.bg-ember,
+.theme-classic .bg-ember.text-white,
+.theme-classic .bg-ember .text-white,
+.theme-classic .bg-heat-3.text-white,
+.theme-classic .bg-heat-4.text-white {
+  color: #0B0F17 !important;
+}
+
+.theme-classic .bg-ember.hover\:bg-ember\/90:hover {
+  background-color: rgba(226, 232, 240, 0.9) !important;
 }
 
 .theme-minimal {
