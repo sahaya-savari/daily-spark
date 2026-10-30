@@ -142,10 +142,25 @@ async function triggerLightHaptic() {
 export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {}) {
   const { habits, settings } = useHabitStore();
   const { notes } = useNotesStore();
-  const { isLocked, isEnabled: isLockEnabled } = useAppLockStore();
+  const { isLocked, isEnabled: isLockEnabled, isBiometricEnabled } = useAppLockStore();
   const [avatarProfile] = useAvatarProfile();
   const [unlockPin, setUnlockPin] = useState("");
   const [unlockError, setUnlockError] = useState<string | null>(null);
+
+  // Auto-prompt biometrics on lock screen
+  useEffect(() => {
+    if (isLocked && isBiometricEnabled) {
+      const timer = setTimeout(() => {
+        lockActions.authenticateBiometric().then((ok) => {
+          if (ok) {
+            setUnlockPin("");
+            setUnlockError(null);
+          }
+        });
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [isLocked, isBiometricEnabled]);
 
   useEffect(() => {
     habitActions.seedDemoIfEmpty();
@@ -692,6 +707,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       const ok = await lockActions.authenticateBiometric();
       if (!ok) {
         setUnlockError("Biometrics unavailable or authentication failed.");
+      } else {
+        setUnlockPin("");
+        setUnlockError(null);
       }
     };
 
@@ -745,17 +763,15 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             </Button>
           </form>
 
-          {Capacitor.isNativePlatform() && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleBiometric}
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              Use Fingerprint / Biometrics
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleBiometric}
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center justify-center gap-1.5 w-full pt-1"
+          >
+            <span>Unlock with Biometrics (Fingerprint / Face ID)</span>
+          </Button>
         </div>
       </div>
     );
@@ -1559,7 +1575,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                       </div>
                       <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-ember to-amber-400 rounded-full transition-all duration-500"
+                          className="h-full bg-ember rounded-full transition-all duration-500"
                           style={{ width: `${Math.max(5, pct)}%` }}
                         />
                       </div>
@@ -1594,9 +1610,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                       let heatClass = "bg-surface-2 text-faint";
                       if (!isFuture && ratio.total > 0 && ratio.done > 0) {
                         const pct = ratio.done / ratio.total;
-                        if (pct === 1) heatClass = "bg-primary text-primary-foreground font-bold";
-                        else if (pct >= 0.6) heatClass = "bg-heat-3 text-white font-bold";
-                        else if (pct >= 0.3) heatClass = "bg-heat-2 text-foreground font-medium";
+                        if (pct === 1) heatClass = "bg-ember text-white font-bold";
+                        else if (pct >= 0.75) heatClass = "bg-heat-3 text-white font-bold";
+                        else if (pct >= 0.5) heatClass = "bg-heat-2 text-foreground font-medium";
                         else heatClass = "bg-heat-1 text-foreground";
                       }
 
@@ -1940,6 +1956,8 @@ function AddHabitForm({
   const [targetDays, setTargetDays] = useState(3);
   const [selectedDays, setSelectedDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [notes, setNotes] = useState("");
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderTime, setReminderTime] = useState("09:00");
 
   const handleAddSubtask = () => {
     if (!newSubtaskTitle.trim()) return;
@@ -1975,6 +1993,8 @@ function AddHabitForm({
       targetDaysPerWeek: frequencyType === "weekly_target" ? targetDays : undefined,
       customDays: frequencyType === "specific_days" ? selectedDays : undefined,
       notes: notes.trim() || undefined,
+      reminderEnabled,
+      reminderTime: reminderEnabled ? reminderTime : undefined,
     });
   };
 
@@ -2336,6 +2356,34 @@ function AddHabitForm({
         </button>
       )}
 
+      {/* Daily Reminder Time Picker */}
+      <div className="rounded-2xl border border-white/5 bg-surface-2 p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <PixelClock className="size-4 text-ember" />
+            <div>
+              <p className="font-semibold text-xs text-foreground">Daily Reminder</p>
+              <p className="text-[11px] text-muted-foreground">Notification at a set time</p>
+            </div>
+          </div>
+          <Switch
+            checked={reminderEnabled}
+            onCheckedChange={setReminderEnabled}
+          />
+        </div>
+        {reminderEnabled && (
+          <div className="flex items-center justify-between pt-1 border-t border-white/5">
+            <span className="text-xs text-muted-foreground">Reminder time:</span>
+            <Input
+              type="time"
+              value={reminderTime}
+              onChange={(e) => setReminderTime(e.target.value)}
+              className="w-32 h-8 text-xs bg-surface text-center font-mono rounded-lg"
+            />
+          </div>
+        )}
+      </div>
+
       <DialogFooter className="flex justify-end gap-2 pt-2 border-t border-white/5">
         <Button variant="ghost" type="button" onClick={onCancel}>
           Cancel
@@ -2368,8 +2416,25 @@ function HabitDetailModal({
   const [vacStart, setVacStart] = useState("");
   const [vacEnd, setVacEnd] = useState("");
   const [vacReason, setVacReason] = useState("");
+  const [reminderEnabled, setReminderEnabled] = useState(Boolean(habit.reminderEnabled));
+  const [reminderTime, setReminderTime] = useState(habit.reminderTime || "09:00");
   const today = todayKey();
   const milestones = getMilestones(habit.bestStreak);
+
+  const handleToggleReminder = (enabled: boolean) => {
+    setReminderEnabled(enabled);
+    habitActions.update(habit.id, {
+      reminderEnabled: enabled,
+      reminderTime: enabled ? reminderTime : undefined,
+    });
+  };
+
+  const handleTimeChange = (newTime: string) => {
+    setReminderTime(newTime);
+    if (reminderEnabled) {
+      habitActions.update(habit.id, { reminderTime: newTime });
+    }
+  };
 
   const handleAddVacation = () => {
     if (!vacStart || !vacEnd) return;
@@ -2605,6 +2670,36 @@ function HabitDetailModal({
                 </button>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* Daily Reminder Time Picker */}
+      <div className="rounded-2xl border border-border/40 bg-surface-2/60 p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <PixelClock className="size-4 text-ember" />
+            <div>
+              <p className="font-semibold text-xs">Daily Reminder</p>
+              <p className="text-[11px] text-faint">
+                {reminderEnabled ? `Scheduled for ${reminderTime} daily` : "Enable daily reminder alert"}
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={reminderEnabled}
+            onCheckedChange={handleToggleReminder}
+          />
+        </div>
+        {reminderEnabled && (
+          <div className="flex items-center justify-between pt-1 border-t border-white/5">
+            <span className="text-xs text-muted-foreground">Alert time:</span>
+            <Input
+              type="time"
+              value={reminderTime}
+              onChange={(e) => handleTimeChange(e.target.value)}
+              className="w-32 h-8 text-xs bg-surface text-center font-mono rounded-lg"
+            />
           </div>
         )}
       </div>

@@ -21,7 +21,6 @@ import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
 import { ScrambleText } from "@/components/dithercn/scramble-text";
-import { Avatar, AvatarGroup } from "@/components/dithercn/avatar";
 import {
   CalendarScreen,
   DemoPhone,
@@ -183,23 +182,17 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </a>
 
             <h1 className="font-display text-[clamp(34px,8vw,44px)] sm:text-[58px] lg:text-[76px] font-bold leading-[1.14] text-left max-w-full">
-              <span className="block pb-0.5">
-                <ScrambleText trigger="mount" delay={80} color="ink">
-                  Show up.
-                </ScrambleText>
-              </span>
-              <span className="block pb-0.5">
-                <ScrambleText trigger="mount" delay={280} color="ink">
-                  Tick it.
-                </ScrambleText>
-              </span>
-              <span className="block pb-0.5 text-ember">
-                <ScrambleText trigger="mount" delay={480} color={accent}>
-                  Keep going.
-                </ScrambleText>
+              <span className="block pb-0.5 text-ember min-h-[1.18em]">
+                <ScrambleText
+                  trigger="mount"
+                  loop
+                  texts={["Show up.", "Tick it.", "Keep going."]}
+                  pause={2200}
+                  color={accent}
+                />
               </span>
             </h1>
-            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[17px] sm:text-[21px] lg:text-[23px] leading-relaxed text-muted-foreground text-left">
+            <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[17px] sm:text-[21px] lg:text-[23px] leading-relaxed text-muted-foreground text-left min-h-[4.5rem] sm:min-h-[5.5rem] [contain-intrinsic-size:auto_5rem] contain-layout">
               A free, offline habit tracker. One small action a day, per habit. Check it off and watch your streak
               grow - no account, no pressure.
             </p>
@@ -217,20 +210,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </a>
             </div>
             <p className="mt-5 sm:mt-6 text-sm sm:text-[16.5px] text-faint text-left font-medium">Android APK · 100% Offline · No account · No ads</p>
-
-            {/* dithercn AvatarGroup peer circle showcase */}
-            <div className="mt-5 flex items-center gap-3">
-              <AvatarGroup size={32} max={4}>
-                <Avatar name="Daily Spark" fill="gradient" status="online" color="orange" />
-                <Avatar name="Ada Lovelace" fill="dotted" status="away" color="blue" />
-                <Avatar name="Ember" fill="hatched" status="busy" color="pink" />
-                <Avatar name="Zenith" fill="solid" status="online" color="purple" />
-                <Avatar name="Grace" fill="gradient" status="offline" color="green" />
-              </AvatarGroup>
-              <span className="text-xs sm:text-[13.5px] text-muted-foreground font-medium">
-                Offline peers building streaks together
-              </span>
-            </div>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
@@ -240,7 +219,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* What it does */}
-        <section id="features" className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
+        <section id="features" className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_600px]">
           <div className="mb-8 text-left">
             <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">What it does</h2>
             <p className="mt-2 text-base sm:text-lg text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
@@ -264,7 +243,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* LOCK B: Screens Carousel Parade */}
-        <section id="screens" className="relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint]">
+        <section id="screens" className="relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint] [content-visibility:auto] [contain-intrinsic-size:auto_700px]">
           <div
             className="aurora-field pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden"
             aria-hidden="true"
@@ -321,7 +300,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* Data */}
-        <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
+        <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_500px]">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
               <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold leading-tight">
@@ -344,7 +323,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* What it doesn't do */}
-        <section className="reveal mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 overflow-hidden items-center">
+        <section className="reveal mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] gap-6 px-4 sm:px-6 py-[56px] sm:py-[72px] md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 overflow-hidden items-center [content-visibility:auto] [contain-intrinsic-size:auto_500px]">
           <div className="min-w-0 text-left">
             <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">What it doesn't do</h2>
             <p className="mt-3 max-w-[54ch] text-base sm:text-[17px] text-muted-foreground">
@@ -367,7 +346,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* Why */}
-        <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden">
+        <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_500px]">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
               <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">Why it exists</h2>
@@ -388,7 +367,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
         {/* Get it */}
-        <section id="get" className="reveal anchor-section px-4 sm:px-6 pb-safe-section pt-[56px] sm:pt-[72px] overflow-hidden">
+        <section id="get" className="reveal anchor-section px-4 sm:px-6 pb-safe-section pt-[56px] sm:pt-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_600px]">
           <div className="glass-panel glass-sheen relative mx-auto max-w-[1100px] overflow-hidden rounded-3xl p-6 sm:p-10 md:p-14 text-center w-full">
             <div
               className="aurora-field pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-full max-w-96 -translate-x-1/2 rounded-full overflow-hidden"

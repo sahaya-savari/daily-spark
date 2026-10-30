@@ -131,13 +131,12 @@
   --scrim: rgba(0, 0, 0, 0.75);
   --ring: #ec894c;
 
-  --heat-0: #211c1b;
-  /* Classic's complete heatmap ramp stays in the warm brown family. Theme
-     classes below replace this with their own single-hue ramps. */
-  --heat-1: #634231;
-  --heat-2: #925c3e;
-  --heat-3: #bf7245;
-  --heat-4: #ec894c;
+  --heat-0: rgba(255, 255, 255, 0.05);
+  /* Monochromatic heatmap ramp strictly follows intensity shades of active theme accent */
+  --heat-1: color-mix(in srgb, var(--ember) 25%, transparent);
+  --heat-2: color-mix(in srgb, var(--ember) 50%, transparent);
+  --heat-3: color-mix(in srgb, var(--ember) 75%, transparent);
+  --heat-4: var(--ember);
 
   --chart-1: #ec894c;
   --chart-2: #bf7245;
@@ -629,54 +628,54 @@
 }
 
 .theme-classic {
-  --background: #121316;
-  --surface: #1C1E22;
-  --surface-2: #25282F;
-  --card: #1C1E22;
-  --foreground: #F5F2EB;
-  --muted-foreground: #A8A398;
-  --primary: #bf7245;
-  --ember: #bf7245;
-  --heat-0: #211c1b;
-  --heat-1: #634231;
-  --heat-2: #925c3e;
-  --heat-3: #bf7245;
-  --heat-4: #ec894c;
-  --radius: 14px;
+  --background: #0B0F17;
+  --surface: #141824;
+  --surface-2: #1E2433;
+  --card: #141824;
+  --foreground: #F8FAFC;
+  --muted-foreground: #94A3B8;
+  --primary: #E2E8F0;
+  --ember: #E2E8F0;
+  --heat-0: rgba(255, 255, 255, 0.05);
+  --heat-1: color-mix(in srgb, #E2E8F0 25%, transparent);
+  --heat-2: color-mix(in srgb, #E2E8F0 50%, transparent);
+  --heat-3: color-mix(in srgb, #E2E8F0 75%, transparent);
+  --heat-4: #E2E8F0;
+  --radius: 16px;
 }
 
 .theme-minimal {
-  --background: #000000;
-  --surface: #0D0D0D;
-  --surface-2: #171717;
-  --card: #0D0D0D;
-  --foreground: #FFFFFF;
-  --muted-foreground: #71717A;
-  --primary: #E6B450;
-  --ember: #E6B450;
-  --heat-0: #242018;
-  --heat-1: #665127;
-  --heat-2: #9d7831;
-  --heat-3: #c99a3f;
-  --heat-4: #e6b450;
-  --radius: 4px;
+  --background: #120D0A;
+  --surface: rgba(30, 22, 18, 0.65);
+  --surface-2: rgba(42, 31, 26, 0.75);
+  --card: #1E1612;
+  --foreground: #FAF7F5;
+  --muted-foreground: #A8A29E;
+  --primary: #BF7245;
+  --ember: #BF7245;
+  --heat-0: rgba(255, 255, 255, 0.05);
+  --heat-1: color-mix(in srgb, #BF7245 25%, transparent);
+  --heat-2: color-mix(in srgb, #BF7245 50%, transparent);
+  --heat-3: color-mix(in srgb, #BF7245 75%, transparent);
+  --heat-4: #BF7245;
+  --radius: 16px;
 }
 
 .theme-expressive {
   --background: #06050C;
-  --surface: rgba(255, 255, 255, 0.05);
-  --surface-2: rgba(255, 255, 255, 0.09);
-  --card: rgba(255, 255, 255, 0.05);
-  --foreground: #F1F5F9;
-  --muted-foreground: #94A3B8;
+  --surface: #0D0A17;
+  --surface-2: #171226;
+  --card: #0D0A17;
+  --foreground: #FFFFFF;
+  --muted-foreground: #A1A1AA;
   --primary: #8B5CF6;
   --ember: #8B5CF6;
-  --heat-0: #171024;
-  --heat-1: #39225b;
-  --heat-2: #5b3991;
-  --heat-3: #7546b5;
-  --heat-4: #8b5cf6;
-  --radius: 24px;
+  --heat-0: rgba(255, 255, 255, 0.05);
+  --heat-1: color-mix(in srgb, #8B5CF6 25%, transparent);
+  --heat-2: color-mix(in srgb, #8B5CF6 50%, transparent);
+  --heat-3: color-mix(in srgb, #8B5CF6 75%, transparent);
+  --heat-4: #8B5CF6;
+  --radius: 16px;
 }
 
 /* Circadian Amber Overlay */

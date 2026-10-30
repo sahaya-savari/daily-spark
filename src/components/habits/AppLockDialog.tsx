@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   lockActions,
   isValidPinFormat,
@@ -27,6 +28,21 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Auto-prompt biometrics when opening lock screen
+  useEffect(() => {
+    if (open && isLocked && isBiometricEnabled) {
+      const timer = setTimeout(() => {
+        lockActions.authenticateBiometric().then((ok) => {
+          if (ok) {
+            setPin("");
+            onOpenChange(false);
+          }
+        });
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [open, isLocked, isBiometricEnabled, onOpenChange]);
 
   const handleSetOrUpdatePin = async () => {
     setError(null);
@@ -186,22 +202,20 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                   <div className="flex items-center gap-2.5">
                     <Fingerprint className="h-4 w-4 text-ember" />
                     <div>
-                      <span className="font-semibold block text-xs">Biometric Unlock</span>
+                      <span className="font-semibold block text-xs">Unlock with Biometrics (Fingerprint / Face ID)</span>
                       <span className="text-muted-foreground text-xs">
-                        {isBiometricEnabled ? "Fingerprint / Face ID enabled" : "Fast biometric unlock"}
+                        {isBiometricEnabled ? "Prompts automatically when locked" : "Fast fingerprint or facial unlock"}
                       </span>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      if (!isBiometricEnabled) {
+                  <Switch
+                    checked={isBiometricEnabled}
+                    onCheckedChange={async (checked) => {
+                      if (checked) {
                         const ok = await lockActions.registerBiometrics();
                         if (ok) {
                           setSuccess("Biometric unlock enabled!");
                         } else {
-                          // If registration didn't complete, still allow enabling if device supports it
                           lockActions.setBiometricEnabled(true);
                           setSuccess("Biometric unlock set to active.");
                         }
@@ -210,10 +224,7 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                         setSuccess("Biometric unlock disabled.");
                       }
                     }}
-                    className="text-xs h-7 px-2.5"
-                  >
-                    {isBiometricEnabled ? "Disable" : "Enable"}
-                  </Button>
+                  />
                 </div>
               )}
 

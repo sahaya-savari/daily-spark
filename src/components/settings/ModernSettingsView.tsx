@@ -111,6 +111,15 @@ export function ModernSettingsView({
   const currentThemeConfig =
     THEME_CONFIGS[currentThemeMode] || THEME_CONFIGS.classic;
 
+  const resolveAvatarColor = (name: string): string => {
+    if (name in PRESET_AVATAR_COLORS) {
+      return PRESET_AVATAR_COLORS[name as keyof typeof PRESET_AVATAR_COLORS];
+    }
+    return currentThemeConfig?.accent || "orange";
+  };
+
+  const [testNotificationStatus, setTestNotificationStatus] = useState<string | null>(null);
+
   const handleCustomImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -118,12 +127,43 @@ export function ModernSettingsView({
     if (!file) return;
     try {
       const dataUrl = await processCustomAvatarFile(file, 192);
-      updateProfile({ customImage: dataUrl });
+      if (isEditingProfile) {
+        setDraftProfile((prev) => ({ ...prev, customImage: dataUrl }));
+      } else {
+        updateProfile({ customImage: dataUrl });
+      }
     } catch (err) {
       console.error("Failed to process custom image:", err);
     }
     if (e.target) {
       e.target.value = "";
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    setTestNotificationStatus("Sending...");
+    try {
+      if (typeof window !== "undefined" && "Notification" in window) {
+        let perm = Notification.permission;
+        if (perm === "default") {
+          perm = await Notification.requestPermission();
+        }
+        if (perm === "granted") {
+          new Notification("Daily Spark: Time to ignite your streak! 🔥", {
+            body: "Your daily reminder is functioning perfectly. Keep up the momentum!",
+            icon: "/icons/icon-192.png",
+          });
+        }
+      }
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate([100, 50, 100]);
+      }
+      setTestNotificationStatus("Sent! ✓");
+      setTimeout(() => setTestNotificationStatus(null), 3000);
+    } catch (err) {
+      console.error("Test notification error:", err);
+      setTestNotificationStatus("Done");
+      setTimeout(() => setTestNotificationStatus(null), 3000);
     }
   };
 
@@ -153,9 +193,21 @@ export function ModernSettingsView({
         aria-hidden="true"
       />
 
-      {/* 1. Multi-Avatar Selection + Custom Image Header */}
+      {/* 1. Ultra-Minimalist Profile Header */}
       <div className="flex flex-col items-center justify-center text-center pt-2">
-        <div className="relative group cursor-pointer" onClick={openProfileEditor}>
+        <div
+          className="relative group cursor-pointer"
+          onClick={openProfileEditor}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openProfileEditor();
+            }
+          }}
+          aria-label="Edit Profile & Avatar"
+        >
           <div className="size-20 sm:size-24 rounded-full border-2 border-white/10 bg-surface-2 p-1 shadow-xl overflow-hidden flex items-center justify-center transition-transform hover:scale-105 relative">
             {profile.customImage ? (
               <div className="relative size-full">
@@ -186,123 +238,24 @@ export function ModernSettingsView({
                 shape={profile.shape}
                 fill={profile.fill}
                 status={profile.status}
-                color={currentThemeConfig?.accent || "orange"}
+                color={resolveAvatarColor(profile.name)}
                 bloom={profile.bloom || "low"}
               />
             )}
           </div>
-          {/* Violet edit pencil badge at bottom-right */}
-          <button
-            type="button"
-            className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-white grid place-items-center shadow-lg border-2 border-background transition-transform hover:scale-110"
-            aria-label="Customize dithercn avatar and seed"
+          {/* Single edit pencil badge at bottom-right */}
+          <span
+            className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-white grid place-items-center shadow-lg border-2 border-background transition-transform group-hover:scale-110"
+            aria-hidden="true"
           >
             <PixelPen className="size-3.5" />
-          </button>
-        </div>
-
-        {/* If custom image is set, option to remove and revert to dither face */}
-        {profile.customImage && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              updateProfile({ customImage: undefined });
-            }}
-            className="mt-2 text-[11px] text-faint hover:text-rose-400 transition-colors flex items-center gap-1 font-medium"
-            title="Revert to dithercn procedural face"
-          >
-            <PixelClose className="size-3" />
-            <span>Remove custom image</span>
-          </button>
-        )}
-
-        {/* Username + Status & Fill badges */}
-        <div className="mt-3 flex items-center justify-center gap-1.5">
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground tracking-normal">
-            {profile.name}
-          </h2>
-          <button
-            type="button"
-            onClick={openProfileEditor}
-            className="text-faint hover:text-foreground transition-colors p-1"
-            title="Edit profile & dithercn avatar"
-          >
-            <PixelPen className="size-3.5" />
-          </button>
-        </div>
-
-        {/* Status indicator and Fill style badge */}
-        <div className="mt-1 flex items-center justify-center gap-2 text-xs">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground capitalize font-medium">
-            <span
-              className={cn(
-                "size-2 rounded-full",
-                profile.status === "online" && "bg-emerald-400",
-                profile.status === "away" && "bg-amber-400",
-                profile.status === "busy" && "bg-rose-500",
-                profile.status === "offline" && "bg-neutral-500"
-              )}
-            />
-            {profile.status}
           </span>
-          <span className="px-2.5 py-0.5 rounded-full bg-ember/10 border border-ember/20 text-ember capitalize font-mono text-[11px] font-semibold">
-            {profile.fill} fill
-          </span>
-          {profile.bloom && profile.bloom !== "off" && (
-            <span className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground capitalize font-mono text-[11px] font-semibold">
-              {profile.bloom} bloom
-            </span>
-          )}
         </div>
 
-        {/* Horizontal Row of 6 Mini Dither Avatar Presets + Upload '+' Button */}
-        <div className="mt-4 flex items-center justify-center gap-2.5 flex-wrap">
-          {PRESET_NAME_SEEDS.map((seed) => {
-            const isSelected = profile.name === seed && !profile.customImage;
-            return (
-              <button
-                key={seed}
-                type="button"
-                onClick={() => {
-                  updateProfile({ name: seed, customImage: undefined });
-                }}
-                className={cn(
-                  "p-0.5 rounded-full border-2 transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
-                  isSelected
-                    ? "border-ember shadow-md scale-105 ring-2 ring-ember/30"
-                    : "border-white/10 opacity-80 hover:opacity-100"
-                )}
-                title={`Switch to ${seed}`}
-                aria-label={`Select ${seed} avatar`}
-              >
-                <Avatar
-                  name={seed}
-                  label={seed}
-                  size={34}
-                  shape="circle"
-                  fill={profile.fill}
-                  color={PRESET_AVATAR_COLORS[seed]}
-                  bloom="low"
-                />
-              </button>
-            );
-          })}
-
-          {/* '+' Button to upload custom picture */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={cn(
-              "size-9 rounded-full border-2 border-dashed border-white/20 hover:border-ember bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center cursor-pointer transition-all hover:scale-110 text-muted-foreground hover:text-ember focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
-              profile.customImage && "border-ember text-ember bg-ember/10"
-            )}
-            title="Upload custom image photo"
-            aria-label="Upload custom image photo"
-          >
-            <span className="font-bold text-lg leading-none select-none">+</span>
-          </button>
-        </div>
+        {/* Username */}
+        <h2 className="mt-3 font-display text-xl sm:text-2xl font-bold text-foreground tracking-normal">
+          {profile.name}
+        </h2>
       </div>
 
       {/* 2. Isolated Card: App style */}
@@ -452,17 +405,17 @@ export function ModernSettingsView({
         </button>
       </section>
 
-      {/* MODAL: Dithercn Generative Avatar & Profile Customizer */}
+      {/* MODAL: Unified Profile & Avatar Customizer */}
       <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
         <DialogContent className="max-w-md rounded-3xl border border-white/10 bg-surface p-6 max-h-[90vh] overflow-y-auto space-y-5">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl font-bold">Customize Avatar</DialogTitle>
+            <DialogTitle className="font-display text-xl font-bold">Edit Profile &amp; Avatar</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Your avatar is generated deterministically from your name seed using dithercn, or customizable with a photo.
+              Customize your display name and dithercn avatar, or upload a custom photo.
             </DialogDescription>
           </DialogHeader>
 
-          {/* Live Avatar Preview */}
+          {/* Live Centering Avatar Preview */}
           <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-2 border border-white/5 space-y-2">
             <div className="p-1 rounded-full border border-white/10 shadow-lg relative size-24 overflow-hidden flex items-center justify-center">
               {draftProfile.customImage ? (
@@ -482,43 +435,29 @@ export function ModernSettingsView({
                   shape={draftProfile.shape}
                   fill={draftProfile.fill}
                   status={draftProfile.status}
-                  color={currentThemeConfig?.accent || "orange"}
+                  color={resolveAvatarColor(draftProfile.name)}
                   bloom={draftProfile.bloom || "low"}
                 />
               )}
             </div>
-            <p className="font-mono text-xs text-muted-foreground">
-              Seed:{" "}
-              <span className="text-foreground font-semibold">
-                "{draftProfile.name || "Daily Spark"}"
-              </span>
-            </p>
 
-            {draftProfile.customImage ? (
+            {/* Remove photo button if custom image exists */}
+            {draftProfile.customImage && (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => setDraftProfile((prev) => ({ ...prev, customImage: undefined }))}
-                className="text-xs text-rose-400 hover:text-rose-300 h-7 px-2"
+                className="text-xs text-rose-400 hover:text-rose-300 h-7 px-2.5 gap-1.5 font-medium"
               >
-                Clear Custom Image
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="text-xs h-7 px-2 border-white/10"
-              >
-                Upload Photo Image
+                <PixelClose className="size-3" />
+                <span>Remove Photo</span>
               </Button>
             )}
           </div>
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
-            {/* 1. Name Seed Input */}
+            {/* 1. Name Input */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                 <span>Display Name / Seed</span>
@@ -529,34 +468,66 @@ export function ModernSettingsView({
                 onChange={(e) =>
                   setDraftProfile((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Enter seed string..."
+                placeholder="Enter display name..."
                 maxLength={24}
                 className="h-10 rounded-xl bg-surface-2 border-border/50 text-foreground"
               />
+            </div>
 
-              {/* Seed Presets */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {PRESET_NAME_SEEDS.map((seed) => (
-                  <button
-                    key={seed}
-                    type="button"
-                    onClick={() =>
-                      setDraftProfile((prev) => ({
-                        ...prev,
-                        name: seed,
-                        customImage: undefined,
-                      }))
-                    }
-                    className={cn(
-                      "px-2.5 py-1 rounded-lg text-[11px] font-mono border transition-all cursor-pointer",
-                      draftProfile.name === seed && !draftProfile.customImage
-                        ? "bg-ember text-white border-ember shadow-sm"
-                        : "bg-surface-2 border-white/5 text-muted-foreground hover:text-foreground hover:bg-white/5"
-                    )}
-                  >
-                    {seed}
-                  </button>
-                ))}
+            {/* 2. Avatar Presets & Photo */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground block">
+                Avatar Presets &amp; Photo
+              </label>
+              <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                {PRESET_NAME_SEEDS.map((seed) => {
+                  const isSelected = draftProfile.name === seed && !draftProfile.customImage;
+                  return (
+                    <button
+                      key={seed}
+                      type="button"
+                      onClick={() =>
+                        setDraftProfile((prev) => ({
+                          ...prev,
+                          name: seed,
+                          customImage: undefined,
+                        }))
+                      }
+                      className={cn(
+                        "p-0.5 rounded-full border-2 transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+                        isSelected
+                          ? "border-ember shadow-md scale-105 ring-2 ring-ember/30"
+                          : "border-white/10 opacity-80 hover:opacity-100"
+                      )}
+                      title={`Select ${seed} (${PRESET_AVATAR_COLORS[seed]})`}
+                      aria-label={`Select ${seed} avatar`}
+                    >
+                      <Avatar
+                        name={seed}
+                        label={seed}
+                        size={34}
+                        shape="circle"
+                        fill={draftProfile.fill}
+                        color={PRESET_AVATAR_COLORS[seed]}
+                        bloom="low"
+                      />
+                    </button>
+                  );
+                })}
+
+                {/* '+' Button to upload custom picture */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    "size-9 rounded-full border-2 border-dashed border-white/20 hover:border-ember bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center cursor-pointer transition-all hover:scale-110 text-muted-foreground hover:text-ember focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
+                    draftProfile.customImage && "border-ember text-ember bg-ember/10"
+                  )}
+                  title="Upload photo image"
+                  aria-label="Upload photo image"
+                >
+                  <span className="font-bold text-lg leading-none select-none">+</span>
+                </button>
               </div>
             </div>
 
@@ -783,6 +754,25 @@ export function ModernSettingsView({
                   habitActions.updateSettings({ enabled: checked })
                 }
               />
+            </div>
+
+            {/* Send Test Notification Button */}
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+              <div>
+                <p className="font-semibold text-sm">Test Notifications</p>
+                <p className="text-xs text-muted-foreground">
+                  Verify alert permissions, audio, and vibration
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSendTestNotification}
+                className="h-8 rounded-xl border-white/10 text-xs font-semibold hover:bg-white/5"
+              >
+                {testNotificationStatus || "Send Test"}
+              </Button>
             </div>
 
             {/* Directive 4: Realigned Day Rollover (Night Owl) */}

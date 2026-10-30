@@ -57,7 +57,13 @@ export type ScrambleTextProps = Omit<
   "children" | "color"
 > & {
   /** The final text. It is what screen readers, search and copy see. */
-  children: string;
+  children?: string;
+  /** Multiple phrases to loop through infinitely. */
+  texts?: readonly string[] | string[];
+  /** Whether to loop continuously through phrases. Default false. */
+  loop?: boolean;
+  /** Pause in ms between looped phrases. Default 2200. */
+  pause?: number;
   /** The element to render. Default `"span"`. */
   as?: ScrambleTextTag;
   /**
@@ -284,7 +290,10 @@ const ITEM_CLASS = "[grid-area:s]";
  */
 export const ScrambleText = ({
   as: Tag = "span",
-  children,
+  children = "",
+  texts,
+  loop = false,
+  pause = 2200,
   trigger = "in-view",
   mode = "dither",
   characters,
@@ -301,6 +310,9 @@ export const ScrambleText = ({
   style,
   ...rest
 }: ScrambleTextProps) => {
+  const [textIndex, setTextIndex] = useState(0);
+  const currentText = (texts && texts.length > 0 ? (texts[textIndex] ?? "") : children) || "";
+
   const ref = useRef<HTMLElement>(null);
   const setRef = useCallback((node: HTMLElement | null) => {
     ref.current = node;
@@ -326,9 +338,20 @@ export const ScrambleText = ({
     completeRef.current = onComplete;
   });
 
-  const chars = [...children];
-  const words = splitWords(children);
-  const pool = glyphPool(children, characters);
+  // Loop continuously through phrases if enabled and not constrained by prefers-reduced-motion
+  useEffect(() => {
+    if (!loop || !texts || texts.length <= 1 || running || waiting || reducedMotion) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setTextIndex((i) => (i + 1) % texts.length);
+    }, pause);
+    return () => clearTimeout(timer);
+  }, [loop, texts, running, waiting, reducedMotion, pause, textIndex]);
+
+  const chars = [...currentText];
+  const words = splitWords(currentText);
+  const pool = glyphPool(currentText, characters);
   const pace = Math.max(0.05, speed);
   const timing: Timing = {
     delay: delay / pace,
@@ -394,14 +417,14 @@ export const ScrambleText = ({
   }, [play, trigger]);
 
   // A new text scrambles from the old one; matching characters stay put.
-  const previous = useRef(children);
+  const previous = useRef(currentText);
   useEffect(() => {
-    if (previous.current !== children) {
+    if (previous.current !== currentText) {
       const from = previous.current;
-      previous.current = children;
+      previous.current = currentText;
       play(from, true);
     }
-  }, [children, play]);
+  }, [currentText, play]);
 
   // Size the dither cells to the type.
   useLayoutEffect(() => {
@@ -449,7 +472,7 @@ export const ScrambleText = ({
     const observer = new ResizeObserver(park);
     observer.observe(overlay);
     return () => observer.disconnect();
-  }, [caret, lastSlot, placeCaret, running, waiting, children]);
+  }, [caret, lastSlot, placeCaret, running, waiting, currentText]);
 
   useFrameLoop(
     (time, delta) => {
@@ -529,7 +552,7 @@ export const ScrambleText = ({
           "[grid-area:1/1]"
         )}
       >
-        {children}
+        {currentText}
       </span>
       {showOverlay ? (
         <span

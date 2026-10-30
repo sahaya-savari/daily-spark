@@ -107,7 +107,7 @@ export function EmberHeroDither({
   if (!ready) {
     return (
       <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,rgba(236,137,76,0.18),transparent_70%)]"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,color-mix(in_srgb,var(--ember)_18%,transparent),transparent_70%)]"
         aria-hidden="true"
       />
     );
@@ -124,7 +124,7 @@ export function EmberHeroDither({
       className={className}
       fallback={
         <div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,rgba(236,137,76,0.18),transparent_70%)]"
+          className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,color-mix(in_srgb,var(--ember)_18%,transparent),transparent_70%)]"
           aria-hidden="true"
         />
       }

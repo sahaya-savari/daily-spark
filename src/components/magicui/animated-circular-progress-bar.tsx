@@ -22,7 +22,7 @@ export const AnimatedCircularProgressBar: React.FC<AnimatedCircularProgressBarPr
   value,
   max = 100,
   min = 0,
-  gaugePrimaryColor = "#ec894c",
+  gaugePrimaryColor = "var(--ember, #8B5CF6)",
   gaugeSecondaryColor = "rgba(255,255,255,0.1)",
   size = 100,
   strokeWidth = 10,

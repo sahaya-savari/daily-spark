@@ -53,18 +53,18 @@ export const HeatmapBackdrop = React.memo(function HeatmapBackdrop() {
             level === 0
               ? "rgba(255, 255, 255, 0.03)"
               : level === 1
-              ? "rgba(236, 137, 76, 0.16)"
+              ? "color-mix(in srgb, var(--ember) 16%, transparent)"
               : level === 2
-              ? "rgba(236, 137, 76, 0.45)"
-              : "rgba(236, 137, 76, 0.85)";
+              ? "color-mix(in srgb, var(--ember) 45%, transparent)"
+              : "color-mix(in srgb, var(--ember) 85%, transparent)";
           const stroke =
             level === 0
               ? "rgba(255, 255, 255, 0.04)"
               : level === 1
-              ? "rgba(236, 137, 76, 0.22)"
+              ? "color-mix(in srgb, var(--ember) 22%, transparent)"
               : level === 2
-              ? "rgba(236, 137, 76, 0.55)"
-              : "rgba(236, 137, 76, 0.9)";
+              ? "color-mix(in srgb, var(--ember) 55%, transparent)"
+              : "color-mix(in srgb, var(--ember) 90%, transparent)";
           return (
             <rect
               key={i}

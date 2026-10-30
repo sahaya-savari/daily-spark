@@ -20,42 +20,42 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
   classic: {
     id: "classic",
     name: "Classic",
-    subtitle: "Electric Yellow on Cosmic Black",
+    subtitle: "Electric Grey & Silver Monochrome",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
-    bg: "#0A0A0E",
-    surface: "#14141A",
-    surface2: "#1C1C24",
+    bg: "#0B0F17",
+    surface: "#141824",
+    surface2: "#1E2433",
     fg: "#F8FAFC",
     muted: "#94A3B8",
-    accent: "#FACC15",
-    border: "rgba(250, 204, 21, 0.24)",
+    accent: "#E2E8F0",
+    border: "rgba(226, 232, 240, 0.24)",
     radius: "16px",
   },
   expressive: {
     id: "expressive",
     name: "Expressive",
-    subtitle: "Solar Amber on True AMOLED Black",
+    subtitle: "Electric Violet on Deep Obsidian",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
-    bg: "#000000",
-    surface: "#0D0D0D",
-    surface2: "#181818",
+    bg: "#06050C",
+    surface: "#0D0A17",
+    surface2: "#171226",
     fg: "#FFFFFF",
     muted: "#A1A1AA",
-    accent: "#EC894C",
-    border: "rgba(236, 137, 76, 0.24)",
+    accent: "#8B5CF6",
+    border: "rgba(139, 92, 246, 0.24)",
     radius: "16px",
   },
   minimal: {
     id: "minimal",
     name: "Minimal",
-    subtitle: "Warm Terracotta Frosted Glass",
+    subtitle: "Warm Terracotta Brown",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", "JetBrains Mono", monospace',
-    bg: "#0F0F12",
-    surface: "rgba(25, 25, 32, 0.65)",
-    surface2: "rgba(35, 35, 45, 0.75)",
+    bg: "#120D0A",
+    surface: "rgba(30, 22, 18, 0.65)",
+    surface2: "rgba(42, 31, 26, 0.75)",
     fg: "#FAF7F5",
     muted: "#A8A29E",
     accent: "#BF7245",
@@ -113,4 +113,22 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
   root.style.setProperty("--color-ember", config.accent);
   root.style.setProperty("--ember", config.accent);
   root.style.setProperty("--primary", config.accent);
+  root.style.setProperty("--heat-0", "rgba(255, 255, 255, 0.05)");
+  root.style.setProperty("--heat-1", `color-mix(in srgb, ${config.accent} 25%, transparent)`);
+  root.style.setProperty("--heat-2", `color-mix(in srgb, ${config.accent} 50%, transparent)`);
+  root.style.setProperty("--heat-3", `color-mix(in srgb, ${config.accent} 75%, transparent)`);
+  root.style.setProperty("--heat-4", config.accent);
+
+  // Update <meta name="theme-color"> dynamically
+  try {
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (!metaTheme) {
+      metaTheme = document.createElement("meta");
+      metaTheme.setAttribute("name", "theme-color");
+      document.head.appendChild(metaTheme);
+    }
+    metaTheme.setAttribute("content", config.bg);
+  } catch {
+    /* ignore in non-browser env */
+  }
 }

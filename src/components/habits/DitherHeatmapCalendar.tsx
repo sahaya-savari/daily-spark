@@ -50,12 +50,12 @@ export const DitherHeatmapCalendar: React.FC<DitherHeatmapCalendarProps> = ({
                 day.level === 0
                   ? "var(--dither-cell, rgba(255,255,255,0.05))"
                   : day.level === 1
-                  ? "rgba(236,137,76,0.3)"
+                  ? "color-mix(in srgb, var(--ember) 25%, transparent)"
                   : day.level === 2
-                  ? "rgba(236,137,76,0.55)"
+                  ? "color-mix(in srgb, var(--ember) 50%, transparent)"
                   : day.level === 3
-                  ? "rgba(236,137,76,0.8)"
-                  : "var(--dither-bloom, #ec894c)",
+                  ? "color-mix(in srgb, var(--ember) 75%, transparent)"
+                  : "var(--dither-bloom, var(--ember))",
             }}
           />
         ))}
