@@ -41,8 +41,8 @@ describe("appearance.ts", () => {
   });
 
   it("verifies Tri-Modal theme configs have unified 16px radius and distinct palettes", () => {
-    // 1. Classic: Electric Grey / Silver (#E2E8F0) on #0B0F17 with #0B0F17 foreground contrast
-    expect(THEME_CONFIGS.classic.accent).toBe("#E2E8F0");
+    // 1. Classic: Electric Solar Gold (#F59E0B) on #0B0F17 with #0B0F17 foreground contrast
+    expect(THEME_CONFIGS.classic.accent).toBe("#F59E0B");
     expect(THEME_CONFIGS.classic.accentForeground).toBe("#0B0F17");
     expect(THEME_CONFIGS.classic.bg).toBe("#0B0F17");
     expect(THEME_CONFIGS.classic.radius).toBe("16px");

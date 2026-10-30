@@ -1387,7 +1387,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                           <HabitIcon habit={{ icon: h.icon, emoji: h.emoji, color: h.color }} />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 flex-wrap">
-                              <p className="break-words font-mono text-[14px] font-semibold">{h.name}</p>
+                              <p className="break-words font-mono text-[14px] font-semibold text-foreground">{h.name}</p>
                               {h.isStarred && <PixelStar className="size-3.5 fill-gold text-gold shrink-0" />}
                               {isArchived(h) && (
                                 <span className="text-[10px] text-faint border px-1 rounded">Archived</span>
@@ -1398,7 +1398,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                                 </span>
                               )}
                             </div>
-                            <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint mt-0.5">
+                            <p className="flex items-center gap-1 text-[11.5px] font-semibold text-muted-foreground mt-0.5">
                               <PixelFire className={cn("size-3", h.currentStreak > 0 && "text-ember")} /> <DitherNumber value={h.currentStreak} suffix=" days" />
                               {h.category && (
                                 <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">
@@ -1496,8 +1496,8 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
               <div className="rounded-3xl border border-border/40 bg-surface p-4">
                 <p className="kicker">Last 30 days</p>
-                <p className="text-[26px] font-extrabold">{progressStats.last30Pct}%</p>
-                <p className="text-[11px] text-faint">Monthly rate</p>
+                <p className="text-[26px] font-extrabold text-foreground">{progressStats.last30Pct}%</p>
+                <p className="text-[11px] text-muted-foreground">Monthly rate</p>
               </div>
 
               <div className="rounded-3xl border border-border/40 bg-surface p-4">
@@ -1505,15 +1505,15 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <p className="text-[26px] font-extrabold text-gold">
                   <DitherNumber value={progressStats.globalStreak} />
                 </p>
-                <p className="text-[11px] text-faint">Active habit streak</p>
+                <p className="text-[11px] text-muted-foreground">Active habit streak</p>
               </div>
 
               <div className="rounded-3xl border border-border/40 bg-surface p-4">
                 <p className="kicker">Check-ins</p>
-                <p className="text-[26px] font-extrabold">
+                <p className="text-[26px] font-extrabold text-foreground">
                   <DitherNumber value={progressStats.totalCompletionsCount} />
                 </p>
-                <p className="text-[11px] text-faint">Total completions</p>
+                <p className="text-[11px] text-muted-foreground">Total completions</p>
               </div>
             </div>
 

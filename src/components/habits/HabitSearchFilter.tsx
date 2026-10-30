@@ -108,7 +108,7 @@ export function HabitSearchFilter({
       </div>
 
       {/* Status Filter Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 text-xs">
         {(
           [
             { id: "all", label: "All" },

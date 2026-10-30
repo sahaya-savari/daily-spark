@@ -19,12 +19,12 @@ export const DitherHeatmapCalendar: React.FC<DitherHeatmapCalendarProps> = ({
   return (
     <div
       data-testid="dither-heatmap-calendar"
-      className={`rounded-3xl border border-border/40 bg-surface p-4 overflow-x-auto ${className}`}
+      className={`rounded-3xl border border-border/40 bg-surface p-4 overflow-x-auto scrollbar-none ${className}`}
     >
       <div className="flex items-center justify-between pb-3">
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase">Momentum</p>
-          <p className="font-display text-lg font-bold">6-Month Momentum</p>
+          <p className="font-display text-lg font-bold text-foreground">6-Month Momentum</p>
         </div>
         <span data-testid="heatmap-streak" className="text-xs font-bold text-ember">
           {streak} day streak

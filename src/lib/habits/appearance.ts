@@ -21,7 +21,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
   classic: {
     id: "classic",
     name: "Classic",
-    subtitle: "Electric Grey & Silver Monochrome",
+    subtitle: "Electric Solar Gold on Cosmic Black",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
     bg: "#0B0F17",
@@ -29,9 +29,9 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     surface2: "#1E2433",
     fg: "#F8FAFC",
     muted: "#94A3B8",
-    accent: "#E2E8F0",
+    accent: "#F59E0B",
     accentForeground: "#0B0F17",
-    border: "rgba(226, 232, 240, 0.24)",
+    border: "rgba(245, 158, 11, 0.24)",
     radius: "16px",
   },
   expressive: {
