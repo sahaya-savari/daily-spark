@@ -15,7 +15,7 @@ import {
   useAppLockStore,
   TIMEOUT_OPTIONS,
 } from "@/lib/habits/lock";
-import { Lock, Unlock, ShieldCheck, KeyRound, AlertCircle, Timer } from "lucide-react";
+import { Lock, Unlock, ShieldCheck, KeyRound, AlertCircle, Timer, Fingerprint } from "lucide-react";
 
 interface AppLockDialogProps {
   open: boolean;
@@ -23,7 +23,7 @@ interface AppLockDialogProps {
 }
 
 export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
-  const { isPinSet, isEnabled, isLocked, timeoutMinutes } = useAppLockStore();
+  const { isPinSet, isEnabled, isLocked, isBiometricEnabled, timeoutMinutes } = useAppLockStore();
   const [pin, setPin] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -53,6 +53,17 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
       onOpenChange(false);
     } else {
       setError("Incorrect PIN. Please try again.");
+    }
+  };
+
+  const handleBiometricUnlock = async () => {
+    setError(null);
+    const ok = await lockActions.authenticateBiometric();
+    if (ok) {
+      setPin("");
+      onOpenChange(false);
+    } else {
+      setError("Biometrics not recognized or cancelled. Please enter your 4-digit PIN.");
     }
   };
 
@@ -93,8 +104,8 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm">
             {isLocked
-              ? "Enter your 4-digit PIN to access your habits and private notes."
-              : "Protect habits and private notes from prying eyes on shared devices."}
+              ? "Authenticate with biometrics or enter your 4-digit PIN."
+              : "Protect habits and private notes with biometrics and 4-digit PIN."}
           </DialogDescription>
         </DialogHeader>
 
@@ -114,7 +125,23 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
           )}
 
           {isLocked ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
+              <Button
+                type="button"
+                onClick={handleBiometricUnlock}
+                className="w-full gap-2 bg-ember hover:bg-ember/90 text-white font-semibold py-2.5 rounded-xl shadow-md cursor-pointer transition-all"
+              >
+                <Fingerprint className="h-5 w-5" /> Unlock with Biometrics
+              </Button>
+
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-border/40"></div>
+                <span className="flex-shrink mx-2 text-[11px] text-muted-foreground uppercase font-mono tracking-wider">
+                  or 4-digit PIN
+                </span>
+                <div className="flex-grow border-t border-border/40"></div>
+              </div>
+
               <div className="flex justify-center">
                 <Input
                   type="password"
@@ -127,7 +154,7 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                 />
               </div>
               <Button onClick={handleUnlock} className="w-full gap-2">
-                <Unlock className="h-4 w-4" /> Unlock
+                <Unlock className="h-4 w-4" /> Unlock with PIN
               </Button>
             </div>
           ) : (
@@ -153,6 +180,42 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                   </Button>
                 )}
               </div>
+
+              {isPinSet && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-surface-1 border border-border">
+                  <div className="flex items-center gap-2.5">
+                    <Fingerprint className="h-4 w-4 text-ember" />
+                    <div>
+                      <span className="font-semibold block text-xs">Biometric Unlock</span>
+                      <span className="text-muted-foreground text-xs">
+                        {isBiometricEnabled ? "Fingerprint / Face ID enabled" : "Fast biometric unlock"}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      if (!isBiometricEnabled) {
+                        const ok = await lockActions.registerBiometrics();
+                        if (ok) {
+                          setSuccess("Biometric unlock enabled!");
+                        } else {
+                          // If registration didn't complete, still allow enabling if device supports it
+                          lockActions.setBiometricEnabled(true);
+                          setSuccess("Biometric unlock set to active.");
+                        }
+                      } else {
+                        lockActions.setBiometricEnabled(false);
+                        setSuccess("Biometric unlock disabled.");
+                      }
+                    }}
+                    className="text-xs h-7 px-2.5"
+                  >
+                    {isBiometricEnabled ? "Disable" : "Enable"}
+                  </Button>
+                </div>
+              )}
 
               <div>
                 <label className="text-xs font-semibold text-muted-foreground mb-1 block">

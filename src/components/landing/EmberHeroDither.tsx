@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DitherShader } from "@/lib/dither";
 import type { DitherShaderProps } from "@/lib/dither";
 
@@ -63,6 +63,37 @@ export function EmberHeroDither({
   className = "pointer-events-none absolute inset-0 -z-10",
   ...props
 }: EmberHeroDitherProps) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const isConstrained =
+      (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false) ||
+      (typeof navigator !== "undefined" && (navigator.hardwareConcurrency ?? 8) <= 2);
+
+    if (isConstrained) {
+      return;
+    }
+
+    const initShader = () => {
+      if ("requestIdleCallback" in window) {
+        (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(
+          () => setReady(true),
+          { timeout: 3000 }
+        );
+      } else {
+        setTimeout(() => setReady(true), 1200);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      initShader();
+    } else {
+      window.addEventListener("load", initShader, { once: true });
+    }
+  }, []);
+
   const uniforms = useMemo(
     () => ({
       uFocus: focus,
@@ -72,6 +103,15 @@ export function EmberHeroDither({
     }),
     [focus, intensity, scale, tightness]
   );
+
+  if (!ready) {
+    return (
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,rgba(236,137,76,0.18),transparent_70%)]"
+        aria-hidden="true"
+      />
+    );
+  }
 
   return (
     <DitherShader

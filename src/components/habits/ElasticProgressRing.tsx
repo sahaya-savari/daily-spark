@@ -30,7 +30,7 @@ export const ElasticProgressRing: React.FC<ElasticProgressRingProps> = ({
   const isMini = progress.tier === "mini";
 
   const colorClass = isElite
-    ? "stroke-purple-400 text-purple-400"
+    ? "stroke-ember text-ember"
     : isPlus
     ? "stroke-emerald-400 text-emerald-400"
     : isMini
@@ -74,7 +74,7 @@ export const ElasticProgressRing: React.FC<ElasticProgressRingProps> = ({
           className={cn("transition-all duration-500 fill-none", colorClass)}
           style={{
             filter: isElite
-              ? "drop-shadow(0 0 6px rgba(168, 85, 247, 0.6))"
+              ? "drop-shadow(0 0 6px rgba(191, 114, 69, 0.6))"
               : isPlus
               ? "drop-shadow(0 0 4px rgba(52, 211, 153, 0.4))"
               : undefined,
@@ -89,7 +89,7 @@ export const ElasticProgressRing: React.FC<ElasticProgressRingProps> = ({
             className={cn(
               "text-[10px] font-bold font-mono leading-none tracking-tight",
               isElite
-                ? "text-purple-400"
+                ? "text-ember"
                 : isPlus
                 ? "text-emerald-400"
                 : isMini

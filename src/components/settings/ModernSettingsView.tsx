@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   PixelSmartphone,
   PixelPalette,
@@ -24,32 +24,68 @@ import {
 import { AppearanceSwitcher } from "@/components/habits/AppearanceSwitcher";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { THEME_CONFIGS, getStoredTheme } from "@/lib/habits/appearance";
-import { formatDisplayDate } from "@/lib/habits/dates";
 import { SITE } from "@/lib/site";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Avatar, type AvatarStatus } from "@/components/dithercn/avatar";
+import {
+  useAvatarProfile,
+  AVATAR_FILL_VARIANTS,
+  AVATAR_STATUS_VARIANTS,
+  AVATAR_BLOOM_VARIANTS,
+  PRESET_NAME_SEEDS,
+  PRESET_AVATAR_COLORS,
+  processCustomAvatarFile,
+  type AvatarProfile,
+} from "@/lib/habits/avatar";
+import {
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguage,
+  i18nActions,
+} from "@/lib/i18n";
+import type { FillVariant, Bloom } from "@/lib/dither";
 import { cn } from "@/lib/utils";
 
-interface ModernSettingsViewProps {
+export interface ModernSettingsViewProps {
   onExportBackup: () => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onExportMarkdown: () => void;
   onExportCsv: () => void;
+  onExportTsv?: () => void;
+  onExportVault?: () => void;
   onOpenAirGapped?: () => void;
   onOpenVaultSync?: () => void;
   onOpenAppLock?: () => void;
   embedded?: boolean;
 }
 
-type ActiveSection = "appearance" | "preferences" | "data" | "support" | "about" | null;
+type ActiveSection =
+  | "appearance"
+  | "appStyle"
+  | "preferences"
+  | "data"
+  | "support"
+  | "about"
+  | "privacyPolicy"
+  | "termsConditions"
+  | "requestLanguage"
+  | null;
 
 export function ModernSettingsView({
   onExportBackup,
   onFileUpload,
   onExportMarkdown,
   onExportCsv,
+  onExportTsv,
+  onExportVault,
   onOpenAirGapped,
   onOpenVaultSync,
   onOpenAppLock,
@@ -57,83 +93,248 @@ export function ModernSettingsView({
 }: ModernSettingsViewProps) {
   const { settings } = useHabitStore();
   const [activeSection, setActiveSection] = useState<ActiveSection>(null);
-  const [userName, setUserName] = useState<string>(() => {
-    return (localStorage.getItem("dailyspark_username") || "Inlitx");
-  });
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(userName);
+  const [profile, updateProfile] = useAvatarProfile();
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [draftProfile, setDraftProfile] = useState<AvatarProfile>(profile);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [currentLang, setCurrentLang] = useState<SupportedLanguage>(() =>
+    i18nActions.getLanguage()
+  );
+
+  const openProfileEditor = () => {
+    setDraftProfile(profile);
+    setIsEditingProfile(true);
+  };
 
   const currentThemeMode = settings.themeMode || getStoredTheme();
-  const currentThemeConfig = THEME_CONFIGS[currentThemeMode] || THEME_CONFIGS.classic;
+  const currentThemeConfig =
+    THEME_CONFIGS[currentThemeMode] || THEME_CONFIGS.classic;
 
-  const handleSaveName = (e: React.FormEvent) => {
+  const handleCustomImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const dataUrl = await processCustomAvatarFile(file, 192);
+      updateProfile({ customImage: dataUrl });
+    } catch (err) {
+      console.error("Failed to process custom image:", err);
+    }
+    if (e.target) {
+      e.target.value = "";
+    }
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    const clean = tempName.trim() || "Inlitx";
-    setUserName(clean);
-    localStorage.setItem("dailyspark_username", clean);
-    setIsEditingName(false);
+    const cleanName = draftProfile.name.trim() || "Daily Spark";
+    updateProfile({
+      name: cleanName,
+      fill: draftProfile.fill,
+      status: draftProfile.status,
+      shape: draftProfile.shape,
+      bloom: draftProfile.bloom || "low",
+      customImage: draftProfile.customImage,
+    });
+    setIsEditingProfile(false);
   };
 
   return (
     <div className="w-full max-w-xl mx-auto px-1 sm:px-2 py-4 space-y-6">
-      {/* 1. Centered Profile / Avatar Header (matching Image 4) */}
+      {/* Hidden file input for uploading custom avatar photo */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        onChange={handleCustomImageUpload}
+        className="hidden"
+        aria-hidden="true"
+      />
+
+      {/* 1. Multi-Avatar Selection + Custom Image Header */}
       <div className="flex flex-col items-center justify-center text-center pt-2">
-        <div className="relative group cursor-pointer" onClick={() => setIsEditingName(true)}>
-          <div className="size-20 sm:size-24 rounded-full border-2 border-white/10 bg-gradient-to-tr from-surface-2 to-surface p-1 shadow-xl overflow-hidden flex items-center justify-center">
-            {/* Mountain landscape avatar placeholder inspired by Image 4 */}
-            <div className="size-full rounded-full bg-gradient-to-b from-sky-800 via-indigo-900 to-stone-900 flex items-center justify-center text-2xl font-bold text-white/90">
-              {userName.slice(0, 1).toUpperCase()}
-            </div>
+        <div className="relative group cursor-pointer" onClick={openProfileEditor}>
+          <div className="size-20 sm:size-24 rounded-full border-2 border-white/10 bg-surface-2 p-1 shadow-xl overflow-hidden flex items-center justify-center transition-transform hover:scale-105 relative">
+            {profile.customImage ? (
+              <div className="relative size-full">
+                <img
+                  src={profile.customImage}
+                  alt={profile.name}
+                  className={cn(
+                    "size-full object-cover",
+                    profile.shape === "circle" ? "rounded-full" : "rounded-2xl"
+                  )}
+                />
+                <span
+                  className={cn(
+                    "absolute bottom-0.5 right-0.5 size-3.5 rounded-full ring-2 ring-background",
+                    profile.status === "online" && "bg-emerald-400",
+                    profile.status === "away" && "bg-amber-400",
+                    profile.status === "busy" && "bg-rose-500",
+                    profile.status === "offline" && "bg-neutral-500"
+                  )}
+                  aria-hidden="true"
+                />
+              </div>
+            ) : (
+              <Avatar
+                name={profile.name}
+                label={profile.name}
+                size={88}
+                shape={profile.shape}
+                fill={profile.fill}
+                status={profile.status}
+                color={currentThemeConfig?.accent || "orange"}
+                bloom={profile.bloom || "low"}
+              />
+            )}
           </div>
-          {/* Violet edit pencil badge at bottom-right (matching Image 4) */}
+          {/* Violet edit pencil badge at bottom-right */}
           <button
             type="button"
             className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-white grid place-items-center shadow-lg border-2 border-background transition-transform hover:scale-110"
-            aria-label="Edit username"
+            aria-label="Customize dithercn avatar and seed"
           >
             <PixelPen className="size-3.5" />
           </button>
         </div>
 
-        {/* Username + Edit Pencil */}
+        {/* If custom image is set, option to remove and revert to dither face */}
+        {profile.customImage && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              updateProfile({ customImage: undefined });
+            }}
+            className="mt-2 text-[11px] text-faint hover:text-rose-400 transition-colors flex items-center gap-1 font-medium"
+            title="Revert to dithercn procedural face"
+          >
+            <PixelClose className="size-3" />
+            <span>Remove custom image</span>
+          </button>
+        )}
+
+        {/* Username + Status & Fill badges */}
         <div className="mt-3 flex items-center justify-center gap-1.5">
           <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground tracking-normal">
-            {userName}
+            {profile.name}
           </h2>
           <button
             type="button"
-            onClick={() => setIsEditingName(true)}
+            onClick={openProfileEditor}
             className="text-faint hover:text-foreground transition-colors p-1"
-            title="Edit username"
+            title="Edit profile & dithercn avatar"
           >
             <PixelPen className="size-3.5" />
+          </button>
+        </div>
+
+        {/* Status indicator and Fill style badge */}
+        <div className="mt-1 flex items-center justify-center gap-2 text-xs">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground capitalize font-medium">
+            <span
+              className={cn(
+                "size-2 rounded-full",
+                profile.status === "online" && "bg-emerald-400",
+                profile.status === "away" && "bg-amber-400",
+                profile.status === "busy" && "bg-rose-500",
+                profile.status === "offline" && "bg-neutral-500"
+              )}
+            />
+            {profile.status}
+          </span>
+          <span className="px-2.5 py-0.5 rounded-full bg-ember/10 border border-ember/20 text-ember capitalize font-mono text-[11px] font-semibold">
+            {profile.fill} fill
+          </span>
+          {profile.bloom && profile.bloom !== "off" && (
+            <span className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground capitalize font-mono text-[11px] font-semibold">
+              {profile.bloom} bloom
+            </span>
+          )}
+        </div>
+
+        {/* Horizontal Row of 6 Mini Dither Avatar Presets + Upload '+' Button */}
+        <div className="mt-4 flex items-center justify-center gap-2.5 flex-wrap">
+          {PRESET_NAME_SEEDS.map((seed) => {
+            const isSelected = profile.name === seed && !profile.customImage;
+            return (
+              <button
+                key={seed}
+                type="button"
+                onClick={() => {
+                  updateProfile({ name: seed, customImage: undefined });
+                }}
+                className={cn(
+                  "p-0.5 rounded-full border-2 transition-all hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+                  isSelected
+                    ? "border-ember shadow-md scale-105 ring-2 ring-ember/30"
+                    : "border-white/10 opacity-80 hover:opacity-100"
+                )}
+                title={`Switch to ${seed}`}
+                aria-label={`Select ${seed} avatar`}
+              >
+                <Avatar
+                  name={seed}
+                  label={seed}
+                  size={34}
+                  shape="circle"
+                  fill={profile.fill}
+                  color={PRESET_AVATAR_COLORS[seed]}
+                  bloom="low"
+                />
+              </button>
+            );
+          })}
+
+          {/* '+' Button to upload custom picture */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              "size-9 rounded-full border-2 border-dashed border-white/20 hover:border-ember bg-white/[0.04] hover:bg-white/[0.08] flex items-center justify-center cursor-pointer transition-all hover:scale-110 text-muted-foreground hover:text-ember focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
+              profile.customImage && "border-ember text-ember bg-ember/10"
+            )}
+            title="Upload custom image photo"
+            aria-label="Upload custom image photo"
+          >
+            <span className="font-bold text-lg leading-none select-none">+</span>
           </button>
         </div>
       </div>
 
-      {/* 2. Isolated Card: App style (matching Image 4) */}
+      {/* 2. Isolated Card: App style */}
       <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden">
         <button
           type="button"
-          onClick={() => setActiveSection("appearance")}
+          onClick={() => setActiveSection("appStyle")}
           className="flex w-full items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
         >
           <div className="flex items-center gap-3.5">
             <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
               <PixelSmartphone className="size-5" />
             </span>
-            <span className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground">
-              App style
-            </span>
+            <div>
+              <span className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground block">
+                App style
+              </span>
+              <span className="font-sans text-xs text-muted-foreground">
+                Typography, density, and icons
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-faint">
-            <span className="capitalize font-medium text-muted-foreground">{currentThemeConfig.name}</span>
+            <span className="capitalize font-medium text-muted-foreground">
+              {currentThemeConfig.name}
+            </span>
             <PixelChevronRight className="size-4" />
           </div>
         </button>
       </section>
 
-      {/* 3. Connected Grouped Card: Core Settings (matching Image 4) */}
+      {/* 3. Connected Grouped Card: Core Settings */}
       <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-white/5">
         {/* Appearance Row */}
         <button
@@ -150,7 +351,7 @@ export function ModernSettingsView({
                 Appearance
               </p>
               <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Theme, accent and background
+                Theme, accent and circadian glide
               </p>
             </div>
           </div>
@@ -172,7 +373,7 @@ export function ModernSettingsView({
                 Preferences
               </p>
               <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Language, week and sorting
+                Language, daily rollover and app lock
               </p>
             </div>
           </div>
@@ -194,7 +395,7 @@ export function ModernSettingsView({
                 Data
               </p>
               <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Backups, archive and import
+                5-format backups, vault and restore
               </p>
             </div>
           </div>
@@ -224,7 +425,7 @@ export function ModernSettingsView({
         </button>
       </section>
 
-      {/* 4. Isolated Card: About this app (matching Image 4) */}
+      {/* 4. Isolated Card: About this app */}
       <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden">
         <button
           type="button"
@@ -240,7 +441,7 @@ export function ModernSettingsView({
                 About this app
               </p>
               <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Version, credits and source code
+                Version, legal policies and open source
               </p>
             </div>
           </div>
@@ -251,61 +452,310 @@ export function ModernSettingsView({
         </button>
       </section>
 
-      {/* MODAL: Edit Username */}
-      <Dialog open={isEditingName} onOpenChange={setIsEditingName}>
-        <DialogContent className="max-w-sm rounded-3xl border border-white/10 bg-surface p-6">
+      {/* MODAL: Dithercn Generative Avatar & Profile Customizer */}
+      <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>
+        <DialogContent className="max-w-md rounded-3xl border border-white/10 bg-surface p-6 max-h-[90vh] overflow-y-auto space-y-5">
           <DialogHeader>
-            <DialogTitle className="font-display text-lg font-bold">Edit Display Name</DialogTitle>
+            <DialogTitle className="font-display text-xl font-bold">Customize Avatar</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Personalize your Daily Spark habit profile on this device.
+              Your avatar is generated deterministically from your name seed using dithercn, or customizable with a photo.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSaveName} className="space-y-4 pt-2">
-            <Input
-              value={tempName}
-              onChange={(e) => setTempName(e.target.value)}
-              placeholder="Your name"
-              maxLength={24}
-              autoFocus
-              className="h-11 rounded-xl bg-surface-2 border-border/50 text-foreground"
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="ghost" onClick={() => setIsEditingName(false)}>
+
+          {/* Live Avatar Preview */}
+          <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-2 border border-white/5 space-y-2">
+            <div className="p-1 rounded-full border border-white/10 shadow-lg relative size-24 overflow-hidden flex items-center justify-center">
+              {draftProfile.customImage ? (
+                <img
+                  src={draftProfile.customImage}
+                  alt={draftProfile.name}
+                  className={cn(
+                    "size-full object-cover",
+                    draftProfile.shape === "circle" ? "rounded-full" : "rounded-2xl"
+                  )}
+                />
+              ) : (
+                <Avatar
+                  name={draftProfile.name}
+                  label={draftProfile.name}
+                  size={96}
+                  shape={draftProfile.shape}
+                  fill={draftProfile.fill}
+                  status={draftProfile.status}
+                  color={currentThemeConfig?.accent || "orange"}
+                  bloom={draftProfile.bloom || "low"}
+                />
+              )}
+            </div>
+            <p className="font-mono text-xs text-muted-foreground">
+              Seed:{" "}
+              <span className="text-foreground font-semibold">
+                "{draftProfile.name || "Daily Spark"}"
+              </span>
+            </p>
+
+            {draftProfile.customImage ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setDraftProfile((prev) => ({ ...prev, customImage: undefined }))}
+                className="text-xs text-rose-400 hover:text-rose-300 h-7 px-2"
+              >
+                Clear Custom Image
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs h-7 px-2 border-white/10"
+              >
+                Upload Photo Image
+              </Button>
+            )}
+          </div>
+
+          <form onSubmit={handleSaveProfile} className="space-y-4">
+            {/* 1. Name Seed Input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Display Name / Seed</span>
+                <span className="text-[10px] text-muted-foreground">Updates face live</span>
+              </label>
+              <Input
+                value={draftProfile.name}
+                onChange={(e) =>
+                  setDraftProfile((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="Enter seed string..."
+                maxLength={24}
+                className="h-10 rounded-xl bg-surface-2 border-border/50 text-foreground"
+              />
+
+              {/* Seed Presets */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {PRESET_NAME_SEEDS.map((seed) => (
+                  <button
+                    key={seed}
+                    type="button"
+                    onClick={() =>
+                      setDraftProfile((prev) => ({
+                        ...prev,
+                        name: seed,
+                        customImage: undefined,
+                      }))
+                    }
+                    className={cn(
+                      "px-2.5 py-1 rounded-lg text-[11px] font-mono border transition-all cursor-pointer",
+                      draftProfile.name === seed && !draftProfile.customImage
+                        ? "bg-ember text-white border-ember shadow-sm"
+                        : "bg-surface-2 border-white/5 text-muted-foreground hover:text-foreground hover:bg-white/5"
+                    )}
+                  >
+                    {seed}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 2. Selectable Fill Style */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground block">
+                Fill Style (dithercn)
+              </label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {AVATAR_FILL_VARIANTS.map((fill) => (
+                  <button
+                    key={fill}
+                    type="button"
+                    onClick={() => setDraftProfile((prev) => ({ ...prev, fill }))}
+                    className={cn(
+                      "flex flex-col items-center justify-center p-2 rounded-xl border text-xs capitalize transition-all cursor-pointer",
+                      draftProfile.fill === fill
+                        ? "bg-ember/15 border-ember text-ember font-bold shadow-sm"
+                        : "bg-surface-2 border-white/5 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                    )}
+                  >
+                    <span className="text-[12px]">{fill}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Presence Status Dot */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground block">
+                Presence Status Dot
+              </label>
+              <div className="grid grid-cols-4 gap-1.5">
+                {AVATAR_STATUS_VARIANTS.map((status) => {
+                  const dotColor =
+                    status === "online"
+                      ? "bg-emerald-400"
+                      : status === "away"
+                      ? "bg-amber-400"
+                      : status === "busy"
+                      ? "bg-rose-500"
+                      : "bg-neutral-500";
+                  return (
+                    <button
+                      key={status}
+                      type="button"
+                      onClick={() => setDraftProfile((prev) => ({ ...prev, status }))}
+                      className={cn(
+                        "flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl border text-xs capitalize transition-all cursor-pointer",
+                        draftProfile.status === status
+                          ? "bg-ember/15 border-ember text-foreground font-bold shadow-sm"
+                          : "bg-surface-2 border-white/5 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                      )}
+                    >
+                      <span className={cn("size-2 rounded-full", dotColor)} />
+                      <span className="text-[11px]">{status}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 4. Shape Selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground block">
+                Avatar Shape
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {(["circle", "square"] as const).map((shape) => (
+                  <button
+                    key={shape}
+                    type="button"
+                    onClick={() => setDraftProfile((prev) => ({ ...prev, shape }))}
+                    className={cn(
+                      "py-2 px-3 rounded-xl border text-xs capitalize transition-all cursor-pointer",
+                      draftProfile.shape === shape
+                        ? "bg-ember/15 border-ember text-ember font-bold shadow-sm"
+                        : "bg-surface-2 border-white/5 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                    )}
+                  >
+                    {shape === "circle" ? "Circle" : "Rounded Square"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 5. Bloom Selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground block">
+                Bloom Glow
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {AVATAR_BLOOM_VARIANTS.map((bloom) => (
+                  <button
+                    key={bloom}
+                    type="button"
+                    onClick={() => setDraftProfile((prev) => ({ ...prev, bloom }))}
+                    className={cn(
+                      "py-2 px-2 rounded-xl border text-xs capitalize transition-all cursor-pointer",
+                      draftProfile.bloom === bloom
+                        ? "bg-ember/15 border-ember text-ember font-bold shadow-sm"
+                        : "bg-surface-2 border-white/5 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                    )}
+                  >
+                    {bloom}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2 pt-3 border-t border-white/5">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsEditingProfile(false)}
+              >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-ember text-white font-semibold">
-                Save Name
+              <Button type="submit" className="bg-ember text-white font-semibold shadow-md">
+                Save Avatar
               </Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* MODAL: Appearance Sub-Screen */}
-      <Dialog open={activeSection === "appearance"} onOpenChange={() => setActiveSection(null)}>
+      {/* MODAL: Appearance & App Style Sub-Screen */}
+      <Dialog
+        open={activeSection === "appearance" || activeSection === "appStyle"}
+        onOpenChange={(open) => !open && setActiveSection(null)}
+      >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl font-bold">Appearance</DialogTitle>
+            <DialogTitle className="font-display text-xl font-bold">
+              {activeSection === "appStyle" ? "App Style" : "Appearance"}
+            </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Select your color palette and circadian night warmth glide.
+              {activeSection === "appStyle"
+                ? "Configure typography, density, and icon preferences."
+                : "Select your theme palette and circadian night warmth glide."}
             </DialogDescription>
           </DialogHeader>
           <div className="pt-2">
-            <AppearanceSwitcher />
+            <AppearanceSwitcher
+              key={activeSection}
+              defaultTab={activeSection === "appStyle" ? "style" : "appearance"}
+            />
           </div>
         </DialogContent>
       </Dialog>
 
       {/* MODAL: Preferences Sub-Screen */}
-      <Dialog open={activeSection === "preferences"} onOpenChange={() => setActiveSection(null)}>
+      <Dialog
+        open={activeSection === "preferences"}
+        onOpenChange={(open) => !open && setActiveSection(null)}
+      >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold">Preferences</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Configure daily behavior, feedback, and privacy lock.
+              Configure daily behavior, internationalization, and privacy lock.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 pt-2">
+            {/* 10+ Languages Selector */}
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+              <div>
+                <p className="font-semibold text-sm">Language</p>
+                <p className="text-xs text-muted-foreground">Supported across 10 languages</p>
+              </div>
+              <select
+                value={currentLang}
+                onChange={(e) => {
+                  const lang = e.target.value as SupportedLanguage;
+                  setCurrentLang(lang);
+                  i18nActions.setLanguage(lang);
+                }}
+                className="h-9 px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember"
+              >
+                {SUPPORTED_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code}>
+                    {lang.nativeName} ({lang.label})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Non-breaking "Request a Language" button */}
+            <button
+              type="button"
+              onClick={() => setActiveSection("requestLanguage")}
+              className="w-full flex items-center justify-between p-3 rounded-xl border border-dashed border-white/10 hover:border-ember/40 bg-white/[0.02] hover:bg-white/[0.04] text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
+            >
+              <span>Missing your language? Request a translation</span>
+              <PixelChevronRight className="size-3.5 text-faint shrink-0" />
+            </button>
+
+            {/* Solar Circadian Warmth */}
             <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
               <div>
                 <p className="font-semibold text-sm">Solar Circadian Warmth</p>
@@ -313,21 +763,53 @@ export function ModernSettingsView({
               </div>
               <Switch
                 checked={settings.solarCircadianGlide !== false}
-                onCheckedChange={(checked) => habitActions.updateSettings({ solarCircadianGlide: checked })}
+                onCheckedChange={(checked) =>
+                  habitActions.updateSettings({ solarCircadianGlide: checked })
+                }
               />
             </div>
 
+            {/* Daily Habit Reminders */}
             <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
               <div>
                 <p className="font-semibold text-sm">Daily Habit Reminders</p>
-                <p className="text-xs text-muted-foreground">Local device notification at {settings.defaultTime || "20:00"}</p>
+                <p className="text-xs text-muted-foreground">
+                  Local device notification at {settings.defaultTime || "20:00"}
+                </p>
               </div>
               <Switch
                 checked={Boolean(settings.enabled)}
-                onCheckedChange={(checked) => habitActions.updateSettings({ enabled: checked })}
+                onCheckedChange={(checked) =>
+                  habitActions.updateSettings({ enabled: checked })
+                }
               />
             </div>
 
+            {/* Directive 4: Realigned Day Rollover (Night Owl) */}
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+              <div>
+                <p className="font-semibold text-sm">Day Rollover (Night Owl)</p>
+                <p className="text-xs text-muted-foreground">
+                  Keep yesterday&apos;s habits active until chosen hour
+                </p>
+              </div>
+              <select
+                value={settings.rolloverHour ?? 0}
+                onChange={(e) =>
+                  habitActions.updateSettings({ rolloverHour: Number(e.target.value) })
+                }
+                className="h-9 px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember shrink-0 ml-3"
+              >
+                <option value={0}>Midnight (12:00 AM)</option>
+                <option value={1}>1:00 AM</option>
+                <option value={2}>2:00 AM</option>
+                <option value={3}>3:00 AM (Night Owl)</option>
+                <option value={4}>4:00 AM</option>
+                <option value={5}>5:00 AM</option>
+              </select>
+            </div>
+
+            {/* App Lock PIN / Biometric */}
             {onOpenAppLock && (
               <button
                 type="button"
@@ -340,8 +822,10 @@ export function ModernSettingsView({
                 <div className="flex items-center gap-3">
                   <PixelLock className="size-4 text-ember" />
                   <div>
-                    <p className="font-semibold text-sm">App Lock PIN</p>
-                    <p className="text-xs text-muted-foreground">Protect habits and notes with 4-digit PIN</p>
+                    <p className="font-semibold text-sm">App Lock &amp; Biometrics</p>
+                    <p className="text-xs text-muted-foreground">
+                      Protect habits and notes with platform biometrics or 4-digit PIN
+                    </p>
                   </div>
                 </div>
                 <PixelChevronRight className="size-4 text-faint" />
@@ -351,17 +835,71 @@ export function ModernSettingsView({
         </DialogContent>
       </Dialog>
 
-      {/* MODAL: Data & Backups Sub-Screen */}
-      <Dialog open={activeSection === "data"} onOpenChange={() => setActiveSection(null)}>
+      {/* MODAL: Request a Language */}
+      <Dialog
+        open={activeSection === "requestLanguage"}
+        onOpenChange={(open) => !open && setActiveSection("preferences")}
+      >
+        <DialogContent className="max-w-md rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl font-bold">Request a Language</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Daily Spark is open-source and community translated.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <p>
+              We currently ship built-in dictionaries for:
+            </p>
+            <div className="flex flex-wrap gap-1.5 py-1">
+              {SUPPORTED_LANGUAGES.map((l) => (
+                <span
+                  key={l.code}
+                  className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-xs font-medium text-foreground"
+                >
+                  {l.nativeName} ({l.code})
+                </span>
+              ))}
+            </div>
+            <p>
+              To suggest another language or contribute translations, open an issue or pull request on our GitHub repository.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setActiveSection("preferences")}
+            >
+              Close
+            </Button>
+            <a
+              href={`${SITE.issues}/new?title=Language+Request&body=Please+add+support+for+language:`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-ember text-white text-xs font-semibold hover:bg-ember/90 transition-colors shadow-sm"
+            >
+              Request on GitHub
+            </a>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL: Data & Backups Sub-Screen (5 Formats) */}
+      <Dialog
+        open={activeSection === "data"}
+        onOpenChange={(open) => !open && setActiveSection(null)}
+      >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold">Data &amp; Backups</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Your habits never touch a server. Export backups safely anytime.
+              Your habits never touch a server. Export 5 reliable formats anytime.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2 pt-2">
+            {/* Format 1: Full JSON Backup */}
             <button
               type="button"
               onClick={onExportBackup}
@@ -372,28 +910,51 @@ export function ModernSettingsView({
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Export Full Backup (.json)</p>
-                <p className="text-xs text-muted-foreground">Complete history, logs, and private journal</p>
+                <p className="text-xs text-muted-foreground">
+                  Complete history, logs, habits, and private notes
+                </p>
               </div>
               <PixelChevronRight className="size-4 text-faint" />
             </button>
 
-            <label className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer">
+            {/* Format 2: CSV Habits & Notes */}
+            <button
+              type="button"
+              onClick={onExportCsv}
+              data-testid="export-csv-btn"
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+            >
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelUpload className="size-4" />
+                <PixelDownload className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">Inspect &amp; Restore Backup</p>
-                <p className="text-xs text-muted-foreground">Safe preview before restoring your data</p>
+                <p className="font-semibold text-sm">Export Habits CSV (.csv)</p>
+                <p className="text-xs text-muted-foreground">
+                  Spreadsheet-friendly records for Excel, Numbers, or Sheets
+                </p>
               </div>
-              <input
-                type="file"
-                accept=".json,.csv"
-                onChange={onFileUpload}
-                className="hidden"
-              />
               <PixelChevronRight className="size-4 text-faint" />
-            </label>
+            </button>
 
+            {/* Format 3: TSV Habits & Notes */}
+            <button
+              type="button"
+              onClick={onExportTsv || onExportCsv}
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+            >
+              <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
+                <PixelDownload className="size-4" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">Export Habits &amp; Notes TSV (.tsv)</p>
+                <p className="text-xs text-muted-foreground">
+                  Tab-separated data for database imports and data science
+                </p>
+              </div>
+              <PixelChevronRight className="size-4 text-faint" />
+            </button>
+
+            {/* Format 4: Markdown Summary */}
             <button
               type="button"
               onClick={onExportMarkdown}
@@ -403,11 +964,51 @@ export function ModernSettingsView({
                 <PixelNotebook className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">Export Markdown Summary</p>
-                <p className="text-xs text-muted-foreground">Readable report for Obsidian, Notion, or Logseq</p>
+                <p className="font-semibold text-sm">Export Markdown Summary (.md)</p>
+                <p className="text-xs text-muted-foreground">
+                  Readable report for Obsidian, Notion, or Logseq
+                </p>
               </div>
               <PixelChevronRight className="size-4 text-faint" />
             </button>
+
+            {/* Format 5: Encrypted Vault (.vault) */}
+            <button
+              type="button"
+              onClick={onExportVault || onOpenVaultSync}
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+            >
+              <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
+                <PixelShieldCheck className="size-4" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">Export Encrypted Vault (.vault)</p>
+                <p className="text-xs text-muted-foreground">
+                  Zero-knowledge AES-GCM-256 encrypted package
+                </p>
+              </div>
+              <PixelChevronRight className="size-4 text-faint" />
+            </button>
+
+            {/* Restore File Input accepting all 5 formats */}
+            <label className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer">
+              <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
+                <PixelUpload className="size-4" />
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">Inspect &amp; Restore Backup</p>
+                <p className="text-xs text-muted-foreground">
+                  Accepts .json, .csv, .tsv, .md, and .vault
+                </p>
+              </div>
+              <input
+                type="file"
+                accept=".json,.csv,.tsv,.md,.vault"
+                onChange={onFileUpload}
+                className="hidden"
+              />
+              <PixelChevronRight className="size-4 text-faint" />
+            </label>
 
             {onOpenAirGapped && (
               <button
@@ -428,12 +1029,37 @@ export function ModernSettingsView({
                 <PixelChevronRight className="size-4 text-faint" />
               </button>
             )}
+
+            {onOpenVaultSync && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSection(null);
+                  onOpenVaultSync();
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+              >
+                <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
+                  <PixelSparkles className="size-4" />
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm">Encrypted Peer Vault Sync</p>
+                  <p className="text-xs text-muted-foreground">
+                    Set-union conflict-free cross-device synchronization
+                  </p>
+                </div>
+                <PixelChevronRight className="size-4 text-faint" />
+              </button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
 
       {/* MODAL: Support Sub-Screen */}
-      <Dialog open={activeSection === "support"} onOpenChange={() => setActiveSection(null)}>
+      <Dialog
+        open={activeSection === "support"}
+        onOpenChange={(open) => !open && setActiveSection(null)}
+      >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold">Support &amp; Community</DialogTitle>
@@ -495,7 +1121,10 @@ export function ModernSettingsView({
       </Dialog>
 
       {/* MODAL: About This App Sub-Screen */}
-      <Dialog open={activeSection === "about"} onOpenChange={() => setActiveSection(null)}>
+      <Dialog
+        open={activeSection === "about"}
+        onOpenChange={(open) => !open && setActiveSection(null)}
+      >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold">About Daily Spark</DialogTitle>
@@ -505,7 +1134,7 @@ export function ModernSettingsView({
           </DialogHeader>
 
           <div className="space-y-3 pt-2 text-sm text-muted-foreground">
-            <div className="p-4 rounded-2xl bg-surface-2 border border-white/5 space-y-2">
+            <div className="p-4 rounded-2xl bg-surface-2 border border-white/5 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-foreground font-semibold">Version</span>
                 <span className="font-mono text-xs text-ember font-bold">{SITE.apk.version}</span>
@@ -516,19 +1145,144 @@ export function ModernSettingsView({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-foreground font-semibold">Architecture</span>
-                <span>Offline-First (Zero Cloud, Zero Tracking)</span>
+                <span>Offline-First (Zero Cloud, Local Storage)</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-foreground font-semibold">Author</span>
-                <a href={SITE.authorUrl} target="_blank" rel="noreferrer" className="text-ember hover:underline">
+                <a
+                  href={SITE.authorUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-ember hover:underline font-medium"
+                >
                   {SITE.author}
                 </a>
               </div>
             </div>
+
+            {/* In-app Legal Dialog Triggers */}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setActiveSection("privacyPolicy")}
+                className="h-10 rounded-xl border-white/10 bg-surface-2 text-xs font-semibold hover:bg-white/[0.08] text-foreground"
+              >
+                Privacy Policy
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setActiveSection("termsConditions")}
+                className="h-10 rounded-xl border-white/10 bg-surface-2 text-xs font-semibold hover:bg-white/[0.08] text-foreground"
+              >
+                Terms &amp; Conditions
+              </Button>
+            </div>
+
+            <div
+              data-testid="privacy-card"
+              role="region"
+              aria-label="Privacy Information"
+              className="rounded-2xl border border-white/10 bg-surface-2/80 p-4 space-y-2"
+            >
+              <div className="flex items-center gap-2">
+                <PixelShieldCheck className="size-4 text-ember" />
+                <h3 className="font-display text-sm font-bold text-foreground">Privacy Guarantee</h3>
+              </div>
+              <p className="text-xs text-foreground/90 font-medium leading-relaxed">
+                No accounts, No servers, No ads, No analytics, No data leaves this device
+              </p>
+            </div>
+
             <p className="text-xs leading-relaxed text-faint px-1">
               Daily Spark was created to prove that habit tracking can be quiet, private, and honest.
-              No artificial pressure, no streak-shaming, and no ads.
+              No artificial pressure, no streak-shaming, and no commercial tracking.
             </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL: In-App Privacy Policy Dialog */}
+      <Dialog
+        open={activeSection === "privacyPolicy"}
+        onOpenChange={(open) => !open && setActiveSection("about")}
+      >
+        <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto space-y-4">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl font-bold flex items-center gap-2">
+              <PixelShieldCheck className="size-5 text-ember" />
+              Privacy Policy
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Effective Date: October 2026 · Daily Spark v{SITE.apk.version}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <div className="p-3 rounded-xl bg-surface-2 border border-white/5 text-foreground font-medium">
+              Zero Cloud, Zero Tracking, 100% Local Device Storage.
+            </div>
+            <p>
+              <strong>1. Data Collection:</strong> Daily Spark does not collect, transmit, store, or sell any personal data, usage metrics, habit names, notes, or device identifiers. There are no analytics SDKs, advertising beacons, or telemetry libraries embedded in the application.
+            </p>
+            <p>
+              <strong>2. Local Storage:</strong> All habits, logs, streaks, and preferences reside strictly within your browser&apos;s sandboxed localStorage or IndexedDB on your device.
+            </p>
+            <p>
+              <strong>3. Backups &amp; Sync:</strong> Backups are created client-side. When using Air-Gapped QR sync or Encrypted Vault files, data is transferred peer-to-peer or encrypted with AES-GCM-256 before leaving your device. No unencrypted data is ever sent to any server.
+            </p>
+            <p>
+              <strong>4. Biometrics:</strong> When App Lock Biometrics are enabled, the WebAuthn standard authenticates locally with your hardware security enclave (e.g., Windows Hello, Touch ID, Android Biometrics). Biometric credentials never leave your hardware.
+            </p>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setActiveSection("about")}
+              className="rounded-xl"
+            >
+              Back to About
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL: In-App Terms & Conditions Dialog */}
+      <Dialog
+        open={activeSection === "termsConditions"}
+        onOpenChange={(open) => !open && setActiveSection("about")}
+      >
+        <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto space-y-4">
+          <DialogHeader>
+            <DialogTitle className="font-display text-xl font-bold flex items-center gap-2">
+              <PixelInfo className="size-5 text-ember" />
+              Terms &amp; Conditions
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              MIT License · Free &amp; Open Source
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            <p>
+              <strong>1. License &amp; Usage:</strong> Daily Spark is open-source software licensed under the MIT License. You are free to use, inspect, modify, and distribute the application for personal or commercial use in accordance with the license.
+            </p>
+            <p>
+              <strong>2. No Warranty:</strong> The software is provided &quot;as is&quot;, without warranty of any kind, express or implied. The authors are not liable for any claims, damages, or data loss arising from the use of the application.
+            </p>
+            <p>
+              <strong>3. Data Ownership &amp; Responsibility:</strong> Because Daily Spark operates entirely offline without remote cloud servers, you maintain complete ownership and responsibility for backing up your data regularly using the export features.
+            </p>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setActiveSection("about")}
+              className="rounded-xl"
+            >
+              Back to About
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

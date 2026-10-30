@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GetRouteImport } from './routes/get'
+import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ScreensRouteImport } from './routes/screens'
 
@@ -36,6 +37,11 @@ const GetRoute = GetRouteImport.update({
   path: '/get',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OfflineRoute = OfflineRouteImport.update({
+  id: '/offline',
+  path: '/offline',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/download': typeof DownloadRoute
   '/features': typeof FeaturesRoute
   '/get': typeof GetRoute
+  '/offline': typeof OfflineRoute
   '/privacy': typeof PrivacyRoute
   '/screens': typeof ScreensRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/download': typeof DownloadRoute
   '/features': typeof FeaturesRoute
   '/get': typeof GetRoute
+  '/offline': typeof OfflineRoute
   '/privacy': typeof PrivacyRoute
   '/screens': typeof ScreensRoute
 }
@@ -69,20 +77,36 @@ export interface FileRoutesById {
   '/download': typeof DownloadRoute
   '/features': typeof FeaturesRoute
   '/get': typeof GetRoute
+  '/offline': typeof OfflineRoute
   '/privacy': typeof PrivacyRoute
   '/screens': typeof ScreensRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/download' | '/features' | '/get' | '/privacy' | '/screens'
+  fullPaths:
+    | '/'
+    | '/download'
+    | '/features'
+    | '/get'
+    | '/offline'
+    | '/privacy'
+    | '/screens'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/download' | '/features' | '/get' | '/privacy' | '/screens'
+  to:
+    | '/'
+    | '/download'
+    | '/features'
+    | '/get'
+    | '/offline'
+    | '/privacy'
+    | '/screens'
   id:
     | '__root__'
     | '/'
     | '/download'
     | '/features'
     | '/get'
+    | '/offline'
     | '/privacy'
     | '/screens'
   fileRoutesById: FileRoutesById
@@ -92,6 +116,7 @@ export interface RootRouteChildren {
   DownloadRoute: typeof DownloadRoute
   FeaturesRoute: typeof FeaturesRoute
   GetRoute: typeof GetRoute
+  OfflineRoute: typeof OfflineRoute
   PrivacyRoute: typeof PrivacyRoute
   ScreensRoute: typeof ScreensRoute
 }
@@ -126,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/offline': {
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
@@ -148,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   DownloadRoute: DownloadRoute,
   FeaturesRoute: FeaturesRoute,
   GetRoute: GetRoute,
+  OfflineRoute: OfflineRoute,
   PrivacyRoute: PrivacyRoute,
   ScreensRoute: ScreensRoute,
 }

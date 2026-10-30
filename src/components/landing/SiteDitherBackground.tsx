@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DitherShader, type DitherShaderProps } from "@/lib/dither";
 
 /**
@@ -57,6 +57,37 @@ export function SiteDitherBackground({
   className = "fixed inset-0 pointer-events-none -z-20 overflow-hidden",
   ...props
 }: SiteDitherBackgroundProps) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const isConstrained =
+      (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false) ||
+      (typeof navigator !== "undefined" && (navigator.hardwareConcurrency ?? 8) <= 2);
+
+    if (isConstrained) {
+      return;
+    }
+
+    const initShader = () => {
+      if ("requestIdleCallback" in window) {
+        (window as unknown as { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback(
+          () => setReady(true),
+          { timeout: 3500 }
+        );
+      } else {
+        setTimeout(() => setReady(true), 1500);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      initShader();
+    } else {
+      window.addEventListener("load", initShader, { once: true });
+    }
+  }, []);
+
   const uniforms = useMemo(
     () => ({
       uIntensity: intensity,
@@ -64,6 +95,15 @@ export function SiteDitherBackground({
     }),
     [intensity, scale]
   );
+
+  if (!ready) {
+    return (
+      <div
+        className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,rgba(236,137,76,0.08),transparent_75%)]"
+        aria-hidden="true"
+      />
+    );
+  }
 
   return (
     <DitherShader

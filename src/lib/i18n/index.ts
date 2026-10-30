@@ -1,14 +1,53 @@
 import { useSyncExternalStore } from "react";
 import { en, type TranslationKey } from "./dictionaries/en";
 import { es } from "./dictionaries/es";
+import { hi } from "./dictionaries/hi";
+import { ta } from "./dictionaries/ta";
+import { te } from "./dictionaries/te";
+import { ml } from "./dictionaries/ml";
+import { kn } from "./dictionaries/kn";
+import { ur } from "./dictionaries/ur";
+import { fr } from "./dictionaries/fr";
+import { de } from "./dictionaries/de";
 
-export type SupportedLanguage = "en" | "es";
+export type SupportedLanguage =
+  | "en"
+  | "es"
+  | "ta"
+  | "te"
+  | "hi"
+  | "ml"
+  | "kn"
+  | "ur"
+  | "fr"
+  | "de";
+
+export const SUPPORTED_LANGUAGES = [
+  { code: "en", label: "English", nativeName: "English" },
+  { code: "es", label: "Spanish", nativeName: "Español" },
+  { code: "hi", label: "Hindi", nativeName: "हिन्दी" },
+  { code: "ta", label: "Tamil", nativeName: "தமிழ்" },
+  { code: "te", label: "Telugu", nativeName: "తెలుగు" },
+  { code: "ml", label: "Malayalam", nativeName: "മലയാളം" },
+  { code: "kn", label: "Kannada", nativeName: "ಕನ್ನಡ" },
+  { code: "ur", label: "Urdu", nativeName: "اردو" },
+  { code: "fr", label: "French", nativeName: "Français" },
+  { code: "de", label: "German", nativeName: "Deutsch" },
+] as const;
 
 const STORAGE_KEY = "dailyspark_language";
 
 const DICTIONARIES: Record<SupportedLanguage, Record<TranslationKey, string>> = {
   en,
   es,
+  hi,
+  ta,
+  te,
+  ml,
+  kn,
+  ur,
+  fr,
+  de,
 };
 
 let currentLanguage: SupportedLanguage = "en";
@@ -17,7 +56,7 @@ let currentLanguage: SupportedLanguage = "en";
 if (typeof window !== "undefined") {
   try {
     const saved = localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
-    if (saved && (saved === "en" || saved === "es")) {
+    if (saved && saved in DICTIONARIES) {
       currentLanguage = saved;
     }
   } catch {
@@ -102,9 +141,7 @@ export function useTranslation() {
     t: translate,
     language,
     setLanguage: i18nActions.setLanguage,
-    languages: [
-      { code: "en", label: "English" },
-      { code: "es", label: "Español" },
-    ] as const,
+    languages: SUPPORTED_LANGUAGES,
   };
 }
+

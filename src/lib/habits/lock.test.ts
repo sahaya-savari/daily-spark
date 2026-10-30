@@ -7,6 +7,8 @@ import {
   isPinSet,
   isLockEnabled,
   isSessionLocked,
+  isBiometricEnabled,
+  getLockSnapshot,
 } from "./lock";
 
 describe("Phase 2: App Lock (PIN & Biometrics)", () => {
@@ -142,5 +144,18 @@ describe("Phase 2: App Lock (PIN & Biometrics)", () => {
     lockActions.init();
     expect(isSessionLocked()).toBe(true);
   });
+
+  it("toggles platform biometric authentication state", async () => {
+    await lockActions.setPin("1234");
+    expect(isBiometricEnabled()).toBe(false);
+
+    lockActions.setBiometricEnabled(true);
+    expect(isBiometricEnabled()).toBe(true);
+    expect(getLockSnapshot().isBiometricEnabled).toBe(true);
+
+    lockActions.setBiometricEnabled(false);
+    expect(isBiometricEnabled()).toBe(false);
+  });
 });
+
 

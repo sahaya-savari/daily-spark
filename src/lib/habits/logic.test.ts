@@ -10,6 +10,10 @@ import {
   buildBackup,
   buildStrictBackup,
   parseCsvHabits,
+  habitsToCsv,
+  habitsToTsv,
+  parseTsvHabits,
+  parseMarkdownHabits,
   togglePastDay,
   verifyAndHealIntegrity,
   reorderHabits,
@@ -454,16 +458,21 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
   });
 
   it("calculates calm milestones properly", () => {
-    expect(getMilestones(3).reached).toEqual([]);
-    expect(getMilestones(3).nextMilestone?.days).toBe(7);
+    expect(getMilestones(2).reached).toEqual([]);
+    expect(getMilestones(2).nextMilestone?.days).toBe(3);
+
+    const m3 = getMilestones(3);
+    expect(m3.reached.length).toBe(1);
+    expect(m3.reached[0]?.title).toBe("Spark Ignition");
+    expect(m3.nextMilestone?.days).toBe(7);
 
     const m7 = getMilestones(7);
-    expect(m7.reached.length).toBe(1);
-    expect(m7.reached[0]?.title).toBe("First Spark");
+    expect(m7.reached.length).toBe(2);
+    expect(m7.reached[1]?.title).toBe("First Spark");
     expect(m7.nextMilestone?.days).toBe(21);
 
     const m100 = getMilestones(100);
-    expect(m100.reached.length).toBe(4); // 7, 21, 50, 100
+    expect(m100.reached.length).toBe(5); // 3, 7, 21, 50, 100
     expect(m100.nextMilestone?.days).toBe(365);
   });
 
@@ -556,6 +565,69 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
     const completed = completeToday(h, TODAY, "2026-10-26T08:30:00.000Z");
     expect(completed.completionTimes?.[TODAY]).toBe("2026-10-26T08:30:00.000Z");
   });
+
+  describe("5-Format Reliable Backup & Restore (Habits + Notes)", () => {
+    const sampleHabit: Habit = {
+      ...createHabit({ name: "Daily Meditation", emoji: "🧘" }, "2026-10-01"),
+      currentStreak: 3,
+      bestStreak: 15,
+      completedDates: ["2026-10-24", "2026-10-25", "2026-10-26"],
+      notes: "Quiet breath observation",
+    };
+
+    const sampleNote: StandaloneNote = {
+      id: "note-abc-123",
+      title: "Weekly Reflection",
+      content: "Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.",
+      createdAt: "2026-10-26T09:00:00.000Z",
+      updatedAt: "2026-10-26T09:15:00.000Z",
+      pinned: true,
+    };
+
+    it("round-trips habits and notes via CSV format preserving completion dates and multi-line notes", () => {
+      const csv = habitsToCsv([sampleHabit], [sampleNote]);
+      expect(csv).toContain("# NOTES");
+      expect(csv).toContain("Daily Meditation");
+      expect(csv).toContain("Weekly Reflection");
+
+      const parsed = parseCsvHabits(csv, TODAY);
+      expect(parsed.habits.length).toBe(1);
+      expect(parsed.habits[0].name).toBe("Daily Meditation");
+      expect(parsed.habits[0].completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
+      expect(parsed.habits[0].bestStreak).toBe(15);
+      expect(parsed.habits[0].currentStreak).toBe(3);
+      expect(parsed.notes?.length).toBe(1);
+      expect(parsed.notes?.[0].title).toBe("Weekly Reflection");
+      expect(parsed.notes?.[0].content).toBe("Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.");
+    });
+
+    it("round-trips habits and notes via TSV format preserving completion dates and multi-line notes", () => {
+      const tsv = habitsToTsv([sampleHabit], [sampleNote]);
+      expect(tsv).toContain("# NOTES");
+      expect(tsv).toContain("Daily Meditation\t🧘");
+      expect(tsv).toContain("Weekly Reflection");
+
+      const parsed = parseTsvHabits(tsv, TODAY);
+      expect(parsed.habits.length).toBe(1);
+      expect(parsed.habits[0].name).toBe("Daily Meditation");
+      expect(parsed.habits[0].completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
+      expect(parsed.habits[0].bestStreak).toBe(15);
+      expect(parsed.habits[0].currentStreak).toBe(3);
+      expect(parsed.notes?.length).toBe(1);
+      expect(parsed.notes?.[0].title).toBe("Weekly Reflection");
+      expect(parsed.notes?.[0].content).toBe("Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.");
+    });
+
+    it("parses habits and notes from Markdown format", () => {
+      const md = exportToMarkdown([sampleHabit], [sampleNote]);
+      const parsed = parseMarkdownHabits(md, TODAY);
+      expect(parsed.habits.length).toBe(1);
+      expect(parsed.habits[0].name).toBe("Daily Meditation");
+      expect(parsed.notes?.length).toBe(1);
+      expect(parsed.notes?.[0].title).toBe("Weekly Reflection");
+    });
+  });
 });
+
 
 

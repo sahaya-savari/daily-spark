@@ -3,12 +3,8 @@ import {
   QrCode,
   Scan,
   Send,
-  Download,
   CheckCircle2,
   AlertCircle,
-  Copy,
-  Check,
-  RefreshCw,
   X,
   Camera,
 } from "lucide-react";
@@ -35,7 +31,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
 
   // Transmit state
   const [chunkIndex, setChunkIndex] = useState(0);
-  const [fps, setFps] = useState(6); // 6-10 frames per second
+  const [fps] = useState(6); // 6-10 frames per second
   const [isPlaying, setIsPlaying] = useState(true);
 
   // Receive state
@@ -125,7 +121,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
             setMergeStatus("success");
             setStatusMessage(`Successfully merged ${remoteHabits.length} habits with Set-Union CRDT!`);
           }
-        } catch (e) {
+        } catch {
           setMergeStatus("error");
           setStatusMessage("Could not parse assembled vault payload.");
         }
@@ -224,7 +220,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
       <DialogContent className="max-w-md bg-surface border-border/40 text-foreground p-6 rounded-3xl shadow-2xl">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="flex items-center gap-2">
-            <div className="grid size-9 place-items-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+            <div className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember border border-ember/20">
               <QrCode className="size-4" />
             </div>
             <div>
@@ -248,7 +244,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
             }}
             className={cn(
               "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all flex items-center justify-center gap-1.5",
-              tab === "transmit" ? "bg-purple-600 text-white shadow-sm" : "text-faint hover:text-foreground"
+              tab === "transmit" ? "bg-ember text-white shadow-sm" : "text-faint hover:text-foreground"
             )}
           >
             <Send className="size-3.5" /> Transmit (Display)
@@ -258,7 +254,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
             onClick={() => setTab("receive")}
             className={cn(
               "flex-1 rounded-full py-1.5 text-center text-xs font-bold transition-all flex items-center justify-center gap-1.5",
-              tab === "receive" ? "bg-purple-600 text-white shadow-sm" : "text-faint hover:text-foreground"
+              tab === "receive" ? "bg-ember text-white shadow-sm" : "text-faint hover:text-foreground"
             )}
           >
             <Scan className="size-3.5" /> Receive (Scan)
@@ -307,6 +303,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
                 <button
                   type="button"
                   onClick={handleStopCamera}
+                  aria-label="Stop Camera"
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black"
                 >
                   <X className="size-4" />
@@ -319,7 +316,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
                 variant="outline"
                 className="w-full h-12 rounded-2xl border-dashed border-border/60 hover:bg-surface-2 flex items-center justify-center gap-2 text-xs font-bold"
               >
-                <Camera className="size-4 text-purple-400" /> Start Optical Camera Reader
+                <Camera className="size-4 text-ember" /> Start Optical Camera Reader
               </Button>
             )}
 
@@ -328,13 +325,13 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
               <div className="p-3 rounded-2xl bg-surface-2 border border-border/30 space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold">
                   <span>Reconstructing Vault</span>
-                  <span className="font-mono text-purple-400">
+                  <span className="font-mono text-ember font-bold">
                     {receivedChunks.size} / {expectedTotal} Chunks
                   </span>
                 </div>
                 <div className="h-2 rounded-full bg-surface overflow-hidden">
                   <div
-                    className="h-full bg-purple-500 transition-all duration-200"
+                    className="h-full bg-ember transition-all duration-200"
                     style={{ width: `${Math.round((receivedChunks.size / expectedTotal) * 100)}%` }}
                   />
                 </div>
@@ -350,8 +347,9 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
                   onChange={(e) => setManualInput(e.target.value)}
                   placeholder="Paste DS:1:N:... chunk code"
                   className="h-9 text-xs font-mono bg-surface-2 border-border/40"
+                  aria-label="Chunk code input"
                 />
-                <Button type="submit" size="sm" className="h-9 px-3 bg-purple-600 hover:bg-purple-700 font-bold">
+                <Button type="submit" size="sm" className="h-9 px-3 bg-ember hover:bg-ember/90 font-bold text-white">
                   Feed
                 </Button>
               </div>
@@ -359,7 +357,7 @@ export const AirGappedSyncDialog: React.FC<AirGappedSyncDialogProps> = ({
 
             {/* Merge Status Banner */}
             {mergeStatus === "success" && (
-              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
                 <CheckCircle2 className="size-4 shrink-0" />
                 <span>{statusMessage}</span>
               </div>

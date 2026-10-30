@@ -72,8 +72,10 @@ android/app/build/outputs/
 .playwright-mcp/
 .codex/
 dist-desktop/
+.agents/teamwork/
 
 # Local-only planning documents (NEVER PUSH TO GITHUB)
 MASTER_ROADMAP_AND_PHASES.md
+WORK_PAUSED_STATUS.md
 *_plan.md
 *.plan.md

@@ -88,4 +88,51 @@ describe("notes store", () => {
     expect(noteActions.getNotes()).toHaveLength(1);
     expect(noteActions.getNotes()[0]?.title).toBe("Restored");
   });
+
+  it("preserves custom ID and creation dates when restoring single notes", () => {
+    const note = noteActions.addNote({
+      id: "explicit-id-99",
+      title: "Imported Note",
+      content: "Preserved content",
+      createdAt: "2026-10-01T00:00:00Z",
+      updatedAt: "2026-10-01T00:00:00Z",
+      pinned: true,
+    });
+    expect(note.id).toBe("explicit-id-99");
+    expect(note.createdAt).toBe("2026-10-01T00:00:00Z");
+    expect(note.pinned).toBe(true);
+  });
+
+  it("merges remote notes correctly based on latest timestamp", () => {
+    noteActions.addNote({
+      id: "shared-note-1",
+      title: "Local Version",
+      content: "Old local content",
+      updatedAt: "2026-10-20T10:00:00Z",
+    });
+
+    noteActions.mergeNotes([
+      {
+        id: "shared-note-1",
+        title: "Remote Version",
+        content: "Newer remote content",
+        createdAt: "2026-10-15T00:00:00Z",
+        updatedAt: "2026-10-25T10:00:00Z",
+      },
+      {
+        id: "new-remote-note",
+        title: "Brand New Note",
+        content: "Never seen before",
+        createdAt: "2026-10-25T10:00:00Z",
+        updatedAt: "2026-10-25T10:00:00Z",
+      },
+    ]);
+
+    const notes = noteActions.getNotes();
+    expect(notes).toHaveLength(2);
+    const shared = notes.find((n) => n.id === "shared-note-1");
+    expect(shared?.title).toBe("Remote Version");
+    expect(shared?.content).toBe("Newer remote content");
+    expect(notes.some((n) => n.id === "new-remote-note")).toBe(true);
+  });
 });

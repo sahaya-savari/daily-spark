@@ -98,6 +98,13 @@ const ROUTES = {
     title: 'Redirecting - Daily Spark',
     noindex: true,
   },
+  '/offline': {
+    title: 'Offline - Daily Spark',
+    description:
+      'Daily Spark works 100% offline. All your habits, streaks, and notes are safe on this device.',
+    canonical: `${SITE_URL}offline/`,
+    noindex: true,
+  },
   '/404': {
     title: 'Page not found - Daily Spark',
     noindex: true,
@@ -169,6 +176,7 @@ const ROUTE_DIRS = {
   '/download': 'download',
   '/privacy': 'privacy',
   '/get': 'get',
+  '/offline': 'offline',
 };
 
 for (const [route, dir] of Object.entries(ROUTE_DIRS)) {

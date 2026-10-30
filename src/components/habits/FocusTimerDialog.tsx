@@ -9,7 +9,6 @@ import {
   CloudRain,
   Radio,
   CheckCircle2,
-  X,
 } from "lucide-react";
 import { focusAudio, type SoundscapeType } from "@/lib/habits/focusAudio";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -103,7 +102,7 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
       if (isRunning) {
         ctx.beginPath();
         ctx.lineWidth = 2.5;
-        ctx.strokeStyle = soundscape === "brown" ? "rgba(242, 149, 89, 0.8)" : "rgba(56, 189, 248, 0.8)";
+        ctx.strokeStyle = "rgba(191, 114, 69, 0.8)";
 
         for (let x = 0; x < width; x++) {
           const freq = 0.03;
@@ -147,17 +146,17 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-[#090A14]/95 border-white/10 text-white backdrop-blur-2xl p-6 rounded-3xl shadow-2xl">
+      <DialogContent className="max-w-md bg-surface border-border/40 text-foreground backdrop-blur-2xl p-6 rounded-3xl shadow-2xl">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+            <div className="w-8 h-8 rounded-xl bg-ember-soft border border-ember/20 flex items-center justify-center text-ember">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <DialogTitle className="text-base font-semibold text-white tracking-wide">
-                Futuristic Focus Deck
+              <DialogTitle className="text-base font-semibold text-foreground tracking-wide">
+                Tactile Focus Deck
               </DialogTitle>
-              <p className="text-xs text-white/50">
+              <p className="text-xs text-muted-foreground">
                 {habit ? `${habit.emoji} ${habit.name}` : "General Focus Session"}
               </p>
             </div>
@@ -173,7 +172,7 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
                 cx="50"
                 cy="50"
                 r="44"
-                className="stroke-white/10"
+                className="stroke-border/40"
                 strokeWidth="4"
                 fill="none"
               />
@@ -181,23 +180,23 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
                 cx="50"
                 cy="50"
                 r="44"
-                className="transition-all duration-300 stroke-cyan-400"
+                className="transition-all duration-300 stroke-ember"
                 strokeWidth="5"
                 strokeDasharray="276.46"
                 strokeDashoffset={276.46 - (276.46 * progressPercent) / 100}
                 strokeLinecap="round"
                 fill="none"
                 style={{
-                  filter: "drop-shadow(0 0 10px rgba(56, 189, 248, 0.5))",
+                  filter: "drop-shadow(0 0 8px rgba(191, 114, 69, 0.4))",
                 }}
               />
             </svg>
 
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="font-mono text-4xl font-bold tracking-tight text-white">
+              <span className="font-mono text-4xl font-bold tracking-tight text-foreground">
                 {formatTime(secondsRemaining)}
               </span>
-              <span className="text-xs font-medium text-white/50 tracking-wider mt-1 uppercase">
+              <span className="text-xs font-semibold text-muted-foreground tracking-wider mt-1 uppercase">
                 {isRunning ? "In Focus" : hasCompleted ? "Completed" : "Ready"}
               </span>
             </div>
@@ -219,10 +218,10 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               key={m}
               onClick={() => handleSelectPreset(m)}
               disabled={isRunning}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                 durationMinutes === m
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember-soft text-ember border border-ember/30"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               {m} min
@@ -231,13 +230,14 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
         </div>
 
         {/* Ambient Soundscape Selection */}
-        <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 mb-4">
+        <div className="p-3 rounded-2xl bg-surface-2/60 border border-border/40 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-white/50 font-medium">Procedural Ambience (0 KB)</span>
+            <span className="text-xs text-muted-foreground font-medium">Procedural Ambience (0 KB)</span>
             <button
               onClick={handleToggleMute}
-              className="text-white/60 hover:text-white transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors"
               title={isMuted ? "Unmute" : "Mute"}
+              aria-label={isMuted ? "Unmute soundscape" : "Mute soundscape"}
             >
               {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
@@ -247,8 +247,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               onClick={() => setSoundscape("none")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "none"
-                  ? "bg-white/20 text-white font-medium"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember text-white font-semibold"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               Silent
@@ -257,8 +257,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               onClick={() => setSoundscape("alpha")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "alpha"
-                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/40 font-medium"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember-soft text-ember border border-ember/30 font-semibold"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               <Radio className="w-3 h-3" /> Alpha 10Hz
@@ -267,8 +267,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               onClick={() => setSoundscape("theta")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "theta"
-                  ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-medium"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember-soft text-ember border border-ember/30 font-semibold"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               <Radio className="w-3 h-3" /> Theta 6Hz
@@ -277,8 +277,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               onClick={() => setSoundscape("beta")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "beta"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-medium"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember-soft text-ember border border-ember/30 font-semibold"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               <Radio className="w-3 h-3" /> Beta 18Hz
@@ -287,8 +287,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               onClick={() => setSoundscape("brown")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "brown"
-                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 font-medium"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember-soft text-ember border border-ember/30 font-semibold"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               <Radio className="w-3 h-3" /> Brown Noise
@@ -297,8 +297,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
               onClick={() => setSoundscape("rain")}
               className={`py-1.5 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all ${
                 soundscape === "rain"
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-medium"
-                  : "bg-white/5 text-white/60 hover:bg-white/10"
+                  ? "bg-ember-soft text-ember border border-ember/30 font-semibold"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80 hover:text-foreground"
               }`}
             >
               <CloudRain className="w-3 h-3" /> Rain
@@ -311,17 +311,17 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
           <Button
             onClick={() => handleSelectPreset(durationMinutes)}
             variant="outline"
-            className="flex-1 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white"
+            className="flex-1 rounded-xl border-border/40 bg-surface-2 hover:bg-surface-2/80 text-foreground font-semibold"
           >
             <RotateCcw className="w-4 h-4 mr-2" /> Reset
           </Button>
 
           <Button
             onClick={() => setIsRunning(!isRunning)}
-            className={`flex-1 rounded-xl text-white font-semibold transition-all ${
+            className={`flex-1 rounded-xl text-white font-bold transition-all ${
               isRunning
                 ? "bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-500/20"
-                : "bg-cyan-500 hover:bg-cyan-600 shadow-lg shadow-cyan-500/20"
+                : "bg-ember hover:bg-ember/90 shadow-lg shadow-ember/20"
             }`}
           >
             {isRunning ? (
@@ -337,7 +337,7 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
         </div>
 
         {hasCompleted && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-emerald-400 text-xs">
+          <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>Session complete! Your habit has been automatically marked for today.</span>
           </div>
@@ -346,4 +346,3 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
     </Dialog>
   );
 };
-

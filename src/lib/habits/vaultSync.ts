@@ -1,11 +1,12 @@
 import { normalizeDates, refresh } from "./logic";
 import { todayKey } from "./dates";
-import type { Habit, HabitSettings } from "./types";
+import type { Habit, HabitSettings, StandaloneNote } from "./types";
 
 export interface VaultPayload {
   version: number;
   exportedAt: string;
   habits: Habit[];
+  notes?: StandaloneNote[];
   settings?: HabitSettings;
 }
 
@@ -217,6 +218,25 @@ export function mergeVaultHabits(localHabits: Habit[], remoteHabits: Habit[], to
     }
   }
 
+  return Array.from(map.values());
+}
+
+export function mergeVaultNotes(
+  localNotes: StandaloneNote[] = [],
+  remoteNotes: StandaloneNote[] = []
+): StandaloneNote[] {
+  const map = new Map<string, StandaloneNote>();
+  for (const n of localNotes) map.set(n.id, { ...n });
+  for (const r of remoteNotes) {
+    const l = map.get(r.id);
+    if (!l) {
+      map.set(r.id, { ...r });
+    } else {
+      if ((r.updatedAt || "") >= (l.updatedAt || "")) {
+        map.set(r.id, { ...r });
+      }
+    }
+  }
   return Array.from(map.values());
 }
 

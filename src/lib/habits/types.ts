@@ -106,6 +106,7 @@ export interface HabitSettings {
   autoBackupHistoryEnabled?: boolean | undefined;
   themeMode?: "classic" | "minimal" | "expressive" | undefined;
   solarCircadianGlide?: boolean | undefined;
+  rolloverHour?: number | undefined;
   [extra: string]: unknown;
 }
 
@@ -117,6 +118,7 @@ export const DEFAULT_SETTINGS: HabitSettings = {
   autoBackupHistoryEnabled: true,
   themeMode: "classic",
   solarCircadianGlide: true,
+  rolloverHour: 0,
 };
 
 export const COLOR_OPTIONS = [
@@ -146,6 +148,7 @@ export interface MilestoneDef {
 }
 
 export const MILESTONES: MilestoneDef[] = [
+  { days: 3, title: "Spark Ignition", badge: "✨", description: "3 days of solid momentum" },
   { days: 7, title: "First Spark", badge: "🌱", description: "One full week of showing up" },
   { days: 21, title: "Habit Loop", badge: "⚡", description: "21 days: neural pattern forming" },
   { days: 50, title: "Steady Rhythm", badge: "🔥", description: "50 days of unshakeable consistency" },

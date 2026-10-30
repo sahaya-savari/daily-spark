@@ -638,6 +638,69 @@ export interface BackupInspection {
   notes: StandaloneNote[];
 }
 
+export interface SandboxedInspectionResult {
+  valid: boolean;
+  habitsCount: number;
+  notesCount: number;
+  settingsIncluded: boolean;
+  rawPayload: unknown;
+  error?: string;
+}
+
+export function inspectBackupSandbox(text: string): SandboxedInspectionResult {
+  const trimmed = (text || "").trim();
+  if (!trimmed) {
+    return { valid: false, habitsCount: 0, notesCount: 0, settingsIncluded: false, rawPayload: null, error: "Empty payload" };
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    if (!parsed || typeof parsed !== "object" || (Array.isArray(parsed) && parsed.length === 0)) {
+      return { valid: false, habitsCount: 0, notesCount: 0, settingsIncluded: false, rawPayload: parsed, error: "Invalid JSON root" };
+    }
+
+    const data = (parsed.data && typeof parsed.data === "object" ? parsed.data : parsed) as Record<string, unknown>;
+    const habitsRaw = Array.isArray(parsed)
+      ? (parsed as unknown[])
+      : Array.isArray(data.streaks)
+      ? (data.streaks as unknown[])
+      : Array.isArray(data.habits)
+      ? (data.habits as unknown[])
+      : null;
+
+    if (!habitsRaw) {
+      return { valid: false, habitsCount: 0, notesCount: 0, settingsIncluded: false, rawPayload: parsed, error: "No habits array found" };
+    }
+
+    const validHabits = habitsRaw.filter((h: unknown): h is Habit => {
+      if (!h || typeof h !== "object") return false;
+      const item = h as Record<string, unknown>;
+      const hasId = typeof item.id === "string" && item.id.trim().length > 0;
+      const hasName = typeof item.name === "string" && item.name.trim().length > 0;
+      return Boolean(hasId && hasName);
+    });
+    const notes = Array.isArray(data.notes) ? data.notes : Array.isArray(parsed.notes) ? parsed.notes : [];
+    const settings = (data.settings && typeof data.settings === "object") || (parsed.settings && typeof parsed.settings === "object");
+
+    return {
+      valid: true,
+      habitsCount: validHabits.length,
+      notesCount: notes.length,
+      settingsIncluded: Boolean(settings),
+      rawPayload: parsed,
+    };
+  } catch (err) {
+    return {
+      valid: false,
+      habitsCount: 0,
+      notesCount: 0,
+      settingsIncluded: false,
+      rawPayload: null,
+      error: err instanceof Error ? err.message : "Malformed JSON",
+    };
+  }
+}
+
 export function inspectBackup(text: string, today: string): BackupInspection {
   const parsed = parseBackup(text, today);
   const activeCount = parsed.habits.filter((h) => !isArchived(h)).length;
@@ -661,8 +724,8 @@ export function inspectBackup(text: string, today: string): BackupInspection {
   };
 }
 
-export function habitsToCsv(habits: Habit[]): string {
-  const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
+export function habitsToCsv(habits: Habit[], notes: StandaloneNote[] = []): string {
+  const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
   const head = ["id", "name", "emoji", "createdAt", "currentStreak", "bestStreak", "archived", "completedDates"];
   const rows = habits.map((h) =>
     [
@@ -676,18 +739,93 @@ export function habitsToCsv(habits: Habit[]): string {
       esc(h.completedDates.join(" ")),
     ].join(","),
   );
-  return [head.join(","), ...rows].join("\n");
+  const out = [head.join(","), ...rows];
+  if (notes && notes.length > 0) {
+    out.push("");
+    out.push("# NOTES");
+    out.push(["id", "title", "content", "pinned", "createdAt", "updatedAt"].join(","));
+    for (const n of notes) {
+      out.push([
+        esc(n.id),
+        esc(n.title),
+        esc((n.content || "").replace(/\r?\n/g, "\\n")),
+        n.pinned ? "true" : "false",
+        n.createdAt,
+        n.updatedAt,
+      ].join(","));
+    }
+  }
+  return out.join("\n");
+}
+
+export function habitsToTsv(habits: Habit[], notes: StandaloneNote[] = []): string {
+  const esc = (v: string) => String(v).replace(/\t/g, " ").replace(/\r?\n/g, "\\n");
+  const head = ["id", "name", "emoji", "createdAt", "currentStreak", "bestStreak", "archived", "completedDates"];
+  const rows = habits.map((h) =>
+    [
+      esc(h.id),
+      esc(h.name),
+      esc(h.emoji),
+      h.createdAt,
+      h.currentStreak,
+      h.bestStreak,
+      isArchived(h) ? "true" : "false",
+      esc(h.completedDates.join(" ")),
+    ].join("\t"),
+  );
+  const out = [head.join("\t"), ...rows];
+  if (notes && notes.length > 0) {
+    out.push("");
+    out.push("# NOTES");
+    out.push(["id", "title", "content", "pinned", "createdAt", "updatedAt"].join("\t"));
+    for (const n of notes) {
+      out.push([
+        esc(n.id),
+        esc(n.title),
+        esc(n.content || ""),
+        n.pinned ? "true" : "false",
+        n.createdAt,
+        n.updatedAt,
+      ].join("\t"));
+    }
+  }
+  return out.join("\n");
 }
 
 export interface ParsedCsvResult {
   habits: Habit[];
+  notes?: StandaloneNote[];
   added: number;
   skipped: number;
   errors: string[];
 }
 
+function parseDelimitedLine(line: string, delimiter: string): string[] {
+  const result: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === delimiter && !inQuotes) {
+      result.push(cur.trim());
+      cur = "";
+    } else {
+      cur += char;
+    }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
 /**
- * Imports habits from CSV as specified in README (name,emoji or title,start_date,current_count).
+ * Imports habits and standalone notes from CSV.
  * Starts new streaks at Day 1 (no history) and never overwrites existing streaks.
  */
 export function parseCsvHabits(
@@ -695,41 +833,22 @@ export function parseCsvHabits(
   today: string,
   existingHabits: Habit[] = [],
 ): ParsedCsvResult {
-  const lines = csvText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const [habitsPart, notesPart] = csvText.split(/# NOTES\r?\n/);
+  const lines = (habitsPart || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 0) {
     return { habits: [], added: 0, skipped: 0, errors: ["Empty CSV file"] };
   }
 
-  const parseLine = (line: string): string[] => {
-    const result: string[] = [];
-    let cur = "";
-    let inQuotes = false;
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      if (char === '"') {
-        if (inQuotes && line[i + 1] === '"') {
-          cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (char === "," && !inQuotes) {
-        result.push(cur.trim());
-        cur = "";
-      } else {
-        cur += char;
-      }
-    }
-    result.push(cur.trim());
-    return result;
-  };
-
+  const parseLine = (line: string) => parseDelimitedLine(line, ",");
   const headerLine = lines[0]!.toLowerCase();
   const headers = parseLine(headerLine);
 
   let nameIdx = headers.findIndex((h) => h === "name" || h === "title");
   let emojiIdx = headers.findIndex((h) => h === "emoji");
   const startDateIdx = headers.findIndex((h) => h === "start_date" || h === "createdat" || h === "created_at");
+  const completedDatesIdx = headers.findIndex((h) => h === "completeddates" || h === "completed_dates");
+  const archivedIdx = headers.findIndex((h) => h === "archived");
+  const bestStreakIdx = headers.findIndex((h) => h === "beststreak" || h === "best_streak");
 
   if (nameIdx === -1) {
     nameIdx = 0;
@@ -765,12 +884,151 @@ export function parseCsvHabits(
       : today;
 
     const habit = createHabit({ name, emoji, createdAt: startDate }, today);
-    newHabits.push(habit);
+    if (completedDatesIdx !== -1 && cols[completedDatesIdx]) {
+      const dates = cols[completedDatesIdx].split(/\s+/).filter(isValidKey);
+      if (dates.length > 0) {
+        habit.completedDates = normalizeDates(dates);
+      }
+    }
+    if (archivedIdx !== -1 && cols[archivedIdx] === "true") {
+      habit.archivedAt = new Date().toISOString();
+    }
+    if (bestStreakIdx !== -1 && Number(cols[bestStreakIdx])) {
+      habit.bestStreak = Number(cols[bestStreakIdx]);
+    }
+
+    const finalHabit = refresh(habit, today);
+    newHabits.push(finalHabit);
     existingNames.add(name.toLowerCase());
+  }
+
+  const notes: StandaloneNote[] = [];
+  if (notesPart) {
+    const noteLines = notesPart.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const noteDataLines = noteLines.slice(1);
+    for (const nLine of noteDataLines) {
+      const cols = parseLine(nLine);
+      if (cols.length >= 2 && cols[1]) {
+        notes.push({
+          id: cols[0] || `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          title: cols[1],
+          content: (cols[2] || "").replace(/\\n/g, "\n"),
+          pinned: cols[3] === "true",
+          createdAt: cols[4] || today,
+          updatedAt: cols[5] || today,
+        });
+      }
+    }
   }
 
   return {
     habits: newHabits,
+    notes: notes.length > 0 ? notes : undefined,
+    added: newHabits.length,
+    skipped,
+    errors,
+  };
+}
+
+/**
+ * Imports habits and standalone notes from TSV (tab-separated values).
+ */
+export function parseTsvHabits(
+  tsvText: string,
+  today: string,
+  existingHabits: Habit[] = [],
+): ParsedCsvResult {
+  const [habitsPart, notesPart] = tsvText.split(/# NOTES\r?\n/);
+  const lines = (habitsPart || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) {
+    return { habits: [], added: 0, skipped: 0, errors: ["Empty TSV file"] };
+  }
+
+  const parseLine = (line: string) => line.split("\t").map((c) => c.replace(/\\n/g, "\n").trim());
+  const headerLine = lines[0]!.toLowerCase();
+  const headers = parseLine(headerLine);
+
+  let nameIdx = headers.findIndex((h) => h === "name" || h === "title");
+  let emojiIdx = headers.findIndex((h) => h === "emoji");
+  const startDateIdx = headers.findIndex((h) => h === "start_date" || h === "createdat" || h === "created_at");
+  const completedDatesIdx = headers.findIndex((h) => h === "completeddates" || h === "completed_dates");
+  const archivedIdx = headers.findIndex((h) => h === "archived");
+  const bestStreakIdx = headers.findIndex((h) => h === "beststreak" || h === "best_streak");
+
+  if (nameIdx === -1) {
+    nameIdx = 0;
+    emojiIdx = 1;
+  }
+
+  const existingNames = new Set(existingHabits.map((h) => h.name.toLowerCase()));
+  const newHabits: Habit[] = [];
+  let skipped = 0;
+  const errors: string[] = [];
+
+  const isHeaderRow = headers.some((h) => ["name", "title", "emoji", "start_date", "current_count"].includes(h));
+  const dataLines = isHeaderRow ? lines.slice(1) : lines;
+
+  for (let idx = 0; idx < dataLines.length; idx++) {
+    const rawLine = dataLines[idx]!;
+    const cols = parseLine(rawLine);
+    const name = cols[nameIdx]?.trim();
+    if (!name) {
+      skipped++;
+      continue;
+    }
+
+    if (existingNames.has(name.toLowerCase())) {
+      skipped++;
+      continue;
+    }
+
+    const emojiRaw = emojiIdx !== -1 ? cols[emojiIdx]?.trim() : undefined;
+    const emoji = emojiRaw && emojiRaw.length > 0 ? emojiRaw : "🔥";
+    const startDate = startDateIdx !== -1 && cols[startDateIdx] && isValidKey(cols[startDateIdx])
+      ? cols[startDateIdx]!
+      : today;
+
+    const habit = createHabit({ name, emoji, createdAt: startDate }, today);
+    if (completedDatesIdx !== -1 && cols[completedDatesIdx]) {
+      const dates = cols[completedDatesIdx].split(/\s+/).filter(isValidKey);
+      if (dates.length > 0) {
+        habit.completedDates = normalizeDates(dates);
+      }
+    }
+    if (archivedIdx !== -1 && cols[archivedIdx] === "true") {
+      habit.archivedAt = new Date().toISOString();
+    }
+    if (bestStreakIdx !== -1 && Number(cols[bestStreakIdx])) {
+      habit.bestStreak = Number(cols[bestStreakIdx]);
+    }
+
+    const finalHabit = refresh(habit, today);
+    newHabits.push(finalHabit);
+    existingNames.add(name.toLowerCase());
+  }
+
+  const notes: StandaloneNote[] = [];
+  if (notesPart) {
+    const noteLines = notesPart.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const noteDataLines = noteLines.slice(1);
+    for (const nLine of noteDataLines) {
+      const cols = parseLine(nLine);
+      if (cols.length >= 2 && cols[1]) {
+        notes.push({
+          id: cols[0] || `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          title: cols[1],
+          content: cols[2] || "",
+          pinned: cols[3] === "true",
+          createdAt: cols[4] || today,
+          updatedAt: cols[5] || today,
+        });
+      }
+    }
+  }
+
+  return {
+    habits: newHabits,
+    notes: notes.length > 0 ? notes : undefined,
     added: newHabits.length,
     skipped,
     errors,
@@ -933,5 +1191,63 @@ export function exportToMarkdown(habits: Habit[], notes: StandaloneNote[] = []):
   }
 
   return lines.join("\n");
+}
+
+/**
+ * Restores habits and journal notes from a Daily Spark Markdown export.
+ */
+export function parseMarkdownHabits(
+  mdText: string,
+  today: string,
+  existingHabits: Habit[] = []
+): { habits: Habit[]; notes: StandaloneNote[]; added: number; skipped: number } {
+  const existingNames = new Set(existingHabits.map((h) => h.name.toLowerCase()));
+  const habits: Habit[] = [];
+  const notes: StandaloneNote[] = [];
+  let skipped = 0;
+
+  const [habitsSection, notesSection] = mdText.split(/## 📝 Reflections & Journal Notes/);
+
+  // Parse habits
+  if (habitsSection) {
+    const habitBlocks = habitsSection.split(/###\s+/).slice(1);
+    for (const block of habitBlocks) {
+      const firstLine = block.split("\n")[0] || "";
+      const match = firstLine.match(/^(?:([^\w\s]+)\s+)?(.*?)(?:\s*\((Active|Paused|Archived)\))?$/);
+      if (match) {
+        const emoji = match[1] || "⚡";
+        const name = match[2]?.trim();
+        if (name && !existingNames.has(name.toLowerCase())) {
+          existingNames.add(name.toLowerCase());
+          const habit = createHabit({ name, emoji }, today);
+          habits.push(habit);
+        } else if (name) {
+          skipped++;
+        }
+      }
+    }
+  }
+
+  // Parse notes
+  if (notesSection) {
+    const noteBlocks = notesSection.split(/###\s+/).slice(1);
+    for (const block of noteBlocks) {
+      const lines = block.split("\n");
+      const titleLine = lines[0]?.trim() || "Untitled Note";
+      const pinned = titleLine.startsWith("📌");
+      const title = titleLine.replace(/^📌\s*/, "");
+      const content = lines.slice(2).join("\n").trim();
+      notes.push({
+        id: `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        title,
+        content: content === "_No content._" ? "" : content,
+        pinned,
+        createdAt: today,
+        updatedAt: today,
+      });
+    }
+  }
+
+  return { habits, notes, added: habits.length, skipped };
 }
 

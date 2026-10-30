@@ -12,8 +12,21 @@ export function fromKey(key: string): Date {
   return new Date(y, m - 1, d);
 }
 
-export function todayKey(now: Date = new Date()): string {
+/**
+ * Returns YYYY-MM-DD for the given timestamp taking into account configurable rolloverHour.
+ * If now.getHours() < rolloverHour (e.g. 01:30 AM with rollover at 3:00 AM), shifts date back 24h.
+ */
+export function todayKey(now: Date = new Date(), rolloverHour: number = 0): string {
+  if (rolloverHour > 0 && now.getHours() < rolloverHour) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 1);
+    return toKey(d);
+  }
   return toKey(now);
+}
+
+export function calculateRolloverTodayKey(now: Date = new Date(), rolloverHour: number = 0): string {
+  return todayKey(now, rolloverHour);
 }
 
 export function addDays(key: string, n: number): string {

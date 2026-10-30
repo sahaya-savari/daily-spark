@@ -45,10 +45,11 @@ import { Dialog as CapacitorDialog } from "@capacitor/dialog";
 import { Share } from "@capacitor/share";
 
 import { useHabitStore, habitActions } from "@/lib/habits/store";
-import { useNotesStore } from "@/lib/habits/notes";
+import { useNotesStore, noteActions } from "@/lib/habits/notes";
 import { useAppLockStore, lockActions } from "@/lib/habits/lock";
 import {
   todayKey,
+  toKey,
   addDays,
   formatDisplayDate,
   monthMatrix,
@@ -61,20 +62,26 @@ import {
   dayRatio,
   totalCompletions,
   inspectBackup,
+  inspectBackupSandbox,
   habitsToCsv,
+  habitsToTsv,
   parseCsvHabits,
+  parseTsvHabits,
+  parseMarkdownHabits,
   buildBackup,
   isHabitDueToday,
   getMilestones,
   exportToMarkdown,
   type BackupInspection,
 } from "@/lib/habits/logic";
+import { encryptVault, decryptVault } from "@/lib/habits/vaultSync";
 import {
   CURATED_CATEGORIES,
   DEFAULT_SETTINGS,
   MILESTONES,
   type Habit,
   COLOR_SWATCH,
+  COLOR_OPTIONS,
 } from "@/lib/habits/types";
 import { HabitIcon, HABIT_ICONS, getIcon } from "@/lib/habits/icons";
 import { Heatmap } from "@/components/habits/Heatmap";
@@ -94,11 +101,25 @@ import { getAtRiskHabits, getMiniRecoveryPrompt } from "@/lib/habits/elastic";
 import { predictNextHabit } from "@/lib/habits/markovPredictor";
 import { generateFrictionDiagnostics } from "@/lib/habits/bottleneckDetector";
 import { generateArchaeologyReport } from "@/lib/habits/archaeology";
-import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
+import { getStoredTheme, applyThemeToDocument, setStoredTheme, type ThemeMode } from "@/lib/habits/appearance";
 import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
 import { hapticEngine } from "@/lib/habits/haptics";
 import { ModernSettingsView } from "@/components/settings/ModernSettingsView";
 import { SparkMark } from "@/components/brand/Logo";
+import { MobileBottomNav } from "@/components/app/MobileBottomNav";
+import { CommandPalette } from "@/components/app/CommandPalette";
+import { CheckPopBurst } from "@/components/habits/CheckPopBurst";
+import { DitherHeatmapCalendar } from "@/components/habits/DitherHeatmapCalendar";
+import { Avatar } from "@/components/dithercn/avatar";
+import { useAvatarProfile } from "@/lib/habits/avatar";
+import { THEME_CONFIGS } from "@/lib/habits/appearance";
+import { ScrambleText } from "@/components/dithercn/scramble-text";
+import { EmptyState } from "@/components/dithercn/empty-state";
+import { DitherNumber } from "@/components/dithercn/dither-number";
+import { NumberTicker } from "@/components/magicui/number-ticker";
+import { AnimatedCircularProgressBar } from "@/components/magicui/animated-circular-progress-bar";
+import { transitionTab } from "@/lib/viewTransition";
+import { registerServiceWorker, UpdateToast } from "@/lib/pwa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -122,11 +143,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   const { habits, settings } = useHabitStore();
   const { notes } = useNotesStore();
   const { isLocked, isEnabled: isLockEnabled } = useAppLockStore();
+  const [avatarProfile] = useAvatarProfile();
   const [unlockPin, setUnlockPin] = useState("");
   const [unlockError, setUnlockError] = useState<string | null>(null);
 
   useEffect(() => {
     habitActions.seedDemoIfEmpty();
+    registerServiceWorker();
   }, []);
 
   useEffect(() => {
@@ -152,6 +175,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
   // Dialogs
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [backupInspection, setBackupInspection] = useState<BackupInspection | null>(null);
   const [isBackupPreviewOpen, setIsBackupPreviewOpen] = useState(false);
   const [isAppLockDialogOpen, setIsAppLockDialogOpen] = useState(false);
@@ -170,7 +194,36 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(todayKey());
 
-  const today = todayKey();
+  const rolloverHour = (settings.rolloverHour as number | undefined) ?? 0;
+  const today = useMemo(() => todayKey(new Date(), rolloverHour), [rolloverHour]);
+
+  const handleSelectTab = (tab: number) => {
+    if (tab === activeTab) return;
+    triggerLightHaptic();
+    transitionTab(() => {
+      setActiveTab(tab);
+    });
+  };
+
+  const handleToggleTheme = () => {
+    const modes: ThemeMode[] = ["classic", "minimal", "expressive"];
+    const currentMode = (settings.themeMode || getStoredTheme()) as ThemeMode;
+    const nextMode = modes[(modes.indexOf(currentMode) + 1) % modes.length];
+    setStoredTheme(nextMode);
+    habitActions.updateSettings({ themeMode: nextMode });
+  };
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Keep state ref updated for hardware back button handler
   const appStateRef = useRef({
@@ -178,11 +231,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     streakToDelete,
     snoozeHabit,
     isAddOpen,
+    isCommandPaletteOpen,
     isBackupPreviewOpen,
     isAppLockDialogOpen,
     isAirGappedOpen,
     isShareCardOpen,
     activeTab,
+    handleSelectTab,
   });
 
   useEffect(() => {
@@ -191,11 +246,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       streakToDelete,
       snoozeHabit,
       isAddOpen,
+      isCommandPaletteOpen,
       isBackupPreviewOpen,
       isAppLockDialogOpen,
       isAirGappedOpen,
       isShareCardOpen,
       activeTab,
+      handleSelectTab,
     };
   });
 
@@ -219,6 +276,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           setSelectedHabit(null);
           return;
         }
+        if (s.isCommandPaletteOpen) {
+          setIsCommandPaletteOpen(false);
+          return;
+        }
         if (s.isAddOpen) {
           setIsAddOpen(false);
           return;
@@ -240,7 +301,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           return;
         }
         if (s.activeTab !== 0) {
-          setActiveTab(0);
+          s.handleSelectTab(0);
           return;
         }
         // Exit app confirmation on home tab
@@ -319,22 +380,37 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     return Array.from(new Set([...curated, ...fromHabits]));
   }, [habits]);
 
-  // Check-in toggle handler
-  const [celebrationHabit, setCelebrationHabit] = useState<Habit | null>(null);
+  // 182-day (26 weeks) momentum history for dithercn heatmap calendar
+  const momentumDays = useMemo(() => {
+    const result: Array<{ date: string; done: number; total: number; level: 0 | 1 | 2 | 3 | 4 }> = [];
+    const now = new Date();
+    const totalDays = 182;
+    for (let i = totalDays - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = toKey(d);
+      let done = 0;
+      let total = 0;
+      for (const h of habits) {
+        if (!isArchived(h) && !h.isPaused) {
+          total++;
+          if (isDoneOn(h, key)) done++;
+        }
+      }
+      const ratio = total > 0 ? done / total : 0;
+      const level: 0 | 1 | 2 | 3 | 4 =
+        ratio === 0 ? 0 : ratio >= 1 ? 4 : ratio >= 0.75 ? 3 : ratio >= 0.5 ? 2 : 1;
+      result.push({ date: key, done, total, level });
+    }
+    return result;
+  }, [habits]);
+
+  // Check-in toggle handler and particle burst state
+  const [heroBurst, setHeroBurst] = useState<{ x: number; y: number } | null>(null);
 
   const handleToggleHabit = (id: string) => {
-    hapticEngine.crescendoPulse();
     setLastCheckedHabitId(id);
-    const result = habitActions.toggleToday(id);
-    if (result === "done") {
-      const h = habits.find((item) => item.id === id);
-      if (h) {
-        setCelebrationHabit(h);
-        setTimeout(() => {
-          setCelebrationHabit((prev) => (prev?.id === id ? null : prev));
-        }, 2200);
-      }
-    }
+    habitActions.toggleToday(id);
   };
 
   // Phase 6 & 7 computed metrics
@@ -395,9 +471,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     URL.revokeObjectURL(url);
   };
 
-  // Export CSV
+  // Export CSV (habits + notes)
   const handleExportCsv = () => {
-    const csv = habitsToCsv(habits);
+    const csv = habitsToCsv(habits, notes);
     const dateStr = new Date().toISOString().slice(0, 10);
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -408,20 +484,107 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     URL.revokeObjectURL(url);
   };
 
-  // File import handler (JSON or CSV)
+  // Export TSV (habits + notes)
+  const handleExportTsv = () => {
+    const tsv = habitsToTsv(habits, notes);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const blob = new Blob([tsv], { type: "text/tab-separated-values" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `daily_spark_habits_${dateStr}.tsv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Export Encrypted Vault (.vault)
+  const handleExportVault = async () => {
+    const passphrase = prompt("Set a passphrase to encrypt your Daily Spark vault:", "daily-spark-vault") || "daily-spark-vault";
+    try {
+      const encrypted = await encryptVault(
+        {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          habits,
+          notes,
+          settings,
+        },
+        passphrase
+      );
+      const jsonStr = JSON.stringify(encrypted, null, 2);
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `daily_spark_vault_${dateStr}.vault`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Failed to encrypt vault: " + (err instanceof Error ? err.message : String(err)));
+    }
+  };
+
+  // File import handler (JSON, CSV, TSV, MD, VAULT)
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result as string;
       if (!content) return;
+
       if (file.name.endsWith(".csv")) {
         const result = parseCsvHabits(content, today, habits);
         for (const h of result.habits) {
           habitActions.add(h);
         }
+        if (result.notes) {
+          for (const n of result.notes) {
+            noteActions.addNote(n);
+          }
+        }
+        alert(`Successfully imported ${result.habits.length} habits${result.notes ? ` and ${result.notes.length} notes` : ""}.`);
+      } else if (file.name.endsWith(".tsv")) {
+        const result = parseTsvHabits(content, today, habits);
+        for (const h of result.habits) {
+          habitActions.add(h);
+        }
+        if (result.notes) {
+          for (const n of result.notes) {
+            noteActions.addNote(n);
+          }
+        }
+        alert(`Successfully imported ${result.habits.length} habits${result.notes ? ` and ${result.notes.length} notes` : ""}.`);
+      } else if (file.name.endsWith(".md")) {
+        const result = parseMarkdownHabits(content, today, habits);
+        for (const h of result.habits) {
+          habitActions.add(h);
+        }
+        for (const n of result.notes) {
+          noteActions.addNote(n);
+        }
+        alert(`Successfully imported ${result.habits.length} habits and ${result.notes.length} notes from Markdown.`);
+      } else if (file.name.endsWith(".vault")) {
+        const passphrase = prompt("Enter the passphrase for this encrypted vault:") || "";
+        if (!passphrase) return;
+        try {
+          const pkg = JSON.parse(content);
+          const decrypted = await decryptVault(pkg, passphrase);
+          habitActions.mergeHabits(decrypted.habits || []);
+          if (decrypted.notes && decrypted.notes.length > 0) {
+            noteActions.mergeNotes(decrypted.notes);
+          }
+          alert(`Vault successfully decrypted and restored (${decrypted.habits?.length || 0} habits${decrypted.notes ? ` and ${decrypted.notes.length} notes` : ""})!`);
+        } catch (err) {
+          alert("Could not decrypt vault: " + (err instanceof Error ? err.message : "Incorrect passphrase"));
+        }
       } else {
+        const sandbox = inspectBackupSandbox(content);
+        if (!sandbox.valid) {
+          alert(sandbox.error || "Invalid backup file");
+          return;
+        }
         try {
           const inspection = inspectBackup(content, today);
           setBackupInspection(inspection);
@@ -602,7 +765,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
     <div
       className={cn(
         "relative w-full bg-background bg-dots font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
-        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen flex flex-col lg:flex-row pb-28 lg:pb-0"
+        embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen flex flex-col lg:flex-row pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
       )}
     >
       {embedded && (
@@ -620,7 +783,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           </span>
         </div>
       )}
-            {/* Desktop Sidebar Navigation Rail (matching Image 4 on wide viewports) */}
+      {/* Desktop Sidebar Navigation Rail (matching Image 4 on wide viewports) */}
       {!embedded && (
         <aside className="hidden lg:flex w-64 flex-col justify-between border-r border-border/40 bg-surface/80 backdrop-blur-md p-5 shrink-0 min-h-screen sticky top-0 h-screen select-none">
           <div className="space-y-6">
@@ -632,12 +795,29 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
             </div>
 
+            {/* Command Palette Quick Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="flex w-full items-center justify-between gap-2 rounded-xl border border-border/50 bg-surface-2/60 px-3 py-2 text-xs text-muted-foreground transition-all hover:bg-surface-2 hover:text-foreground hover:border-ember/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+              aria-label="Open command palette (Ctrl+K or Cmd+K)"
+            >
+              <span className="flex items-center gap-2">
+                <PixelSearch className="size-3.5 text-muted-foreground" />
+                <span>Search or jump to...</span>
+              </span>
+              <kbd className="inline-flex h-5 items-center gap-0.5 rounded border border-border/60 bg-surface px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                {typeof navigator !== "undefined" && /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent || navigator.platform) ? "⌘K" : "Ctrl+K"}
+              </kbd>
+            </button>
+
             <nav className="space-y-1.5" aria-label="Desktop navigation">
               <button
                 type="button"
-                onClick={() => setActiveTab(0)}
+                onClick={() => handleSelectTab(0)}
+                aria-current={activeTab === 0 ? "page" : undefined}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-surface cursor-pointer",
                   activeTab === 0
                     ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
                     : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
@@ -649,9 +829,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
               <button
                 type="button"
-                onClick={() => setActiveTab(1)}
+                onClick={() => handleSelectTab(1)}
+                aria-current={activeTab === 1 ? "page" : undefined}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-surface cursor-pointer",
                   activeTab === 1
                     ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
                     : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
@@ -663,9 +844,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
               <button
                 type="button"
-                onClick={() => setActiveTab(2)}
+                onClick={() => handleSelectTab(2)}
+                aria-current={activeTab === 2 ? "page" : undefined}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-surface cursor-pointer",
                   activeTab === 2
                     ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
                     : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
@@ -677,9 +859,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
               <button
                 type="button"
-                onClick={() => setActiveTab(3)}
+                onClick={() => handleSelectTab(3)}
+                aria-current={activeTab === 3 ? "page" : undefined}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all",
+                  "flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-surface cursor-pointer",
                   activeTab === 3
                     ? "bg-ember text-white shadow-md shadow-ember/20 font-bold"
                     : "text-muted-foreground hover:bg-surface-2 hover:text-foreground"
@@ -688,6 +871,16 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <PixelSettings className="size-4.5" />
                 <span>Settings</span>
               </button>
+
+              {/* Desktop New Habit Button */}
+              <button
+                type="button"
+                onClick={() => setIsAddOpen(true)}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-ember/15 border border-ember/30 px-3.5 py-2.5 text-xs font-bold text-ember transition-all hover:bg-ember hover:text-white shadow-sm hover:shadow-ember/20 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+              >
+                <PixelPlus className="size-3.5" />
+                <span>New Habit</span>
+              </button>
             </nav>
           </div>
 
@@ -695,7 +888,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-2.5">
                 <span className="size-8 rounded-full bg-ember-soft text-ember font-bold text-xs grid place-items-center border border-ember/25">
-                  {progressStats.globalStreak}d
+                  <DitherNumber value={progressStats.globalStreak} suffix="d" />
                 </span>
                 <div className="text-left">
                   <p className="text-xs font-bold text-foreground">Active Streak</p>
@@ -706,13 +899,43 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <button
                   type="button"
                   onClick={() => setIsAppLockDialogOpen(true)}
-                  className="p-1.5 rounded-lg text-faint hover:text-foreground transition-colors"
+                  className="p-1.5 rounded-lg text-faint hover:text-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
                   title="App Lock"
+                  aria-label="App Lock"
                 >
                   <PixelLock className="size-4" />
                 </button>
               )}
             </div>
+
+            {/* User Profile Card */}
+            <button
+              type="button"
+              onClick={() => handleSelectTab(3)}
+              className="flex items-center justify-between gap-2.5 p-2 rounded-2xl bg-surface-2/60 border border-white/5 hover:bg-surface-2 hover:border-ember/20 transition-all cursor-pointer text-left w-full group"
+              title="Settings & Profile"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <Avatar
+                  name={avatarProfile.name}
+                  size={34}
+                  shape={avatarProfile.shape}
+                  fill={avatarProfile.fill}
+                  status={avatarProfile.status}
+                  color={settings.themeMode ? THEME_CONFIGS[settings.themeMode]?.accent : "orange"}
+                  bloom="off"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-foreground truncate group-hover:text-ember transition-colors">
+                    {avatarProfile.name}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground capitalize truncate">
+                    {avatarProfile.status} · {avatarProfile.fill}
+                  </p>
+                </div>
+              </div>
+              <PixelChevronRight className="size-3.5 text-faint group-hover:text-foreground transition-colors shrink-0" />
+            </button>
           </div>
         </aside>
       )}
@@ -721,10 +944,10 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       <header
         className={cn(
           "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4", !embedded && "lg:hidden",
-          embedded ? "h-12" : "h-14"
+          embedded ? "h-12" : "pt-[env(safe-area-inset-top,0px)] h-[calc(3.5rem+env(safe-area-inset-top,0px))]"
         )}
       >
-        <div className="mx-auto flex h-full w-full max-w-lg items-center justify-between">
+        <div className={cn("mx-auto flex w-full max-w-lg items-center justify-between", embedded ? "h-full" : "h-14")}>
           <div className="flex items-center gap-2.5">
             <SparkMark className="size-8" />
             <div>
@@ -736,16 +959,45 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           <div className="flex items-center gap-2">
             {progressStats.globalStreak > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember">
-                <PixelFire className="size-3.5 fill-ember/20" /> {progressStats.globalStreak}d
+                <PixelFire className="size-3.5 fill-ember/20" />
+                <DitherNumber value={progressStats.globalStreak} suffix="d" />
               </span>
             )}
+
+            <button
+              type="button"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="grid min-h-[44px] min-w-[44px] size-11 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+              title="Search and commands (Ctrl+K)"
+              aria-label="Open command palette"
+            >
+              <PixelSearch className="size-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelectTab(3)}
+              className="size-9 rounded-full cursor-pointer overflow-hidden border border-white/10 hover:border-ember transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0 flex items-center justify-center bg-surface-2"
+              title="Profile & Settings"
+              aria-label="Profile and Settings"
+            >
+              <Avatar
+                name={avatarProfile.name}
+                size={34}
+                shape={avatarProfile.shape}
+                fill={avatarProfile.fill}
+                status={avatarProfile.status}
+                color={settings.themeMode ? THEME_CONFIGS[settings.themeMode]?.accent : "orange"}
+              />
+            </button>
 
             {isLockEnabled && (
               <button
                 type="button"
                 onClick={() => setIsAppLockDialogOpen(true)}
-                className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground"
+                className="grid min-h-[44px] min-w-[44px] size-11 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
                 title="App Lock Settings"
+                aria-label="App Lock Settings"
               >
                 <PixelLock className="size-4" />
               </button>
@@ -761,6 +1013,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           embedded ? "overflow-y-auto overscroll-contain scrollbar-none pt-3 pb-24" : "pt-4"
         )}
       >
+        <div key={activeTab} className="tab-pane-transition">
         {/* ============================================================== */}
         {/* TAB 0: TODAY (HOME)                                            */}
         {/* ============================================================== */}
@@ -769,7 +1022,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             {/* Today Header */}
             <div className="flex items-end justify-between">
               <div>
-                <p className="kicker">Today</p>
+                <ScrambleText as="p" className="kicker" trigger="in-view">
+                  Today
+                </ScrambleText>
                 <p className="text-[20px] font-extrabold tracking-tight">
                   {formatDisplayDate(today)}
                 </p>
@@ -791,22 +1046,43 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
             {/* Next Up Hero Card */}
             <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-surface p-5 shadow-sm">
-              <p className="kicker">{nextHabit ? "Next up" : "Daily status"}</p>
-              <p className="font-mono text-[24px] font-semibold leading-tight mt-1">
-                {nextHabit ? nextHabit.name : "All caught up"}
-              </p>
-              <p className="text-[12.5px] font-medium text-muted-foreground mt-1">
-                {nextHabit
-                  ? `${todayCompletedCount} of ${activeHabits.length} completed · ${nextHabit.currentStreak} day streak`
-                  : activeHabits.length === 0
-                  ? "Tap the + button below to create your first habit."
-                  : "Perfect day! You have completed all scheduled habits."}
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="kicker">{nextHabit ? "Next up" : "Daily status"}</p>
+                  <p className="font-mono text-[24px] font-semibold leading-tight mt-1 truncate">
+                    {nextHabit ? nextHabit.name : "All caught up"}
+                  </p>
+                  <p className="text-[12.5px] font-medium text-muted-foreground mt-1">
+                    {nextHabit
+                      ? `${todayCompletedCount} of ${activeHabits.length} completed · ${nextHabit.currentStreak} day streak`
+                      : activeHabits.length === 0
+                      ? "Tap the + button below to create your first habit."
+                      : "Perfect day! You have completed all scheduled habits."}
+                  </p>
+                </div>
+                <AnimatedCircularProgressBar
+                  value={todayCompletedCount}
+                  max={activeHabits.length || 1}
+                  size={52}
+                  strokeWidth={5}
+                >
+                  <span className="text-[11px] font-mono font-bold text-foreground">
+                    {todayCompletedCount}/{activeHabits.length}
+                  </span>
+                </AnimatedCircularProgressBar>
+              </div>
 
               {nextHabit && (
                 <Button
-                  onClick={() => handleToggleHabit(nextHabit.id)}
-                  className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98]"
+                  onClick={(e) => {
+                    hapticEngine.tickTap();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
+                    const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
+                    setHeroBurst({ x, y });
+                    handleToggleHabit(nextHabit.id);
+                  }}
+                  className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98] cursor-pointer"
                 >
                   <PixelCheck className="size-4" /> Check in now
                 </Button>
@@ -822,8 +1098,15 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => handleToggleHabit(atRiskHabits[0].id)}
-                  className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90"
+                  onClick={(e) => {
+                    hapticEngine.tickTap();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
+                    const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
+                    setHeroBurst({ x, y });
+                    handleToggleHabit(atRiskHabits[0].id);
+                  }}
+                  className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90 cursor-pointer"
                 >
                   Check In
                 </Button>
@@ -870,13 +1153,38 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               </div>
 
               {todayHabits.length === 0 ? (
-                <div className="rounded-3xl border border-border/40 bg-surface p-8 text-center text-muted-foreground">
-                  <PixelSparkles className="mx-auto size-8 text-ember mb-2 opacity-80" />
-                  <p className="font-semibold text-sm">No pending habits for today</p>
-                  <p className="text-xs text-faint mt-1">
-                    {todayFocus ? "All habits scheduled for today are complete." : "Add a habit to get started."}
-                  </p>
-                </div>
+                <EmptyState
+                  illustration={todayFocus ? "planet" : "box"}
+                  title={todayFocus ? "All habits completed!" : "No habits for today"}
+                  description={
+                    todayFocus
+                      ? "You've crushed all your scheduled habits for today."
+                      : "Tap the button below to add your first habit and ignite your spark."
+                  }
+                  action={
+                    todayFocus ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setTodayFocus(false)}
+                        className="rounded-full"
+                      >
+                        Show all habits
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => setIsAddOpen(true)}
+                        className="rounded-full bg-ember text-white hover:bg-ember/90 cursor-pointer"
+                      >
+                        <PixelPlus className="size-3.5 mr-1.5" />
+                        Add Habit
+                      </Button>
+                    )
+                  }
+                  color="orange"
+                  className="rounded-3xl border border-border/40 bg-surface py-8"
+                />
               ) : (
                 <div className="space-y-3">
                   {todayHabits.map((h) => (
@@ -885,7 +1193,6 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                       habit={h}
                       today={today}
                       onToggleToday={(id) => {
-                        triggerLightHaptic();
                         handleToggleHabit(id);
                       }}
                       onQuantIncrement={(id, delta) => {
@@ -909,6 +1216,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                         setIsFocusTimerOpen(true);
                       }}
                       onToggleStar={(id) => habitActions.star(id)}
+                      onEdit={(targetHabit) => setSelectedHabit(targetHabit)}
                     />
                   ))}
                 </div>
@@ -924,7 +1232,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           <div className="space-y-4">
             <div className="flex items-end justify-between">
               <div>
-                <p className="kicker">Overview</p>
+                <ScrambleText as="p" className="kicker" trigger="in-view">
+                  Habits
+                </ScrambleText>
                 <p className="font-display text-[22px] font-bold leading-tight">
                   {subTab === "habits" ? "All Habits" : "Standalone Notes"}
                 </p>
@@ -1008,9 +1318,31 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
                 <div className="space-y-3 pt-1">
                   {displayedHabits.length === 0 ? (
-                    <div className="rounded-3xl border border-border/40 bg-surface p-8 text-center text-faint">
-                      No habits match your filters.
-                    </div>
+                    <EmptyState
+                      illustration="search"
+                      title="No habits match your filters"
+                      description={
+                        searchQuery
+                          ? `No results found for "${searchQuery}". Try clearing filters or searching for something else.`
+                          : "No habits found in this category or status."
+                      }
+                      action={
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSearchQuery("");
+                            setStatusFilter("all");
+                            setCategoryFilter(null);
+                          }}
+                          className="rounded-full cursor-pointer"
+                        >
+                          Clear all filters
+                        </Button>
+                      }
+                      color="orange"
+                      className="rounded-3xl border border-border/40 bg-surface py-8"
+                    />
                   ) : (
                     displayedHabits.map((h) => (
                       <div
@@ -1051,7 +1383,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                               )}
                             </div>
                             <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint mt-0.5">
-                              <PixelFire className={cn("size-3", h.currentStreak > 0 && "text-ember")} /> {h.currentStreak} days
+                              <PixelFire className={cn("size-3", h.currentStreak > 0 && "text-ember")} /> <DitherNumber value={h.currentStreak} suffix=" days" />
                               {h.category && (
                                 <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">
                                   #{h.category}
@@ -1077,7 +1409,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="kicker">Progress &amp; Analytics</p>
+                <ScrambleText as="p" className="kicker" trigger="in-view">
+                  Analytics
+                </ScrambleText>
                 <p className="font-display text-[22px] font-bold leading-tight">
                   {progressSubTab === "overview" ? "Insights & Momentum" : formatMonthYear(currentMonthDate)}
                 </p>
@@ -1152,31 +1486,27 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
               <div className="rounded-3xl border border-border/40 bg-surface p-4">
                 <p className="kicker">Days in a row</p>
-                <p className="text-[26px] font-extrabold text-gold">{progressStats.globalStreak}</p>
+                <p className="text-[26px] font-extrabold text-gold">
+                  <DitherNumber value={progressStats.globalStreak} />
+                </p>
                 <p className="text-[11px] text-faint">Active habit streak</p>
               </div>
 
               <div className="rounded-3xl border border-border/40 bg-surface p-4">
                 <p className="kicker">Check-ins</p>
-                <p className="text-[26px] font-extrabold">{progressStats.totalCompletionsCount}</p>
+                <p className="text-[26px] font-extrabold">
+                  <DitherNumber value={progressStats.totalCompletionsCount} />
+                </p>
                 <p className="text-[11px] text-faint">Total completions</p>
               </div>
             </div>
 
-            {/* Activity Heatmap */}
-            <div className="rounded-3xl border border-border/40 bg-surface p-5 shadow-sm">
-              <div className="mb-3.5 flex items-center justify-between">
-                <div>
-                  <p className="text-[16px] font-bold">Activity</p>
-                  <p className="text-[12px] text-faint">Past 12 weeks consistency</p>
-                </div>
-                <span className="flex items-center gap-1.5 text-xs font-semibold text-ember">
-                  <span className="size-2 rounded-full bg-ember animate-pulse" />
-                  {progressStats.globalStreak > 0 ? `${progressStats.globalStreak} day streak` : "Keep showing up"}
-                </span>
-              </div>
-              <Heatmap levels={heatmapData.levels} labels={heatmapData.labels} />
-            </div>
+            {/* 6-Month Dither Momentum Calendar */}
+            <DitherHeatmapCalendar
+              data={momentumDays}
+              streak={progressStats.globalStreak}
+              className="w-full"
+            />
 
             {/* Calm Milestones Showcase */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4">
@@ -1185,22 +1515,24 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <span className="text-xs font-semibold text-ember">Quiet recognition</span>
               </div>
 
-              <div className="grid grid-cols-5 gap-1.5 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-center">
                 {MILESTONES.map((m) => {
                   const unlocked = habits.some((h) => h.bestStreak >= m.days);
                   return (
                     <div
                       key={m.days}
+                      data-testid="milestone-badge"
                       className={cn(
-                        "rounded-2xl p-2.5 border transition-all",
+                        "rounded-2xl p-3 border transition-all flex flex-col items-center justify-center",
                         unlocked
-                          ? "bg-surface-2 border-ember/30 text-foreground"
+                          ? "bg-surface-2 border-ember/30 text-foreground shadow-sm"
                           : "bg-surface border-border/30 opacity-40 text-faint"
                       )}
                     >
-                      <span className="text-xl block mb-1">{m.badge}</span>
-                      <span className="text-[11px] font-bold block">{m.days}d</span>
-                      <span className="text-[9px] text-faint block truncate">{m.title}</span>
+                      <span className="text-2xl block mb-1">{m.badge}</span>
+                      <span className="text-xs font-bold text-ember block">{m.days} Days</span>
+                      <span className="text-xs font-semibold text-foreground block truncate mt-0.5">{m.title}</span>
+                      <p className="text-[10px] text-faint mt-1 line-clamp-2">{m.description}</p>
                     </div>
                   );
                 })}
@@ -1376,92 +1708,24 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
             onFileUpload={handleFileUpload}
             onExportMarkdown={handleExportMarkdown}
             onExportCsv={handleExportCsv}
+            onExportTsv={handleExportTsv}
+            onExportVault={handleExportVault}
             onOpenAirGapped={() => setIsAirGappedOpen(true)}
             onOpenVaultSync={() => setIsVaultSyncOpen(true)}
             onOpenAppLock={() => setIsAppLockDialogOpen(true)}
             embedded={embedded}
           />
         )}
+        </div>
       </main>
 
       {/* Floating Bottom Navigation Bar */}
-      <nav
-        aria-label="Mobile navigation"
-        className={cn(
-          !embedded && "lg:hidden",
-          "z-30 flex items-center justify-around rounded-full border border-border/40 bg-surface/90 px-2 backdrop-blur-xl shadow-lg",
-          embedded
-            ? "absolute inset-x-3 bottom-3 h-[64px]"
-            : "fixed left-1/2 -translate-x-1/2 bottom-3 sm:bottom-4 h-[68px] w-[calc(100%-2rem)] max-w-lg"
-        )}
-      >
-        <Button
-          variant="ghost"
-          onClick={() => setActiveTab(0)}
-          className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
-            activeTab === 0 ? "text-ember font-bold" : "text-faint hover:text-foreground"
-          )}
-        >
-          <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 0 && "bg-ember-soft")}>
-            <PixelHome className="size-4" />
-          </span>
-          Today
-        </Button>
-
-        <Button
-          variant="ghost"
-          onClick={() => setActiveTab(1)}
-          className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
-            activeTab === 1 ? "text-ember font-bold" : "text-faint hover:text-foreground"
-          )}
-        >
-          <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 1 && "bg-ember-soft")}>
-            <PixelCheckList className="size-4" />
-          </span>
-          Habits
-        </Button>
-
-        {/* Center Floating Action Button (FAB) */}
-        <Button
-          variant="fab"
-          size="fab"
-          onClick={() => setIsAddOpen(true)}
-          className="size-12 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_16px_rgba(236,137,76,0.35)] border border-ember/30 hover:brightness-110 mx-1 flex items-center justify-center p-0"
-          aria-label="Add new habit"
-        >
-          <PixelPlus className="size-6 text-white" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          onClick={() => setActiveTab(2)}
-          className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
-            activeTab === 2 ? "text-ember font-bold" : "text-faint hover:text-foreground"
-          )}
-        >
-          <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 2 && "bg-ember-soft")}>
-            <PixelChart className="size-4" />
-          </span>
-          Progress
-        </Button>
-
-        <Button
-          variant="ghost"
-          onClick={() => setActiveTab(3)}
-          className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors",
-            activeTab === 3 ? "text-ember font-bold" : "text-faint hover:text-foreground"
-          )}
-        >
-          <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 3 && "bg-ember-soft")}>
-            <PixelSettings className="size-4" />
-          </span>
-          Settings
-        </Button>
-      </nav>
+      <MobileBottomNav
+        activeTab={activeTab}
+        onTabChange={handleSelectTab}
+        onAddClick={() => setIsAddOpen(true)}
+        embedded={embedded}
+      />
 
       {/* ============================================================== */}
       {/* DIALOG: ADD NEW HABIT                                          */}
@@ -1553,6 +1817,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         inspection={backupInspection}
         onConfirmRestore={(ins) => {
           habitActions.replaceAll(ins.parsed.habits, ins.parsed.settings);
+          if (ins.notes && ins.notes.length > 0) {
+            noteActions.replaceAll(ins.notes);
+          }
           setIsBackupPreviewOpen(false);
           setBackupInspection(null);
         }}
@@ -1589,9 +1856,13 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         open={isVaultSyncOpen}
         onOpenChange={setIsVaultSyncOpen}
         habits={habits}
+        notes={notes}
         settings={settings}
-        onSyncComplete={(merged) => {
-          habitActions.replaceAll(merged, settings);
+        onSyncComplete={(mergedHabits, mergedNotes) => {
+          habitActions.replaceAll(mergedHabits, settings);
+          if (mergedNotes && mergedNotes.length > 0) {
+            noteActions.replaceAll(mergedNotes);
+          }
         }}
       />
 
@@ -1607,31 +1878,37 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         onOpenChange={setIsShareCardOpen}
       />
 
-      {/* Streak Celebration Popup Modal (matching previous app) */}
-      {celebrationHabit && (
-        <div
-          role="dialog"
-          aria-live="polite"
-          onClick={() => setCelebrationHabit(null)}
-          className="fixed inset-0 z-50 grid place-items-center bg-black/50 backdrop-blur-xs p-4 cursor-pointer animate-in fade-in duration-200"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="flex flex-col items-center gap-2.5 rounded-3xl bg-surface/95 border border-ember/30 p-6 shadow-2xl backdrop-blur-xl text-center max-w-xs w-full animate-in zoom-in-95 duration-200"
-          >
-            <div className="size-20 rounded-2xl bg-gradient-to-br from-ember to-amber-500 grid place-items-center shadow-lg shadow-ember/30">
-              <PixelFire className="size-10 text-white fill-white" />
-            </div>
-            <p className="font-semibold text-xs text-muted-foreground truncate max-w-[200px]">
-              {celebrationHabit.name}
-            </p>
-            <h3 className="font-display text-lg font-bold text-foreground">
-              Streak Continued! 🔥
-            </h3>
-            <p className="text-xs text-faint">Keep it up!</p>
-          </div>
-        </div>
+      {/* Global Command Palette */}
+      <CommandPalette
+        open={isCommandPaletteOpen}
+        onOpenChange={setIsCommandPaletteOpen}
+        habits={activeHabits}
+        onSelectTab={(tab) => {
+          handleSelectTab(tab);
+          setIsCommandPaletteOpen(false);
+        }}
+        onToggleHabit={(id) => {
+          hapticEngine.tickTap();
+          handleToggleHabit(id);
+          setIsCommandPaletteOpen(false);
+        }}
+        theme={settings.themeMode || getStoredTheme()}
+        onToggleTheme={handleToggleTheme}
+        onOpenAddHabit={() => {
+          setIsAddOpen(true);
+          setIsCommandPaletteOpen(false);
+        }}
+      />
+
+      {heroBurst && (
+        <CheckPopBurst
+          x={heroBurst.x}
+          y={heroBurst.y}
+          onComplete={() => setHeroBurst(null)}
+        />
       )}
+
+      <UpdateToast />
     </div>
   );
 }
@@ -1646,7 +1923,9 @@ function AddHabitForm({
   onAdd: (habit: Partial<Habit> & { name: string; emoji: string }) => void;
   onCancel: () => void;
 }) {
+  const [tier, setTier] = useState<"simple" | "standard" | "advanced">("simple");
   const [name, setName] = useState("");
+  const [color, setColor] = useState("fire");
   const [kind, setKind] = useState<"boolean" | "quantitative" | "avoid">("boolean");
   const [targetValue, setTargetValue] = useState<number>(2000);
   const [unit, setUnit] = useState("ml");
@@ -1656,7 +1935,6 @@ function AddHabitForm({
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
 
   const [icon, setIcon] = useState("flame");
-  const [color, setColor] = useState("fire");
   const [category, setCategory] = useState("daily");
   const [frequencyType, setFrequencyType] = useState<"daily" | "weekly_target" | "specific_days">("daily");
   const [targetDays, setTargetDays] = useState(3);
@@ -1675,6 +1953,8 @@ function AddHabitForm({
   const handleRemoveSubtask = (id: string) => {
     setSubtasks((prev) => prev.filter((s) => s.id !== id));
   };
+
+  const activeSparkColor = COLOR_SWATCH[color] || "#EC894C";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1699,7 +1979,67 @@ function AddHabitForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-sm">
+    <form onSubmit={handleSubmit} className="space-y-4 pt-1 text-sm">
+      {/* 3-Tier Progressive Tabs */}
+      <div className="flex rounded-xl bg-surface-2 p-1 border border-white/5">
+        <button
+          type="button"
+          onClick={() => setTier("simple")}
+          className={cn(
+            "flex-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+            tier === "simple"
+              ? "bg-surface text-foreground shadow-sm font-bold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          ⚡ Simple (5-sec)
+        </button>
+        <button
+          type="button"
+          onClick={() => setTier("standard")}
+          className={cn(
+            "flex-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+            tier === "standard"
+              ? "bg-surface text-foreground shadow-sm font-bold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Standard
+        </button>
+        <button
+          type="button"
+          onClick={() => setTier("advanced")}
+          className={cn(
+            "flex-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+            tier === "advanced"
+              ? "bg-surface text-foreground shadow-sm font-bold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Advanced
+        </button>
+      </div>
+
+      {/* Live Tinted SparkMark Preview */}
+      <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface-2 border border-white/5">
+        <div className="grid size-11 place-items-center rounded-xl bg-surface border border-white/10 shadow-sm shrink-0">
+          <SparkMark className="size-7" sparkColor={activeSparkColor} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-sm text-foreground truncate">
+            {name.trim() || "Your habit name"}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {tier === "simple"
+              ? "Quick 5-second setup"
+              : tier === "standard"
+              ? `${frequencyType === "daily" ? "Daily rhythm" : "Scheduled rhythm"}`
+              : "Advanced metrics & friction tracking"}
+          </p>
+        </div>
+      </div>
+
+      {/* Habit Name Input (All Tiers) */}
       <div className="space-y-1.5">
         <label className="text-xs font-semibold text-muted-foreground uppercase">Habit Name</label>
         <Input
@@ -1708,223 +2048,223 @@ function AddHabitForm({
           placeholder="e.g., Read 20 minutes, Morning walk"
           required
           autoFocus
-          className="text-sm bg-surface-2"
+          className="text-sm bg-surface-2 rounded-xl"
         />
       </div>
 
-      {/* Habit Kind Selector */}
+      {/* Habit Color Picker (All Tiers - Tints the Spark Mark) */}
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase">Tracking Type</label>
-        <div className="grid grid-cols-3 gap-1.5">
-          {[
-            { id: "boolean", label: "Standard", desc: "Done / Not done" },
-            { id: "quantitative", label: "Quantitative", desc: "Target & units" },
-            { id: "avoid", label: "Avoid / Quit", desc: "Clean streak & cost" },
-          ].map((k) => (
-            <button
-              key={k.id}
-              type="button"
-              onClick={() => setKind(k.id as typeof kind)}
-              className={cn(
-                "rounded-xl p-2 text-left border transition-all",
-                kind === k.id
-                  ? "bg-surface-2 border-ember text-foreground shadow-sm"
-                  : "border-border/30 text-faint hover:text-foreground"
-              )}
-            >
-              <span className="text-xs font-bold block">{k.label}</span>
-              <span className="text-[10px] text-faint block">{k.desc}</span>
-            </button>
-          ))}
+        <label className="text-xs font-semibold text-muted-foreground uppercase flex items-center justify-between">
+          <span>Habit Spark Color</span>
+          <span className="text-[10px] text-muted-foreground capitalize">{color}</span>
+        </label>
+        <div className="flex items-center gap-2 pt-0.5">
+          {COLOR_OPTIONS.map((c) => {
+            const swatch = COLOR_SWATCH[c.value];
+            const isSelected = color === c.value;
+            return (
+              <button
+                key={c.value}
+                type="button"
+                onClick={() => setColor(c.value)}
+                className={cn(
+                  "size-8 rounded-full border-2 transition-transform cursor-pointer flex items-center justify-center",
+                  isSelected
+                    ? "scale-110 border-white shadow-md ring-2 ring-ember/40"
+                    : "border-transparent opacity-80 hover:opacity-100 hover:scale-105"
+                )}
+                style={{ backgroundColor: swatch }}
+                title={c.name}
+                aria-label={`Color ${c.name}`}
+              >
+                {isSelected && <span className="size-2 rounded-full bg-white shadow-sm" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Quantitative Settings */}
-      {kind === "quantitative" && (
-        <div className="grid grid-cols-3 gap-2 p-2.5 rounded-2xl bg-surface-2 border border-border/40">
-          <div>
-            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Target Goal</label>
-            <Input
-              type="number"
-              value={targetValue}
-              onChange={(e) => setTargetValue(Number(e.target.value) || 1)}
-              className="h-8 text-xs bg-surface"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Unit Label</label>
-            <Input
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              placeholder="ml, pages, min"
-              className="h-8 text-xs bg-surface"
-            />
-          </div>
-          <div>
-            <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Step (+)</label>
-            <Input
-              type="number"
-              value={stepIncrement}
-              onChange={(e) => setStepIncrement(Number(e.target.value) || 1)}
-              className="h-8 text-xs bg-surface"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Avoid Settings */}
-      {kind === "avoid" && (
-        <div className="p-2.5 rounded-2xl bg-surface-2 border border-border/40">
-          <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Daily Cost Saved ($ / day)</label>
-          <Input
-            type="number"
-            value={dailyCost}
-            onChange={(e) => setDailyCost(Number(e.target.value) || 0)}
-            placeholder="e.g. 15"
-            className="h-8 text-xs bg-surface"
-          />
-        </div>
-      )}
-
-      {/* Subtasks checklist input */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase">Subtasks Checklist (Optional)</label>
-        <div className="flex gap-1.5">
-          <Input
-            value={newSubtaskTitle}
-            onChange={(e) => setNewSubtaskTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddSubtask();
-              }
-            }}
-            placeholder="e.g. Put on shoes, Fill water bottle..."
-            className="text-xs h-8 bg-surface-2"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAddSubtask}
-            className="h-8 px-2.5 text-xs rounded-xl"
-          >
-            Add Step
-          </Button>
-        </div>
-        {subtasks.length > 0 && (
-          <div className="space-y-1 pt-1">
-            {subtasks.map((st) => (
-              <div key={st.id} className="flex items-center justify-between text-xs px-2 py-1 rounded-lg bg-surface-2">
-                <span>• {st.title}</span>
+      {/* STANDARD & ADVANCED TIERS: Targets, Units & Frequency */}
+      {tier !== "simple" && (
+        <>
+          {/* Tracking Type */}
+          <div className="space-y-1.5 pt-1">
+            <label className="text-xs font-semibold text-muted-foreground uppercase">Tracking Type</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: "boolean", label: "Standard", desc: "Done / Not done" },
+                { id: "quantitative", label: "Quantitative", desc: "Target & units" },
+                { id: "avoid", label: "Avoid / Quit", desc: "Clean streak & cost" },
+              ].map((k) => (
                 <button
+                  key={k.id}
                   type="button"
-                  onClick={() => handleRemoveSubtask(st.id)}
-                  className="text-faint hover:text-destructive"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Icon Selector */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase">Icon</label>
-        <div className="grid grid-cols-6 gap-1.5 max-h-32 overflow-y-auto p-1 bg-surface-2 rounded-xl">
-          {HABIT_ICONS.slice(0, 18).map(({ key, Icon }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setIcon(key)}
-              className={cn(
-                "grid aspect-square place-items-center rounded-lg text-muted-foreground transition-all",
-                icon === key && "bg-ember text-white shadow-sm"
-              )}
-            >
-              <Icon className="size-4" />
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Category */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase">Life Space / Category</label>
-        <div className="flex flex-wrap gap-1.5">
-          {CURATED_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => {
-                setCategory(cat.id);
-                setColor(cat.color);
-              }}
-              className={cn(
-                "rounded-full px-2.5 py-1 text-xs font-semibold border transition-all",
-                category === cat.id
-                  ? "bg-ember text-white border-ember shadow-sm"
-                  : "bg-surface-2 border-border/50 text-faint hover:text-foreground"
-              )}
-            >
-              {cat.emoji} {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Frequency */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase">Schedule &amp; Frequency</label>
-        <div className="grid grid-cols-3 gap-1.5">
-          {[
-            { id: "daily", label: "Every Day" },
-            { id: "weekly_target", label: "Weekly Goal" },
-            { id: "specific_days", label: "Selected Days" },
-          ].map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setFrequencyType(f.id as typeof frequencyType)}
-              className={cn(
-                "rounded-xl p-2 text-xs font-bold border transition-all",
-                frequencyType === f.id
-                  ? "bg-surface-2 border-ember text-foreground shadow-sm"
-                  : "border-border/30 text-faint hover:text-foreground"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {frequencyType === "weekly_target" && (
-          <div className="flex items-center justify-between p-2 rounded-xl bg-surface-2 mt-2">
-            <span className="text-xs text-muted-foreground">Target days per week:</span>
-            <div className="flex items-center gap-2 font-bold">
-              {[2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setTargetDays(n)}
+                  onClick={() => setKind(k.id as typeof kind)}
                   className={cn(
-                    "size-6 rounded-full text-xs grid place-items-center",
-                    targetDays === n ? "bg-ember text-white" : "text-faint hover:text-foreground"
+                    "rounded-xl p-2 text-left border transition-all cursor-pointer",
+                    kind === k.id
+                      ? "bg-surface-2 border-ember text-foreground shadow-sm"
+                      : "border-border/30 text-faint hover:text-foreground"
                   )}
                 >
-                  {n}
+                  <span className="text-xs font-bold block">{k.label}</span>
+                  <span className="text-[10px] text-faint block">{k.desc}</span>
                 </button>
               ))}
             </div>
           </div>
-        )}
 
-        {frequencyType === "specific_days" && (
-          <div className="p-2 rounded-xl bg-surface-2 mt-2 space-y-1.5">
-            <span className="text-xs text-muted-foreground block">Select Active Days:</span>
+          {/* Quantitative Settings */}
+          {kind === "quantitative" && (
+            <div className="grid grid-cols-3 gap-2 p-2.5 rounded-2xl bg-surface-2 border border-border/40">
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Target Goal</label>
+                <Input
+                  type="number"
+                  value={targetValue}
+                  onChange={(e) => setTargetValue(Number(e.target.value) || 1)}
+                  className="h-8 text-xs bg-surface rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Unit Label</label>
+                <Input
+                  type="text"
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  placeholder="ml, pages, min"
+                  className="h-8 text-xs bg-surface rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground block mb-1">Step (+)</label>
+                <Input
+                  type="number"
+                  value={stepIncrement}
+                  onChange={(e) => setStepIncrement(Number(e.target.value) || 1)}
+                  className="h-8 text-xs bg-surface rounded-lg"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Schedule & Frequency */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase">Schedule &amp; Frequency</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: "daily", label: "Every Day" },
+                { id: "weekly_target", label: "Weekly Goal" },
+                { id: "specific_days", label: "Selected Days" },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  onClick={() => setFrequencyType(f.id as typeof frequencyType)}
+                  className={cn(
+                    "rounded-xl p-2 text-xs font-bold border transition-all cursor-pointer",
+                    frequencyType === f.id
+                      ? "bg-surface-2 border-ember text-foreground shadow-sm"
+                      : "border-border/30 text-faint hover:text-foreground"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {frequencyType === "weekly_target" && (
+              <div className="flex items-center justify-between p-2 rounded-xl bg-surface-2 mt-2">
+                <span className="text-xs text-muted-foreground">Target days per week:</span>
+                <div className="flex items-center gap-2 font-bold">
+                  {[2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setTargetDays(n)}
+                      className={cn(
+                        "size-6 rounded-full text-xs grid place-items-center cursor-pointer",
+                        targetDays === n ? "bg-ember text-white" : "text-faint hover:text-foreground"
+                      )}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* ADVANCED TIER ONLY: Quit/Avoid Cost Tracker, Subtasks, Day Mask, Friction Notes */}
+      {tier === "advanced" && (
+        <div className="space-y-4 pt-1 border-t border-white/5">
+          {/* Avoid / Quit Cost Tracker */}
+          {kind === "avoid" && (
+            <div className="p-3 rounded-2xl bg-surface-2 border border-border/40">
+              <label className="text-[11px] font-semibold text-muted-foreground block mb-1">
+                Daily Cost Saved ($ / day)
+              </label>
+              <Input
+                type="number"
+                value={dailyCost}
+                onChange={(e) => setDailyCost(Number(e.target.value) || 0)}
+                placeholder="e.g. 15"
+                className="h-8 text-xs bg-surface rounded-lg"
+              />
+            </div>
+          )}
+
+          {/* Subtasks Checklist */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase">
+              Subtasks Checklist (Optional)
+            </label>
+            <div className="flex gap-1.5">
+              <Input
+                value={newSubtaskTitle}
+                onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddSubtask();
+                  }
+                }}
+                placeholder="e.g. Put on shoes, Fill water bottle..."
+                className="text-xs h-8 bg-surface-2 rounded-lg"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddSubtask}
+                className="h-8 px-2.5 text-xs rounded-xl"
+              >
+                Add Step
+              </Button>
+            </div>
+            {subtasks.length > 0 && (
+              <div className="space-y-1 pt-1">
+                {subtasks.map((st) => (
+                  <div key={st.id} className="flex items-center justify-between text-xs px-2.5 py-1 rounded-lg bg-surface-2">
+                    <span>• {st.title}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSubtask(st.id)}
+                      className="text-faint hover:text-destructive cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Day Mask (Specific Days) */}
+          <div className="p-2.5 rounded-xl bg-surface-2 space-y-1.5">
+            <span className="text-xs text-muted-foreground block font-semibold">Active Day Mask:</span>
             <div className="grid grid-cols-7 gap-1">
               {[
                 { day: 0, label: "Sun" },
@@ -1948,7 +2288,7 @@ function AddHabitForm({
                       }
                     }}
                     className={cn(
-                      "py-1.5 rounded-lg text-xs font-bold transition-colors",
+                      "py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer",
                       isSelected
                         ? "bg-ember text-white"
                         : "bg-surface text-faint hover:text-foreground"
@@ -1960,26 +2300,48 @@ function AddHabitForm({
               })}
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Notes */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-muted-foreground uppercase">Guideline / Reflection Note</label>
-        <Textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value.slice(0, 1000))}
-          placeholder="e.g. Keep it light, after dinner walk."
-          className="text-xs min-h-[60px] bg-surface-2 resize-none"
-        />
-      </div>
+          {/* Friction / Guideline Reflection Notes */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase">
+              Friction Notes &amp; Anchor Cues
+            </label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value.slice(0, 1000))}
+              placeholder="e.g. Put shoes next to front door. Keep it light, after dinner walk."
+              className="text-xs min-h-[60px] bg-surface-2 resize-none rounded-xl"
+            />
+          </div>
+        </div>
+      )}
 
-      <DialogFooter className="flex justify-end gap-2 pt-2">
+      {/* Progressive Tier Helper Link */}
+      {tier === "simple" && (
+        <button
+          type="button"
+          onClick={() => setTier("standard")}
+          className="text-xs text-ember hover:underline font-semibold block pt-1 cursor-pointer"
+        >
+          More Options (Target, schedule &amp; units) →
+        </button>
+      )}
+      {tier === "standard" && (
+        <button
+          type="button"
+          onClick={() => setTier("advanced")}
+          className="text-xs text-ember hover:underline font-semibold block pt-1 cursor-pointer"
+        >
+          Advanced Options (Subtasks, avoid costs &amp; friction notes) →
+        </button>
+      )}
+
+      <DialogFooter className="flex justify-end gap-2 pt-2 border-t border-white/5">
         <Button variant="ghost" type="button" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" className="bg-ember text-white hover:bg-ember/90">
-          Add Habit
+        <Button type="submit" className="bg-ember text-white hover:bg-ember/90 shadow-md">
+          Create Habit
         </Button>
       </DialogFooter>
     </form>

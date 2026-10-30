@@ -13,35 +13,37 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
+import { NotFound } from "@/components/dithercn/not-found";
 import { SITE } from "@/lib/site";
 import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="font-display text-8xl font-bold text-ember">404</h1>
-        <h2 className="mt-4 font-display text-2xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6 flex justify-center gap-2">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90"
-          >
-            Go home
-          </Link>
-          <a
-            href="https://github.com/sahaya-savari/daily-spark/releases"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center justify-center rounded-full border border-input px-4 py-2 text-sm font-medium text-foreground hover:bg-surface"
-          >
-            Download APK
-          </a>
-        </div>
-      </div>
+      <NotFound
+        code="404"
+        title="Page not found"
+        description="The page you're looking for doesn't exist or has been moved."
+        color="orange"
+        fill="gradient"
+        bloom="low"
+        actions={
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-ember/90 transition-colors"
+            >
+              Go home
+            </Link>
+            <Link
+              to="/download"
+              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-2 transition-colors"
+            >
+              Download App
+            </Link>
+          </div>
+        }
+      />
     </div>
   );
 }

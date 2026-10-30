@@ -267,7 +267,7 @@ export const VoxelIsland: React.FC<VoxelIslandProps> = ({
             ) : timeOfDay === "sunset" ? (
               <Sun className="w-3.5 h-3.5 text-rose-400" />
             ) : (
-              <Moon className="w-3.5 h-3.5 text-cyan-300" />
+              <Moon className="w-3.5 h-3.5 text-indigo-300" />
             )}
           </button>
         </div>
@@ -297,7 +297,7 @@ export const VoxelIsland: React.FC<VoxelIslandProps> = ({
         </div>
         <div className="p-2 rounded-lg bg-white/[0.03] border border-white/5">
           <span className="text-white/40 block">Ambience</span>
-          <span className="font-semibold text-cyan-400 mt-0.5 block capitalize">{timeOfDay}</span>
+          <span className="font-semibold text-ember mt-0.5 block capitalize">{timeOfDay}</span>
         </div>
       </div>
     </div>

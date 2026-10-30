@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 /**
  * Ambient rounded-tile matrix backdrop inspired by habit activity heatmaps.
  * Generates deterministic tiles with varying sunlit apricot / smoked slate opacities.
  */
-export function HeatmapBackdrop() {
+export const HeatmapBackdrop = React.memo(function HeatmapBackdrop() {
   const rows = 12;
   const cols = 24;
 
@@ -36,30 +36,50 @@ export function HeatmapBackdrop() {
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden max-w-full [contain:paint] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_25%,transparent_80%)]"
+      className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden max-w-full [contain:strict] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_45%,black_25%,transparent_80%)]"
       aria-hidden="true"
     >
-      <div
-        className="grid gap-2.5 opacity-60 sm:gap-3 max-w-none"
-        style={{
-          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        }}
+      <svg
+        viewBox={`0 0 ${cols * 34} ${rows * 34}`}
+        className="w-full max-w-[1100px] h-auto opacity-60"
+        aria-hidden="true"
       >
-        {cells.map((level, i) => (
-          <div
-            key={i}
-            className={`size-5 rounded-[6px] sm:size-7 md:size-8 ${
-              level === 0
-                ? "border border-white/[0.03] bg-surface/35"
-                : level === 1
-                ? "border border-ember/15 bg-ember/15"
-                : level === 2
-                ? "border border-ember/30 bg-ember/45 shadow-[0_0_12px_rgba(236,137,76,0.2)]"
-                : "border border-ember/50 bg-ember/80 shadow-[0_0_18px_rgba(236,137,76,0.35)]"
-            }`}
-          />
-        ))}
-      </div>
+        {cells.map((level, i) => {
+          const r = Math.floor(i / cols);
+          const c = i % cols;
+          const x = c * 34;
+          const y = r * 34;
+          const fill =
+            level === 0
+              ? "rgba(255, 255, 255, 0.03)"
+              : level === 1
+              ? "rgba(236, 137, 76, 0.16)"
+              : level === 2
+              ? "rgba(236, 137, 76, 0.45)"
+              : "rgba(236, 137, 76, 0.85)";
+          const stroke =
+            level === 0
+              ? "rgba(255, 255, 255, 0.04)"
+              : level === 1
+              ? "rgba(236, 137, 76, 0.22)"
+              : level === 2
+              ? "rgba(236, 137, 76, 0.55)"
+              : "rgba(236, 137, 76, 0.9)";
+          return (
+            <rect
+              key={i}
+              x={x}
+              y={y}
+              width={24}
+              height={24}
+              rx={6}
+              fill={fill}
+              stroke={stroke}
+              strokeWidth={1}
+            />
+          );
+        })}
+      </svg>
     </div>
   );
-}
+});

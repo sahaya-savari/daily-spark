@@ -20,7 +20,8 @@ import { SparkMark } from "@/components/brand/Logo";
 import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
-import { DiaTextReveal } from "@/components/magicui/dia-text-reveal";
+import { ScrambleText } from "@/components/dithercn/scramble-text";
+import { Avatar, AvatarGroup } from "@/components/dithercn/avatar";
 import {
   CalendarScreen,
   DemoPhone,
@@ -113,14 +114,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   const [motionPaused, setMotionPaused] = useState(false);
   const accent = useThemeAccent();
 
-  // Build a sweep color palette for the "Keep going." reveal that always
-  // centres on the active theme accent while cycling through the other two
-  // preset accents for visual interest.
-  const keepGoingColors = useMemo(
-    () => [accent, "#8B5CF6", "#E6B450", accent],
-    [accent],
-  );
-
   useEffect(() => {
     const hash = window.location.hash.replace(/^#/, "");
     if (hash === "get") {
@@ -191,18 +184,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
             <h1 className="font-display text-[clamp(34px,8vw,44px)] sm:text-[58px] lg:text-[76px] font-bold leading-[1.14] text-left max-w-full">
               <span className="block pb-0.5">
-                <DiaTextReveal text="Show up." delay={0.08} textColor="#FAF7F5" />
+                <ScrambleText trigger="mount" delay={80} color="ink">
+                  Show up.
+                </ScrambleText>
               </span>
               <span className="block pb-0.5">
-                <DiaTextReveal text="Tick it." delay={0.28} textColor="#FAF7F5" />
+                <ScrambleText trigger="mount" delay={280} color="ink">
+                  Tick it.
+                </ScrambleText>
               </span>
               <span className="block pb-0.5 text-ember">
-                <DiaTextReveal
-                  text="Keep going."
-                  delay={0.48}
-                  textColor={accent}
-                  colors={keepGoingColors}
-                />
+                <ScrambleText trigger="mount" delay={480} color={accent}>
+                  Keep going.
+                </ScrambleText>
               </span>
             </h1>
             <p className="mb-7 sm:mb-9 mt-5 sm:mt-7 max-w-[38ch] text-[17px] sm:text-[21px] lg:text-[23px] leading-relaxed text-muted-foreground text-left">
@@ -223,6 +217,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </a>
             </div>
             <p className="mt-5 sm:mt-6 text-sm sm:text-[16.5px] text-faint text-left font-medium">Android APK · 100% Offline · No account · No ads</p>
+
+            {/* dithercn AvatarGroup peer circle showcase */}
+            <div className="mt-5 flex items-center gap-3">
+              <AvatarGroup size={32} max={4}>
+                <Avatar name="Daily Spark" fill="gradient" status="online" color="orange" />
+                <Avatar name="Ada Lovelace" fill="dotted" status="away" color="blue" />
+                <Avatar name="Ember" fill="hatched" status="busy" color="pink" />
+                <Avatar name="Zenith" fill="solid" status="online" color="purple" />
+                <Avatar name="Grace" fill="gradient" status="offline" color="green" />
+              </AvatarGroup>
+              <span className="text-xs sm:text-[13.5px] text-muted-foreground font-medium">
+                Offline peers building streaks together
+              </span>
+            </div>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}

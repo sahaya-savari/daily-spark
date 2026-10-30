@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { type StandaloneNote } from "./types";
+import { mergeVaultNotes } from "./vaultSync";
 
 export const NOTES_STORAGE_KEY = "streakflame_notes";
 
@@ -91,20 +92,34 @@ export const noteActions = {
     return state.notes;
   },
 
-  addNote(input: { title?: string; content?: string; pinned?: boolean; color?: string }): StandaloneNote {
+  addNote(input: {
+    id?: string;
+    title?: string;
+    content?: string;
+    pinned?: boolean;
+    color?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  }): StandaloneNote {
     load();
     const now = new Date().toISOString();
     const note: StandaloneNote = {
-      id: newNoteId(),
+      id: input.id || newNoteId(),
       title: input.title?.trim() || "Untitled Note",
       content: input.content ?? "",
-      createdAt: now,
-      updatedAt: now,
+      createdAt: input.createdAt || now,
+      updatedAt: input.updatedAt || now,
       pinned: Boolean(input.pinned),
       color: input.color,
     };
     set({ notes: [note, ...state.notes] });
     return note;
+  },
+
+  mergeNotes(remoteNotes: StandaloneNote[]) {
+    load();
+    const merged = mergeVaultNotes(state.notes, remoteNotes);
+    set({ notes: merged });
   },
 
   updateNote(id: string, patch: Partial<StandaloneNote>) {
