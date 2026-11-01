@@ -1,0 +1,37 @@
+# ==============================================================================
+# GitLab CI/CD Configuration for Daily Spark
+# Destination: https://sahaya-savari.gitlab.io/daily-spark/
+#
+# Publishes only the static Web / PWA production build.
+# Mobile (Android APK/AAB) and Desktop (Windows EXE/ZIP, Linux TAR.GZ)
+# distribution packages are excluded from the Pages publication artifact.
+# ==============================================================================
+
+stages:
+  - deploy
+
+default:
+  image: node:22
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
+
+pages:
+  stage: deploy
+  script:
+    - npm ci --cache .npm --prefer-offline
+    - npm run typecheck
+    - npm run build
+    # Enforce website-only artifact: remove any mobile or desktop binaries copied into dist
+    - rm -f dist/*.apk dist/*.aab dist/*.exe dist/*.zip dist/*.tar.gz
+  pages:
+    publish: dist
+  artifacts:
+    paths:
+      - dist
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

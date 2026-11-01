@@ -1,0 +1,5 @@
+# Daily Spark - GitLab Pages Routing & SPA Fallback
+# Target URL: https://sahaya-savari.gitlab.io/daily-spark/
+
+# SPA client-side fallback: rewrite any non-static path to /daily-spark/index.html
+/daily-spark/*    /daily-spark/index.html    200
