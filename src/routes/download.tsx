@@ -5,6 +5,7 @@ import {
   PixelDownload,
   PixelGithub,
   PixelGitlab,
+  PixelFdroid,
   PixelShieldCheck,
 } from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
@@ -93,6 +94,18 @@ function Download() {
             >
               <PixelGitlab aria-hidden="true" className="size-5 text-[#FC6D26] shrink-0" />
               <span>GitLab Releases</span>
+            </a>
+
+            <a
+              href={SITE.fdroid.url}
+              target="_blank"
+              rel="noreferrer"
+              className="glass-pill inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-2.5 rounded-full border border-white/10 bg-surface/70 px-6 text-sm sm:text-[15px] font-semibold text-foreground transition-all hover:scale-[1.02] hover:border-[#1976D2]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+              title="Official F-Droid Open Source Catalog (Pending Review)"
+            >
+              <PixelFdroid aria-hidden="true" className="size-5 text-[#1976D2] shrink-0" />
+              <span>F-Droid</span>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#1976D2]/20 text-[#64B5F6] border border-[#1976D2]/30">Pending</span>
             </a>
 
             <a

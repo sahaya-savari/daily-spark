@@ -11,6 +11,7 @@ import {
   PixelFire,
   PixelGithub,
   PixelGitlab,
+  PixelFdroid,
   PixelLock,
   PixelShieldCheck,
   PixelSparkles,
@@ -228,6 +229,17 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
             {/* Action Tier 2: Open Source Release Mirrors */}
             <div className="mt-3 flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+              <a
+                href={SITE.fdroid.url}
+                target="_blank"
+                rel="noreferrer"
+                className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs sm:text-[13px] font-semibold text-foreground/90 transition-all hover:scale-[1.02] hover:border-[#1976D2]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+                aria-label="View Daily Spark on F-Droid"
+              >
+                <PixelFdroid className="size-3.5 shrink-0 text-[#1976D2]" />
+                <span>F-Droid</span>
+                <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded-full bg-[#1976D2]/20 text-[#64B5F6] border border-[#1976D2]/30">Pending</span>
+              </a>
               <a
                 href={SITE.gitlab.releases}
                 target="_blank"

@@ -35,6 +35,14 @@ export const SITE = {
     authorUrl: "https://gitlab.com/sahaya-savari",
     apkUrl: "https://gitlab.com/sahaya-savari/daily-spark/-/packages",
   },
+  fdroid: {
+    url: "https://f-droid.org/packages/com.santhosh.dailyspark2/",
+    mrUrl: "https://gitlab.com/fdroid/fdroiddata/-/merge_requests",
+    status: "pending",
+  },
+  izzyondroid: {
+    url: "https://apt.izzysoft.de/fdroid/index/apk/com.santhosh.dailyspark2",
+  },
   apk: {
     // Latest *published* release, verified against the GitHub Releases API.
     // Source of truth for every download label on the site. Update only after

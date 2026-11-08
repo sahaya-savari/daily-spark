@@ -6,6 +6,7 @@ import {
   PixelDownload,
   PixelGithub,
   PixelGitlab,
+  PixelFdroid,
   PixelMenu,
   PixelShieldCheck,
 } from "@/components/ui/pixel-icon";
@@ -320,6 +321,9 @@ export function SiteFooter() {
           <Link to="/download" className={footerLink}>
             <PixelDownload className="size-4" /> Download
           </Link>
+          <a href={SITE.fdroid.url} target="_blank" rel="noreferrer" className={footerLink} title="F-Droid Catalog (Pending)">
+            <PixelFdroid className="size-4 text-[#1976D2]" /> F-Droid
+          </a>
           <a href={SITE.gitlab.repo} target="_blank" rel="noreferrer" className={footerLink}>
             <PixelGitlab className="size-4 text-[#FC6D26]" /> GitLab
           </a>

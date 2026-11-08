@@ -70,6 +70,9 @@ export const MaterialGithub = createMaterialIcon(
 export const MaterialGitlab = createMaterialIcon(
   "M22.65 14.39L20.6 8.07a.92.92 0 0 0-.35-.45.9.9 0 0 0-.58-.12.9.9 0 0 0-.5.22.92.92 0 0 0-.27.52l-1.46 4.47H6.56l-1.46-4.47a.92.92 0 0 0-.27-.52.9.9 0 0 0-.5-.22.9.9 0 0 0-.58.12.92.92 0 0 0-.35.45L1.35 14.39a.84.84 0 0 0 .3.94l10.05 7.3a.58.58 0 0 0 .6 0l10.05-7.3a.84.84 0 0 0 .3-.94z"
 );
+export const MaterialFdroid = createMaterialIcon(
+  "M16 3a2 2 0 0 0-2 2v1H10V5a2 2 0 0 0-4 0v1H5a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-1V5a2 2 0 0 0-2-2zm-8 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm8 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM5 18a1 1 0 0 0-1 1v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1a1 1 0 0 0-1-1H5z"
+);
 
 // Map Pixel* names directly to official Google Material Design Icons
 export const PixelHome = MaterialHome;
@@ -86,6 +89,7 @@ export const PixelTrophy = MaterialTrophy;
 export const PixelDownload = MaterialDownload;
 export const PixelGithub = MaterialGithub;
 export const PixelGitlab = MaterialGitlab;
+export const PixelFdroid = MaterialFdroid;
 export const PixelShieldCheck = MaterialShieldCheck;
 export const PixelBug = MaterialBugReport;
 export const PixelMenu = MaterialMenu;
