@@ -82,6 +82,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.11.3",
+    "@emnapi/runtime": "^1.11.3",
     "@eslint/js": "^9.32.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.6.0",
