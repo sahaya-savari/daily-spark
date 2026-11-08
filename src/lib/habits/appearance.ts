@@ -1,4 +1,4 @@
-export type ThemeMode = "classic" | "minimal" | "expressive";
+export type ThemeMode = "minimal" | "classic" | "expressive";
 
 export interface ThemeConfig {
   id: ThemeMode;
@@ -19,13 +19,30 @@ export interface ThemeConfig {
 }
 
 export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
+  minimal: {
+    id: "minimal",
+    name: "Minimal",
+    subtitle: "Warm Terracotta Brown",
+    fontDisplay: '"Mozilla Headline", sans-serif',
+    fontApp: '"Inter", "JetBrains Mono", monospace',
+    bg: "#0A0A0A",
+    surface: "rgba(30, 22, 18, 0.65)",
+    surface2: "rgba(42, 31, 26, 0.75)",
+    fg: "#FAF7F5",
+    muted: "#A8A29E",
+    accent: "#BF7245",
+    accentForeground: "#FFFFFF",
+    border: "rgba(191, 114, 69, 0.24)",
+    radius: "16px",
+    heat: ["rgba(255, 255, 255, 0.05)", "#2E1B13", "#5A3320", "#8F4E2B", "#BF7245"],
+  },
   classic: {
     id: "classic",
     name: "Classic",
     subtitle: "Electric Solar Gold on Cosmic Black",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
-    bg: "#0B0F17",
+    bg: "#0A0A0A",
     surface: "#141824",
     surface2: "#1E2433",
     fg: "#F8FAFC",
@@ -42,7 +59,7 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     subtitle: "Electric Violet on Deep Obsidian",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
-    bg: "#06050C",
+    bg: "#0A0A0A",
     surface: "#0D0A17",
     surface2: "#171226",
     fg: "#FFFFFF",
@@ -53,34 +70,17 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     radius: "16px",
     heat: ["rgba(255, 255, 255, 0.05)", "#2E1065", "#5B21B6", "#7C3AED", "#8B5CF6"],
   },
-  minimal: {
-    id: "minimal",
-    name: "Minimal",
-    subtitle: "Warm Terracotta Brown",
-    fontDisplay: '"Mozilla Headline", sans-serif',
-    fontApp: '"Inter", "JetBrains Mono", monospace',
-    bg: "#120D0A",
-    surface: "rgba(30, 22, 18, 0.65)",
-    surface2: "rgba(42, 31, 26, 0.75)",
-    fg: "#FAF7F5",
-    muted: "#A8A29E",
-    accent: "#BF7245",
-    accentForeground: "#FFFFFF",
-    border: "rgba(191, 114, 69, 0.24)",
-    radius: "16px",
-    heat: ["rgba(255, 255, 255, 0.05)", "#2E1B13", "#5A3320", "#8F4E2B", "#BF7245"],
-  },
 };
 
 const STORAGE_KEY = "streakflame_appearance_theme";
 
 export function getStoredTheme(): ThemeMode {
-  if (typeof window === "undefined") return "classic";
+  if (typeof window === "undefined") return "minimal";
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "minimal" || stored === "expressive" || stored === "classic") {
     return stored;
   }
-  return "classic";
+  return "minimal";
 }
 
 export function setStoredTheme(mode: ThemeMode): void {
@@ -96,7 +96,7 @@ export function setStoredTheme(mode: ThemeMode): void {
 export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  const config = THEME_CONFIGS[mode] || THEME_CONFIGS.classic;
+  const config = THEME_CONFIGS[mode] || THEME_CONFIGS.minimal;
 
   // Set theme classes
   root.classList.remove("theme-classic", "theme-minimal", "theme-expressive");
@@ -118,6 +118,8 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
     root.style.setProperty("--circadian-amber-tint", "transparent");
   }
 
+  // Ensure background stays deep black across all themes
+  root.style.setProperty("--background", config.bg);
   root.style.setProperty("--color-ember", config.accent);
   root.style.setProperty("--ember", config.accent);
   root.style.setProperty("--primary", config.accent);

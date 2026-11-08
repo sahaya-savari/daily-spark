@@ -109,7 +109,7 @@ export function ModernSettingsView({
 
   const currentThemeMode = settings.themeMode || getStoredTheme();
   const currentThemeConfig =
-    THEME_CONFIGS[currentThemeMode] || THEME_CONFIGS.classic;
+    THEME_CONFIGS[currentThemeMode] || THEME_CONFIGS.minimal;
 
   const resolveAvatarColor = (name: string): string => {
     if (name in PRESET_AVATAR_COLORS) {

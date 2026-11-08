@@ -221,7 +221,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   };
 
   const handleToggleTheme = () => {
-    const modes: ThemeMode[] = ["classic", "minimal", "expressive"];
+    const modes: ThemeMode[] = ["minimal", "classic", "expressive"];
     const currentMode = (settings.themeMode || getStoredTheme()) as ThemeMode;
     const nextMode = modes[(modes.indexOf(currentMode) + 1) % modes.length];
     setStoredTheme(nextMode);

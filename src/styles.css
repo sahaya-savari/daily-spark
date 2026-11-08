@@ -91,52 +91,52 @@
 .dark {
   /* Dark Charcoal & Terracotta Ember Palette (Sampled strictly from Image 1) */
   --radius: 0.75rem;
-  --background: #121214;
+  --background: #0A0A0A;
   --foreground: #FAF7F5;
-  --surface: #1c1d1f;
-  --surface-2: #242528;
+  --surface: #141416;
+  --surface-2: #1e1e21;
   --card: var(--surface);
   --card-foreground: #FAF7F5;
-  --popover: #1c1d1f;
+  --popover: #141416;
   --popover-foreground: #FAF7F5;
-  --primary: #F59E0B;
-  --primary-foreground: #0B0F17;
-  --ember: #F59E0B;
-  --ember-soft: rgba(245, 158, 11, 0.18);
+  --primary: #BF7245;
+  --primary-foreground: #FFFFFF;
+  --ember: #BF7245;
+  --ember-soft: rgba(191, 114, 69, 0.18);
   /* dithercn Quiet Obsidian & Tactile Ember Tokens */
   --dither-cell: rgba(255, 255, 255, 0.05);
   --dither-ink: var(--ember);
   --dither-paper: var(--background);
-  --dither-bloom: #F59E0B;
-  --brass: #F59E0B;
+  --dither-bloom: #BF7245;
+  --brass: #BF7245;
   --cta: var(--ember);
-  --cta-foreground: #0B0F17;
-  --cta-ring: rgba(245, 158, 11, 0.55);
-  --gold: #F59E0B;
+  --cta-foreground: #FFFFFF;
+  --cta-ring: rgba(191, 114, 69, 0.55);
+  --gold: #BF7245;
   --sage: #7a8270;
-  --secondary: #1c1d1f;
+  --secondary: #141416;
   --secondary-foreground: #FAF7F5;
-  --muted: #242528;
+  --muted: #1e1e21;
   --muted-foreground: #9a9b9e;
   --faint: #7a7b7e;
   --faint-dim: #555659;
-  --accent: #242528;
+  --accent: #1e1e21;
   --accent-foreground: #FAF7F5;
   --destructive: #d9534f;
   --destructive-foreground: #FAF7F5;
   --border: rgba(250, 247, 245, 0.09);
-  --border-hi: rgba(245, 158, 11, 0.28);
+  --border-hi: rgba(191, 114, 69, 0.28);
   --input: rgba(250, 247, 245, 0.12);
   --glass-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.5);
   --scrim: rgba(0, 0, 0, 0.75);
-  --ring: #F59E0B;
+  --ring: #BF7245;
 
   --heat-0: rgba(255, 255, 255, 0.05);
   /* Monochromatic heatmap ramp strictly follows intensity shades of active theme accent */
-  --heat-1: #45330A;
-  --heat-2: #785B0D;
-  --heat-3: #D99E0B;
-  --heat-4: #F59E0B;
+  --heat-1: #2E1B13;
+  --heat-2: #5A3320;
+  --heat-3: #8F4E2B;
+  --heat-4: #BF7245;
 
   --chart-1: #ec894c;
   --chart-2: #bf7245;
@@ -643,7 +643,7 @@
 }
 
 .theme-classic {
-  --background: #0B0F17;
+  --background: #0A0A0A;
   --surface: #141824;
   --surface-2: #1E2433;
   --card: #141824;
@@ -679,7 +679,7 @@
 }
 
 .theme-minimal {
-  --background: #120D0A;
+  --background: #0A0A0A;
   --surface: rgba(30, 22, 18, 0.65);
   --surface-2: rgba(42, 31, 26, 0.75);
   --card: #1E1612;
@@ -696,7 +696,7 @@
 }
 
 .theme-expressive {
-  --background: #06050C;
+  --background: #0A0A0A;
   --surface: #0D0A17;
   --surface-2: #171226;
   --card: #0D0A17;

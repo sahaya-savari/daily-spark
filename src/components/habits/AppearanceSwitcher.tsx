@@ -110,7 +110,7 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
   };
 
   // 1. Classic, 2. Expressive, 3. Minimal
-  const orderedThemeModes: ThemeMode[] = ["classic", "expressive", "minimal"];
+  const orderedThemeModes: ThemeMode[] = ["minimal", "classic", "expressive"];
 
   return (
     <div className={cn("space-y-4", className)}>
