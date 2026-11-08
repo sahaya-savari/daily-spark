@@ -6,9 +6,10 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const isCapacitor = mode === 'capacitor';
+  const base = process.env.VITE_BASE_PATH ?? (isCapacitor ? './' : '/');
 
   return {
-    base: isCapacitor ? './' : '/daily-spark/',
+    base,
 
     server: {
       host: true,

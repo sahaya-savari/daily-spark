@@ -21,9 +21,9 @@ const notFoundHtmlPath = path.join(dist, '404.html');
 const ogCardSource = path.join(dist, 'og-card.html');
 
 // Keep in sync with `base` in vite.config.ts and SITE.basePath in src/lib/site.ts.
-const SITE_ORIGIN = 'https://sahaya-savari.github.io';
-const BASE_PATH = '/daily-spark/';
-const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
+const BASE_PATH = process.env.VITE_BASE_PATH ?? '/';
+const SITE_ORIGIN = process.env.VITE_SITE_ORIGIN ?? 'https://daily-spark-e4b528.gitlab.io';
+const SITE_URL = BASE_PATH === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${BASE_PATH}`;
 
 const SEO_BLOCK = /<!--seo:start-->[\s\S]*?<!--seo:end-->/;
 
@@ -142,7 +142,8 @@ function seoBlock(route) {
 
 /** Make public-asset URLs host-absolute so nested route files resolve them. */
 function absolutizeAssets(html) {
-  return html.replace(/(\s(?:href|src))="\.\//g, `$1="${BASE_PATH}`);
+  const prefix = BASE_PATH.endsWith('/') ? BASE_PATH : `${BASE_PATH}/`;
+  return html.replace(/(\s(?:href|src))="\.\//g, `$1="${prefix}`);
 }
 
 function renderRoute(template, route) {

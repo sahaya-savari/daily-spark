@@ -10,10 +10,10 @@
  *   site can never advertise a build that does not exist.
  */
 
-const origin = "https://sahaya-savari.github.io";
-// GitHub Pages serves this repo from a project path. Keep in sync with `base`
-// in vite.config.ts (and SITE_URL in scripts/postbuild.js).
-const basePath = "/daily-spark/";
+const origin = typeof window !== "undefined" ? window.location.origin : "https://daily-spark-e4b528.gitlab.io";
+// Dynamic base path support for both root unique domains and subpath deployments.
+const rawBase = typeof import.meta.env?.BASE_URL === "string" ? import.meta.env.BASE_URL : "/";
+const basePath = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
 export const SITE = {
   name: "Daily Spark",
