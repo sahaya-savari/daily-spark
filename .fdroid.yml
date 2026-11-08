@@ -1,16 +1,16 @@
 # F-Droid Build Metadata Recipe for Daily Spark
 # Package: com.santhosh.dailyspark2
-# Repository: https://github.com/sahaya-savari/daily-spark
+# Repository: https://gitlab.com/sahaya-savari/daily-spark
 
 Categories:
   - Time
   - Sports & Health
 License: MIT
 AuthorName: Santhosh
-AuthorWebSite: https://sahaya-savari.github.io/daily-spark/
-SourceCode: https://github.com/sahaya-savari/daily-spark
-IssueTracker: https://github.com/sahaya-savari/daily-spark/issues
-Changelog: https://github.com/sahaya-savari/daily-spark/releases
+AuthorWebSite: https://sahaya-savari.gitlab.io/daily-spark/
+SourceCode: https://gitlab.com/sahaya-savari/daily-spark
+IssueTracker: https://gitlab.com/sahaya-savari/daily-spark/-/issues
+Changelog: https://gitlab.com/sahaya-savari/daily-spark/-/releases
 
 Name: Daily Spark
 AutoName: Daily Spark
@@ -23,16 +23,16 @@ Description: |-
   Key Features:
   * 100% Offline-First: All habit records stay on your physical device.
   * Home-Screen Android Widgets: Glanceable Today checklist, Streak counter, and Heatmap.
-  * Activity Matrix: 6-month GitHub-style habit activity heatmap.
+  * Activity Matrix: 6-month habit activity heatmap.
   * Zero Forced Permissions: Core tracking works without internet or special privileges.
   * Open Data: Instant encrypted JSON backup export and import anytime.
 
 RepoType: git
-Repo: https://github.com/sahaya-savari/daily-spark.git
+Repo: https://gitlab.com/sahaya-savari/daily-spark.git
 
 Builds:
   - versionName: 1.0.1
-    versionCode: 1
+    versionCode: 100001
     commit: v1.0.1
     subdir: android/app
     gradle:
@@ -40,3 +40,8 @@ Builds:
     prebuild:
       - npm ci
       - npm run build:android
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.1
+CurrentVersionCode: 100001

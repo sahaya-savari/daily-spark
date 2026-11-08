@@ -2,11 +2,10 @@ apply plugin: 'com.android.application'
 
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("keystore.properties")
+def hasKeystore = keystorePropertiesFile.exists()
 
-if (keystorePropertiesFile.exists()) {
+if (hasKeystore) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-} else {
-    throw new GradleException("keystore.properties not found. Release build blocked.")
 }
 
 android {
@@ -32,21 +31,27 @@ android {
 
     signingConfigs {
         release {
-            storeFile rootProject.file(keystoreProperties["storeFile"])
-            storePassword keystoreProperties["storePassword"]
-            keyAlias keystoreProperties["keyAlias"]
-            keyPassword keystoreProperties["keyPassword"]
+            if (hasKeystore && keystoreProperties["storeFile"]) {
+                storeFile rootProject.file(keystoreProperties["storeFile"])
+                storePassword keystoreProperties["storePassword"]
+                keyAlias keystoreProperties["keyAlias"]
+                keyPassword keystoreProperties["keyPassword"]
+            }
         }
     }
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.release   // OK for testing
+            if (hasKeystore && keystoreProperties["storeFile"]) {
+                signingConfig signingConfigs.release
+            }
             debuggable true
         }
 
         release {
-            signingConfig signingConfigs.release   // 🔒 ALWAYS SIGN
+            if (hasKeystore && keystoreProperties["storeFile"]) {
+                signingConfig signingConfigs.release
+            }
             debuggable false
             minifyEnabled false
             shrinkResources false
