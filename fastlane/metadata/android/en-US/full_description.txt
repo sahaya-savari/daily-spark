@@ -1,0 +1,9 @@
+Daily Spark is a calm, distraction-free, 100% offline-first habit tracker.
+Track one small action a day per habit. No account, no analytics, no ads, no social feeds, and no pushy guilt-inducing streaks.
+
+Key Features:
+* 100% Offline-First: All habit records stay on your physical device.
+* Home-Screen Android Widgets: Glanceable Today checklist, Streak counter, and Heatmap.
+* Activity Matrix: 6-month habit activity heatmap.
+* Zero Forced Permissions: Core tracking works without internet or special privileges.
+* Open Data: Instant encrypted JSON backup export and import anytime.

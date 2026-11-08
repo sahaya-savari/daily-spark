@@ -33,7 +33,7 @@ Repo: https://gitlab.com/sahaya-savari/daily-spark.git
 Builds:
   - versionName: 1.0.1
     versionCode: 100001
-    commit: v1.0.1
+    commit: 116dd3a0548bd10c663bdd545a99829f07c55ac9
     subdir: android/app
     gradle:
       - yes
