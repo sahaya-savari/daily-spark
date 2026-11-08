@@ -21,9 +21,9 @@ const notFoundHtmlPath = path.join(dist, '404.html');
 const ogCardSource = path.join(dist, 'og-card.html');
 
 // Keep in sync with `base` in vite.config.ts and SITE.basePath in src/lib/site.ts.
-const BASE_PATH = process.env.VITE_BASE_PATH ?? '/';
-const SITE_ORIGIN = process.env.VITE_SITE_ORIGIN ?? 'https://daily-spark-e4b528.gitlab.io';
-const SITE_URL = BASE_PATH === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${BASE_PATH}`;
+const BASE_PATH = process.env.VITE_BASE_PATH ?? '/daily-spark/';
+const SITE_ORIGIN = process.env.VITE_SITE_ORIGIN ?? 'https://sahaya-savari.gitlab.io';
+const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
 
 const SEO_BLOCK = /<!--seo:start-->[\s\S]*?<!--seo:end-->/;
 

@@ -10,9 +10,9 @@
  *   site can never advertise a build that does not exist.
  */
 
-const origin = typeof window !== "undefined" ? window.location.origin : "https://daily-spark-e4b528.gitlab.io";
+const origin = typeof window !== "undefined" ? window.location.origin : "https://sahaya-savari.gitlab.io";
 // Dynamic base path support for both root unique domains and subpath deployments.
-const rawBase = typeof import.meta.env?.BASE_URL === "string" ? import.meta.env.BASE_URL : "/";
+const rawBase = typeof import.meta.env?.BASE_URL === "string" ? import.meta.env.BASE_URL : "/daily-spark/";
 const basePath = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
 export const SITE = {
