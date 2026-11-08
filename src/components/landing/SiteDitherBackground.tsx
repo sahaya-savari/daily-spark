@@ -100,7 +100,7 @@ export function SiteDitherBackground({
   if (!ready) {
     return (
       <div
-        className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,rgba(236,137,76,0.08),transparent_75%)]"
+        className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,color-mix(in_srgb,var(--ember)_8%,transparent),transparent_75%)]"
         aria-hidden="true"
       />
     );
@@ -117,7 +117,7 @@ export function SiteDitherBackground({
       className={className}
       fallback={
         <div
-          className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,rgba(236,137,76,0.08),transparent_75%)]"
+          className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,color-mix(in_srgb,var(--ember)_8%,transparent),transparent_75%)]"
           aria-hidden="true"
         />
       }

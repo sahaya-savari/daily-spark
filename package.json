@@ -14,8 +14,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "vitest run --root .",
+    "test:watch": "vitest --root ."
   },
   "dependencies": {
     "@capacitor/android": "8.0.2",

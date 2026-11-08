@@ -27,6 +27,14 @@ export const SITE = {
   releases: "https://github.com/sahaya-savari/daily-spark/releases",
   author: "sahaya-savari",
   authorUrl: "https://github.com/sahaya-savari",
+  gitlab: {
+    repo: "https://gitlab.com/sahaya-savari/daily-spark",
+    releases: "https://gitlab.com/sahaya-savari/daily-spark/-/releases",
+    packages: "https://gitlab.com/sahaya-savari/daily-spark/-/packages",
+    issues: "https://gitlab.com/sahaya-savari/daily-spark/-/issues",
+    authorUrl: "https://gitlab.com/sahaya-savari",
+    apkUrl: "https://gitlab.com/sahaya-savari/daily-spark/-/packages",
+  },
   apk: {
     // Latest *published* release, verified against the GitHub Releases API.
     // Source of truth for every download label on the site. Update only after

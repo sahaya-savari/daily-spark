@@ -1034,210 +1034,317 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         {/* TAB 0: TODAY (HOME)                                            */}
         {/* ============================================================== */}
         {activeTab === 0 && (
-          <div className="space-y-4">
-            {/* Today Header */}
-            <div className="flex items-end justify-between">
-              <div>
-                <ScrambleText as="p" className="kicker" trigger="in-view">
-                  Today
-                </ScrambleText>
-                <p className="text-[20px] font-extrabold tracking-tight">
-                  {formatDisplayDate(today)}
-                </p>
+          <div className={cn("space-y-4", !embedded && "lg:grid lg:grid-cols-12 lg:gap-6 lg:space-y-0")}>
+            {/* Primary / Habits Column */}
+            <div className={cn("space-y-4", !embedded && "lg:col-span-7 xl:col-span-8 lg:space-y-5")}>
+              {/* Today Header */}
+              <div className="flex items-end justify-between">
+                <div>
+                  <ScrambleText as="p" className="kicker" trigger="in-view">
+                    Today
+                  </ScrambleText>
+                  <p className="text-[20px] font-extrabold tracking-tight">
+                    {formatDisplayDate(today)}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setTodayFocus(!todayFocus)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+                    todayFocus
+                      ? "bg-ember text-white shadow-sm"
+                      : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80"
+                  )}
+                >
+                  <PixelSparkles className="size-3" />
+                  {todayFocus ? "Pending only" : "All habits"}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setTodayFocus(!todayFocus)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors",
-                  todayFocus
-                    ? "bg-ember text-white shadow-sm"
-                    : "bg-surface-2 text-muted-foreground hover:bg-surface-2/80"
+
+              {/* Next Up Hero Card */}
+              <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-surface p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="kicker">{nextHabit ? "Next up" : "Daily status"}</p>
+                    <p className="font-mono text-[24px] font-semibold leading-tight mt-1 truncate">
+                      {nextHabit ? nextHabit.name : "All caught up"}
+                    </p>
+                    <p className="text-[12.5px] font-medium text-muted-foreground mt-1">
+                      {nextHabit
+                        ? `${todayCompletedCount} of ${activeHabits.length} completed · ${nextHabit.currentStreak} day streak`
+                        : activeHabits.length === 0
+                        ? "Tap the + button below to create your first habit."
+                        : "Perfect day! You have completed all scheduled habits."}
+                    </p>
+                  </div>
+                  <AnimatedCircularProgressBar
+                    value={todayCompletedCount}
+                    max={activeHabits.length || 1}
+                    size={52}
+                    strokeWidth={5}
+                  >
+                    <span className="text-[11px] font-mono font-bold text-foreground">
+                      {todayCompletedCount}/{activeHabits.length}
+                    </span>
+                  </AnimatedCircularProgressBar>
+                </div>
+
+                {nextHabit && (
+                  <Button
+                    onClick={(e) => {
+                      hapticEngine.tickTap();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
+                      const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
+                      setHeroBurst({ x, y });
+                      handleToggleHabit(nextHabit.id);
+                    }}
+                    className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98] cursor-pointer"
+                  >
+                    <PixelCheck className="size-4" /> Check in now
+                  </Button>
                 )}
-              >
-                <PixelSparkles className="size-3" />
-                {todayFocus ? "Pending only" : "All habits"}
-              </button>
-            </div>
-
-            {/* Next Up Hero Card */}
-            <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-surface p-5 shadow-sm">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="kicker">{nextHabit ? "Next up" : "Daily status"}</p>
-                  <p className="font-mono text-[24px] font-semibold leading-tight mt-1 truncate">
-                    {nextHabit ? nextHabit.name : "All caught up"}
-                  </p>
-                  <p className="text-[12.5px] font-medium text-muted-foreground mt-1">
-                    {nextHabit
-                      ? `${todayCompletedCount} of ${activeHabits.length} completed · ${nextHabit.currentStreak} day streak`
-                      : activeHabits.length === 0
-                      ? "Tap the + button below to create your first habit."
-                      : "Perfect day! You have completed all scheduled habits."}
-                  </p>
-                </div>
-                <AnimatedCircularProgressBar
-                  value={todayCompletedCount}
-                  max={activeHabits.length || 1}
-                  size={52}
-                  strokeWidth={5}
-                >
-                  <span className="text-[11px] font-mono font-bold text-foreground">
-                    {todayCompletedCount}/{activeHabits.length}
-                  </span>
-                </AnimatedCircularProgressBar>
               </div>
 
-              {nextHabit && (
-                <Button
-                  onClick={(e) => {
-                    hapticEngine.tickTap();
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
-                    const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
-                    setHeroBurst({ x, y });
-                    handleToggleHabit(nextHabit.id);
-                  }}
-                  className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98] cursor-pointer"
-                >
-                  <PixelCheck className="size-4" /> Check in now
-                </Button>
+              {/* The Two-Day Rule Gentle Banner (Mobile placement) */}
+              {atRiskHabits.length > 0 && (
+                <div className={cn("rounded-2xl border border-ember/25 bg-ember/10 p-3 flex items-center justify-between text-xs", !embedded && "lg:hidden")}>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <PixelFire className="size-4 text-ember shrink-0" />
+                    <span className="truncate text-foreground/90 font-medium">Missed yesterday: <strong className="text-foreground">{atRiskHabits[0].name}</strong></span>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      hapticEngine.tickTap();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
+                      const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
+                      setHeroBurst({ x, y });
+                      handleToggleHabit(atRiskHabits[0].id);
+                    }}
+                    className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90 cursor-pointer"
+                  >
+                    Check In
+                  </Button>
+                </div>
               )}
+
+              {/* Mini 7-Day Consistency Bar (Mobile placement) */}
+              <div className={cn("rounded-3xl border border-border/40 bg-surface p-4", !embedded && "lg:hidden")}>
+                <div className="flex justify-between items-center">
+                  {weekDays.map((d, i) => {
+                    const isToday = d.date === today;
+                    const isPerfect = d.total > 0 && d.done === d.total;
+                    return (
+                      <div key={i} className="flex flex-col items-center gap-1.5">
+                        <span className={cn("text-[11px] font-semibold", isToday ? "text-ember font-bold" : "text-faint")}>
+                          {d.label}
+                        </span>
+                        <span
+                          className={cn(
+                            "grid size-[30px] place-items-center rounded-full text-[10px] font-bold transition-all",
+                            isPerfect
+                              ? "bg-primary text-primary-foreground"
+                              : d.done > 0
+                              ? "bg-ember-soft text-ember"
+                              : "bg-surface-2 text-faint",
+                            isToday && !isPerfect && "ring-2 ring-ember"
+                          )}
+                        >
+                          {isPerfect ? <PixelCheck className="size-3.5" /> : d.done}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Habits List */}
+              <div>
+                <div className="mb-2.5 flex items-center justify-between">
+                  <p className="text-[16px] font-bold">Habits for Today</p>
+                  <span className="text-xs font-semibold text-faint">
+                    {todayCompletedCount}/{activeHabits.length} done
+                  </span>
+                </div>
+
+                {todayHabits.length === 0 ? (
+                  <EmptyState
+                    illustration={todayFocus ? "planet" : "box"}
+                    title={todayFocus ? "All habits completed!" : "No habits for today"}
+                    description={
+                      todayFocus
+                        ? "You've crushed all your scheduled habits for today."
+                        : "Tap the button below to add your first habit and ignite your spark."
+                    }
+                    action={
+                      todayFocus ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setTodayFocus(false)}
+                          className="rounded-full"
+                        >
+                          Show all habits
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => setIsAddOpen(true)}
+                          className="rounded-full bg-ember text-white hover:bg-ember/90 cursor-pointer"
+                        >
+                          <PixelPlus className="size-3.5 mr-1.5" />
+                          Add Habit
+                        </Button>
+                      )
+                    }
+                    color="orange"
+                    className="rounded-3xl border border-border/40 bg-surface py-8"
+                  />
+                ) : (
+                  <div className={cn("space-y-3", !embedded && "xl:grid xl:grid-cols-2 xl:gap-3.5 xl:space-y-0")}>
+                    {todayHabits.map((h) => (
+                      <NeoGlassHabitCard
+                        key={h.id}
+                        habit={h}
+                        today={today}
+                        onToggleToday={(id) => {
+                          handleToggleHabit(id);
+                        }}
+                        onQuantIncrement={(id, delta) => {
+                          triggerLightHaptic();
+                          habitActions.incrementQuant(id, today, delta);
+                        }}
+                        onLogRelapse={(id, cost, reason) => {
+                          triggerLightHaptic();
+                          habitActions.logRelapse(id, today, cost, reason);
+                        }}
+                        onUndoRelapse={(id) => {
+                          triggerLightHaptic();
+                          habitActions.undoRelapse(id, today);
+                        }}
+                        onToggleSubtask={(id, subtaskId) => {
+                          triggerLightHaptic();
+                          habitActions.toggleSubtask(id, subtaskId, today);
+                        }}
+                        onOpenFocusTimer={(targetHabit) => {
+                          setFocusHabit(targetHabit);
+                          setIsFocusTimerOpen(true);
+                        }}
+                        onToggleStar={(id) => habitActions.star(id)}
+                        onEdit={(targetHabit) => setSelectedHabit(targetHabit)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* The Two-Day Rule Gentle Banner */}
-            {atRiskHabits.length > 0 && (
-              <div className="rounded-2xl border border-ember/25 bg-ember/10 p-3 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2 min-w-0">
-                  <PixelFire className="size-4 text-ember shrink-0" />
-                  <span className="truncate text-foreground/90 font-medium">Missed yesterday: <strong className="text-foreground">{atRiskHabits[0].name}</strong></span>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={(e) => {
-                    hapticEngine.tickTap();
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
-                    const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
-                    setHeroBurst({ x, y });
-                    handleToggleHabit(atRiskHabits[0].id);
-                  }}
-                  className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90 cursor-pointer"
-                >
-                  Check In
-                </Button>
-              </div>
-            )}
+            {/* Desktop Side Widget Column */}
+            {!embedded && (
+              <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 flex-col gap-5">
+                {/* At-Risk Alert Banner */}
+                {atRiskHabits.length > 0 && (
+                  <div className="rounded-2xl border border-ember/25 bg-ember/10 p-3.5 flex items-center justify-between text-xs shadow-sm">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <PixelFire className="size-4 text-ember shrink-0" />
+                      <span className="truncate text-foreground/90 font-medium">Missed yesterday: <strong className="text-foreground">{atRiskHabits[0].name}</strong></span>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        hapticEngine.tickTap();
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
+                        const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
+                        setHeroBurst({ x, y });
+                        handleToggleHabit(atRiskHabits[0].id);
+                      }}
+                      className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90 cursor-pointer"
+                    >
+                      Check In
+                    </Button>
+                  </div>
+                )}
 
-            {/* Mini 7-Day Consistency Bar */}
-            <div className="rounded-3xl border border-border/40 bg-surface p-4">
-              <div className="flex justify-between items-center">
-                {weekDays.map((d, i) => {
-                  const isToday = d.date === today;
-                  const isPerfect = d.total > 0 && d.done === d.total;
-                  return (
-                    <div key={i} className="flex flex-col items-center gap-1.5">
-                      <span className={cn("text-[11px] font-semibold", isToday ? "text-ember font-bold" : "text-faint")}>
-                        {d.label}
-                      </span>
-                      <span
-                        className={cn(
-                          "grid size-[30px] place-items-center rounded-full text-[10px] font-bold transition-all",
-                          isPerfect
-                            ? "bg-primary text-primary-foreground"
-                            : d.done > 0
-                            ? "bg-ember-soft text-ember"
-                            : "bg-surface-2 text-faint",
-                          isToday && !isPerfect && "ring-2 ring-ember"
-                        )}
-                      >
-                        {isPerfect ? <PixelCheck className="size-3.5" /> : d.done}
+                {/* 7-Day Consistency Rhythm Widget */}
+                <div className="rounded-3xl border border-border/40 bg-surface p-5 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[14px] font-bold text-foreground">Weekly Rhythm</p>
+                      <p className="text-[11px] text-muted-foreground">Past 7 days performance</p>
+                    </div>
+                    <span className="text-[11px] font-mono font-bold text-ember px-2 py-0.5 rounded-full bg-ember-soft">
+                      {progressStats.last7Pct}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2">
+                    {weekDays.map((d, i) => {
+                      const isToday = d.date === today;
+                      const isPerfect = d.total > 0 && d.done === d.total;
+                      return (
+                        <div key={i} className="flex flex-col items-center gap-1.5">
+                          <span className={cn("text-[11px] font-semibold", isToday ? "text-ember font-bold" : "text-faint")}>
+                            {d.label}
+                          </span>
+                          <span
+                            className={cn(
+                              "grid size-[32px] place-items-center rounded-full text-[10px] font-bold transition-all",
+                              isPerfect
+                                ? "bg-primary text-primary-foreground"
+                                : d.done > 0
+                                ? "bg-ember-soft text-ember"
+                                : "bg-surface-2 text-faint",
+                              isToday && !isPerfect && "ring-2 ring-ember"
+                            )}
+                          >
+                            {isPerfect ? <PixelCheck className="size-3.5" /> : d.done}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Daily Progress & Momentum Widget */}
+                <div className="rounded-3xl border border-border/40 bg-surface p-5 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[14px] font-bold text-foreground">Daily Progress</p>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-surface-2 text-muted-foreground font-mono">
+                      {todayCompletedCount}/{activeHabits.length} Done
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Completion rate</span>
+                      <span className="font-mono font-bold text-foreground">
+                        {activeHabits.length > 0 ? Math.round((todayCompletedCount / activeHabits.length) * 100) : 0}%
                       </span>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Habits List */}
-            <div>
-              <div className="mb-2.5 flex items-center justify-between">
-                <p className="text-[16px] font-bold">Habits for Today</p>
-                <span className="text-xs font-semibold text-faint">
-                  {todayCompletedCount}/{activeHabits.length} done
-                </span>
-              </div>
-
-              {todayHabits.length === 0 ? (
-                <EmptyState
-                  illustration={todayFocus ? "planet" : "box"}
-                  title={todayFocus ? "All habits completed!" : "No habits for today"}
-                  description={
-                    todayFocus
-                      ? "You've crushed all your scheduled habits for today."
-                      : "Tap the button below to add your first habit and ignite your spark."
-                  }
-                  action={
-                    todayFocus ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setTodayFocus(false)}
-                        className="rounded-full"
-                      >
-                        Show all habits
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => setIsAddOpen(true)}
-                        className="rounded-full bg-ember text-white hover:bg-ember/90 cursor-pointer"
-                      >
-                        <PixelPlus className="size-3.5 mr-1.5" />
-                        Add Habit
-                      </Button>
-                    )
-                  }
-                  color="orange"
-                  className="rounded-3xl border border-border/40 bg-surface py-8"
-                />
-              ) : (
-                <div className="space-y-3">
-                  {todayHabits.map((h) => (
-                    <NeoGlassHabitCard
-                      key={h.id}
-                      habit={h}
-                      today={today}
-                      onToggleToday={(id) => {
-                        handleToggleHabit(id);
-                      }}
-                      onQuantIncrement={(id, delta) => {
-                        triggerLightHaptic();
-                        habitActions.incrementQuant(id, today, delta);
-                      }}
-                      onLogRelapse={(id, cost, reason) => {
-                        triggerLightHaptic();
-                        habitActions.logRelapse(id, today, cost, reason);
-                      }}
-                      onUndoRelapse={(id) => {
-                        triggerLightHaptic();
-                        habitActions.undoRelapse(id, today);
-                      }}
-                      onToggleSubtask={(id, subtaskId) => {
-                        triggerLightHaptic();
-                        habitActions.toggleSubtask(id, subtaskId, today);
-                      }}
-                      onOpenFocusTimer={(targetHabit) => {
-                        setFocusHabit(targetHabit);
-                        setIsFocusTimerOpen(true);
-                      }}
-                      onToggleStar={(id) => habitActions.star(id)}
-                      onEdit={(targetHabit) => setSelectedHabit(targetHabit)}
-                    />
-                  ))}
+                    <div className="h-2 w-full rounded-full bg-surface-2 overflow-hidden border border-border/30">
+                      <div
+                        className="h-full bg-gradient-to-r from-ember to-heat-4 transition-all duration-500 rounded-full"
+                        style={{
+                          width: `${activeHabits.length > 0 ? (todayCompletedCount / activeHabits.length) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2.5 pt-1 text-center text-xs">
+                    <div className="rounded-2xl bg-surface-2/60 border border-border/30 p-3">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Active Streak</p>
+                      <p className="text-xl font-extrabold text-ember font-mono mt-0.5">{progressStats.globalStreak}d</p>
+                    </div>
+                    <div className="rounded-2xl bg-surface-2/60 border border-border/30 p-3">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Monthly Rate</p>
+                      <p className="text-xl font-extrabold text-foreground font-mono mt-0.5">{progressStats.last30Pct}%</p>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -1332,7 +1439,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   filteredCount={displayedHabits.length}
                 />
 
-                <div className="space-y-3 pt-1">
+                <div className={cn("space-y-3 pt-1", !embedded && "lg:grid lg:grid-cols-2 lg:gap-3.5 lg:space-y-0")}>
                   {displayedHabits.length === 0 ? (
                     <EmptyState
                       illustration="search"
@@ -1357,7 +1464,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                         </Button>
                       }
                       color="orange"
-                      className="rounded-3xl border border-border/40 bg-surface py-8"
+                      className="rounded-3xl border border-border/40 bg-surface py-8 col-span-full"
                     />
                   ) : (
                     displayedHabits.map((h) => (
@@ -1487,7 +1594,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               <div className="space-y-4">
 
             {/* 4 Metric Cards */}
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className={cn("grid grid-cols-2 gap-2.5", !embedded && "lg:grid-cols-4 lg:gap-3.5")}>
               <div className="rounded-3xl border border-border/40 bg-surface p-4">
                 <p className="kicker">Last 7 days</p>
                 <p className="text-[26px] font-extrabold text-ember">{progressStats.last7Pct}%</p>
@@ -1531,7 +1638,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                 <span className="text-xs font-semibold text-ember">Quiet recognition</span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-center">
+              <div className={cn("grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-center", !embedded && "lg:grid-cols-6 lg:gap-3")}>
                 {MILESTONES.map((m) => {
                   const unlocked = habits.some((h) => h.bestStreak >= m.days);
                   return (

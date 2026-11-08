@@ -182,7 +182,7 @@ export function ModernSettingsView({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto px-1 sm:px-2 py-4 space-y-6">
+    <div className={cn("w-full mx-auto px-1 sm:px-2 py-4 space-y-6", !embedded ? "max-w-xl lg:max-w-4xl lg:grid lg:grid-cols-12 lg:gap-8 lg:space-y-0" : "max-w-xl")}>
       {/* Hidden file input for uploading custom avatar photo */}
       <input
         ref={fileInputRef}
@@ -193,70 +193,79 @@ export function ModernSettingsView({
         aria-hidden="true"
       />
 
-      {/* 1. Ultra-Minimalist Profile Header */}
-      <div className="flex flex-col items-center justify-center text-center pt-2">
-        <div
-          className="relative group cursor-pointer"
-          onClick={openProfileEditor}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              openProfileEditor();
-            }
-          }}
-          aria-label="Edit Profile & Avatar"
-        >
-          <div className="size-20 sm:size-24 rounded-full border-2 border-white/10 bg-surface-2 p-1 shadow-xl overflow-hidden flex items-center justify-center transition-transform hover:scale-105 relative">
-            {profile.customImage ? (
-              <div className="relative size-full">
-                <img
-                  src={profile.customImage}
-                  alt={profile.name}
-                  className={cn(
-                    "size-full object-cover",
-                    profile.shape === "circle" ? "rounded-full" : "rounded-2xl"
-                  )}
-                />
-                <span
-                  className={cn(
-                    "absolute bottom-0.5 right-0.5 size-3.5 rounded-full ring-2 ring-background",
-                    profile.status === "online" && "bg-emerald-400",
-                    profile.status === "away" && "bg-amber-400",
-                    profile.status === "busy" && "bg-rose-500",
-                    profile.status === "offline" && "bg-neutral-500"
-                  )}
-                  aria-hidden="true"
-                />
-              </div>
-            ) : (
-              <Avatar
-                name={profile.name}
-                label={profile.name}
-                size={88}
-                shape={profile.shape}
-                fill={profile.fill}
-                status={profile.status}
-                color={resolveAvatarColor(profile.name)}
-                bloom={profile.bloom || "low"}
-              />
-            )}
-          </div>
-          {/* Single edit pencil badge at bottom-right */}
-          <span
-            className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-[var(--ember-foreground,#FFFFFF)] grid place-items-center shadow-lg border-2 border-background transition-transform group-hover:scale-110"
-            aria-hidden="true"
+      {/* Left Column (Profile & Identity on Desktop) */}
+      <div className={cn("space-y-4", !embedded && "lg:col-span-5 xl:col-span-4")}>
+        {/* 1. Ultra-Minimalist Profile Header */}
+        <div className={cn("flex flex-col items-center justify-center text-center pt-2", !embedded && "lg:rounded-3xl lg:border lg:border-white/10 lg:bg-surface/90 lg:p-6 lg:backdrop-blur-md")}>
+          <div
+            className="relative group cursor-pointer"
+            onClick={openProfileEditor}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openProfileEditor();
+              }
+            }}
+            aria-label="Edit Profile & Avatar"
           >
-            <PixelPen className="size-3.5 text-current" />
-          </span>
-        </div>
+            <div className="size-20 sm:size-24 rounded-full border-2 border-white/10 bg-surface-2 p-1 shadow-xl overflow-hidden flex items-center justify-center transition-transform hover:scale-105 relative">
+              {profile.customImage ? (
+                <div className="relative size-full">
+                  <img
+                    src={profile.customImage}
+                    alt={profile.name}
+                    className={cn(
+                      "size-full object-cover",
+                      profile.shape === "circle" ? "rounded-full" : "rounded-2xl"
+                    )}
+                  />
+                  <span
+                    className={cn(
+                      "absolute bottom-0.5 right-0.5 size-3.5 rounded-full ring-2 ring-background",
+                      profile.status === "online" && "bg-emerald-400",
+                      profile.status === "away" && "bg-amber-400",
+                      profile.status === "busy" && "bg-rose-500",
+                      profile.status === "offline" && "bg-neutral-500"
+                    )}
+                    aria-hidden="true"
+                  />
+                </div>
+              ) : (
+                <Avatar
+                  name={profile.name}
+                  label={profile.name}
+                  size={88}
+                  shape={profile.shape}
+                  fill={profile.fill}
+                  status={profile.status}
+                  color={resolveAvatarColor(profile.name)}
+                  bloom={profile.bloom || "low"}
+                />
+              )}
+            </div>
+            {/* Single edit pencil badge at bottom-right */}
+            <span
+              className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-[var(--ember-foreground,#FFFFFF)] grid place-items-center shadow-lg border-2 border-background transition-transform group-hover:scale-110"
+              aria-hidden="true"
+            >
+              <PixelPen className="size-3.5 text-current" />
+            </span>
+          </div>
 
-        {/* Username */}
-        <h2 className="mt-3 font-display text-xl sm:text-2xl font-bold text-foreground tracking-normal">
-          {profile.name}
-        </h2>
+          {/* Username */}
+          <h2 className="mt-3 font-display text-xl sm:text-2xl font-bold text-foreground tracking-normal">
+            {profile.name}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+            {profile.status} · {currentThemeConfig.name} theme
+          </p>
+        </div>
       </div>
+
+      {/* Right Column (Settings Sections on Desktop) */}
+      <div className={cn("space-y-4", !embedded && "lg:col-span-7 xl:col-span-8")}>
 
       {/* 2. Isolated Card: App style */}
       <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden">
@@ -404,6 +413,7 @@ export function ModernSettingsView({
           </div>
         </button>
       </section>
+      </div>
 
       {/* MODAL: Unified Profile & Avatar Customizer */}
       <Dialog open={isEditingProfile} onOpenChange={setIsEditingProfile}>

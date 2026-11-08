@@ -170,9 +170,10 @@
   --glass-line-strong: oklch(1 0 0 / 18%);
   --glass-sheen: linear-gradient(158deg, oklch(1 0 0 / 10%) 0%, transparent 40%, transparent 100%);
   --glass-blur: 24px;
-  --aurora-1: rgba(236, 137, 76, 0.12);
-  --aurora-2: rgba(191, 114, 69, 0.09);
-  --aurora-3: rgba(99, 66, 49, 0.08);
+  --ember-glow: rgba(191, 114, 69, 0.45);
+  --aurora-1: var(--ember-glow);
+  --aurora-2: color-mix(in srgb, var(--ember) 14%, transparent);
+  --aurora-3: color-mix(in srgb, var(--ember) 7%, transparent);
 }
 
 @layer base {
@@ -653,6 +654,8 @@
   --primary-foreground: #0B0F17;
   --ember: #F59E0B;
   --ember-foreground: #0B0F17;
+  --ember-glow: rgba(245, 158, 11, 0.40);
+  --ember-soft: rgba(245, 158, 11, 0.18);
   --heat-0: rgba(255, 255, 255, 0.05);
   --heat-1: #45330A;
   --heat-2: #785B0D;
@@ -687,6 +690,8 @@
   --muted-foreground: #A8A29E;
   --primary: #BF7245;
   --ember: #BF7245;
+  --ember-glow: rgba(191, 114, 69, 0.45);
+  --ember-soft: rgba(191, 114, 69, 0.18);
   --heat-0: rgba(255, 255, 255, 0.05);
   --heat-1: #2E1B13;
   --heat-2: #5A3320;
@@ -704,6 +709,8 @@
   --muted-foreground: #A1A1AA;
   --primary: #8B5CF6;
   --ember: #8B5CF6;
+  --ember-glow: rgba(139, 92, 246, 0.45);
+  --ember-soft: rgba(139, 92, 246, 0.18);
   --heat-0: rgba(255, 255, 255, 0.05);
   --heat-1: #2E1065;
   --heat-2: #5B21B6;

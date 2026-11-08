@@ -216,7 +216,8 @@ function Screen({
               onClick={() => onNav?.(4)}
               variant="fab"
               size="fab"
-              className="size-13 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white shadow-[0_4px_18px_rgba(236,137,76,0.35)] border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0 mx-1"
+              style={{ boxShadow: "0 4px 22px var(--ember-glow)" }}
+              className="size-13 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0 mx-1"
             >
               <PixelPlus className="size-6 text-white" />
             </Button>

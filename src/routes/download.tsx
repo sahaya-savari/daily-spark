@@ -4,6 +4,7 @@ import {
   PixelCheckCircle,
   PixelDownload,
   PixelGithub,
+  PixelGitlab,
   PixelShieldCheck,
 } from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
@@ -63,56 +64,64 @@ function Download() {
         </p>
 
         {/* Primary install card */}
-        <section className="glass-panel glass-sheen mt-10 rounded-3xl p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-ember">
+        <section className="glass-panel glass-sheen mt-8 sm:mt-10 rounded-3xl p-6 sm:p-9 border border-white/10">
+          <div className="flex flex-wrap items-center gap-2 text-xs sm:text-[13px] font-bold uppercase tracking-wider text-ember">
             <PixelAndroid aria-hidden="true" className="size-4" />
-            <span>Android, Windows &amp; Linux</span>
+            <span>Official Android APK</span>
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <h2 className="mt-2 font-display text-2xl sm:text-3xl font-bold text-foreground">
+            Daily Spark for Android
+          </h2>
+          <p className="mt-1 text-sm sm:text-base text-muted-foreground">
+            Direct same-origin APK install with zero redirects, tracking, or account requirements.
+          </p>
+
+          <div className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
             <DownloadApkButton
-              className="inline-flex h-[52px] sm:h-[54px] w-full sm:w-auto items-center justify-center gap-3 rounded-full cta-solid px-7 text-left transition-all hover:scale-[1.02]"
+              className="inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-3 rounded-full cta-solid px-8 text-base sm:text-[17px] font-bold transition-all hover:scale-[1.02] shadow-lg shadow-ember/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
               <PixelDownload aria-hidden="true" className="size-5 sm:size-6" />
-              <span className="leading-none">
-                <span className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-cta-foreground/90">
-                  Download APK
-                </span>
-                <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-bold tracking-wide">
-                  Direct Install
-                </span>
-              </span>
+              <span>Download APK ({SITE.apk.size})</span>
             </DownloadApkButton>
+
+            <a
+              href={SITE.gitlab.releases}
+              target="_blank"
+              rel="noreferrer"
+              className="glass-pill inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-2.5 rounded-full border border-white/10 bg-surface/70 px-6 text-sm sm:text-[15px] font-semibold text-foreground transition-all hover:scale-[1.02] hover:border-[#FC6D26]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
+              <PixelGitlab aria-hidden="true" className="size-5 text-[#FC6D26] shrink-0" />
+              <span>GitLab Releases</span>
+            </a>
+
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill inline-flex h-[52px] sm:h-[54px] w-full sm:w-auto items-center justify-center gap-3 rounded-full px-7 text-left transition-all hover:scale-[1.02]"
+              className="glass-pill inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-2.5 rounded-full border border-white/10 bg-surface/70 px-6 text-sm sm:text-[15px] font-semibold text-muted-foreground hover:text-foreground transition-all hover:scale-[1.02] hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
             >
-              <PixelGithub aria-hidden="true" className="size-5 sm:size-6" />
-              <span className="leading-none">
-                <span className="block text-xs sm:text-[13px] font-bold uppercase tracking-wider text-muted-foreground">
-                  View on
-                </span>
-                <span className="mt-0.5 block font-display text-[17px] sm:text-[19px] font-semibold tracking-wide">
-                  GitHub Releases
-                </span>
-              </span>
+              <PixelGithub aria-hidden="true" className="size-5 shrink-0" />
+              <span>GitHub Releases</span>
             </a>
           </div>
 
-          <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2 border-t border-border pt-5 text-sm sm:grid-cols-3">
-            <div className="flex items-baseline justify-between gap-3 sm:block">
-              <dt className="text-faint">Version</dt>
-              <dd className="text-muted-foreground font-semibold">{SITE.apk.version}</dd>
+          <dl className="mt-8 grid grid-cols-2 gap-4 border-t border-white/10 pt-6 text-sm sm:grid-cols-4">
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-faint font-semibold">Version</dt>
+              <dd className="mt-1 text-foreground font-semibold font-mono text-sm">{SITE.apk.version}</dd>
             </div>
-            <div className="flex items-baseline justify-between gap-3 sm:block">
-              <dt className="text-faint">Android APK</dt>
-              <dd className="text-muted-foreground">{SITE.apk.size} (Direct)</dd>
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-faint font-semibold">File Size</dt>
+              <dd className="mt-1 text-foreground font-semibold">{SITE.apk.size}</dd>
             </div>
-            <div className="flex items-baseline justify-between gap-3 sm:block">
-              <dt className="text-faint">Desktop Binaries</dt>
-              <dd className="text-muted-foreground">Windows &amp; Linux</dd>
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-faint font-semibold">Architecture</dt>
+              <dd className="mt-1 text-foreground font-semibold">Universal (arm64, x86)</dd>
+            </div>
+            <div>
+              <dt className="text-xs uppercase tracking-wider text-faint font-semibold">Privacy</dt>
+              <dd className="mt-1 text-emerald-400 font-semibold">100% Offline</dd>
             </div>
           </dl>
         </section>

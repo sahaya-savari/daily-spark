@@ -104,9 +104,10 @@ export function MobileBottomNav({
       variant="fab"
       size="fab"
       onClick={onAddClick}
+      style={{ boxShadow: "0 8px 28px var(--ember-glow)" }}
       className={cn(
         !embedded && "lg:hidden",
-        "size-13 min-h-[48px] min-w-[48px] rounded-full bg-gradient-to-tr from-ember to-heat-4 text-[var(--ember-foreground,#FFFFFF)] shadow-[0_8px_24px_rgba(245,158,11,0.4)] border border-ember/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+        "size-13 min-h-[48px] min-w-[48px] rounded-full bg-gradient-to-tr from-ember to-heat-4 text-[var(--ember-foreground,#FFFFFF)] border border-ember/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
         embedded
           ? "absolute right-4 bottom-20 z-30"
           : "fixed right-4 sm:right-6 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] z-40"

@@ -5,6 +5,7 @@ import {
   PixelClose,
   PixelDownload,
   PixelGithub,
+  PixelGitlab,
   PixelMenu,
   PixelShieldCheck,
 } from "@/components/ui/pixel-icon";
@@ -177,6 +178,17 @@ export function SiteHeader() {
           />
 
           <a
+            href={SITE.gitlab.repo}
+            target="_blank"
+            rel="noreferrer"
+            className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/60 px-3.5 py-2 text-xs sm:text-[13px] font-semibold text-muted-foreground transition-all hover:border-[#FC6D26]/40 hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+            aria-label="View Daily Spark on GitLab"
+          >
+            <PixelGitlab className="size-3.5 shrink-0 text-[#FC6D26]" />
+            <span className="pt-0.5">GitLab</span>
+          </a>
+
+          <a
             href={SITE.repo}
             target="_blank"
             rel="noreferrer"
@@ -263,11 +275,24 @@ export function SiteHeader() {
                 <span className="text-xs text-muted-foreground">04</span>
               </Link>
               <a
-                href={SITE.repo}
+                href={SITE.gitlab.repo}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => closeMenu("external")}
                 className={`${menuItem} mt-1 border-t border-white/5 pt-3 text-muted-foreground`}
+              >
+                <span className="flex items-center gap-2">
+                  <PixelGitlab className="size-4 text-[#FC6D26]" />
+                  <span>GitLab Project</span>
+                </span>
+                <span className="text-xs text-muted-foreground">v{SITE.apk.version}</span>
+              </a>
+              <a
+                href={SITE.repo}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => closeMenu("external")}
+                className={`${menuItem} text-muted-foreground`}
               >
                 <span className="flex items-center gap-2">
                   <PixelGithub className="size-4" />
@@ -295,14 +320,17 @@ export function SiteFooter() {
           <Link to="/download" className={footerLink}>
             <PixelDownload className="size-4" /> Download
           </Link>
+          <a href={SITE.gitlab.repo} target="_blank" rel="noreferrer" className={footerLink}>
+            <PixelGitlab className="size-4 text-[#FC6D26]" /> GitLab
+          </a>
           <a href={SITE.repo} target="_blank" rel="noreferrer" className={footerLink}>
-            <PixelGithub className="size-4" /> Source
+            <PixelGithub className="size-4" /> GitHub
           </a>
           <Link to="/privacy" className={footerLink}>
             <PixelShieldCheck className="size-4" /> Privacy
           </Link>
-          <a href={SITE.issues} target="_blank" rel="noreferrer" className={footerLink}>
-            <PixelBug className="size-4" /> Report an issue
+          <a href={SITE.gitlab.issues} target="_blank" rel="noreferrer" className={footerLink}>
+            <PixelBug className="size-4" /> Issues
           </a>
         </div>
       </div>

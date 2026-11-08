@@ -13,6 +13,8 @@ export interface ThemeConfig {
   muted: string;
   accent: string;
   accentForeground: string;
+  glow: string;
+  soft: string;
   border: string;
   radius: string;
   heat: [string, string, string, string, string];
@@ -32,6 +34,8 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     muted: "#A8A29E",
     accent: "#BF7245",
     accentForeground: "#FFFFFF",
+    glow: "rgba(191, 114, 69, 0.45)",
+    soft: "rgba(191, 114, 69, 0.18)",
     border: "rgba(191, 114, 69, 0.24)",
     radius: "16px",
     heat: ["rgba(255, 255, 255, 0.05)", "#2E1B13", "#5A3320", "#8F4E2B", "#BF7245"],
@@ -49,6 +53,8 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     muted: "#94A3B8",
     accent: "#F59E0B",
     accentForeground: "#0B0F17",
+    glow: "rgba(245, 158, 11, 0.40)",
+    soft: "rgba(245, 158, 11, 0.18)",
     border: "rgba(245, 158, 11, 0.24)",
     radius: "16px",
     heat: ["rgba(255, 255, 255, 0.05)", "#45330A", "#785B0D", "#D99E0B", "#F59E0B"],
@@ -66,6 +72,8 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     muted: "#A1A1AA",
     accent: "#8B5CF6",
     accentForeground: "#FFFFFF",
+    glow: "rgba(139, 92, 246, 0.45)",
+    soft: "rgba(139, 92, 246, 0.18)",
     border: "rgba(139, 92, 246, 0.24)",
     radius: "16px",
     heat: ["rgba(255, 255, 255, 0.05)", "#2E1065", "#5B21B6", "#7C3AED", "#8B5CF6"],
@@ -122,6 +130,8 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
   root.style.setProperty("--background", config.bg);
   root.style.setProperty("--color-ember", config.accent);
   root.style.setProperty("--ember", config.accent);
+  root.style.setProperty("--ember-glow", config.glow);
+  root.style.setProperty("--ember-soft", config.soft);
   root.style.setProperty("--primary", config.accent);
   root.style.setProperty("--ember-foreground", config.accentForeground);
   root.style.setProperty("--primary-foreground", config.accentForeground);
