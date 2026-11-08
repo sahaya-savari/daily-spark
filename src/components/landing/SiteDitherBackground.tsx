@@ -21,15 +21,16 @@ float field(vec2 uv, vec2 res, float t) {
   float n2 = snoise(p * (uScale * 1.8) - drift * 0.7);
   float noise = 0.6 * n1 + 0.4 * n2;
 
-  // Soft atmospheric top-right and bottom-left warmth
+  // Soft atmospheric top-right and bottom-left warmth fading cleanly to pure pitch black
   float distTop = length(p - vec2(aspect * 0.85, 0.95));
-  float glowTop = exp(-distTop * distTop * 1.8);
+  float glowTop = exp(-distTop * distTop * 2.8);
 
   float distBottom = length(p - vec2(aspect * 0.15, 0.05));
-  float glowBottom = exp(-distBottom * distBottom * 2.2);
+  float glowBottom = exp(-distBottom * distBottom * 3.2);
 
-  float atmosphere = mix(0.4, 1.0, glowTop * 0.7 + glowBottom * 0.5);
-  float tone = uIntensity * (0.35 + 0.65 * noise) * atmosphere;
+  float aura = glowTop * 0.75 + glowBottom * 0.5;
+  float atmosphere = smoothstep(0.08, 0.75, aura);
+  float tone = uIntensity * (0.4 + 0.6 * noise) * atmosphere;
 
   return clamp(tone, 0.0, 1.0);
 }

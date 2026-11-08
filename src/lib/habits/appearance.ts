@@ -25,9 +25,9 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     subtitle: "Warm Terracotta Brown",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", "JetBrains Mono", monospace',
-    bg: "#0A0A0A",
-    surface: "rgba(30, 22, 18, 0.65)",
-    surface2: "rgba(42, 31, 26, 0.75)",
+    bg: "#000000",
+    surface: "rgba(22, 16, 13, 0.75)",
+    surface2: "rgba(32, 23, 19, 0.85)",
     fg: "#FAF7F5",
     muted: "#A8A29E",
     accent: "#BF7245",
@@ -42,9 +42,9 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     subtitle: "Electric Solar Gold on Cosmic Black",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
-    bg: "#0A0A0A",
-    surface: "#141824",
-    surface2: "#1E2433",
+    bg: "#000000",
+    surface: "#10131B",
+    surface2: "#181D29",
     fg: "#F8FAFC",
     muted: "#94A3B8",
     accent: "#F59E0B",
@@ -59,9 +59,9 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
     subtitle: "Electric Violet on Deep Obsidian",
     fontDisplay: '"Mozilla Headline", sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
-    bg: "#0A0A0A",
-    surface: "#0D0A17",
-    surface2: "#171226",
+    bg: "#000000",
+    surface: "#0A0812",
+    surface2: "#130E20",
     fg: "#FFFFFF",
     muted: "#A1A1AA",
     accent: "#8B5CF6",
@@ -118,7 +118,7 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
     root.style.setProperty("--circadian-amber-tint", "transparent");
   }
 
-  // Ensure background stays deep black across all themes
+  // Ensure background stays deep pure black (#000000) across all themes
   root.style.setProperty("--background", config.bg);
   root.style.setProperty("--color-ember", config.accent);
   root.style.setProperty("--ember", config.accent);

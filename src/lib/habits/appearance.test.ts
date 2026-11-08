@@ -34,7 +34,7 @@ describe("appearance.ts", () => {
     expect(document.documentElement.classList.contains("theme-minimal")).toBe(true);
     expect(document.documentElement.style.getPropertyValue("--radius")).toBe(THEME_CONFIGS.minimal.radius);
     expect(document.documentElement.style.getPropertyValue("--font-display")).toBe(THEME_CONFIGS.minimal.fontDisplay);
-    expect(document.documentElement.style.getPropertyValue("--background")).toBe("#0A0A0A");
+    expect(document.documentElement.style.getPropertyValue("--background")).toBe("#000000");
 
     applyThemeToDocument("expressive", 0.75);
     expect(document.documentElement.classList.contains("theme-expressive")).toBe(true);
@@ -42,26 +42,26 @@ describe("appearance.ts", () => {
     expect(document.documentElement.style.getPropertyValue("--circadian-warmth")).toBe("0.750");
     expect(document.documentElement.style.getPropertyValue("--heat-0")).toBe("rgba(255, 255, 255, 0.05)");
     expect(document.documentElement.style.getPropertyValue("--heat-4")).toBe(THEME_CONFIGS.expressive.accent);
-    expect(document.documentElement.style.getPropertyValue("--background")).toBe("#0A0A0A");
+    expect(document.documentElement.style.getPropertyValue("--background")).toBe("#000000");
   });
 
-  it("verifies Tri-Modal theme configs have unified 16px radius and black background", () => {
-    // 1. Minimal: Warm Terracotta Brown (#BF7245) on black (#0A0A0A)
+  it("verifies Tri-Modal theme configs have unified 16px radius and bold pitch black background", () => {
+    // 1. Minimal: Warm Terracotta Brown (#BF7245) on black (#000000)
     expect(THEME_CONFIGS.minimal.accent).toBe("#BF7245");
     expect(THEME_CONFIGS.minimal.accentForeground).toBe("#FFFFFF");
-    expect(THEME_CONFIGS.minimal.bg).toBe("#0A0A0A");
+    expect(THEME_CONFIGS.minimal.bg).toBe("#000000");
     expect(THEME_CONFIGS.minimal.radius).toBe("16px");
 
-    // 2. Classic: Electric Solar Gold (#F59E0B) on black (#0A0A0A) with #0B0F17 foreground contrast
+    // 2. Classic: Electric Solar Gold (#F59E0B) on black (#000000) with #0B0F17 foreground contrast
     expect(THEME_CONFIGS.classic.accent).toBe("#F59E0B");
     expect(THEME_CONFIGS.classic.accentForeground).toBe("#0B0F17");
-    expect(THEME_CONFIGS.classic.bg).toBe("#0A0A0A");
+    expect(THEME_CONFIGS.classic.bg).toBe("#000000");
     expect(THEME_CONFIGS.classic.radius).toBe("16px");
 
-    // 3. Expressive: Electric Violet (#8B5CF6) on black (#0A0A0A)
+    // 3. Expressive: Electric Violet (#8B5CF6) on black (#000000)
     expect(THEME_CONFIGS.expressive.accent).toBe("#8B5CF6");
     expect(THEME_CONFIGS.expressive.accentForeground).toBe("#FFFFFF");
-    expect(THEME_CONFIGS.expressive.bg).toBe("#0A0A0A");
+    expect(THEME_CONFIGS.expressive.bg).toBe("#000000");
     expect(THEME_CONFIGS.expressive.radius).toBe("16px");
   });
 });
