@@ -13,22 +13,22 @@ import { type BackupInspection, createHabit } from "@/lib/habits/logic";
 import { DEFAULT_SETTINGS } from "@/lib/habits/types";
 import { DailySparkApp } from "@/components/app/DailySparkApp";
 import {
-  PixelHome,
-  PixelCheckList,
-  PixelPlus,
-  PixelChart,
-  PixelSettings,
-  PixelCalendar,
-  PixelFire,
-  PixelStar,
-  PixelCheck,
-  PixelLock,
-  PixelShieldCheck,
-  PixelDownload,
-  PixelClock,
-  PixelSparkles,
-  PixelArrowRight,
-} from "@/components/ui/pixel-icon";
+  CalendarCheck2,
+  CheckSquare,
+  Plus,
+  BarChart3,
+  Settings,
+  Calendar,
+  Flame,
+  Star,
+  Check,
+  Lock,
+  ShieldCheck,
+  Download,
+  Clock,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 
 /*
  * Landing-page demo. Screens are laid out at 390×844 (a real phone) and
@@ -155,11 +155,11 @@ interface NavItem {
 }
 
 const NAV: (NavItem | null)[] = [
-  { id: 0, label: "Today", Icon: PixelHome },
-  { id: 1, label: "Habits", Icon: PixelCheckList },
+  { id: 0, label: "Today", Icon: CalendarCheck2 },
+  { id: 1, label: "Habits", Icon: CheckSquare },
   null,
-  { id: 2, label: "Progress", Icon: PixelChart },
-  { id: 3, label: "Settings", Icon: PixelSettings },
+  { id: 2, label: "Progress", Icon: BarChart3 },
+  { id: 3, label: "Settings", Icon: Settings },
 ];
 
 const NavCtx = createContext<((i: number) => void) | undefined>(undefined);
@@ -219,7 +219,7 @@ function Screen({
               style={{ boxShadow: "0 4px 22px var(--ember-glow)" }}
               className="size-13 shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0 mx-1"
             >
-              <PixelPlus className="size-6 text-white" />
+              <Plus className="size-6 text-white" strokeWidth={2.5} />
             </Button>
           ) : (
             <Button
@@ -275,7 +275,7 @@ export function HomeScreen({
 }) {
   const done = habits.filter((x) => x.done).length;
   const next = habits.find((x) => !x.done);
-  const Ghost = next ? getIcon(next.icon) : PixelCheck;
+  const Ghost = next ? getIcon(next.icon) : Check;
   const week = [4, 4, 3, 4, 2, 4, done];
   return (
     <Screen active={0} onNav={onNav}>
@@ -285,7 +285,7 @@ export function HomeScreen({
           <p className="text-[19px] font-extrabold">Monday 26 Oct</p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-[11px] py-1.5 text-xs font-semibold text-ember">
-          <PixelFire className="size-3.5" /> 18
+          <Flame className="size-3.5" /> 18
         </span>
       </div>
 
@@ -305,7 +305,7 @@ export function HomeScreen({
             next ? "bg-primary text-primary-foreground font-bold shadow-sm" : "bg-surface-2 text-faint",
           )}
         >
-          <PixelCheck className="size-4" /> {next ? "Check in" : "See you tomorrow"}
+          <Check className="size-4" strokeWidth={2.5} /> {next ? "Check in" : "See you tomorrow"}
         </Button>
       </div>
 
@@ -323,7 +323,7 @@ export function HomeScreen({
                     i === 0 && !full && "shadow-[inset_0_0_0_2px_var(--ember)]",
                   )}
                 >
-                  {full ? <PixelCheck className="size-3.5" /> : <span className="text-[10px] font-extrabold">{week[i]}</span>}
+                  {full ? <Check className="size-3.5" strokeWidth={2.5} /> : <span className="text-[10px] font-extrabold">{week[i]}</span>}
                 </span>
               </div>
             );
@@ -340,10 +340,10 @@ export function HomeScreen({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <p className={cn("break-words font-mono text-[14px] font-semibold", x.done && "text-muted-foreground")}>{x.name}</p>
-                  {x.starred && <PixelStar className="size-3.5 fill-gold text-gold shrink-0" />}
+                  {x.starred && <Star className="size-3.5 fill-gold text-gold shrink-0" />}
                 </div>
                 <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
-                  <PixelFire className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
+                  <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
                 </p>
                 <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-2">
                   <div className={cn("h-full rounded-full bg-gradient-to-r from-ember to-heat-4 transition-[width] duration-500", x.done ? "w-full" : "w-0")} />
@@ -352,7 +352,7 @@ export function HomeScreen({
               <Button variant="ghost"
                 type="button"
                 tabIndex={onToggle ? 0 : -1}
-                aria-label={`Toggle ${x.name}`}
+                aria-label={x.done ? `Mark ${x.name} incomplete for today` : `Mark ${x.name} complete for today`}
                 aria-pressed={x.done}
                 onClick={() => onToggle?.(x.id)}
                 className={cn(
@@ -360,7 +360,7 @@ export function HomeScreen({
                   x.done ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-surface-2 text-faint",
                 )}
               >
-                <PixelCheck className="size-4" />
+                <Check className="size-4" strokeWidth={2.5} />
               </Button>
             </div>
           ))}
@@ -375,14 +375,14 @@ export function HomeScreen({
       >
         <div className="flex items-center gap-3">
           <span className="grid size-8 place-items-center rounded-lg bg-ember-soft text-ember">
-            <PixelFire className="size-4" />
+            <Flame className="size-4" />
           </span>
           <div>
             <p className="kicker text-[10px]">Overview</p>
             <p className="font-mono text-sm font-semibold">View 6-Month Activity &amp; Stats</p>
           </div>
         </div>
-        <PixelArrowRight className="size-4 text-faint" />
+        <ArrowRight className="size-4 text-faint" />
       </button>
     </Screen>
   );
@@ -712,7 +712,7 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
               }}
               className="w-full text-xs gap-1.5 font-semibold text-ember border-ember/20 hover:bg-ember/10"
             >
-              <PixelCheck className="size-3.5 text-ember" /> Complete Missed Yesterday (+1 Streak)
+              <Check className="size-3.5 text-ember" strokeWidth={2.5} /> Complete Missed Yesterday (+1 Streak)
             </Button>
           </Card>
 
@@ -804,15 +804,15 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <p className="break-words font-mono text-[14px] font-semibold">{x.name}</p>
-                        {x.starred && <PixelStar className="size-3 fill-gold text-gold shrink-0" />}
+                        {x.starred && <Star className="size-3 fill-gold text-gold shrink-0" />}
                         {x.archived && <span className="text-[10px] text-faint border px-1 rounded">Archived</span>}
                       </div>
                       <p className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
-                        <PixelFire className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
+                        <Flame className={cn("size-3", x.streak > 0 && "text-ember")} /> {x.streak} days
                         {x.category && <span className="text-[10px] bg-surface-2 px-1.5 py-0.2 rounded-full">#{x.category}</span>}
                       </p>
                     </div>
-                    <PixelArrowRight className="size-4 text-faint shrink-0" />
+                    <ArrowRight className="size-4 text-faint shrink-0" />
                   </button>
                 </div>
               ))
@@ -914,7 +914,7 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
 
       {/* Backup Safety Alert matching DailySparkApp */}
       <div className="rounded-2xl border border-border/80 bg-surface-2 p-3 flex items-start gap-2.5 text-xs text-muted-foreground">
-        <PixelShieldCheck className="size-4 shrink-0 text-ember mt-0.5" />
+        <ShieldCheck className="size-4 shrink-0 text-ember mt-0.5" />
         <p>
           <strong className="font-semibold text-foreground">Keep your backup file safe.</strong> It contains your complete streak history, notes, and local settings.
         </p>
@@ -928,13 +928,13 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
             className="flex w-full items-center gap-3 border-b border-border py-3 text-left focus-visible:outline-none"
           >
             <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-              <PixelDownload className="size-4" />
+              <Download className="size-4" />
             </span>
             <div className="flex-1">
               <p className="text-[14px] font-bold">Export backup</p>
               <p className="text-[11.5px] font-semibold text-faint">Includes habits and notes (.json)</p>
             </div>
-            <PixelArrowRight className="size-4 text-faint" />
+            <ArrowRight className="size-4 text-faint" />
           </button>
 
           <button
@@ -943,13 +943,13 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
             className="flex w-full items-center gap-3 py-3 text-left focus-visible:outline-none"
           >
             <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-              <PixelDownload className="size-4" />
+              <Download className="size-4" />
             </span>
             <div className="flex-1">
               <p className="text-[14px] font-bold">Inspect &amp; Restore file</p>
               <p className="text-[11.5px] font-semibold text-faint">Safe pre-validation preview</p>
             </div>
-            <PixelArrowRight className="size-4 text-faint" />
+            <ArrowRight className="size-4 text-faint" />
           </button>
         </Card>
       </div>
@@ -972,13 +972,13 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
           className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-surface-2 transition-colors"
         >
           <span className="grid size-9 place-items-center rounded-[11px] bg-ember-soft text-ember">
-            <PixelLock className="size-4" />
+            <Lock className="size-4" />
           </span>
           <div className="flex-1">
             <p className="text-[14px] font-bold">App Lock &amp; PIN</p>
             <p className="text-[11.5px] font-semibold text-faint">SHA-256 protected with 5-min timeout</p>
           </div>
-          <PixelArrowRight className="size-4 text-faint" />
+          <ArrowRight className="size-4 text-faint" />
         </Card>
       </div>
 
@@ -988,7 +988,7 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="grid size-8 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelClock className="size-4" />
+                <Clock className="size-4" />
               </span>
               <div>
                 <p className="text-[13px] font-bold">Daily Reminders</p>
@@ -1001,7 +1001,7 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
           <div className="flex items-center justify-between border-t border-border/30 pt-2.5">
             <div className="flex items-center gap-2.5">
               <span className="grid size-8 place-items-center rounded-xl bg-surface-2 text-faint">
-                <PixelClock className="size-4" />
+                <Clock className="size-4" />
               </span>
               <div>
                 <p className="text-[13px] font-bold">Pre-task Reminder</p>
@@ -1016,7 +1016,7 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
           <div className="flex items-center justify-between border-t border-border/30 pt-2.5">
             <div className="flex items-center gap-2.5">
               <span className="grid size-8 place-items-center rounded-xl bg-surface-2 text-ember">
-                <PixelFire className="size-4" />
+                <Flame className="size-4" />
               </span>
               <div>
                 <p className="text-[13px] font-bold">Today Focus Mode</p>
@@ -1029,7 +1029,7 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
       </div>
 
       <Card className="flex items-center gap-3 px-4 py-3">
-        <PixelSparkles className="size-4 text-ember shrink-0" />
+        <Sparkles className="size-4 text-ember shrink-0" />
         <span className="text-[13px] font-semibold text-muted-foreground">Daily Spark · No account · No ads · 100% offline</span>
       </Card>
 
@@ -1074,7 +1074,7 @@ export function DemoPhone() {
         <DailySparkApp embedded />
       </Device>
       <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
-        <span className="text-ember font-bold">This is the real app.</span> Tick a habit in the phone and watch its daily streak grow. 100% offline.
+        <span className="text-ember font-bold">Interactive live app.</span> Tap habits, start focus timer, track laps, or check progress. 100% offline.
       </p>
     </div>
   );

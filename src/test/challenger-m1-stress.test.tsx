@@ -27,9 +27,9 @@ describe("Empirical Challenger M1-2: Stress & Boundary Verification", () => {
       const nav = container.querySelector("nav");
       expect(nav).not.toBeNull();
       // Class checks
-      expect(nav?.className).toContain("bottom-0");
-      expect(nav?.className).toContain("pb-[env(safe-area-inset-bottom,0px)]");
-      expect(nav?.className).toContain("inset-x-0");
+      expect(nav?.className).toContain("bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))]");
+      expect(nav?.className).toContain("w-[calc(100%-2rem)]");
+      expect(nav?.className).toContain("max-w-lg");
       expect(nav?.className).toContain("lg:hidden");
 
       const buttons = screen.getAllByRole("button");
@@ -71,7 +71,7 @@ describe("Empirical Challenger M1-2: Stress & Boundary Verification", () => {
       const main = container.querySelector("main");
       expect(main).not.toBeNull();
       expect(main?.className).toContain("max-w-lg");
-      expect(main?.className).toContain("lg:max-w-6xl");
+      expect(main?.className).toContain("lg:max-w-4xl");
       expect(main?.className).toContain("lg:px-8");
     });
 
@@ -86,7 +86,7 @@ describe("Empirical Challenger M1-2: Stress & Boundary Verification", () => {
       const mobileNav = container.querySelector("nav[aria-label='Mobile navigation']");
       expect(mobileNav).not.toBeNull();
       expect(mobileNav?.className).toContain("absolute");
-      expect(mobileNav?.className).toContain("bottom-0");
+      expect(mobileNav?.className).toContain("bottom-3");
       expect(mobileNav?.className).not.toContain("lg:hidden");
     });
   });

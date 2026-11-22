@@ -52,7 +52,7 @@ export async function syncWidgetData(habits: Habit[], settings?: HabitSettings):
 
     const payload = JSON.stringify({
       overallStreak: streak,
-      themeMode: settings?.themeMode || "minimal",
+      themeMode: settings?.themeMode || "classic",
       pendingHabits,
       recentHeatLevels,
     });

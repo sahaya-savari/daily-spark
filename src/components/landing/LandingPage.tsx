@@ -1,21 +1,23 @@
 import { useEffect, useState, useMemo } from "react";
 import { useLocation, useRouter } from "@tanstack/react-router";
 import {
-  PixelAndroid,
-  PixelBug,
-  PixelCalendar,
-  PixelChart,
-  PixelCheckCircle,
-  PixelClock,
-  PixelDownload,
-  PixelFire,
+  Smartphone,
+  Bug,
+  Calendar,
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  Download,
+  Flame,
+  Lock,
+  ShieldCheck,
+  Sparkles,
+  Star,
+} from "lucide-react";
+import {
   PixelGithub,
   PixelGitlab,
   PixelFdroid,
-  PixelLock,
-  PixelShieldCheck,
-  PixelSparkles,
-  PixelStar,
 } from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
@@ -39,52 +41,52 @@ import { SITE } from "@/lib/site";
 
 const FEATURES = [
   {
-    icon: PixelCheckCircle,
-    tag: "One Tap",
-    title: "Tick today",
-    body: "One clear button records today's completion. No forms or health metrics in your daily path.",
+    icon: CheckCircle2,
+    tag: "Core Flow",
+    title: "Check in & Multi-Lap",
+    body: "Standard, quantitative targets (ml, pages, reps) with quick chips, or avoid clean streaks.",
   },
   {
-    icon: PixelFire,
-    tag: "Daily Streak",
-    title: "Watch the chain grow",
-    body: "Start at zero, tick today for one, then return tomorrow to build day two and beyond.",
+    icon: Flame,
+    tag: "Decay Math",
+    title: "Half-Life Strength HUD",
+    body: "90-day window with 12-day exponential half-life decay gauge. Miss a day without losing everything.",
   },
   {
-    icon: PixelClock,
-    tag: "Optional",
-    title: "Get a gentle reminder",
-    body: "Choose a reminder time when creating a streak, or leave reminders off completely.",
+    icon: BarChart3,
+    tag: "Circadian",
+    title: "Circadian & Stacking",
+    body: "24-hour Gaussian performance curve and conditional habit-stacking probability insights.",
   },
   {
-    icon: PixelAndroid,
+    icon: Clock,
+    tag: "Web Audio",
+    title: "Procedural Focus Timer",
+    body: "Synthesized Web Audio ambient rain, brown noise, and finish chime with zero cloud assets.",
+  },
+  {
+    icon: Sparkles,
+    tag: "Sanctuary",
+    title: "3D Voxel Island",
+    body: "A calm isometric voxel sanctuary that organically blossoms with your consistency.",
+  },
+  {
+    icon: ShieldCheck,
+    tag: "AES-GCM-256",
+    title: "Zero-Cloud Encrypted Vault",
+    body: "AES-GCM-256 encrypted vault with Set-Union conflict-free sync across devices.",
+  },
+  {
+    icon: Calendar,
+    tag: "Visual Matrix",
+    title: "Calendar & Heatmap",
+    body: "Glanceable monthly matrix and 6-month activity heatmap. Honest, verified metrics.",
+  },
+  {
+    icon: Smartphone,
     tag: "Home Screen",
-    title: "Tick from the widget",
-    body: "Tap a pending streak from the Android widget and Daily Spark records today's check-in safely.",
-  },
-  {
-    icon: PixelCalendar,
-    tag: "History",
-    title: "See days you showed up",
-    body: "A simple calendar and heatmap keep your history visible without turning it into a dashboard chore.",
-  },
-  {
-    icon: PixelShieldCheck,
-    tag: "Private",
-    title: "Keep it on your device",
-    body: "No account, ads, analytics, or required cloud. Your streaks stay under your control.",
-  },
-  {
-    icon: PixelSparkles,
-    tag: "Flexible",
-    title: "Advanced tools stay optional",
-    body: "Schedules, notes, timers, and targets remain available without crowding the everyday streak flow.",
-  },
-  {
-    icon: PixelChart,
-    tag: "Every Screen",
-    title: "Made for phone and desktop",
-    body: "A focused phone layout and a properly constrained desktop view use the same streak-first experience.",
+    title: "Android Widgets & Health",
+    body: "Home-screen glanceable widgets (4x2, 1x1, heatmap) and Health Connect bridge.",
   },
 ] as const;
 
@@ -196,20 +198,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <span className="block text-muted-foreground/80 font-bold">Keep going.</span>
             </h1>
             <p className="mb-5 sm:mb-6 mt-4 sm:mt-6 max-w-[42ch] text-[17px] sm:text-[20px] leading-relaxed text-muted-foreground text-left">
-              Create a streak, choose an optional reminder, and tick it once each day. Today is one, tomorrow is two.
-              No accounts, no health dashboard, and no pressure.
+              A free, offline-first habit tracker. One small action a day, per habit. Check it off and watch your streak
+              grow - zero accounts, zero analytics, zero pressure.
             </p>
 
             {/* Quick trust & feature pills */}
             <div className="flex flex-wrap items-center gap-2 mb-6 sm:mb-7 text-xs sm:text-[13px] font-semibold text-faint">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85">
-                <PixelShieldCheck className="size-3.5 text-ember" /> 100% Offline
+                <ShieldCheck className="size-3.5 text-ember" /> 100% Offline
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85">
-                <PixelAndroid className="size-3.5 text-ember" /> 4.2 MB APK
+                <Smartphone className="size-3.5 text-ember" /> 4.2 MB APK
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85">
-                <PixelLock className="size-3.5 text-ember" /> Zero Tracking
+                <Lock className="size-3.5 text-ember" /> Zero Tracking
               </span>
             </div>
 
@@ -372,9 +374,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </p>
             </div>
             <div className="flex min-w-0 flex-col gap-3.5 w-full">
-              <RowLink icon={<PixelLock />} title="No account" sub="Install and start immediately" />
-              <RowLink icon={<PixelShieldCheck />} title="Offline first" sub="Tracking needs zero internet" />
-              <RowLink icon={<PixelShieldCheck />} title="Privacy by design" sub="No ads or hidden telemetry" />
+              <RowLink icon={<Lock className="size-4" />} title="No account" sub="Install and start immediately" />
+              <RowLink icon={<ShieldCheck className="size-4" />} title="Offline first" sub="Tracking needs zero internet" />
+              <RowLink icon={<ShieldCheck className="size-4" />} title="Privacy by design" sub="No ads or hidden telemetry" />
             </div>
           </div>
         </section>
@@ -420,7 +422,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             <div className="flex min-w-0 flex-col gap-3.5 w-full">
               <RowLink icon={<PixelGitlab className="text-[#FC6D26]" />} title="GitLab Project" sub="gitlab.com/sahaya-savari/daily-spark" href={SITE.gitlab.repo} />
               <RowLink icon={<PixelGithub />} title="GitHub Repository" sub="github.com/sahaya-savari/daily-spark" href={SITE.repo} />
-              <RowLink icon={<PixelBug />} title="Report an issue" sub="GitLab &amp; GitHub Issues" href={SITE.gitlab.issues} />
+              <RowLink icon={<Bug className="size-4" />} title="Report an issue" sub="GitLab &amp; GitHub Issues" href={SITE.gitlab.issues} />
             </div>
           </div>
         </section>
@@ -440,7 +442,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <DownloadApkButton
                 className="inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-3 rounded-full cta-solid px-8 text-base sm:text-lg font-bold text-center transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background shadow-lg shadow-ember/25"
               >
-                <PixelDownload />
+                <Download className="size-5" />
                 <span>Download APK ({SITE.apk.size})</span>
               </DownloadApkButton>
               <a

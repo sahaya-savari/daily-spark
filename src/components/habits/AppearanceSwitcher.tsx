@@ -1,35 +1,81 @@
-import { useEffect, useState } from "react";
-import { Check, Moon, Palette, ShieldCheck, Sun } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Check, Sun, Moon, Palette, Type, LayoutGrid, Sparkles } from "lucide-react";
 import {
-  EXPRESSIVE_BACKGROUNDS,
+  type ThemeMode,
   THEME_CONFIGS,
-  applyThemeToDocument,
   getStoredTheme,
   setStoredTheme,
-  type ThemeMode,
+  applyThemeToDocument,
 } from "@/lib/habits/appearance";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
+export type TypographyOption = "modern-sans" | "humanist-display" | "compact-mono";
+export type DensityOption = "comfortable" | "compact";
+export type IconStyleOption = "signature-spark" | "minimal-modern" | "pixel-retro";
+
 interface AppearanceSwitcherProps {
   className?: string;
   defaultTab?: "appearance" | "style";
 }
 
-const orderedThemeModes: ThemeMode[] = ["minimal", "classic", "expressive"];
+const STORAGE_KEYS = {
+  font: "dailyspark_font_style",
+  density: "dailyspark_density",
+  iconStyle: "dailyspark_icon_style",
+};
 
-export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({ className }) => {
+export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
+  className,
+  defaultTab = "appearance",
+}) => {
   const { settings } = useHabitStore();
-  const [currentMode, setCurrentMode] = useState<ThemeMode>(() => settings.themeMode || getStoredTheme());
-  const [isGlideEnabled, setIsGlideEnabled] = useState(() => settings.solarCircadianGlide !== false);
-  const [backgroundId, setBackgroundId] = useState(() => settings.expressiveBackground || "abstract");
+  const [activeTab, setActiveTab] = useState<"appearance" | "style">(defaultTab);
+  const [currentMode, setCurrentMode] = useState<ThemeMode>(() => getStoredTheme());
+  const [isGlideEnabled, setIsGlideEnabled] = useState<boolean>(
+    () => settings.solarCircadianGlide !== false
+  );
+
+  const [font, setFont] = useState<TypographyOption>(() => {
+    if (typeof window === "undefined") return "modern-sans";
+    return (localStorage.getItem(STORAGE_KEYS.font) as TypographyOption) || "modern-sans";
+  });
+
+  const [density, setDensity] = useState<DensityOption>(() => {
+    if (typeof window === "undefined") return "comfortable";
+    return (localStorage.getItem(STORAGE_KEYS.density) as DensityOption) || "comfortable";
+  });
+
+  const [iconStyle, setIconStyle] = useState<IconStyleOption>(() => {
+    if (typeof window === "undefined") return "signature-spark";
+    return (localStorage.getItem(STORAGE_KEYS.iconStyle) as IconStyleOption) || "signature-spark";
+  });
 
   useEffect(() => {
     const warmth = isGlideEnabled ? calculateCircadianWarmth() : 0;
-    applyThemeToDocument(currentMode, warmth, backgroundId);
-  }, [backgroundId, currentMode, isGlideEnabled]);
+    applyThemeToDocument(currentMode, warmth);
+  }, [currentMode, isGlideEnabled]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+
+    if (font === "modern-sans") {
+      root.style.setProperty("--font-display", '"Inter", system-ui, sans-serif');
+      root.style.setProperty("--font-app", '"Inter", system-ui, sans-serif');
+    } else if (font === "humanist-display") {
+      root.style.setProperty("--font-display", '"Mozilla Headline", Georgia, serif');
+      root.style.setProperty("--font-app", '"Inter", system-ui, sans-serif');
+    } else if (font === "compact-mono") {
+      root.style.setProperty("--font-display", '"Geist Mono", "JetBrains Mono", monospace');
+      root.style.setProperty("--font-app", '"Geist Mono", "JetBrains Mono", monospace');
+    }
+
+    root.classList.remove("density-comfortable", "density-compact");
+    root.classList.add(`density-${density}`);
+  }, [font, density]);
 
   const handleSelectTheme = (mode: ThemeMode) => {
     setCurrentMode(mode);
@@ -37,98 +83,263 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({ classNam
     habitActions.updateSettings({ themeMode: mode });
   };
 
-  const handleSelectBackground = (id: string) => {
-    setBackgroundId(id);
-    habitActions.updateSettings({ expressiveBackground: id });
+  const handleToggleGlide = (enabled: boolean) => {
+    setIsGlideEnabled(enabled);
+    habitActions.updateSettings({ solarCircadianGlide: enabled });
   };
 
+  const handleSelectFont = (f: TypographyOption) => {
+    setFont(f);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.font, f);
+    }
+  };
+
+  const handleSelectDensity = (d: DensityOption) => {
+    setDensity(d);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.density, d);
+    }
+  };
+
+  const handleSelectIconStyle = (i: IconStyleOption) => {
+    setIconStyle(i);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.iconStyle, i);
+    }
+  };
+
+  // 1. Classic, 2. Expressive, 3. Minimal
+  const orderedThemeModes: ThemeMode[] = ["minimal", "classic", "expressive"];
+
   return (
-    <div className={cn("space-y-5", className)}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="kicker">Complete visual presets</p>
-          <h3 className="font-display text-lg font-bold text-foreground">Choose your Daily Spark</h3>
-          <p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">
-            Each preset includes its own typography, spacing, icons, shapes, surfaces, and motion.
-          </p>
-        </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-faint">
-          <ShieldCheck className="size-3 text-ember" /> Offline
-        </span>
+    <div className={cn("space-y-4", className)}>
+      {/* Tab Segmented Control */}
+      <div className="flex rounded-xl bg-surface-2 p-1 border border-white/5">
+        <button
+          type="button"
+          onClick={() => setActiveTab("appearance")}
+          className={cn(
+            "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer",
+            activeTab === "appearance"
+              ? "bg-surface text-foreground shadow-sm font-bold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Palette className="size-3.5 text-ember" />
+          <span>Appearance</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("style")}
+          className={cn(
+            "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer",
+            activeTab === "style"
+              ? "bg-surface text-foreground shadow-sm font-bold"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Type className="size-3.5 text-ember" />
+          <span>App Style</span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" role="radiogroup" aria-label="App appearance">
-        {orderedThemeModes.map((mode) => {
-          const config = THEME_CONFIGS[mode];
-          const selected = currentMode === mode;
-          return (
-            <button
-              key={mode}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => handleSelectTheme(mode)}
-              className={cn(
-                "relative overflow-hidden border p-4 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
-                selected ? "border-ember bg-surface-2 ring-2 ring-ember/30 shadow-lg" : "border-border bg-surface hover:border-ember/50",
-              )}
-              style={{ borderRadius: config.cardRadius }}
-            >
-              {selected && <span className="absolute right-3 top-3 grid size-6 place-items-center rounded-full bg-ember text-primary-foreground"><Check className="size-3.5" strokeWidth={3} /></span>}
-              <div className="pr-7">
-                <p className="text-base font-bold" style={{ fontFamily: config.fontDisplay }}>{config.name}</p>
-                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{config.subtitle}</p>
-              </div>
-              <div className="mt-4 space-y-2 border p-3" style={{ background: config.surface, borderColor: config.border, borderRadius: config.cardRadius, boxShadow: config.shadow }}>
-                <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full" style={{ backgroundColor: config.accent, boxShadow: `0 0 12px ${config.glow}` }} />
-                  <span className="text-[11px] font-bold" style={{ color: config.fg, fontFamily: config.fontDisplay }}>7 day streak</span>
-                </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-black/30"><div className="h-full w-3/4 rounded-full" style={{ background: config.accent }} /></div>
-              </div>
-              <p className="mt-3 text-[10px] leading-relaxed text-faint">{config.personality}</p>
-            </button>
-          );
-        })}
-      </div>
-
-      {currentMode === "expressive" && (
-        <section className="space-y-3 rounded-[var(--theme-card-radius)] border border-border bg-surface/90 p-4 shadow-[var(--theme-shadow)] backdrop-blur-xl">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-bold text-foreground"><Palette className="size-4 text-ember" /> Expressive background</p>
-            <p className="mt-1 text-[11px] text-muted-foreground">Tap any atmosphere to preview it instantly. All images are stored on this device.</p>
+      {activeTab === "appearance" ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="kicker">Theme &amp; Aesthetics</p>
+              <h3 className="font-display text-base font-bold text-foreground">Tri-Modal Appearance</h3>
+            </div>
+            <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-[11px] font-semibold text-faint">
+              <Palette className="size-3 text-ember" /> 100% Offline
+            </span>
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Expressive background">
-            {EXPRESSIVE_BACKGROUNDS.map((background) => {
-              const selected = backgroundId === background.id;
-              const base = import.meta.env.BASE_URL || "/";
+
+          {/* 3 Interactive Theme Preview Cards: 1. Classic, 2. Expressive, 3. Minimal */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {orderedThemeModes.map((mode) => {
+              const cfg = THEME_CONFIGS[mode];
+              const isSelected = currentMode === mode;
+
               return (
                 <button
-                  key={background.id}
+                  key={mode}
                   type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => handleSelectBackground(background.id)}
-                  className={cn("group relative min-h-24 overflow-hidden rounded-2xl border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember", selected ? "border-ember ring-2 ring-ember/40" : "border-white/10 hover:border-ember/60")}
-                  style={{ backgroundImage: background.file ? `linear-gradient(to top, rgba(8,6,15,.96), rgba(8,6,15,.12)), url(${base}backgrounds/expressive/${background.file})` : "radial-gradient(circle at 70% 20%, #6D28D9, transparent 45%), linear-gradient(145deg, #171027, #08060F)", backgroundSize: "cover", backgroundPosition: "center" }}
+                  onClick={() => handleSelectTheme(mode)}
+                  className={cn(
+                    "relative flex flex-col justify-between p-4 rounded-2xl border text-left transition-all duration-200 cursor-pointer overflow-hidden group",
+                    isSelected
+                      ? "border-ember bg-surface-2 ring-2 ring-ember/40 shadow-md scale-[1.01]"
+                      : "border-border/40 bg-surface hover:bg-surface-2/60"
+                  )}
                 >
-                  {selected && <span className="absolute right-2 top-2 grid size-5 place-items-center rounded-full bg-ember text-white"><Check className="size-3" strokeWidth={3} /></span>}
-                  <span className="absolute inset-x-0 bottom-0 p-2.5"><span className="block text-[11px] font-bold text-white">{background.name}</span><span className="mt-0.5 block line-clamp-1 text-[9px] text-white/70">{background.description}</span></span>
+                  {/* Checkmark badge */}
+                  {isSelected && (
+                    <span className="absolute top-3 right-3 grid size-5 place-items-center rounded-full bg-ember text-white shadow-sm">
+                      <Check className="size-3" strokeWidth={3} />
+                    </span>
+                  )}
+
+                  <div>
+                    <p className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                      {cfg.name}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                      {cfg.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Unified Morning Flow card corner radius: rounded-2xl (16px) */}
+                  <div
+                    className="mt-3 p-2.5 rounded-2xl border border-white/10 text-xs space-y-1.5"
+                    style={{
+                      backgroundColor: cfg.bg,
+                      color: cfg.fg,
+                      borderRadius: "16px",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className="font-bold text-[12px] truncate"
+                        style={{ fontFamily: cfg.fontDisplay }}
+                      >
+                        Morning Flow
+                      </span>
+                      <span
+                        className="size-2 rounded-full"
+                        style={{ backgroundColor: cfg.accent }}
+                      />
+                    </div>
+                    <div className="h-1.5 rounded-full overflow-hidden bg-white/10">
+                      <div
+                        className="h-full w-2/3 rounded-full"
+                        style={{ backgroundColor: cfg.accent }}
+                      />
+                    </div>
+                  </div>
                 </button>
               );
             })}
           </div>
-          <p className="text-[10px] text-faint">Artwork: SLI Vault resources, MIT licensed.</p>
-        </section>
-      )}
 
-      <div className="flex items-center justify-between gap-4 rounded-[var(--theme-card-radius)] border border-border bg-surface p-3.5">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-ember-soft text-ember">{isGlideEnabled ? <Moon className="size-4" /> : <Sun className="size-4" />}</span>
-          <div><p className="text-xs font-semibold text-foreground">Night warmth</p><p className="text-[11px] text-faint">Gently reduces cool tones after dark without GPS.</p></div>
+          {/* Solar Circadian Theme Glide Switch */}
+          <div className="rounded-2xl border border-border/40 bg-surface p-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="grid size-9 place-items-center rounded-xl bg-amber-500/10 text-amber-500">
+                {isGlideEnabled ? <Moon className="size-4" /> : <Sun className="size-4" />}
+              </span>
+              <div>
+                <p className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                  Solar Circadian Theme Glide
+                </p>
+                <p className="text-[11px] text-faint">
+                  Glides night temperature toward warm blue-light-reduced amber (0 GPS requests)
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={isGlideEnabled}
+              onCheckedChange={handleToggleGlide}
+            />
+          </div>
         </div>
-        <Switch checked={isGlideEnabled} onCheckedChange={(enabled) => { setIsGlideEnabled(enabled); habitActions.updateSettings({ solarCircadianGlide: enabled }); }} />
-      </div>
+      ) : (
+        /* App Style Tab: Typography, Density, Icon Style */
+        <div className="space-y-4">
+          <div>
+            <p className="kicker">Visual Layout &amp; Type</p>
+            <h3 className="font-display text-base font-bold text-foreground">App Style Configuration</h3>
+          </div>
+
+          {/* 1. Typography Options */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <Type className="size-3.5 text-ember" /> Typography
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: "modern-sans", name: "Modern Sans", desc: "Inter geometric clean" },
+                { id: "humanist-display", name: "Humanist", desc: "Mozilla headline editorial" },
+                { id: "compact-mono", name: "Compact Mono", desc: "Geist tabular code" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSelectFont(item.id as TypographyOption)}
+                  className={cn(
+                    "p-3 rounded-2xl border text-left transition-all cursor-pointer",
+                    font === item.id
+                      ? "bg-surface-2 border-ember ring-1 ring-ember text-foreground shadow-sm"
+                      : "bg-surface border-white/5 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <p className="font-bold text-xs">{item.name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{item.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. Display Density */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <LayoutGrid className="size-3.5 text-ember" /> Display Density
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: "comfortable", name: "Comfortable", desc: "Roomy touch targets and balanced whitespace" },
+                { id: "compact", name: "Compact", desc: "Dense layout showing more habits per screen" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSelectDensity(item.id as DensityOption)}
+                  className={cn(
+                    "p-3 rounded-2xl border text-left transition-all cursor-pointer",
+                    density === item.id
+                      ? "bg-surface-2 border-ember ring-1 ring-ember text-foreground shadow-sm"
+                      : "bg-surface border-white/5 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <p className="font-bold text-xs">{item.name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. Icon Style */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
+              <Sparkles className="size-3.5 text-ember" /> Icon Style
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: "signature-spark", name: "⚡ SparkMark", desc: "Botanical gold spark" },
+                { id: "minimal-modern", name: "Minimal", desc: "Clean line geometry" },
+                { id: "pixel-retro", name: "Pixel Retro", desc: "16-bit pixel nostalgia" },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSelectIconStyle(item.id as IconStyleOption)}
+                  className={cn(
+                    "p-3 rounded-2xl border text-left transition-all cursor-pointer",
+                    iconStyle === item.id
+                      ? "bg-surface-2 border-ember ring-1 ring-ember text-foreground shadow-sm"
+                      : "bg-surface border-white/5 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <p className="font-bold text-xs">{item.name}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{item.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

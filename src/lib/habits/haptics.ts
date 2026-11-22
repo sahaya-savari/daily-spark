@@ -31,6 +31,38 @@ function webVibrate(pattern: number | number[]) {
   return false;
 }
 
+/**
+ * Procedural Web Audio micro-tick:
+ * Generates an organic mechanical tick tone (18ms damped sine burst)
+ * to deliver tactile confirmation when hardware vibration is absent.
+ */
+function playWebAudioTick(freq = 720, duration = 0.016) {
+  if (typeof window === "undefined") return;
+  try {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + duration);
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+    setTimeout(() => {
+      ctx.close().catch(() => {});
+    }, 120);
+  } catch {
+    // Autoplay or audio context initialization blocked
+  }
+}
+
 export const hapticEngine = {
   /**
    * Subtle 10ms crisp tap when incrementing a quantitative step.
@@ -38,7 +70,10 @@ export const hapticEngine = {
   async tickTap(): Promise<void> {
     const handled = await nativeImpact(ImpactStyle.Light);
     if (!handled) {
-      webVibrate(12);
+      const vibrated = webVibrate(12);
+      if (!vibrated) {
+        playWebAudioTick(720, 0.016);
+      }
     }
   },
 
@@ -48,7 +83,11 @@ export const hapticEngine = {
   async doubleClack(): Promise<void> {
     const handled = await nativeImpact(ImpactStyle.Medium);
     if (!handled) {
-      webVibrate([15, 30, 15]);
+      const vibrated = webVibrate([15, 30, 15]);
+      if (!vibrated) {
+        playWebAudioTick(840, 0.012);
+        setTimeout(() => playWebAudioTick(680, 0.015), 35);
+      }
     } else {
       setTimeout(() => {
         nativeImpact(ImpactStyle.Light).catch(() => {});
@@ -68,7 +107,12 @@ export const hapticEngine = {
         /* fallback */
       }
     }
-    webVibrate([20, 40, 35, 40, 60]);
+    const vibrated = webVibrate([20, 40, 35, 40, 60]);
+    if (!vibrated) {
+      playWebAudioTick(580, 0.02);
+      setTimeout(() => playWebAudioTick(740, 0.025), 50);
+      setTimeout(() => playWebAudioTick(920, 0.035), 110);
+    }
   },
 
   /**

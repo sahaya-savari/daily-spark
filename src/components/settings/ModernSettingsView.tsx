@@ -1,25 +1,31 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import {
-  PixelSmartphone,
-  PixelTune,
-  PixelStorage,
-  PixelHeart,
-  PixelInfo,
-  PixelChevronRight,
-  PixelPen,
-  PixelCheck,
-  PixelDownload,
-  PixelUpload,
-  PixelNotebook,
-  PixelShieldCheck,
-  PixelSparkles,
-  PixelBug,
-  PixelGithub,
-  PixelStar,
-  PixelLock,
-  PixelQrCode,
-  PixelClose,
-} from "@/components/ui/pixel-icon";
+  Smartphone,
+  Palette,
+  Sliders,
+  Database,
+  Heart,
+  Info,
+  ChevronRight,
+  Pencil,
+  Check,
+  Download,
+  Upload,
+  FileText,
+  ShieldCheck,
+  Sparkles,
+  Bug,
+  Github,
+  Star,
+  Lock,
+  QrCode,
+  X,
+  Search,
+  Bell,
+  Clock,
+  Shield,
+  ExternalLink,
+} from "lucide-react";
 import { AppearanceSwitcher } from "@/components/habits/AppearanceSwitcher";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { THEME_CONFIGS, getStoredTheme } from "@/lib/habits/appearance";
@@ -68,6 +74,7 @@ export interface ModernSettingsViewProps {
 
 type ActiveSection =
   | "appearance"
+  | "appStyle"
   | "preferences"
   | "data"
   | "support"
@@ -99,6 +106,7 @@ export function ModernSettingsView({
   const [currentLang, setCurrentLang] = useState<SupportedLanguage>(() =>
     i18nActions.getLanguage()
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const openProfileEditor = () => {
     setDraftProfile(profile);
@@ -108,6 +116,187 @@ export function ModernSettingsView({
   const currentThemeMode = settings.themeMode || getStoredTheme();
   const currentThemeConfig =
     THEME_CONFIGS[currentThemeMode] || THEME_CONFIGS.minimal;
+
+  interface SettingsItem {
+    id: string;
+    section: ActiveSection;
+    title: string;
+    subtitle: string;
+    icon: React.ComponentType<{ className?: string }>;
+    iconBg: string;
+    iconColor: string;
+    statusText?: string;
+    keywords: string[];
+    action?: () => void;
+  }
+
+  interface SettingsGroup {
+    title: string;
+    description: string;
+    items: SettingsItem[];
+  }
+
+  const groups: SettingsGroup[] = useMemo(() => {
+    return [
+      {
+        title: "Appearance & Style",
+        description: "Visual theme, accent palette, and layout scaling",
+        items: [
+          {
+            id: "appearance",
+            section: "appearance",
+            title: "Appearance & Themes",
+            subtitle: "Palette mode, accent color, and circadian sunset warmth",
+            icon: Palette,
+            iconBg: "bg-amber-500/15",
+            iconColor: "text-amber-500",
+            statusText: currentThemeConfig.name,
+            keywords: ["theme", "appearance", "dark", "light", "colors", "circadian", "sunset", "palette", "mode", "warmth"],
+          },
+          {
+            id: "appStyle",
+            section: "appStyle",
+            title: "Typography & Density",
+            subtitle: "Font scales, layout spacing, and icon weights",
+            icon: Smartphone,
+            iconBg: "bg-violet-500/15",
+            iconColor: "text-violet-400",
+            statusText: "Standard",
+            keywords: ["style", "typography", "font", "density", "icons", "size", "layout", "compact"],
+          },
+        ],
+      },
+      {
+        title: "Habit Preferences",
+        description: "Daily reminder alarms, midnight rollover, and security lock",
+        items: [
+          {
+            id: "preferences",
+            section: "preferences",
+            title: "Routine & Preferences",
+            subtitle: "Daily reminders, night owl rollover, and 10 languages",
+            icon: Sliders,
+            iconBg: "bg-blue-500/15",
+            iconColor: "text-blue-400",
+            statusText: settings.rolloverHour ? `${settings.rolloverHour}:00 AM (Night Owl)` : "Midnight",
+            keywords: ["preferences", "notifications", "reminders", "time", "rollover", "night owl", "language", "circadian"],
+          },
+          ...(onOpenAppLock
+            ? [
+                {
+                  id: "appLock",
+                  section: null as ActiveSection,
+                  title: "App Lock & Security",
+                  subtitle: "Protect habits and private notes with PIN or biometrics",
+                  icon: Lock,
+                  iconBg: "bg-rose-500/15",
+                  iconColor: "text-rose-400",
+                  statusText: "Secured",
+                  keywords: ["lock", "security", "pin", "biometric", "privacy", "fingerprint", "faceid"],
+                  action: onOpenAppLock,
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: "Data & Sovereignty",
+        description: "100% offline-first storage, 5-format exports, and device syncing",
+        items: [
+          {
+            id: "data",
+            section: "data",
+            title: "Data & Backups",
+            subtitle: "5 export formats (JSON, CSV, TSV, Markdown, Vault) and restore",
+            icon: Database,
+            iconBg: "bg-emerald-500/15",
+            iconColor: "text-emerald-400",
+            statusText: "5 Formats",
+            keywords: ["data", "backup", "export", "restore", "csv", "tsv", "json", "markdown", "vault", "inspect", "import"],
+          },
+          ...(onOpenAirGapped
+            ? [
+                {
+                  id: "airGapped",
+                  section: null as ActiveSection,
+                  title: "Air-Gapped QR Transfer",
+                  subtitle: "Transfer encrypted records peer-to-peer with zero network access",
+                  icon: QrCode,
+                  iconBg: "bg-cyan-500/15",
+                  iconColor: "text-cyan-400",
+                  statusText: "Offline QR",
+                  keywords: ["qr", "sync", "air-gapped", "transfer", "offline", "camera"],
+                  action: onOpenAirGapped,
+                },
+              ]
+            : []),
+          ...(onOpenVaultSync
+            ? [
+                {
+                  id: "vaultSync",
+                  section: null as ActiveSection,
+                  title: "Encrypted Peer Vault Sync",
+                  subtitle: "Set-union conflict-free multi-device synchronization",
+                  icon: Sparkles,
+                  iconBg: "bg-indigo-500/15",
+                  iconColor: "text-indigo-400",
+                  statusText: "AES-GCM",
+                  keywords: ["vault", "peer", "sync", "aes", "encryption", "crdt"],
+                  action: onOpenVaultSync,
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        title: "About & Community",
+        description: "Free and open-source software, legal terms, and feedback",
+        items: [
+          {
+            id: "about",
+            section: "about",
+            title: "About Daily Spark",
+            subtitle: `v${SITE.apk.version} • 100% offline, MIT licensed, privacy guarantee`,
+            icon: Info,
+            iconBg: "bg-neutral-500/15",
+            iconColor: "text-neutral-300",
+            statusText: `v${SITE.apk.version}`,
+            keywords: ["about", "version", "license", "privacy", "terms", "mit", "author", "guarantee"],
+          },
+          {
+            id: "support",
+            section: "support",
+            title: "Support & Community",
+            subtitle: "Source repository, issue reporting, and feedback",
+            icon: Heart,
+            iconBg: "bg-pink-500/15",
+            iconColor: "text-pink-400",
+            statusText: "Open Source",
+            keywords: ["support", "github", "issues", "bug", "star", "community", "contribute"],
+          },
+        ],
+      },
+    ];
+  }, [currentThemeConfig.name, settings.rolloverHour, onOpenAppLock, onOpenAirGapped, onOpenVaultSync]);
+
+  const filteredGroups = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return groups;
+    return groups
+      .map((group) => {
+        const matchingItems = group.items.filter(
+          (item) =>
+            item.title.toLowerCase().includes(q) ||
+            item.subtitle.toLowerCase().includes(q) ||
+            item.keywords.some((k) => k.toLowerCase().includes(q))
+        );
+        return {
+          ...group,
+          items: matchingItems,
+        };
+      })
+      .filter((group) => group.items.length > 0);
+  }, [groups, searchQuery]);
 
   const resolveAvatarColor = (name: string): string => {
     if (name in PRESET_AVATAR_COLORS) {
@@ -248,7 +437,7 @@ export function ModernSettingsView({
               className="absolute bottom-0 right-0 size-7 sm:size-8 rounded-full bg-ember text-[var(--ember-foreground,#FFFFFF)] grid place-items-center shadow-lg border-2 border-background transition-transform group-hover:scale-110"
               aria-hidden="true"
             >
-              <PixelPen className="size-3.5 text-current" />
+              <Pencil className="size-3.5 text-current" />
             </span>
           </div>
 
@@ -263,132 +452,106 @@ export function ModernSettingsView({
       </div>
 
       {/* Right Column (Settings Sections on Desktop) */}
-      <div className={cn("space-y-4", !embedded && "lg:col-span-7 xl:col-span-8")}>
+      <div className={cn("space-y-5", !embedded && "lg:col-span-7 xl:col-span-8")}>
+        {/* Search Bar for Quick Navigation */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-faint" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search settings (e.g. night owl, export, themes, lock)..."
+            className="h-11 pl-10 pr-9 rounded-2xl bg-surface/90 border border-border/40 text-xs font-medium placeholder:text-faint focus-visible:ring-ember shadow-sm"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-faint hover:text-foreground cursor-pointer"
+              aria-label="Clear search"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </div>
 
-      {/* 2. Isolated Card: complete visual preset */}
-      <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setActiveSection("appearance")}
-          className="flex w-full items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
-              <PixelSmartphone className="size-5" />
-            </span>
-            <div>
-              <span className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground block">
-                Visual identity
-              </span>
-              <span className="font-sans text-xs text-muted-foreground">
-                Complete theme, background, type and icons
-              </span>
-            </div>
+        {/* Filtered Sections */}
+        {filteredGroups.length === 0 ? (
+          <div className="p-8 text-center rounded-3xl border border-border/40 bg-surface/80 space-y-2">
+            <p className="text-sm font-semibold text-foreground">No settings found</p>
+            <p className="text-xs text-muted-foreground">
+              No settings match &ldquo;{searchQuery}&rdquo;. Try searching for theme, backup, or rollover.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSearchQuery("")}
+              className="rounded-full text-xs mt-1"
+            >
+              Clear search
+            </Button>
           </div>
-          <div className="flex items-center gap-2 text-sm text-faint">
-            <span className="capitalize font-medium text-muted-foreground">
-              {currentThemeConfig.name}
-            </span>
-            <PixelChevronRight className="size-4" />
-          </div>
-        </button>
-      </section>
+        ) : (
+          filteredGroups.map((group) => (
+            <section key={group.title} className="space-y-1.5">
+              <div className="flex items-center justify-between px-2 pt-1">
+                <p className="text-[11.5px] font-bold uppercase tracking-wider text-faint">
+                  {group.title}
+                </p>
+                <span className="text-[11px] text-faint hidden sm:inline">
+                  {group.description}
+                </span>
+              </div>
+              <div className="rounded-2xl sm:rounded-3xl border border-border/40 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-border/20">
+                {group.items.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        if (item.action) {
+                          item.action();
+                        } else if (item.section) {
+                          setActiveSection(item.section);
+                        }
+                      }}
+                      className="flex w-full items-center justify-between p-3.5 sm:p-4 text-left transition-colors hover:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3.5 min-w-0 pr-2">
+                        <span
+                          className={cn(
+                            "grid size-9 sm:size-10 shrink-0 place-items-center rounded-xl",
+                            item.iconBg,
+                            item.iconColor
+                          )}
+                        >
+                          <IconComponent className="size-4.5" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-sans text-[14.5px] sm:text-[15.5px] font-semibold text-foreground leading-tight truncate">
+                            {item.title}
+                          </p>
+                          <p className="font-sans text-xs text-muted-foreground mt-0.5 truncate">
+                            {item.subtitle}
+                          </p>
+                        </div>
+                      </div>
 
-      {/* 3. Connected Grouped Card: Core Settings */}
-      <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-white/5">
-        {/* Preferences Row */}
-        <button
-          type="button"
-          onClick={() => setActiveSection("preferences")}
-          className="flex w-full items-center justify-between p-4 sm:p-4.5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
-              <PixelTune className="size-5" />
-            </span>
-            <div>
-              <p className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground leading-tight">
-                Preferences
-              </p>
-              <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Language, daily rollover and app lock
-              </p>
-            </div>
-          </div>
-          <PixelChevronRight className="size-4 text-faint shrink-0" />
-        </button>
-
-        {/* Data Row */}
-        <button
-          type="button"
-          onClick={() => setActiveSection("data")}
-          className="flex w-full items-center justify-between p-4 sm:p-4.5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
-              <PixelStorage className="size-5" />
-            </span>
-            <div>
-              <p className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground leading-tight">
-                Data
-              </p>
-              <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                5-format backups, vault and restore
-              </p>
-            </div>
-          </div>
-          <PixelChevronRight className="size-4 text-faint shrink-0" />
-        </button>
-
-        {/* Support Row */}
-        <button
-          type="button"
-          onClick={() => setActiveSection("support")}
-          className="flex w-full items-center justify-between p-4 sm:p-4.5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
-              <PixelHeart className="size-5" />
-            </span>
-            <div>
-              <p className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground leading-tight">
-                Support
-              </p>
-              <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Report a bug or ask for a feature
-              </p>
-            </div>
-          </div>
-          <PixelChevronRight className="size-4 text-faint shrink-0" />
-        </button>
-      </section>
-
-      {/* 4. Isolated Card: About this app */}
-      <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setActiveSection("about")}
-          className="flex w-full items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
-              <PixelInfo className="size-5" />
-            </span>
-            <div>
-              <p className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground leading-tight">
-                About this app
-              </p>
-              <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Version, legal policies and open source
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-faint">
-            <span className="font-mono text-xs">{SITE.apk.version}</span>
-            <PixelChevronRight className="size-4" />
-          </div>
-        </button>
-      </section>
+                      <div className="flex items-center gap-2 text-xs shrink-0 pl-1">
+                        {item.statusText && (
+                          <span className="capitalize font-semibold text-faint hidden xs:inline text-[11.5px] rounded-full bg-surface-2 px-2.5 py-0.5 border border-border/30">
+                            {item.statusText}
+                          </span>
+                        )}
+                        <ChevronRight className="size-4 text-faint" />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          ))
+        )}
       </div>
 
       {/* MODAL: Unified Profile & Avatar Customizer */}
@@ -436,7 +599,7 @@ export function ModernSettingsView({
                 onClick={() => setDraftProfile((prev) => ({ ...prev, customImage: undefined }))}
                 className="text-xs text-rose-400 hover:text-rose-300 h-7 px-2.5 gap-1.5 font-medium"
               >
-                <PixelClose className="size-3" />
+                <X className="size-3" />
                 <span>Remove Photo</span>
               </Button>
             )}
@@ -641,20 +804,27 @@ export function ModernSettingsView({
         </DialogContent>
       </Dialog>
 
-      {/* MODAL: complete visual preset */}
+      {/* MODAL: Appearance & App Style Sub-Screen */}
       <Dialog
-        open={activeSection === "appearance"}
+        open={activeSection === "appearance" || activeSection === "appStyle"}
         onOpenChange={(open) => !open && setActiveSection(null)}
       >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl font-bold">Visual identity</DialogTitle>
+            <DialogTitle className="font-display text-xl font-bold">
+              {activeSection === "appStyle" ? "App Style" : "Appearance"}
+            </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Select a complete theme preset and optional Expressive atmosphere.
+              {activeSection === "appStyle"
+                ? "Configure typography, density, and icon preferences."
+                : "Select your theme palette and circadian night warmth glide."}
             </DialogDescription>
           </DialogHeader>
           <div className="pt-2">
-            <AppearanceSwitcher key={activeSection} />
+            <AppearanceSwitcher
+              key={activeSection}
+              defaultTab={activeSection === "appStyle" ? "style" : "appearance"}
+            />
           </div>
         </DialogContent>
       </Dialog>
@@ -702,7 +872,7 @@ export function ModernSettingsView({
               className="w-full flex items-center justify-between p-3 rounded-xl border border-dashed border-white/10 hover:border-ember/40 bg-white/[0.02] hover:bg-white/[0.04] text-xs text-muted-foreground hover:text-foreground transition-colors text-left"
             >
               <span>Missing your language? Request a translation</span>
-              <PixelChevronRight className="size-3.5 text-faint shrink-0" />
+              <ChevronRight className="size-3.5 text-faint shrink-0" />
             </button>
 
             {/* Solar Circadian Warmth */}
@@ -789,7 +959,7 @@ export function ModernSettingsView({
                 className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <PixelLock className="size-4 text-ember" />
+                  <Lock className="size-4 text-ember" />
                   <div>
                     <p className="font-semibold text-sm">App Lock &amp; Biometrics</p>
                     <p className="text-xs text-muted-foreground">
@@ -797,7 +967,7 @@ export function ModernSettingsView({
                     </p>
                   </div>
                 </div>
-                <PixelChevronRight className="size-4 text-faint" />
+                <ChevronRight className="size-4 text-faint" />
               </button>
             )}
           </div>
@@ -872,10 +1042,10 @@ export function ModernSettingsView({
             <button
               type="button"
               onClick={onExportBackup}
-              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelDownload className="size-4" />
+                <Download className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Export Full Backup (.json)</p>
@@ -883,7 +1053,7 @@ export function ModernSettingsView({
                   Complete history, logs, habits, and private notes
                 </p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </button>
 
             {/* Format 2: CSV Habits & Notes */}
@@ -891,10 +1061,10 @@ export function ModernSettingsView({
               type="button"
               onClick={onExportCsv}
               data-testid="export-csv-btn"
-              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelDownload className="size-4" />
+                <Download className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Export Habits CSV (.csv)</p>
@@ -902,17 +1072,17 @@ export function ModernSettingsView({
                   Spreadsheet-friendly records for Excel, Numbers, or Sheets
                 </p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </button>
 
             {/* Format 3: TSV Habits & Notes */}
             <button
               type="button"
               onClick={onExportTsv || onExportCsv}
-              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelDownload className="size-4" />
+                <Download className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Export Habits &amp; Notes TSV (.tsv)</p>
@@ -920,17 +1090,17 @@ export function ModernSettingsView({
                   Tab-separated data for database imports and data science
                 </p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </button>
 
             {/* Format 4: Markdown Summary */}
             <button
               type="button"
               onClick={onExportMarkdown}
-              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelNotebook className="size-4" />
+                <FileText className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Export Markdown Summary (.md)</p>
@@ -938,17 +1108,17 @@ export function ModernSettingsView({
                   Readable report for Obsidian, Notion, or Logseq
                 </p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </button>
 
             {/* Format 5: Encrypted Vault (.vault) */}
             <button
               type="button"
               onClick={onExportVault || onOpenVaultSync}
-              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+              className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelShieldCheck className="size-4" />
+                <ShieldCheck className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Export Encrypted Vault (.vault)</p>
@@ -956,13 +1126,13 @@ export function ModernSettingsView({
                   Zero-knowledge AES-GCM-256 encrypted package
                 </p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </button>
 
             {/* Restore File Input accepting all 5 formats */}
             <label className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer">
               <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                <PixelUpload className="size-4" />
+                <Upload className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Inspect &amp; Restore Backup</p>
@@ -976,7 +1146,7 @@ export function ModernSettingsView({
                 onChange={onFileUpload}
                 className="hidden"
               />
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </label>
 
             {onOpenAirGapped && (
@@ -986,16 +1156,16 @@ export function ModernSettingsView({
                   setActiveSection(null);
                   onOpenAirGapped();
                 }}
-                className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+                className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
               >
                 <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                  <PixelQrCode className="size-4" />
+                  <QrCode className="size-4" />
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm">Air-Gapped QR Sync</p>
                   <p className="text-xs text-muted-foreground">Transfer between devices with zero network</p>
                 </div>
-                <PixelChevronRight className="size-4 text-faint" />
+                <ChevronRight className="size-4 text-faint" />
               </button>
             )}
 
@@ -1006,10 +1176,10 @@ export function ModernSettingsView({
                   setActiveSection(null);
                   onOpenVaultSync();
                 }}
-                className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
+                className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer"
               >
                 <span className="grid size-9 place-items-center rounded-xl bg-ember-soft text-ember">
-                  <PixelSparkles className="size-4" />
+                  <Sparkles className="size-4" />
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm">Encrypted Peer Vault Sync</p>
@@ -1017,7 +1187,7 @@ export function ModernSettingsView({
                     Set-union conflict-free cross-device synchronization
                   </p>
                 </div>
-                <PixelChevronRight className="size-4 text-faint" />
+                <ChevronRight className="size-4 text-faint" />
               </button>
             )}
           </div>
@@ -1045,13 +1215,13 @@ export function ModernSettingsView({
               className="flex w-full items-center gap-3 rounded-2xl p-3.5 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-foreground">
-                <PixelGithub className="size-4" />
+                <Github className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">GitHub Repository</p>
                 <p className="text-xs text-muted-foreground">Source code, releases, and discussions</p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </a>
 
             <a
@@ -1061,13 +1231,13 @@ export function ModernSettingsView({
               className="flex w-full items-center gap-3 rounded-2xl p-3.5 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-white/[0.06] text-foreground">
-                <PixelBug className="size-4" />
+                <Bug className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Report an Issue</p>
                 <p className="text-xs text-muted-foreground">File a bug report or request a new feature</p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </a>
 
             <a
@@ -1077,13 +1247,13 @@ export function ModernSettingsView({
               className="flex w-full items-center gap-3 rounded-2xl p-3.5 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors"
             >
               <span className="grid size-9 place-items-center rounded-xl bg-amber-500/15 text-amber-400">
-                <PixelStar className="size-4" />
+                <Star className="size-4" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">Star on GitHub</p>
                 <p className="text-xs text-muted-foreground">Support the open-source project</p>
               </div>
-              <PixelChevronRight className="size-4 text-faint" />
+              <ChevronRight className="size-4 text-faint" />
             </a>
           </div>
         </DialogContent>
@@ -1156,7 +1326,7 @@ export function ModernSettingsView({
               className="rounded-2xl border border-white/10 bg-surface-2/80 p-4 space-y-2"
             >
               <div className="flex items-center gap-2">
-                <PixelShieldCheck className="size-4 text-ember" />
+                <ShieldCheck className="size-4 text-ember" />
                 <h3 className="font-display text-sm font-bold text-foreground">Privacy Guarantee</h3>
               </div>
               <p className="text-xs text-foreground/90 font-medium leading-relaxed">
@@ -1180,7 +1350,7 @@ export function ModernSettingsView({
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold flex items-center gap-2">
-              <PixelShieldCheck className="size-5 text-ember" />
+              <ShieldCheck className="size-5 text-ember" />
               Privacy Policy
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
@@ -1225,7 +1395,7 @@ export function ModernSettingsView({
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold flex items-center gap-2">
-              <PixelInfo className="size-5 text-ember" />
+              <Info className="size-5 text-ember" />
               Terms &amp; Conditions
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">

@@ -304,8 +304,8 @@ describe("Empirical Challenger — Milestone 1 Stress Suite", () => {
 
       expect(nav.className).not.toContain("lg:hidden");
       expect(nav.className).toContain("absolute");
-      expect(nav.className).toContain("inset-x-0");
-      expect(nav.className).toContain("bottom-0");
+      expect(nav.className).toContain("inset-x-3");
+      expect(nav.className).toContain("bottom-3");
     });
 
     it("handles rapid touch/pointer events and sequential tab switching", () => {

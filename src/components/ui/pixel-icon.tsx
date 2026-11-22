@@ -1,63 +1,86 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 import {
-  MaterialAdd,
-  MaterialArchive,
-  MaterialArrowBack,
-  MaterialArrowForward,
-  MaterialBarChart,
-  MaterialBolt,
-  MaterialBook,
-  MaterialCalendarToday,
-  MaterialCheck,
-  MaterialCheckCircle,
-  MaterialChecklist,
-  MaterialChevronDown,
-  MaterialChevronLeft,
-  MaterialChevronRight,
-  MaterialChevronUp,
-  MaterialClock,
-  MaterialClose,
-  MaterialCode,
-  MaterialDelete,
-  MaterialDownload,
-  MaterialFlame,
-  MaterialHeart,
-  MaterialHome,
-  MaterialIconProps,
-  MaterialLightbulb,
-  MaterialLock,
-  MaterialMoon,
-  MaterialMusic,
-  MaterialNotifications,
-  MaterialPalette,
-  MaterialPause,
-  MaterialPen,
-  MaterialPlayArrow,
-  MaterialQrCode,
-  MaterialRemove,
-  MaterialRestore,
-  MaterialSearch,
-  MaterialSettings,
-  MaterialShare,
-  MaterialShieldCheck,
-  MaterialSmartphone,
-  MaterialSparkles,
-  MaterialStar,
-  MaterialStorage,
-  MaterialSun,
-  MaterialTrophy,
-  MaterialTune,
-  MaterialInfo,
-  MaterialUpload,
-  MaterialWarning,
+  CalendarCheck2,
+  CheckSquare,
+  Plus,
+  BarChart3,
+  Settings,
+  Calendar,
+  Flame,
+  Star,
+  Check,
+  Lock,
+  Trophy,
+  Download,
+  ShieldCheck,
+  X,
+  Clock,
+  Sparkles,
+  Zap,
+  CheckCircle2,
+  Search,
+  ArrowRight,
+  ArrowDown,
+  ChevronDown,
+  Heart,
+  Sun,
+  Moon,
+  BookOpen,
+  Lightbulb,
+  Code2,
+  Music,
+  Pencil,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ArrowLeft,
+  Trash2,
+  Archive,
+  RotateCcw,
+  Play,
+  Pause,
+  Minus,
+  Bell,
+  Share2,
+  AlertTriangle,
+  Upload,
+  QrCode,
+  Smartphone,
+  Palette,
+  Sliders,
+  Database,
+  Info,
+  Menu,
+  Bug,
+} from "lucide-react";
+import {
   createMaterialIcon,
+  type MaterialIconProps,
 } from "./material-icon";
 
 export type PixelIconProps = MaterialIconProps;
 
-// Additional Material Design icons
-export const MaterialMenu = createMaterialIcon("M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z");
-export const MaterialArrowDownward = createMaterialIcon("M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z");
+function createLucideIcon(
+  IconComponent: React.ComponentType<{
+    className?: string;
+    size?: number | string;
+    strokeWidth?: number;
+  }>
+) {
+  return function WrappedIcon({ className, size, ...props }: MaterialIconProps) {
+    return (
+      <IconComponent
+        className={cn("inline-block shrink-0", className)}
+        size={size ?? 18}
+        strokeWidth={2}
+        {...(props as Record<string, unknown>)}
+      />
+    );
+  };
+}
+
+// Brand-specific vector paths
 export const MaterialBugReport = createMaterialIcon(
   "M19 8h-1.81a5.985 5.985 0 0 0-1.82-1.96l.93-.93a.996.996 0 1 0-1.41-1.41l-1.47 1.47C12.83 5.06 12.18 5 11.5 5s-1.33.06-1.92.17L8.11 3.7a.996.996 0 1 0-1.41 1.41l.93.93C6.75 6.64 6 7.74 5.81 9H4a1 1 0 1 0 0 2h1.53c-.02.33-.03.66-.03 1s.01.67.03 1H4a1 1 0 1 0 0 2h1.81c.67 1.54 1.87 2.79 3.39 3.44L8.11 20.3a.996.996 0 1 0 1.41 1.41l1.47-1.47c.67.12 1.35.18 2.02.18.67 0 1.35-.06 2.02-.18l1.47 1.47a.996.996 0 1 0 1.41-1.41l-1.11-1.86c1.52-.65 2.72-1.9 3.39-3.44H20a1 1 0 1 0 0-2h-1.53c.02-.33.03-.66.03-1s-.01-.67-.03-1H20a1 1 0 1 0 0-2z"
 );
@@ -73,63 +96,64 @@ export const MaterialGitlab = createMaterialIcon(
 export const MaterialFdroid = createMaterialIcon(
   "M16 3a2 2 0 0 0-2 2v1H10V5a2 2 0 0 0-4 0v1H5a3 3 0 0 0-3 3v4a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3h-1V5a2 2 0 0 0-2-2zm-8 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm8 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM5 18a1 1 0 0 0-1 1v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1a1 1 0 0 0-1-1H5z"
 );
+export const MaterialMenu = createMaterialIcon("M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z");
 
-// Map Pixel* names directly to official Google Material Design Icons
-export const PixelHome = MaterialHome;
-export const PixelCheckList = MaterialChecklist;
-export const PixelPlus = MaterialAdd;
-export const PixelChart = MaterialBarChart;
-export const PixelSettings = MaterialSettings;
-export const PixelCalendar = MaterialCalendarToday;
-export const PixelFire = MaterialFlame;
-export const PixelStar = MaterialStar;
-export const PixelCheck = MaterialCheck;
-export const PixelLock = MaterialLock;
-export const PixelTrophy = MaterialTrophy;
-export const PixelDownload = MaterialDownload;
+// Export modern, crisp Lucide vector icons
+export const PixelHome = createLucideIcon(CalendarCheck2);
+export const PixelCheckList = createLucideIcon(CheckSquare);
+export const PixelPlus = createLucideIcon(Plus);
+export const PixelChart = createLucideIcon(BarChart3);
+export const PixelSettings = createLucideIcon(Settings);
+export const PixelCalendar = createLucideIcon(Calendar);
+export const PixelFire = createLucideIcon(Flame);
+export const PixelStar = createLucideIcon(Star);
+export const PixelCheck = createLucideIcon(Check);
+export const PixelLock = createLucideIcon(Lock);
+export const PixelTrophy = createLucideIcon(Trophy);
+export const PixelDownload = createLucideIcon(Download);
 export const PixelGithub = MaterialGithub;
 export const PixelGitlab = MaterialGitlab;
 export const PixelFdroid = MaterialFdroid;
-export const PixelShieldCheck = MaterialShieldCheck;
-export const PixelBug = MaterialBugReport;
-export const PixelMenu = MaterialMenu;
-export const PixelClose = MaterialClose;
-export const PixelClock = MaterialClock;
-export const PixelAndroid = MaterialAndroid;
-export const PixelSparkles = MaterialSparkles;
-export const PixelBolt = MaterialBolt;
-export const PixelCheckCircle = MaterialCheckCircle;
-export const PixelSearch = MaterialSearch;
-export const PixelArrowRight = MaterialArrowForward;
-export const PixelChevronDown = MaterialChevronDown;
-export const PixelArrowDown = MaterialArrowDownward;
-export const PixelHeart = MaterialHeart;
-export const PixelSun = MaterialSun;
-export const PixelMoon = MaterialMoon;
-export const PixelBook = MaterialBook;
-export const PixelLightbulb = MaterialLightbulb;
-export const PixelCode = MaterialCode;
-export const PixelMusic = MaterialMusic;
-export const PixelNotebook = MaterialBook;
-export const PixelPen = MaterialPen;
-export const PixelChevronLeft = MaterialChevronLeft;
-export const PixelChevronRight = MaterialChevronRight;
-export const PixelChevronUp = MaterialChevronUp;
-export const PixelArrowLeft = MaterialArrowBack;
-export const PixelTrash = MaterialDelete;
-export const PixelArchive = MaterialArchive;
-export const PixelRotateCcw = MaterialRestore;
-export const PixelPlay = MaterialPlayArrow;
-export const PixelPause = MaterialPause;
-export const PixelMinus = MaterialRemove;
-export const PixelBell = MaterialNotifications;
-export const PixelShare = MaterialShare;
-export const PixelAlertTriangle = MaterialWarning;
-export const PixelCog = MaterialSettings;
-export const PixelUpload = MaterialUpload;
-export const PixelQrCode = MaterialQrCode;
-export const PixelSmartphone = MaterialSmartphone;
-export const PixelPalette = MaterialPalette;
-export const PixelTune = MaterialTune;
-export const PixelStorage = MaterialStorage;
-export const PixelInfo = MaterialInfo;
+export const PixelShieldCheck = createLucideIcon(ShieldCheck);
+export const PixelBug = createLucideIcon(Bug);
+export const PixelMenu = createLucideIcon(Menu);
+export const PixelClose = createLucideIcon(X);
+export const PixelClock = createLucideIcon(Clock);
+export const PixelAndroid = createLucideIcon(Smartphone);
+export const PixelSparkles = createLucideIcon(Sparkles);
+export const PixelBolt = createLucideIcon(Zap);
+export const PixelCheckCircle = createLucideIcon(CheckCircle2);
+export const PixelSearch = createLucideIcon(Search);
+export const PixelArrowRight = createLucideIcon(ArrowRight);
+export const PixelChevronDown = createLucideIcon(ChevronDown);
+export const PixelArrowDown = createLucideIcon(ArrowDown);
+export const PixelHeart = createLucideIcon(Heart);
+export const PixelSun = createLucideIcon(Sun);
+export const PixelMoon = createLucideIcon(Moon);
+export const PixelBook = createLucideIcon(BookOpen);
+export const PixelLightbulb = createLucideIcon(Lightbulb);
+export const PixelCode = createLucideIcon(Code2);
+export const PixelMusic = createLucideIcon(Music);
+export const PixelNotebook = createLucideIcon(BookOpen);
+export const PixelPen = createLucideIcon(Pencil);
+export const PixelChevronLeft = createLucideIcon(ChevronLeft);
+export const PixelChevronRight = createLucideIcon(ChevronRight);
+export const PixelChevronUp = createLucideIcon(ChevronUp);
+export const PixelArrowLeft = createLucideIcon(ArrowLeft);
+export const PixelTrash = createLucideIcon(Trash2);
+export const PixelArchive = createLucideIcon(Archive);
+export const PixelRotateCcw = createLucideIcon(RotateCcw);
+export const PixelPlay = createLucideIcon(Play);
+export const PixelPause = createLucideIcon(Pause);
+export const PixelMinus = createLucideIcon(Minus);
+export const PixelBell = createLucideIcon(Bell);
+export const PixelShare = createLucideIcon(Share2);
+export const PixelAlertTriangle = createLucideIcon(AlertTriangle);
+export const PixelCog = createLucideIcon(Settings);
+export const PixelUpload = createLucideIcon(Upload);
+export const PixelQrCode = createLucideIcon(QrCode);
+export const PixelSmartphone = createLucideIcon(Smartphone);
+export const PixelPalette = createLucideIcon(Palette);
+export const PixelTune = createLucideIcon(Sliders);
+export const PixelStorage = createLucideIcon(Database);
+export const PixelInfo = createLucideIcon(Info);

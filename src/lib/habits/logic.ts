@@ -1,12 +1,5 @@
 import { addDays, isValidKey, lastNDays, todayKey } from "./dates";
-import {
-  DEFAULT_SETTINGS,
-  MILESTONES,
-  type Habit,
-  type HabitSettings,
-  type MilestoneDef,
-  type StandaloneNote,
-} from "./types";
+import { DEFAULT_SETTINGS, MILESTONES, type Habit, type HabitSettings, type MilestoneDef, type StandaloneNote } from "./types";
 import { calculateCleanStreak } from "./avoid";
 import { currentStreakWithNeutral } from "./vacation";
 
@@ -71,8 +64,7 @@ export function refresh(habit: Habit, today: string): Habit {
     completedDates,
     currentStreak: cur,
     bestStreak: Math.max(habit.bestStreak || 0, bestRun, cur),
-    lastCompletedDate:
-      habit.kind === "avoid" ? null : (completedDates.at(-1) ?? null),
+    lastCompletedDate: habit.kind === "avoid" ? null : (completedDates.at(-1) ?? null),
   };
 }
 
@@ -88,22 +80,15 @@ export function isDoneOn(habit: Habit, day: string): boolean {
 }
 
 /** Mark today as done. Doing it twice in one day changes nothing. */
-export function completeToday(
-  habit: Habit,
-  today: string,
-  timeStr?: string,
-): Habit {
+export function completeToday(habit: Habit, today: string, timeStr?: string): Habit {
   if (isDoneOn(habit, today)) return habit;
   const nextTimes = { ...(habit.completionTimes || {}) };
   nextTimes[today] = timeStr || new Date().toISOString();
-  return refresh(
-    {
-      ...habit,
-      completedDates: [...habit.completedDates, today],
-      completionTimes: nextTimes,
-    },
-    today,
-  );
+  return refresh({
+    ...habit,
+    completedDates: [...habit.completedDates, today],
+    completionTimes: nextTimes,
+  }, today);
 }
 
 /** Undo today's completion (mistake-friendly). Only today can be undone. */
@@ -112,20 +97,14 @@ export function undoToday(habit: Habit, today: string): Habit {
   const completedDates = habit.completedDates.filter((d) => d !== today);
   const nextTimes = { ...(habit.completionTimes || {}) };
   delete nextTimes[today];
-  const next = refresh(
-    {
-      ...habit,
-      completedDates,
-      completionTimes: nextTimes,
-      bestStreak: 0,
-    },
-    today,
-  );
+  const next = refresh({
+    ...habit,
+    completedDates,
+    completionTimes: nextTimes,
+    bestStreak: 0,
+  }, today);
   // Best streak never drops below the longest run still in history.
-  return {
-    ...next,
-    bestStreak: Math.max(longestStreak(completedDates), next.currentStreak),
-  };
+  return { ...next, bestStreak: Math.max(longestStreak(completedDates), next.currentStreak) };
 }
 
 /**
@@ -134,11 +113,7 @@ export function undoToday(habit: Habit, today: string): Habit {
  * If not, adds it.
  * Recalculates currentStreak, bestStreak, and lastCompletedDate deterministically.
  */
-export function togglePastDay(
-  habit: Habit,
-  dateStr: string,
-  today: string,
-): Habit {
+export function togglePastDay(habit: Habit, dateStr: string, today: string): Habit {
   if (!isValidKey(dateStr) || dateStr > today) return habit;
   const isCompleted = habit.completedDates.includes(dateStr);
   const nextDates = isCompleted
@@ -157,7 +132,7 @@ export function togglePastDay(
     ...habit,
     completedDates: sortedDates,
     completionTimes: nextTimes,
-    bestStreak: isCompleted ? 0 : habit.bestStreak || 0,
+    bestStreak: isCompleted ? 0 : (habit.bestStreak || 0),
   };
   return refresh(updatedHabit, today);
 }
@@ -166,8 +141,7 @@ export type HabitStatus = "done" | "pending" | "broken";
 
 export function statusOf(habit: Habit, today: string): HabitStatus {
   if (isDoneOn(habit, today)) return "done";
-  if (habit.completedDates.length === 0 || isDoneOn(habit, addDays(today, -1)))
-    return "pending";
+  if (habit.completedDates.length === 0 || isDoneOn(habit, addDays(today, -1))) return "pending";
   return "broken";
 }
 
@@ -184,71 +158,17 @@ function countsOn(h: Habit, day: string): boolean {
   return true;
 }
 
-export function dayRatio(
-  habits: Habit[],
-  day: string,
-): { done: number; total: number } {
+export function dayRatio(habits: Habit[], day: string): { done: number; total: number } {
   let done = 0;
   let total = 0;
   for (const h of habits) {
     const did = isDoneOn(h, day);
-    if ((countsOn(h, day) && isHabitDueToday(h, day)) || did) {
+    if (countsOn(h, day) || did) {
       total++;
       if (did) done++;
     }
   }
   return { done, total };
-}
-
-/** Schedule-aware completion rate for one habit over a fixed recent window. */
-export function habitCompletionRate(
-  habit: Habit,
-  today: string,
-  days: number,
-): { done: number; scheduled: number; percent: number } {
-  let done = 0;
-  let scheduled = 0;
-  const windowDays = lastNDays(today, Math.max(0, days));
-
-  if (habit.frequencyType === "weekly_target") {
-    const target = Math.max(1, habit.targetDaysPerWeek ?? 1);
-    const weeks = new Map<string, string[]>();
-
-    for (const day of windowDays) {
-      if (!countsOn(habit, day)) continue;
-      const date = new Date(`${day}T12:00:00Z`);
-      const weekday = date.getUTCDay();
-      const monday = addDays(day, weekday === 0 ? -6 : 1 - weekday);
-      weeks.set(monday, [...(weeks.get(monday) ?? []), day]);
-    }
-
-    for (const weekDays of weeks.values()) {
-      const opportunities = Math.min(target, weekDays.length);
-      const completions = weekDays.filter((day) => isDoneOn(habit, day)).length;
-      scheduled += opportunities;
-      done += Math.min(completions, opportunities);
-    }
-
-    return {
-      done,
-      scheduled,
-      percent: scheduled === 0 ? 0 : Math.round((done / scheduled) * 100),
-    };
-  }
-
-  for (const day of windowDays) {
-    const completed = isDoneOn(habit, day);
-    if ((countsOn(habit, day) && isHabitDueToday(habit, day)) || completed) {
-      scheduled++;
-      if (completed) done++;
-    }
-  }
-
-  return {
-    done,
-    scheduled,
-    percent: scheduled === 0 ? 0 : Math.round((done / scheduled) * 100),
-  };
 }
 
 /** Days in a row (ending today/yesterday) with at least one completed habit. */
@@ -257,11 +177,7 @@ export function overallStreak(habits: Habit[], today: string): number {
   return currentStreak([...all], today);
 }
 
-export function completionRate(
-  habits: Habit[],
-  today: string,
-  days: number,
-): number {
+export function completionRate(habits: Habit[], today: string, days: number): number {
   let done = 0;
   let total = 0;
   for (const day of lastNDays(today, days)) {
@@ -318,12 +234,8 @@ export function createHabit(
     archivedAt: null,
     listId: input.listId ?? "default",
     notes: typeof input.notes === "string" ? input.notes.slice(0, 1000) : "",
-    category:
-      typeof input.category === "string" && input.category.trim()
-        ? input.category.trim()
-        : undefined,
-    orderIndex:
-      typeof input.orderIndex === "number" ? input.orderIndex : undefined,
+    category: typeof input.category === "string" && input.category.trim() ? input.category.trim() : undefined,
+    orderIndex: typeof input.orderIndex === "number" ? input.orderIndex : undefined,
     isPaused: Boolean(input.isPaused),
     pausedAt: input.pausedAt ?? null,
   };
@@ -337,11 +249,7 @@ export function createHabit(
  * Reorders habits by moving the habit with sourceId to the index of targetId.
  * Updates orderIndex on all habits in sequence.
  */
-export function reorderHabits(
-  habits: Habit[],
-  sourceId: string,
-  targetId: string,
-): Habit[] {
+export function reorderHabits(habits: Habit[], sourceId: string, targetId: string): Habit[] {
   if (sourceId === targetId) return habits;
   const sourceIndex = habits.findIndex((h) => h.id === sourceId);
   const targetIndex = habits.findIndex((h) => h.id === targetId);
@@ -358,10 +266,7 @@ export function reorderHabits(
 /**
  * Reorders habits according to an explicit array of IDs.
  */
-export function reorderHabitsByIds(
-  habits: Habit[],
-  orderedIds: string[],
-): Habit[] {
+export function reorderHabitsByIds(habits: Habit[], orderedIds: string[]): Habit[] {
   const map = new Map(habits.map((h) => [h.id, h]));
   const ordered: Habit[] = [];
   for (const id of orderedIds) {
@@ -393,10 +298,7 @@ export interface IntegrityResult {
  * 3. History Invariance: Ensures completedDates are unique, valid YYYY-MM-DD, sorted.
  * 4. Safe Phase-2 Defaults: Populates notes, category, orderIndex, and pause flags.
  */
-export function verifyAndHealIntegrity(
-  habits: Habit[],
-  today: string,
-): IntegrityResult {
+export function verifyAndHealIntegrity(habits: Habit[], today: string): IntegrityResult {
   let issuesFound = 0;
   const seenIds = new Set<string>();
   const healed: Habit[] = [];
@@ -427,9 +329,7 @@ export function verifyAndHealIntegrity(
     }
 
     // 3. History invariance: unique, valid YYYY-MM-DD strings, chronologically sorted
-    const rawDates = Array.isArray(habit.completedDates)
-      ? habit.completedDates
-      : [];
+    const rawDates = Array.isArray(habit.completedDates) ? habit.completedDates : [];
     const normalized = normalizeDates(rawDates);
     const datesChanged =
       normalized.length !== rawDates.length ||
@@ -447,13 +347,8 @@ export function verifyAndHealIntegrity(
     } else if (habit.vacationRanges && habit.vacationRanges.length > 0) {
       correctCurrent = currentStreakWithNeutral(normalized, habit, today);
     }
-    const correctBest = Math.max(
-      habit.bestStreak || 0,
-      longest,
-      correctCurrent,
-    );
-    const correctLastCompleted =
-      habit.kind === "avoid" ? null : (normalized.at(-1) ?? null);
+    const correctBest = Math.max(habit.bestStreak || 0, longest, correctCurrent);
+    const correctLastCompleted = habit.kind === "avoid" ? null : (normalized.at(-1) ?? null);
 
     if (
       habit.currentStreak !== correctCurrent ||
@@ -533,18 +428,11 @@ export interface StrictBackupFile {
   };
 }
 
-export function buildStrictBackup(
-  habits: Habit[],
-  settings: HabitSettings,
-  now = new Date(),
-): StrictBackupFile {
+export function buildStrictBackup(habits: Habit[], settings: HabitSettings, now = new Date()): StrictBackupFile {
   const exportDate = now.toISOString().slice(0, 10);
   const streaks: StrictBackupStreak[] = habits.map((h) => {
     const cur = h.currentStreak || 0;
-    const history =
-      cur > 0 && h.completedDates.length > 0
-        ? h.completedDates.slice(-cur)
-        : [];
+    const history = cur > 0 && h.completedDates.length > 0 ? h.completedDates.slice(-cur) : [];
     return {
       id: h.id,
       title: h.name,
@@ -568,8 +456,7 @@ export function buildStrictBackup(
         enabled: Boolean(settings.enabled),
         defaultTime: settings.defaultTime || "20:00",
         respectDND: settings.respectDND ?? true,
-        preTaskReminderOffsetMinutes:
-          settings.preTaskReminderOffsetMinutes ?? 5,
+        preTaskReminderOffsetMinutes: settings.preTaskReminderOffsetMinutes ?? 5,
       },
     },
   };
@@ -612,24 +499,10 @@ export interface ParsedBackup {
 export class BackupError extends Error {}
 
 interface Raw {
-  id?: unknown;
-  name?: unknown;
-  title?: unknown;
-  emoji?: unknown;
-  createdAt?: unknown;
-  completedDates?: unknown;
-  history?: unknown;
-  archivedAt?: unknown;
-  archived?: unknown;
-  isStarred?: unknown;
-  starred?: unknown;
-  bestStreak?: unknown;
-  data?: unknown;
-  streaks?: unknown;
-  settings?: unknown;
-  exportDate?: unknown;
-  notes?: unknown;
-  version?: unknown;
+  id?: unknown; name?: unknown; title?: unknown; emoji?: unknown; createdAt?: unknown;
+  completedDates?: unknown; history?: unknown; archivedAt?: unknown; archived?: unknown;
+  isStarred?: unknown; starred?: unknown; bestStreak?: unknown;
+  data?: unknown; streaks?: unknown; settings?: unknown; exportDate?: unknown; notes?: unknown; version?: unknown;
   [k: string]: unknown;
 }
 
@@ -637,27 +510,13 @@ function normalizeHabit(raw: unknown, today: string): Habit | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Raw;
   const rawId = r.id;
-  const id =
-    typeof rawId === "string" && rawId.trim()
-      ? rawId
-      : typeof rawId === "number"
-        ? String(rawId)
-        : null;
-  const nameSrc =
-    typeof r.name === "string"
-      ? r.name
-      : typeof r.title === "string"
-        ? r.title
-        : "";
+  const id = typeof rawId === "string" && rawId.trim() ? rawId : typeof rawId === "number" ? String(rawId) : null;
+  const nameSrc = typeof r.name === "string" ? r.name : typeof r.title === "string" ? r.title : "";
   const name = nameSrc.trim();
   if (!id || !name) return null;
 
   const dates = normalizeDates(
-    Array.isArray(r.completedDates)
-      ? r.completedDates
-      : Array.isArray(r.history)
-        ? r.history
-        : [],
+    Array.isArray(r.completedDates) ? r.completedDates : Array.isArray(r.history) ? r.history : [],
   );
   const archivedAt =
     typeof r.archivedAt === "string" && r.archivedAt
@@ -667,21 +526,13 @@ function normalizeHabit(raw: unknown, today: string): Habit | null {
         : null;
 
   const { title: _t, history: _h, archived: _a, starred: _s, ...rest } = r;
-  void _t;
-  void _h;
-  void _a;
-  void _s;
+  void _t; void _h; void _a; void _s;
 
   const rawNotes = typeof r.notes === "string" ? r.notes.slice(0, 1000) : "";
-  const rawCategory =
-    typeof r.category === "string" && r.category.trim()
-      ? r.category.trim()
-      : undefined;
-  const rawOrderIndex =
-    typeof r.orderIndex === "number" ? r.orderIndex : undefined;
+  const rawCategory = typeof r.category === "string" && r.category.trim() ? r.category.trim() : undefined;
+  const rawOrderIndex = typeof r.orderIndex === "number" ? r.orderIndex : undefined;
   const rawIsPaused = Boolean(r.isPaused);
-  const rawPausedAt =
-    typeof r.pausedAt === "string" && r.pausedAt ? r.pausedAt : null;
+  const rawPausedAt = typeof r.pausedAt === "string" && r.pausedAt ? r.pausedAt : null;
 
   const habit: Habit = {
     ...(rest as Partial<Habit>),
@@ -690,10 +541,7 @@ function normalizeHabit(raw: unknown, today: string): Habit | null {
     emoji: typeof r.emoji === "string" && r.emoji.trim() ? r.emoji : "🔥",
     createdAt: isValidKey(r.createdAt) ? r.createdAt : (dates[0] ?? today),
     currentStreak: 0,
-    bestStreak:
-      typeof r.bestStreak === "number" && r.bestStreak > 0
-        ? Math.floor(r.bestStreak)
-        : 0,
+    bestStreak: typeof r.bestStreak === "number" && r.bestStreak > 0 ? Math.floor(r.bestStreak) : 0,
     lastCompletedDate: null,
     completedDates: dates,
     isStarred: r.isStarred === true || r.starred === true,
@@ -712,9 +560,7 @@ export function parseBackup(text: string, today: string): ParsedBackup {
   try {
     json = JSON.parse(text);
   } catch {
-    throw new BackupError(
-      "This file isn't valid JSON. Pick a Daily Spark backup (.json).",
-    );
+    throw new BackupError("This file isn't valid JSON. Pick a Daily Spark backup (.json).");
   }
 
   let streaks: unknown;
@@ -730,25 +576,13 @@ export function parseBackup(text: string, today: string): ParsedBackup {
     streaks = data.streaks;
     settings = data.settings;
     exportDate = o.exportDate ?? data.exportDate;
-    const rawNotesList = Array.isArray(data.notes)
-      ? data.notes
-      : Array.isArray(o.notes)
-        ? o.notes
-        : undefined;
+    const rawNotesList = Array.isArray(data.notes) ? data.notes : Array.isArray(o.notes) ? o.notes : undefined;
     if (Array.isArray(rawNotesList)) {
       notes = rawNotesList
-        .filter((n): n is Record<string, unknown> =>
-          Boolean(n && typeof n === "object"),
-        )
+        .filter((n): n is Record<string, unknown> => Boolean(n && typeof n === "object"))
         .map((n) => ({
-          id:
-            typeof n.id === "string" && n.id.trim()
-              ? n.id
-              : `note-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          title:
-            typeof n.title === "string" && n.title.trim()
-              ? n.title.trim()
-              : "Untitled Note",
+          id: typeof n.id === "string" && n.id.trim() ? n.id : `note-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          title: typeof n.title === "string" && n.title.trim() ? n.title.trim() : "Untitled Note",
           content: typeof n.content === "string" ? n.content : "",
           createdAt: typeof n.createdAt === "string" ? n.createdAt : today,
           updatedAt: typeof n.updatedAt === "string" ? n.updatedAt : today,
@@ -758,9 +592,7 @@ export function parseBackup(text: string, today: string): ParsedBackup {
     }
   }
   if (!Array.isArray(streaks)) {
-    throw new BackupError(
-      "No habits found in this file. Is it a Daily Spark backup?",
-    );
+    throw new BackupError("No habits found in this file. Is it a Daily Spark backup?");
   }
 
   const seen = new Set<string>();
@@ -777,16 +609,11 @@ export function parseBackup(text: string, today: string): ParsedBackup {
   }
 
   return {
-    version:
-      typeof (json as Raw)?.version === "string"
-        ? ((json as Raw).version as string)
-        : "1",
+    version: typeof (json as Raw)?.version === "string" ? ((json as Raw).version as string) : "1",
     habits,
     settings: {
       ...DEFAULT_SETTINGS,
-      ...(settings && typeof settings === "object"
-        ? (settings as Partial<HabitSettings>)
-        : {}),
+      ...(settings && typeof settings === "object" ? (settings as Partial<HabitSettings>) : {}),
     },
     notes,
     skipped,
@@ -823,71 +650,37 @@ export interface SandboxedInspectionResult {
 export function inspectBackupSandbox(text: string): SandboxedInspectionResult {
   const trimmed = (text || "").trim();
   if (!trimmed) {
-    return {
-      valid: false,
-      habitsCount: 0,
-      notesCount: 0,
-      settingsIncluded: false,
-      rawPayload: null,
-      error: "Empty payload",
-    };
+    return { valid: false, habitsCount: 0, notesCount: 0, settingsIncluded: false, rawPayload: null, error: "Empty payload" };
   }
 
   try {
     const parsed = JSON.parse(trimmed);
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      (Array.isArray(parsed) && parsed.length === 0)
-    ) {
-      return {
-        valid: false,
-        habitsCount: 0,
-        notesCount: 0,
-        settingsIncluded: false,
-        rawPayload: parsed,
-        error: "Invalid JSON root",
-      };
+    if (!parsed || typeof parsed !== "object" || (Array.isArray(parsed) && parsed.length === 0)) {
+      return { valid: false, habitsCount: 0, notesCount: 0, settingsIncluded: false, rawPayload: parsed, error: "Invalid JSON root" };
     }
 
-    const data = (
-      parsed.data && typeof parsed.data === "object" ? parsed.data : parsed
-    ) as Record<string, unknown>;
+    const data = (parsed.data && typeof parsed.data === "object" ? parsed.data : parsed) as Record<string, unknown>;
     const habitsRaw = Array.isArray(parsed)
       ? (parsed as unknown[])
       : Array.isArray(data.streaks)
-        ? (data.streaks as unknown[])
-        : Array.isArray(data.habits)
-          ? (data.habits as unknown[])
-          : null;
+      ? (data.streaks as unknown[])
+      : Array.isArray(data.habits)
+      ? (data.habits as unknown[])
+      : null;
 
     if (!habitsRaw) {
-      return {
-        valid: false,
-        habitsCount: 0,
-        notesCount: 0,
-        settingsIncluded: false,
-        rawPayload: parsed,
-        error: "No habits array found",
-      };
+      return { valid: false, habitsCount: 0, notesCount: 0, settingsIncluded: false, rawPayload: parsed, error: "No habits array found" };
     }
 
     const validHabits = habitsRaw.filter((h: unknown): h is Habit => {
       if (!h || typeof h !== "object") return false;
       const item = h as Record<string, unknown>;
       const hasId = typeof item.id === "string" && item.id.trim().length > 0;
-      const hasName =
-        typeof item.name === "string" && item.name.trim().length > 0;
+      const hasName = typeof item.name === "string" && item.name.trim().length > 0;
       return Boolean(hasId && hasName);
     });
-    const notes = Array.isArray(data.notes)
-      ? data.notes
-      : Array.isArray(parsed.notes)
-        ? parsed.notes
-        : [];
-    const settings =
-      (data.settings && typeof data.settings === "object") ||
-      (parsed.settings && typeof parsed.settings === "object");
+    const notes = Array.isArray(data.notes) ? data.notes : Array.isArray(parsed.notes) ? parsed.notes : [];
+    const settings = (data.settings && typeof data.settings === "object") || (parsed.settings && typeof parsed.settings === "object");
 
     return {
       valid: true,
@@ -931,21 +724,9 @@ export function inspectBackup(text: string, today: string): BackupInspection {
   };
 }
 
-export function habitsToCsv(
-  habits: Habit[],
-  notes: StandaloneNote[] = [],
-): string {
+export function habitsToCsv(habits: Habit[], notes: StandaloneNote[] = []): string {
   const esc = (v: string) => `"${String(v).replace(/"/g, '""')}"`;
-  const head = [
-    "id",
-    "name",
-    "emoji",
-    "createdAt",
-    "currentStreak",
-    "bestStreak",
-    "archived",
-    "completedDates",
-  ];
+  const head = ["id", "name", "emoji", "createdAt", "currentStreak", "bestStreak", "archived", "completedDates"];
   const rows = habits.map((h) =>
     [
       esc(h.id),
@@ -962,41 +743,24 @@ export function habitsToCsv(
   if (notes && notes.length > 0) {
     out.push("");
     out.push("# NOTES");
-    out.push(
-      ["id", "title", "content", "pinned", "createdAt", "updatedAt"].join(","),
-    );
+    out.push(["id", "title", "content", "pinned", "createdAt", "updatedAt"].join(","));
     for (const n of notes) {
-      out.push(
-        [
-          esc(n.id),
-          esc(n.title),
-          esc((n.content || "").replace(/\r?\n/g, "\\n")),
-          n.pinned ? "true" : "false",
-          n.createdAt,
-          n.updatedAt,
-        ].join(","),
-      );
+      out.push([
+        esc(n.id),
+        esc(n.title),
+        esc((n.content || "").replace(/\r?\n/g, "\\n")),
+        n.pinned ? "true" : "false",
+        n.createdAt,
+        n.updatedAt,
+      ].join(","));
     }
   }
   return out.join("\n");
 }
 
-export function habitsToTsv(
-  habits: Habit[],
-  notes: StandaloneNote[] = [],
-): string {
-  const esc = (v: string) =>
-    String(v).replace(/\t/g, " ").replace(/\r?\n/g, "\\n");
-  const head = [
-    "id",
-    "name",
-    "emoji",
-    "createdAt",
-    "currentStreak",
-    "bestStreak",
-    "archived",
-    "completedDates",
-  ];
+export function habitsToTsv(habits: Habit[], notes: StandaloneNote[] = []): string {
+  const esc = (v: string) => String(v).replace(/\t/g, " ").replace(/\r?\n/g, "\\n");
+  const head = ["id", "name", "emoji", "createdAt", "currentStreak", "bestStreak", "archived", "completedDates"];
   const rows = habits.map((h) =>
     [
       esc(h.id),
@@ -1013,20 +777,16 @@ export function habitsToTsv(
   if (notes && notes.length > 0) {
     out.push("");
     out.push("# NOTES");
-    out.push(
-      ["id", "title", "content", "pinned", "createdAt", "updatedAt"].join("\t"),
-    );
+    out.push(["id", "title", "content", "pinned", "createdAt", "updatedAt"].join("\t"));
     for (const n of notes) {
-      out.push(
-        [
-          esc(n.id),
-          esc(n.title),
-          esc(n.content || ""),
-          n.pinned ? "true" : "false",
-          n.createdAt,
-          n.updatedAt,
-        ].join("\t"),
-      );
+      out.push([
+        esc(n.id),
+        esc(n.title),
+        esc(n.content || ""),
+        n.pinned ? "true" : "false",
+        n.createdAt,
+        n.updatedAt,
+      ].join("\t"));
     }
   }
   return out.join("\n");
@@ -1074,10 +834,7 @@ export function parseCsvHabits(
   existingHabits: Habit[] = [],
 ): ParsedCsvResult {
   const [habitsPart, notesPart] = csvText.split(/# NOTES\r?\n/);
-  const lines = (habitsPart || "")
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
+  const lines = (habitsPart || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 0) {
     return { habits: [], added: 0, skipped: 0, errors: ["Empty CSV file"] };
   }
@@ -1088,32 +845,22 @@ export function parseCsvHabits(
 
   let nameIdx = headers.findIndex((h) => h === "name" || h === "title");
   let emojiIdx = headers.findIndex((h) => h === "emoji");
-  const startDateIdx = headers.findIndex(
-    (h) => h === "start_date" || h === "createdat" || h === "created_at",
-  );
-  const completedDatesIdx = headers.findIndex(
-    (h) => h === "completeddates" || h === "completed_dates",
-  );
+  const startDateIdx = headers.findIndex((h) => h === "start_date" || h === "createdat" || h === "created_at");
+  const completedDatesIdx = headers.findIndex((h) => h === "completeddates" || h === "completed_dates");
   const archivedIdx = headers.findIndex((h) => h === "archived");
-  const bestStreakIdx = headers.findIndex(
-    (h) => h === "beststreak" || h === "best_streak",
-  );
+  const bestStreakIdx = headers.findIndex((h) => h === "beststreak" || h === "best_streak");
 
   if (nameIdx === -1) {
     nameIdx = 0;
     emojiIdx = 1;
   }
 
-  const existingNames = new Set(
-    existingHabits.map((h) => h.name.toLowerCase()),
-  );
+  const existingNames = new Set(existingHabits.map((h) => h.name.toLowerCase()));
   const newHabits: Habit[] = [];
   let skipped = 0;
   const errors: string[] = [];
 
-  const isHeaderRow = headers.some((h) =>
-    ["name", "title", "emoji", "start_date", "current_count"].includes(h),
-  );
+  const isHeaderRow = headers.some((h) => ["name", "title", "emoji", "start_date", "current_count"].includes(h));
   const dataLines = isHeaderRow ? lines.slice(1) : lines;
 
   for (let idx = 0; idx < dataLines.length; idx++) {
@@ -1132,12 +879,9 @@ export function parseCsvHabits(
 
     const emojiRaw = emojiIdx !== -1 ? cols[emojiIdx]?.trim() : undefined;
     const emoji = emojiRaw && emojiRaw.length > 0 ? emojiRaw : "🔥";
-    const startDate =
-      startDateIdx !== -1 &&
-      cols[startDateIdx] &&
-      isValidKey(cols[startDateIdx])
-        ? cols[startDateIdx]!
-        : today;
+    const startDate = startDateIdx !== -1 && cols[startDateIdx] && isValidKey(cols[startDateIdx])
+      ? cols[startDateIdx]!
+      : today;
 
     const habit = createHabit({ name, emoji, createdAt: startDate }, today);
     if (completedDatesIdx !== -1 && cols[completedDatesIdx]) {
@@ -1160,18 +904,13 @@ export function parseCsvHabits(
 
   const notes: StandaloneNote[] = [];
   if (notesPart) {
-    const noteLines = notesPart
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+    const noteLines = notesPart.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     const noteDataLines = noteLines.slice(1);
     for (const nLine of noteDataLines) {
       const cols = parseLine(nLine);
       if (cols.length >= 2 && cols[1]) {
         notes.push({
-          id:
-            cols[0] ||
-            `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: cols[0] || `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           title: cols[1],
           content: (cols[2] || "").replace(/\\n/g, "\n"),
           pinned: cols[3] === "true",
@@ -1200,47 +939,33 @@ export function parseTsvHabits(
   existingHabits: Habit[] = [],
 ): ParsedCsvResult {
   const [habitsPart, notesPart] = tsvText.split(/# NOTES\r?\n/);
-  const lines = (habitsPart || "")
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter(Boolean);
+  const lines = (habitsPart || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length === 0) {
     return { habits: [], added: 0, skipped: 0, errors: ["Empty TSV file"] };
   }
 
-  const parseLine = (line: string) =>
-    line.split("\t").map((c) => c.replace(/\\n/g, "\n").trim());
+  const parseLine = (line: string) => line.split("\t").map((c) => c.replace(/\\n/g, "\n").trim());
   const headerLine = lines[0]!.toLowerCase();
   const headers = parseLine(headerLine);
 
   let nameIdx = headers.findIndex((h) => h === "name" || h === "title");
   let emojiIdx = headers.findIndex((h) => h === "emoji");
-  const startDateIdx = headers.findIndex(
-    (h) => h === "start_date" || h === "createdat" || h === "created_at",
-  );
-  const completedDatesIdx = headers.findIndex(
-    (h) => h === "completeddates" || h === "completed_dates",
-  );
+  const startDateIdx = headers.findIndex((h) => h === "start_date" || h === "createdat" || h === "created_at");
+  const completedDatesIdx = headers.findIndex((h) => h === "completeddates" || h === "completed_dates");
   const archivedIdx = headers.findIndex((h) => h === "archived");
-  const bestStreakIdx = headers.findIndex(
-    (h) => h === "beststreak" || h === "best_streak",
-  );
+  const bestStreakIdx = headers.findIndex((h) => h === "beststreak" || h === "best_streak");
 
   if (nameIdx === -1) {
     nameIdx = 0;
     emojiIdx = 1;
   }
 
-  const existingNames = new Set(
-    existingHabits.map((h) => h.name.toLowerCase()),
-  );
+  const existingNames = new Set(existingHabits.map((h) => h.name.toLowerCase()));
   const newHabits: Habit[] = [];
   let skipped = 0;
   const errors: string[] = [];
 
-  const isHeaderRow = headers.some((h) =>
-    ["name", "title", "emoji", "start_date", "current_count"].includes(h),
-  );
+  const isHeaderRow = headers.some((h) => ["name", "title", "emoji", "start_date", "current_count"].includes(h));
   const dataLines = isHeaderRow ? lines.slice(1) : lines;
 
   for (let idx = 0; idx < dataLines.length; idx++) {
@@ -1259,12 +984,9 @@ export function parseTsvHabits(
 
     const emojiRaw = emojiIdx !== -1 ? cols[emojiIdx]?.trim() : undefined;
     const emoji = emojiRaw && emojiRaw.length > 0 ? emojiRaw : "🔥";
-    const startDate =
-      startDateIdx !== -1 &&
-      cols[startDateIdx] &&
-      isValidKey(cols[startDateIdx])
-        ? cols[startDateIdx]!
-        : today;
+    const startDate = startDateIdx !== -1 && cols[startDateIdx] && isValidKey(cols[startDateIdx])
+      ? cols[startDateIdx]!
+      : today;
 
     const habit = createHabit({ name, emoji, createdAt: startDate }, today);
     if (completedDatesIdx !== -1 && cols[completedDatesIdx]) {
@@ -1287,18 +1009,13 @@ export function parseTsvHabits(
 
   const notes: StandaloneNote[] = [];
   if (notesPart) {
-    const noteLines = notesPart
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+    const noteLines = notesPart.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     const noteDataLines = noteLines.slice(1);
     for (const nLine of noteDataLines) {
       const cols = parseLine(nLine);
       if (cols.length >= 2 && cols[1]) {
         notes.push({
-          id:
-            cols[0] ||
-            `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          id: cols[0] || `note-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           title: cols[1],
           content: cols[2] || "",
           pinned: cols[3] === "true",
@@ -1331,8 +1048,7 @@ export function isHabitDueToday(habit: Habit, dateKey: string): boolean {
   if (!habit.frequencyType || habit.frequencyType === "daily") return true;
 
   if (habit.frequencyType === "specific_days") {
-    if (!Array.isArray(habit.customDays) || habit.customDays.length === 0)
-      return true;
+    if (!Array.isArray(habit.customDays) || habit.customDays.length === 0) return true;
     const d = new Date(dateKey + "T12:00:00Z");
     const dayOfWeek = d.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
     return habit.customDays.includes(dayOfWeek);
@@ -1377,11 +1093,7 @@ export function getMilestones(streakCount: number): {
 /**
  * Pauses a habit cleanly with an optional reason, preserving its current streak without penalty.
  */
-export function pauseHabit(
-  habit: Habit,
-  reason?: string,
-  today?: string,
-): Habit {
+export function pauseHabit(habit: Habit, reason?: string, today?: string): Habit {
   return {
     ...habit,
     isPaused: true,
@@ -1406,11 +1118,7 @@ export function resumeHabit(habit: Habit, today?: string): Habit {
 /**
  * Applies a weekly or monthly grace day to forgive a missed yesterday.
  */
-export function applyGrace(
-  habit: Habit,
-  type: "weekly" | "monthly",
-  today: string,
-): Habit {
+export function applyGrace(habit: Habit, type: "weekly" | "monthly", today: string): Habit {
   const yesterday = addDays(today, -1);
   if (habit.completedDates.includes(yesterday)) {
     return habit;
@@ -1426,10 +1134,7 @@ export function applyGrace(
 /**
  * Exports all habits, stats, and standalone notes as a clean, beautiful Markdown report.
  */
-export function exportToMarkdown(
-  habits: Habit[],
-  notes: StandaloneNote[] = [],
-): string {
+export function exportToMarkdown(habits: Habit[], notes: StandaloneNote[] = []): string {
   const dateStr = new Date().toISOString().slice(0, 10);
   const lines: string[] = [
     `# 🌱 Daily Spark — Habit & Journal Export`,
@@ -1456,11 +1161,7 @@ export function exportToMarkdown(
     lines.push(`_No habits recorded yet._\n`);
   } else {
     for (const h of habits) {
-      const status = isArchived(h)
-        ? "Archived"
-        : h.isPaused
-          ? "Paused"
-          : "Active";
+      const status = isArchived(h) ? "Archived" : h.isPaused ? "Paused" : "Active";
       lines.push(`### ${h.emoji} ${h.name} (${status})`);
       lines.push(`- **Current Streak:** ${h.currentStreak} days`);
       lines.push(`- **Best Streak:** ${h.bestStreak} days`);
@@ -1498,32 +1199,21 @@ export function exportToMarkdown(
 export function parseMarkdownHabits(
   mdText: string,
   today: string,
-  existingHabits: Habit[] = [],
-): {
-  habits: Habit[];
-  notes: StandaloneNote[];
-  added: number;
-  skipped: number;
-} {
-  const existingNames = new Set(
-    existingHabits.map((h) => h.name.toLowerCase()),
-  );
+  existingHabits: Habit[] = []
+): { habits: Habit[]; notes: StandaloneNote[]; added: number; skipped: number } {
+  const existingNames = new Set(existingHabits.map((h) => h.name.toLowerCase()));
   const habits: Habit[] = [];
   const notes: StandaloneNote[] = [];
   let skipped = 0;
 
-  const [habitsSection, notesSection] = mdText.split(
-    /## 📝 Reflections & Journal Notes/,
-  );
+  const [habitsSection, notesSection] = mdText.split(/## 📝 Reflections & Journal Notes/);
 
   // Parse habits
   if (habitsSection) {
     const habitBlocks = habitsSection.split(/###\s+/).slice(1);
     for (const block of habitBlocks) {
       const firstLine = block.split("\n")[0] || "";
-      const match = firstLine.match(
-        /^(?:([^\w\s]+)\s+)?(.*?)(?:\s*\((Active|Paused|Archived)\))?$/,
-      );
+      const match = firstLine.match(/^(?:([^\w\s]+)\s+)?(.*?)(?:\s*\((Active|Paused|Archived)\))?$/);
       if (match) {
         const emoji = match[1] || "⚡";
         const name = match[2]?.trim();
@@ -1560,3 +1250,4 @@ export function parseMarkdownHabits(
 
   return { habits, notes, added: habits.length, skipped };
 }
+

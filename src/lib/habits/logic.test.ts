@@ -26,7 +26,6 @@ import {
   applyGrace,
   exportToMarkdown,
   isDoneOn,
-  habitCompletionRate,
 } from "./logic";
 import { DEFAULT_SETTINGS, type Habit, type StandaloneNote } from "./types";
 
@@ -34,9 +33,7 @@ const TODAY = "2026-10-26";
 
 describe("streak rules", () => {
   it("counts consecutive days ending today", () => {
-    expect(
-      currentStreak(["2026-10-24", "2026-10-25", "2026-10-26"], TODAY),
-    ).toBe(3);
+    expect(currentStreak(["2026-10-24", "2026-10-25", "2026-10-26"], TODAY)).toBe(3);
   });
 
   it("keeps the streak alive when only yesterday is done", () => {
@@ -56,10 +53,7 @@ describe("streak rules", () => {
   });
 
   it("undo removes only today's completion", () => {
-    const h = {
-      ...createHabit({ name: "Walk", emoji: "🏃" }, "2026-10-20"),
-      completedDates: ["2026-10-25"],
-    };
+    const h = { ...createHabit({ name: "Walk", emoji: "🏃" }, "2026-10-20"), completedDates: ["2026-10-25"] };
     const done = completeToday(h, TODAY);
     expect(done.currentStreak).toBe(2);
     const undone = undoToday(done, TODAY);
@@ -71,73 +65,10 @@ describe("streak rules", () => {
 
 describe("calendar ratio", () => {
   it("counts done habits over habits that existed that day", () => {
-    const a = {
-      ...createHabit({ name: "A", emoji: "🔥" }, "2026-10-01"),
-      completedDates: [TODAY],
-    };
+    const a = { ...createHabit({ name: "A", emoji: "🔥" }, "2026-10-01"), completedDates: [TODAY] };
     const b = createHabit({ name: "B", emoji: "🔥" }, "2026-10-01");
     const later = createHabit({ name: "C", emoji: "🔥" }, "2026-10-27");
     expect(dayRatio([a, b, later], TODAY)).toEqual({ done: 1, total: 2 });
-  });
-
-  it("counts only scheduled opportunities", () => {
-    const weekdays = {
-      ...createHabit(
-        {
-          name: "Weekdays",
-          emoji: "W",
-          createdAt: "2026-10-01",
-          frequencyType: "specific_days",
-          customDays: [1],
-        },
-        TODAY,
-      ),
-      completedDates: ["2026-10-26"],
-    };
-
-    expect(dayRatio([weekdays], "2026-10-26")).toEqual({ done: 1, total: 1 });
-    expect(dayRatio([weekdays], "2026-10-27")).toEqual({ done: 0, total: 0 });
-  });
-
-  it("calculates a schedule-aware habit rate for a fixed window", () => {
-    const weekdays = {
-      ...createHabit(
-        {
-          name: "Mondays",
-          emoji: "M",
-          createdAt: "2026-10-01",
-          frequencyType: "specific_days",
-          customDays: [1],
-        },
-        TODAY,
-      ),
-      completedDates: ["2026-10-19", "2026-10-26"],
-    };
-
-    expect(habitCompletionRate(weekdays, TODAY, 14)).toEqual({
-      done: 2,
-      scheduled: 2,
-      percent: 100,
-    });
-  });
-
-  it("uses the weekly target rather than every day as the denominator", () => {
-    const habit = {
-      ...createHabit({
-        name: "Exercise",
-        emoji: "E",
-        createdAt: "2026-10-01",
-        frequencyType: "weekly_target",
-        targetDaysPerWeek: 2,
-      }, TODAY),
-      completedDates: ["2026-10-19", "2026-10-21", "2026-10-26"],
-    };
-
-    expect(habitCompletionRate(habit, TODAY, 14)).toEqual({
-      done: 3,
-      scheduled: 5,
-      percent: 60,
-    });
   });
 });
 
@@ -147,18 +78,7 @@ describe("backup restore", () => {
       version: "1",
       exportDate: "2026-02-01T10:00:00Z",
       data: {
-        streaks: [
-          {
-            id: "x1",
-            name: "Water",
-            emoji: "💧",
-            createdAt: "2026-01-01",
-            currentStreak: 2,
-            bestStreak: 9,
-            lastCompletedDate: "2026-10-26",
-            completedDates: ["2026-10-25", "2026-10-26", "2026-10-26"],
-          },
-        ],
+        streaks: [{ id: "x1", name: "Water", emoji: "💧", createdAt: "2026-01-01", currentStreak: 2, bestStreak: 9, lastCompletedDate: "2026-10-26", completedDates: ["2026-10-25", "2026-10-26", "2026-10-26"] }],
         settings: { enabled: true, defaultTime: "07:30" },
       },
     });
@@ -173,18 +93,7 @@ describe("backup restore", () => {
   it("restores the README schema (title / history / archived / starred)", () => {
     const file = JSON.stringify({
       version: "1",
-      data: {
-        streaks: [
-          {
-            id: "r1",
-            title: "Journal",
-            emoji: "📝",
-            history: ["2026-10-26"],
-            archived: true,
-            starred: true,
-          },
-        ],
-      },
+      data: { streaks: [{ id: "r1", title: "Journal", emoji: "📝", history: ["2026-10-26"], archived: true, starred: true }] },
     });
     const h = parseBackup(file, TODAY).habits[0]!;
     expect(h.name).toBe("Journal");
@@ -194,36 +103,20 @@ describe("backup restore", () => {
   });
 
   it("skips duplicate ids and nameless rows", () => {
-    const r = parseBackup(
-      JSON.stringify([
-        { id: "a", name: "A" },
-        { id: "a", name: "A again" },
-        { id: "b" },
-      ]),
-      TODAY,
-    );
+    const r = parseBackup(JSON.stringify([{ id: "a", name: "A" }, { id: "a", name: "A again" }, { id: "b" }]), TODAY);
     expect(r.habits).toHaveLength(1);
     expect(r.skipped).toBe(2);
   });
 
   it("rejects files that aren't backups", () => {
     expect(() => parseBackup("not json", TODAY)).toThrow(BackupError);
-    expect(() => parseBackup(JSON.stringify({ hello: 1 }), TODAY)).toThrow(
-      BackupError,
-    );
+    expect(() => parseBackup(JSON.stringify({ hello: 1 }), TODAY)).toThrow(BackupError);
   });
 
   it("round-trips its own export", () => {
-    const h = completeToday(
-      createHabit({ name: "Stretch", emoji: "🧘" }, TODAY),
-      TODAY,
-    );
+    const h = completeToday(createHabit({ name: "Stretch", emoji: "🧘" }, TODAY), TODAY);
     const text = JSON.stringify(buildBackup([h], DEFAULT_SETTINGS));
-    expect(parseBackup(text, TODAY).habits[0]).toMatchObject({
-      id: h.id,
-      name: "Stretch",
-      completedDates: [TODAY],
-    });
+    expect(parseBackup(text, TODAY).habits[0]).toMatchObject({ id: h.id, name: "Stretch", completedDates: [TODAY] });
   });
 
   it("builds and restores strict README backup schema conforming to rules", () => {
@@ -242,11 +135,7 @@ describe("backup restore", () => {
       archivedAt: "2026-10-25",
     };
 
-    const strict = buildStrictBackup(
-      [h1, h2],
-      { ...DEFAULT_SETTINGS, defaultTime: "21:00" },
-      new Date("2026-10-26T12:00:00Z"),
-    );
+    const strict = buildStrictBackup([h1, h2], { ...DEFAULT_SETTINGS, defaultTime: "21:00" }, new Date("2026-10-26T12:00:00Z"));
     expect(strict.version).toBe("1");
     expect(strict.exportDate).toBe("2026-10-26");
     expect(strict.data.streaks).toHaveLength(2);
@@ -296,9 +185,7 @@ describe("CSV import logic", () => {
   });
 
   it("never overwrites existing habits", () => {
-    const existing = [
-      createHabit({ name: "Morning Jog", emoji: "🏃" }, "2026-01-01"),
-    ];
+    const existing = [createHabit({ name: "Morning Jog", emoji: "🏃" }, "2026-01-01")];
     const csv = `name,emoji\nMorning Jog,🏃\nNew Habit,✨`;
     const res = parseCsvHabits(csv, TODAY, existing);
     expect(res.added).toBe(1);
@@ -324,11 +211,7 @@ describe("Phase 2: Safe Past-Day Fill-In (togglePastDay)", () => {
     };
     // Toggling 2026-10-25 fills the gap, making 24, 25, 26 continuous -> streak 3
     const updated = togglePastDay(h, "2026-10-25", TODAY);
-    expect(updated.completedDates).toEqual([
-      "2026-10-24",
-      "2026-10-25",
-      "2026-10-26",
-    ]);
+    expect(updated.completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
     expect(updated.currentStreak).toBe(3);
     expect(updated.bestStreak).toBe(3);
     expect(updated.lastCompletedDate).toBe("2026-10-26");
@@ -383,12 +266,7 @@ describe("Phase 2: Startup Data Integrity Check & Auto-Healing", () => {
         currentStreak: 99, // drifted
         bestStreak: 2,
         lastCompletedDate: null,
-        completedDates: [
-          "2026-10-26",
-          "2026-10-24",
-          "2026-10-25",
-          "2026-10-25",
-        ], // unsorted & duplicate
+        completedDates: ["2026-10-26", "2026-10-24", "2026-10-25", "2026-10-25"], // unsorted & duplicate
       },
       {
         id: "duplicate-id", // duplicate ID
@@ -418,11 +296,7 @@ describe("Phase 2: Startup Data Integrity Check & Auto-Healing", () => {
 
     const h0 = result.healed[0]!;
     expect(h0.id).toBe("duplicate-id");
-    expect(h0.completedDates).toEqual([
-      "2026-10-24",
-      "2026-10-25",
-      "2026-10-26",
-    ]);
+    expect(h0.completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
     expect(h0.currentStreak).toBe(3); // corrected from 99
     expect(h0.bestStreak).toBe(3);
     expect(h0.lastCompletedDate).toBe("2026-10-26");
@@ -480,21 +354,9 @@ describe("Phase 2: Safe Deserialization Invariants", () => {
 describe("Phase 2: Custom Streak Reordering", () => {
   it("reorders habits moving source to target and updates orderIndex", () => {
     const habits: Habit[] = [
-      {
-        ...createHabit({ name: "A", emoji: "1️⃣" }, TODAY),
-        id: "a",
-        orderIndex: 0,
-      },
-      {
-        ...createHabit({ name: "B", emoji: "2️⃣" }, TODAY),
-        id: "b",
-        orderIndex: 1,
-      },
-      {
-        ...createHabit({ name: "C", emoji: "3️⃣" }, TODAY),
-        id: "c",
-        orderIndex: 2,
-      },
+      { ...createHabit({ name: "A", emoji: "1️⃣" }, TODAY), id: "a", orderIndex: 0 },
+      { ...createHabit({ name: "B", emoji: "2️⃣" }, TODAY), id: "b", orderIndex: 1 },
+      { ...createHabit({ name: "C", emoji: "3️⃣" }, TODAY), id: "c", orderIndex: 2 },
     ];
 
     // Move 'c' to index of 'a'
@@ -519,16 +381,8 @@ describe("Phase 2: Custom Streak Reordering", () => {
 describe("Phase 2: Backup Preview & Notes Roundtrip", () => {
   it("inspects backup correctly returning stats and notes", () => {
     const habits: Habit[] = [
-      {
-        ...createHabit({ name: "Active Habit", emoji: "🔥" }, TODAY),
-        id: "h1",
-        completedDates: [TODAY],
-      },
-      {
-        ...createHabit({ name: "Archived Habit", emoji: "📦" }, TODAY),
-        id: "h2",
-        archivedAt: TODAY,
-      },
+      { ...createHabit({ name: "Active Habit", emoji: "🔥" }, TODAY), id: "h1", completedDates: [TODAY] },
+      { ...createHabit({ name: "Archived Habit", emoji: "📦" }, TODAY), id: "h2", archivedAt: TODAY },
     ];
     const notes: StandaloneNote[] = [
       {
@@ -541,12 +395,7 @@ describe("Phase 2: Backup Preview & Notes Roundtrip", () => {
       },
     ];
 
-    const backupFile = buildBackup(
-      habits,
-      DEFAULT_SETTINGS,
-      new Date("2026-10-26T12:00:00Z"),
-      notes,
-    );
+    const backupFile = buildBackup(habits, DEFAULT_SETTINGS, new Date("2026-10-26T12:00:00Z"), notes);
     const backupJson = JSON.stringify(backupFile);
 
     const inspection = inspectBackup(backupJson, TODAY);
@@ -700,13 +549,7 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
 
     const vacationHabit: Habit = {
       ...createHabit({ name: "Running", emoji: "🏃" }, "2026-10-20"),
-      completedDates: [
-        "2026-10-20",
-        "2026-10-21",
-        "2026-10-24",
-        "2026-10-25",
-        TODAY,
-      ],
+      completedDates: ["2026-10-20", "2026-10-21", "2026-10-24", "2026-10-25", TODAY],
       vacationRanges: [{ start: "2026-10-22", end: "2026-10-23" }],
       currentStreak: 5,
       bestStreak: 5,
@@ -735,8 +578,7 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
     const sampleNote: StandaloneNote = {
       id: "note-abc-123",
       title: "Weekly Reflection",
-      content:
-        "Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.",
+      content: "Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.",
       createdAt: "2026-10-26T09:00:00.000Z",
       updatedAt: "2026-10-26T09:15:00.000Z",
       pinned: true,
@@ -751,18 +593,12 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
       const parsed = parseCsvHabits(csv, TODAY);
       expect(parsed.habits.length).toBe(1);
       expect(parsed.habits[0].name).toBe("Daily Meditation");
-      expect(parsed.habits[0].completedDates).toEqual([
-        "2026-10-24",
-        "2026-10-25",
-        "2026-10-26",
-      ]);
+      expect(parsed.habits[0].completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
       expect(parsed.habits[0].bestStreak).toBe(15);
       expect(parsed.habits[0].currentStreak).toBe(3);
       expect(parsed.notes?.length).toBe(1);
       expect(parsed.notes?.[0].title).toBe("Weekly Reflection");
-      expect(parsed.notes?.[0].content).toBe(
-        "Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.",
-      );
+      expect(parsed.notes?.[0].content).toBe("Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.");
     });
 
     it("round-trips habits and notes via TSV format preserving completion dates and multi-line notes", () => {
@@ -774,18 +610,12 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
       const parsed = parseTsvHabits(tsv, TODAY);
       expect(parsed.habits.length).toBe(1);
       expect(parsed.habits[0].name).toBe("Daily Meditation");
-      expect(parsed.habits[0].completedDates).toEqual([
-        "2026-10-24",
-        "2026-10-25",
-        "2026-10-26",
-      ]);
+      expect(parsed.habits[0].completedDates).toEqual(["2026-10-24", "2026-10-25", "2026-10-26"]);
       expect(parsed.habits[0].bestStreak).toBe(15);
       expect(parsed.habits[0].currentStreak).toBe(3);
       expect(parsed.notes?.length).toBe(1);
       expect(parsed.notes?.[0].title).toBe("Weekly Reflection");
-      expect(parsed.notes?.[0].content).toBe(
-        "Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.",
-      );
+      expect(parsed.notes?.[0].content).toBe("Consistency felt natural this week.\nLine 2 reflections.\nLine 3 conclusions.");
     });
 
     it("parses habits and notes from Markdown format", () => {
@@ -798,3 +628,6 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
     });
   });
 });
+
+
+

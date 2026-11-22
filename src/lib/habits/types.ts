@@ -105,7 +105,6 @@ export interface HabitSettings {
   preTaskReminderOffsetMinutes?: number | undefined;
   autoBackupHistoryEnabled?: boolean | undefined;
   themeMode?: "classic" | "minimal" | "expressive" | undefined;
-  expressiveBackground?: string | undefined;
   solarCircadianGlide?: boolean | undefined;
   rolloverHour?: number | undefined;
   [extra: string]: unknown;
@@ -117,8 +116,7 @@ export const DEFAULT_SETTINGS: HabitSettings = {
   respectDND: true,
   preTaskReminderOffsetMinutes: 5,
   autoBackupHistoryEnabled: true,
-  themeMode: "minimal",
-  expressiveBackground: "abstract",
+  themeMode: "classic",
   solarCircadianGlide: true,
   rolloverHour: 0,
 };

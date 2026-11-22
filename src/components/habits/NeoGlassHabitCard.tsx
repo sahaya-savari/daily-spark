@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import {
-  PixelFire,
-  PixelStar,
-  PixelCheck,
-  PixelClock,
-  PixelPlus,
-  PixelMinus,
-  PixelChevronDown,
-  PixelChevronUp,
-  PixelAlertTriangle,
-  PixelCheckCircle,
-  PixelSparkles,
-  PixelPen,
-  PixelBook,
-} from "@/components/ui/pixel-icon";
+  Flame,
+  Star,
+  Check,
+  Clock,
+  Plus,
+  Minus,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  CheckCircle2,
+  Sparkles,
+  Pencil,
+  BookOpen,
+} from "lucide-react";
 import { getQuantProgress, getQuickAddOptions } from "@/lib/habits/quantitative";
 import { calculateCleanStreak, calculateMoneySaved } from "@/lib/habits/avoid";
 import { getSubtaskProgress, isSubtaskCompleted } from "@/lib/habits/subtasks";
@@ -23,8 +23,6 @@ import { isNeutralOn } from "@/lib/habits/strength";
 import { hapticEngine } from "@/lib/habits/haptics";
 import { cn } from "@/lib/utils";
 import { CheckPopBurst } from "./CheckPopBurst";
-import { DitherNumber } from "@/components/dithercn/dither-number";
-import { Check, Flame } from "lucide-react";
 
 interface NeoGlassHabitCardProps {
   habit: Habit;
@@ -37,7 +35,6 @@ interface NeoGlassHabitCardProps {
   onOpenFocusTimer: (habit: Habit) => void;
   onToggleStar?: (habitId: string) => void;
   onEdit?: (habit: Habit) => void;
-  compact?: boolean;
 }
 
 export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
@@ -51,7 +48,6 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
   onOpenFocusTimer,
   onToggleStar,
   onEdit,
-  compact = false,
 }) => {
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [showRelapseModal, setShowRelapseModal] = useState(false);
@@ -163,57 +159,6 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
     setIsSwiping(false);
   };
 
-  if (compact && kind === "boolean") {
-    return (
-      <div
-        data-testid="neo-glass-habit-card"
-        role="button"
-        tabIndex={0}
-        aria-label={`Open ${habit.name}`}
-        onClick={() => onEdit?.(habit)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            onEdit?.(habit);
-          }
-        }}
-        className={cn(
-          "group flex min-h-[72px] items-center gap-3 rounded-2xl border bg-surface px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
-          isDoneToday ? "border-ember/35" : "border-border/55 active:bg-surface-2",
-        )}
-      >
-        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-2" style={{ color: accentColor }} aria-hidden="true">
-          <HabitIcon habit={habit} className="size-5" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className={cn("block truncate text-[15px] font-bold", isDoneToday && "text-muted-foreground line-through")}>
-            {habit.name}
-          </span>
-          <span className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-            <Flame className={cn("size-3.5", habit.currentStreak > 0 && "text-ember")} aria-hidden="true" />
-            {habit.currentStreak} day streak
-          </span>
-        </span>
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            hapticEngine.tickTap();
-            onToggleToday(habit.id);
-          }}
-          aria-label={isDoneToday ? `Undo ${habit.name} check-in` : `Complete ${habit.name} for today`}
-          aria-pressed={isDoneToday}
-          className={cn(
-            "grid size-12 shrink-0 place-items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
-            isDoneToday ? "border-ember bg-ember text-white" : "border-border bg-surface-2 text-muted-foreground active:border-ember active:text-ember",
-          )}
-        >
-          <Check className="size-5" strokeWidth={2.5} aria-hidden="true" />
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div
       data-testid="neo-glass-habit-card"
@@ -234,14 +179,14 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
       {/* Swipe action visual indicators */}
       {swipeOffset > 20 && (
         <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center gap-1.5 text-xs font-bold text-primary">
-          <PixelCheck className="size-4" />
+          <Check className="size-4" strokeWidth={2.5} />
           <span>Check in</span>
         </div>
       )}
       {swipeOffset < -20 && (
         <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center gap-1.5 text-xs font-bold text-ember">
           <span>Edit</span>
-          <PixelPen className="size-4" />
+          <Pencil className="size-4" strokeWidth={2.2} />
         </div>
       )}
 
@@ -266,34 +211,29 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <h3 className="truncate font-display text-[15px] font-bold text-foreground">
+                <h3 className="truncate font-mono text-[14.5px] font-semibold text-foreground">
                   {habit.name}
                 </h3>
                 {habit.isStarred && (
                   <button
                     type="button"
                     onClick={() => onToggleStar?.(habit.id)}
-                    aria-label="Starred habit"
+                    aria-label={habit.isStarred ? `Unstar ${habit.name}` : `Star ${habit.name}`}
+                    aria-pressed={Boolean(habit.isStarred)}
                     className="focus-visible:outline-none"
                   >
-                    <PixelStar className="size-3.5 fill-gold text-gold shrink-0" />
+                    <Star className="size-3.5 fill-gold text-gold shrink-0" />
                   </button>
                 )}
                 {isVacationToday && (
                   <span className="flex items-center gap-1 rounded-full border border-border/40 bg-surface-2 px-2 py-0.5 text-[10px] font-medium text-faint">
-                    <PixelSparkles className="size-2.5 text-ember" /> Vacation
+                    <Sparkles className="size-2.5 text-ember" /> Vacation
                   </span>
                 )}
               </div>
 
-              {habit.description && (
-                <p className="mt-0.5 line-clamp-1 text-[11.5px] text-muted-foreground">
-                  {habit.description}
-                </p>
-              )}
-
               {habit.cueText && (
-                <p className="mt-0.5 hidden truncate text-[11px] font-medium text-ember sm:block">
+                <p className="mt-0.5 truncate text-[11px] font-medium text-ember">
                   ⚓ After {habit.cueText}
                 </p>
               )}
@@ -302,11 +242,11 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               {hasNotes && (
                 <p
                   data-testid="habit-notes-indicator"
-                  className="mt-0.5 hidden items-center gap-1 truncate text-[11px] font-medium text-faint sm:flex"
+                  className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-faint"
                   title={noteText}
                   aria-label={`Notes: ${noteText}`}
                 >
-                  <PixelBook className="size-3 text-ember shrink-0" />
+                  <BookOpen className="size-3 text-ember shrink-0" strokeWidth={2.2} />
                   <span className="truncate">{noteText}</span>
                 </p>
               )}
@@ -314,8 +254,8 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
                 {kind === "avoid" ? (
                   <span className="flex items-center gap-1 font-semibold text-ember">
-                    <PixelFire className="size-3 text-ember" />
-                    <DitherNumber value={cleanStreak} suffix="d clean" />
+                    <Flame className="size-3 text-ember" />
+                    <span>{cleanStreak}d clean</span>
                     {moneySaved > 0 && (
                       <span className="ml-1 text-[11px] text-faint">
                         · ${moneySaved} saved
@@ -323,16 +263,16 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                     )}
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-xs font-bold text-foreground">
-                    <PixelFire
+                  <span className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
+                    <Flame
                       className={cn(
                         "size-3",
                         habit.currentStreak > 0 && "text-ember"
                       )}
                     />{" "}
-                    <DitherNumber value={habit.currentStreak} suffix=" day streak" />
+                    <span>{habit.currentStreak} days</span>
                     {habit.category && (
-                      <span className="ml-1 hidden rounded-full bg-surface-2 px-1.5 py-0.2 text-[10px] text-faint sm:inline">
+                      <span className="ml-1 rounded-full bg-surface-2 px-1.5 py-0.2 text-[10px] text-faint">
                         #{habit.category}
                       </span>
                     )}
@@ -349,11 +289,11 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenFocusTimer(habit)}
-                className="hidden size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer sm:grid"
+                className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
                 title="Start Focus Timer"
                 aria-label="Start Focus Timer"
               >
-                <PixelClock className="size-4" />
+                <Clock className="size-4" strokeWidth={2.2} />
               </button>
             )}
 
@@ -361,11 +301,11 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
             <button
               type="button"
               onClick={() => onEdit?.(habit)}
-              className="hidden size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer sm:grid"
+              className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
               title={`Edit ${habit.name}`}
               aria-label={`Edit ${habit.name}`}
             >
-              <PixelPen className="size-4" />
+              <Pencil className="size-4" strokeWidth={2.2} />
             </button>
 
             {kind === "boolean" && (
@@ -381,7 +321,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                   }
                   onToggleToday(habit.id);
                 }}
-                aria-label={isDoneToday ? `Undo ${habit.name} check-in` : `Complete ${habit.name} for today`}
+                aria-label={isDoneToday ? `Toggle ${habit.name} (mark incomplete)` : `Toggle ${habit.name} (mark complete)`}
                 aria-pressed={isDoneToday}
                 className={cn(
                   "check-orb grid size-12 shrink-0 place-items-center rounded-full p-0 transition-transform active:scale-95 cursor-pointer",
@@ -390,7 +330,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                     : "border border-border/40 bg-surface-2 text-faint hover:text-foreground"
                 )}
               >
-                <PixelCheck className="size-4" />
+                <Check className="size-4" strokeWidth={2.5} />
               </button>
             )}
 
@@ -422,7 +362,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
           <div className="mt-3.5 space-y-2 border-t border-border/30 pt-3">
             <div className="flex items-center justify-between text-xs">
               <span className="font-medium text-foreground/85">
-                <DitherNumber value={currentQuant} /> / <DitherNumber value={targetQuant} /> {habit.unit || ""}
+                {currentQuant} / {targetQuant} {habit.unit || ""}
                 {quantProgress.laps > 1 && (
                   <span className="ml-1.5 rounded-full bg-ember-soft px-1.5 py-0.2 text-[10px] font-bold text-ember">
                     Lap {quantProgress.laps}
@@ -430,7 +370,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 )}
               </span>
               <span className="font-mono font-semibold text-ember">
-                <DitherNumber value={quantProgress.totalPercent} suffix="%" />
+                {quantProgress.totalPercent}%
               </span>
             </div>
 
@@ -452,10 +392,10 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 }}
                 disabled={currentQuant <= 0}
                 className="flex size-7 items-center justify-center rounded-lg border border-border/40 bg-surface-2 text-faint transition-colors hover:text-foreground disabled:opacity-30 cursor-pointer"
-                title="Decrease"
-                aria-label="Decrease"
+                title={`Decrease ${habit.name}`}
+                aria-label={`Decrease ${habit.name} by ${quickChips[0] || 1} ${habit.unit || ""}`.trim()}
               >
-                <PixelMinus className="size-3.5" />
+                <Minus className="size-3.5" strokeWidth={2.5} />
               </button>
               {quickChips.slice(0, 3).map((amount) => (
                 <button
@@ -466,10 +406,10 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                     onQuantIncrement(habit.id, amount);
                   }}
                   className="flex items-center gap-1 rounded-xl border border-border/40 bg-surface-2 px-2.5 py-1 text-xs font-semibold text-foreground transition-colors hover:bg-surface cursor-pointer"
-                  title={`Increase by ${amount}`}
-                  aria-label={`Increment by ${amount}`}
+                  title={`Add ${amount} ${habit.unit || ""}`}
+                  aria-label={`Add ${amount} ${habit.unit || ""} to ${habit.name}`.trim()}
                 >
-                  <PixelPlus className="size-3 text-ember" />
+                  <Plus className="size-3 text-ember" strokeWidth={2.5} />
                   {amount} {habit.unit || ""}
                 </button>
               ))}
@@ -492,9 +432,9 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 )}
               </span>
               {showSubtasks ? (
-                <PixelChevronUp className="size-3.5" />
+                <ChevronUp className="size-3.5" strokeWidth={2.2} />
               ) : (
-                <PixelChevronDown className="size-3.5" />
+                <ChevronDown className="size-3.5" strokeWidth={2.2} />
               )}
             </button>
 
@@ -513,7 +453,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                       className="flex w-full items-center gap-2 rounded-xl bg-surface-2/60 px-2.5 py-1.5 text-left transition-colors hover:bg-surface-2 cursor-pointer"
                     >
                       {done ? (
-                        <PixelCheckCircle className="size-4 shrink-0 text-ember" />
+                        <CheckCircle2 className="size-4 shrink-0 text-ember" strokeWidth={2.2} />
                       ) : (
                         <span className="size-4 shrink-0 rounded-sm border-2 border-faint/60" />
                       )}
@@ -541,7 +481,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
           <div className="w-full max-w-sm space-y-4 rounded-3xl border border-border/60 bg-surface p-5 shadow-2xl">
             <div className="flex items-center gap-2 text-ember">
-              <PixelAlertTriangle className="size-5 text-ember" />
+              <AlertTriangle className="size-5 text-ember" strokeWidth={2.2} />
               <h4 className="text-sm font-semibold">Log Relapse</h4>
             </div>
             <p className="text-xs leading-relaxed text-muted-foreground">

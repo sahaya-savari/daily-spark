@@ -1,5 +1,11 @@
 import React from "react";
-import { BarChart3, CheckSquare2, Home, Plus, Settings } from "lucide-react";
+import {
+  CalendarCheck2,
+  CheckSquare,
+  Plus,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -17,99 +23,95 @@ export function MobileBottomNav({
   embedded = false,
 }: MobileBottomNavProps) {
   return (
-    <>
-      <nav
+    <nav
       aria-label="Mobile navigation"
       className={cn(
         !embedded && "lg:hidden",
-        "z-30 flex items-center justify-around border-t border-border/60 bg-surface/95 px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl",
+        "z-30 flex items-center justify-between rounded-full border border-border/40 bg-surface/90 px-3 backdrop-blur-xl shadow-lg",
         embedded
-          ? "absolute inset-x-0 bottom-0 h-[64px]"
-          : "fixed inset-x-0 bottom-0 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)]"
+          ? "absolute inset-x-3.5 bottom-3.5 h-[72px]"
+          : "fixed left-1/2 -translate-x-1/2 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] h-[72px] w-[calc(100%-2rem)] max-w-lg"
       )}
     >
+      {/* 1. Today */}
       <Button
         variant="ghost"
         onClick={() => onTabChange(0)}
         aria-label="Today"
         aria-current={activeTab === 0 ? "page" : undefined}
         className={cn(
-          "flex flex-1 min-h-[48px] h-full min-w-[48px] flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+          "flex flex-1 min-h-[48px] min-w-[48px] h-full flex-col items-center justify-center gap-0.5 rounded-full p-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
           activeTab === 0 ? "text-ember font-bold" : "text-faint hover:text-foreground"
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 0 && "bg-ember-soft")}>
-          <Home className="size-5" strokeWidth={2} />
+          <CalendarCheck2 className="size-4" strokeWidth={2.2} />
         </span>
-        Today
+        <span className="text-[11px] font-bold">Today</span>
       </Button>
 
+      {/* 2. Habits */}
       <Button
         variant="ghost"
         onClick={() => onTabChange(1)}
         aria-label="Habits"
         aria-current={activeTab === 1 ? "page" : undefined}
         className={cn(
-          "flex flex-1 min-h-[48px] h-full min-w-[48px] flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+          "flex flex-1 min-h-[48px] min-w-[48px] h-full flex-col items-center justify-center gap-0.5 rounded-full p-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
           activeTab === 1 ? "text-ember font-bold" : "text-faint hover:text-foreground"
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 1 && "bg-ember-soft")}>
-          <CheckSquare2 className="size-5" strokeWidth={2} />
+          <CheckSquare className="size-4" strokeWidth={2.2} />
         </span>
-        Habits
+        <span className="text-[11px] font-bold">Habits</span>
       </Button>
 
+      {/* 3. Center Add (+) Button */}
+      <Button
+        variant="fab"
+        size="fab"
+        onClick={onAddClick}
+        style={{ boxShadow: "0 4px 22px var(--ember-glow)" }}
+        className="size-12 min-h-[48px] min-w-[48px] shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0 mx-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+        aria-label="Add new habit"
+      >
+        <Plus className="size-6 text-white" strokeWidth={2.5} />
+      </Button>
+
+      {/* 4. Progress */}
       <Button
         variant="ghost"
         onClick={() => onTabChange(2)}
         aria-label="Progress"
         aria-current={activeTab === 2 ? "page" : undefined}
         className={cn(
-          "flex flex-1 min-h-[48px] h-full min-w-[48px] flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+          "flex flex-1 min-h-[48px] min-w-[48px] h-full flex-col items-center justify-center gap-0.5 rounded-full p-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
           activeTab === 2 ? "text-ember font-bold" : "text-faint hover:text-foreground"
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 2 && "bg-ember-soft")}>
-          <BarChart3 className="size-5" strokeWidth={2} />
+          <BarChart3 className="size-4" strokeWidth={2.2} />
         </span>
-        Progress
+        <span className="text-[11px] font-bold">Progress</span>
       </Button>
 
+      {/* 5. Settings */}
       <Button
         variant="ghost"
         onClick={() => onTabChange(3)}
         aria-label="Settings"
         aria-current={activeTab === 3 ? "page" : undefined}
         className={cn(
-          "flex flex-1 min-h-[48px] h-full min-w-[48px] flex-col items-center justify-center gap-0.5 rounded-full p-0 text-[11px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+          "flex flex-1 min-h-[48px] min-w-[48px] h-full flex-col items-center justify-center gap-0.5 rounded-full p-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
           activeTab === 3 ? "text-ember font-bold" : "text-faint hover:text-foreground"
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 3 && "bg-ember-soft")}>
-          <Settings className="size-5" strokeWidth={2} />
+          <Settings className="size-4" strokeWidth={2.2} />
         </span>
-        Settings
+        <span className="text-[11px] font-bold">Settings</span>
       </Button>
     </nav>
-
-    {/* Ergonomic Floating Action Button (FAB) in Bottom-Right Corner for 1-Thumb Creation */}
-    <Button
-      variant="fab"
-      size="fab"
-      onClick={onAddClick}
-      style={{ boxShadow: "0 8px 28px var(--ember-glow)" }}
-      className={cn(
-        !embedded && "lg:hidden",
-        "size-14 min-h-[48px] min-w-[48px] rounded-2xl bg-ember text-[var(--ember-foreground,#FFFFFF)] border border-ember/40 active:opacity-80 transition-opacity flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
-        embedded
-          ? "absolute right-4 bottom-[76px] z-30"
-          : "fixed right-4 sm:right-6 bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-40"
-      )}
-      aria-label="Add new habit"
-    >
-      <Plus className="size-6 text-[var(--ember-foreground,#FFFFFF)]" strokeWidth={2.25} />
-    </Button>
-  </>
   );
 }

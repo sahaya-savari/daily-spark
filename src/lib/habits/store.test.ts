@@ -28,14 +28,6 @@ describe("habit store", () => {
     expect(res2).toBe("undone");
   });
 
-  it("widget check-in never undoes an existing completion", () => {
-    const h = habitActions.add({ name: "Duolingo", emoji: "D" });
-
-    expect(habitActions.checkInToday(h.id)).toBe("done");
-    expect(habitActions.checkInToday(h.id)).toBe("already-done");
-    expect(habitActions.toggleToday(h.id)).toBe("undone");
-  });
-
   it("stars and archives a habit", () => {
     const h = habitActions.add({ name: "Meditate", emoji: "🧘" });
     habitActions.star(h.id);

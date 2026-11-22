@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
-  PixelBug,
-  PixelClose,
-  PixelDownload,
+  Download,
+  ShieldCheck,
+  Bug,
+  Menu,
+  X,
+} from "lucide-react";
+import {
   PixelGithub,
   PixelGitlab,
   PixelFdroid,
-  PixelMenu,
-  PixelShieldCheck,
 } from "@/components/ui/pixel-icon";
 import { SparkMark } from "@/components/brand/Logo";
 import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
@@ -211,9 +213,9 @@ export function SiteHeader() {
             aria-controls="mobile-nav"
           >
             {mobileMenuOpen ? (
-              <PixelClose className="size-4 text-ember" />
+              <X className="size-4 text-ember" strokeWidth={2.2} />
             ) : (
-              <PixelMenu className="size-4 text-foreground" />
+              <Menu className="size-4 text-foreground" strokeWidth={2.2} />
             )}
           </button>
         </div>
@@ -240,7 +242,6 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span>What it does</span>
-                <span className="text-xs text-muted-foreground">01</span>
               </Link>
               <Link
                 to="/screens"
@@ -249,7 +250,6 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span>Screens</span>
-                <span className="text-xs text-muted-foreground">02</span>
               </Link>
               <Link
                 to="/privacy"
@@ -258,10 +258,9 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span className="flex items-center gap-2">
-                  <PixelShieldCheck className="size-4 text-ember" />
+                  <ShieldCheck className="size-4 text-ember" />
                   <span>Privacy</span>
                 </span>
-                <span className="text-xs text-muted-foreground">03</span>
               </Link>
               <Link
                 to="/download"
@@ -270,10 +269,9 @@ export function SiteHeader() {
                 activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
               >
                 <span className="flex items-center gap-2">
-                  <PixelDownload className="size-4 text-ember" />
+                  <Download className="size-4 text-ember" />
                   <span>Download</span>
                 </span>
-                <span className="text-xs text-muted-foreground">04</span>
               </Link>
               <a
                 href={SITE.gitlab.repo}
@@ -319,7 +317,7 @@ export function SiteFooter() {
         </div>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-1">
           <Link to="/download" className={footerLink}>
-            <PixelDownload className="size-4" /> Download
+            <Download className="size-4" strokeWidth={2.2} /> Download
           </Link>
           <a href={SITE.fdroid.url} target="_blank" rel="noreferrer" className={footerLink} title="F-Droid Catalog (Pending)">
             <PixelFdroid className="size-4 text-[#1976D2]" /> F-Droid
@@ -331,10 +329,10 @@ export function SiteFooter() {
             <PixelGithub className="size-4" /> GitHub
           </a>
           <Link to="/privacy" className={footerLink}>
-            <PixelShieldCheck className="size-4" /> Privacy
+            <ShieldCheck className="size-4" strokeWidth={2.2} /> Privacy
           </Link>
           <a href={SITE.gitlab.issues} target="_blank" rel="noreferrer" className={footerLink}>
-            <PixelBug className="size-4" /> Issues
+            <Bug className="size-4" strokeWidth={2.2} /> Issues
           </a>
         </div>
       </div>

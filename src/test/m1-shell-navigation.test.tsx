@@ -40,7 +40,7 @@ describe("Milestone 1 — Shell & Navigation Tests", () => {
         />
       );
       const nav = screen.getByRole("navigation", { name: /mobile navigation/i });
-      expect(nav.className).toContain("pb-[env(safe-area-inset-bottom,0px)]");
+      expect(nav.className).toContain("bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))]");
     });
 
     it("enforces >=48px hit targets on all 5 interactive buttons", () => {
