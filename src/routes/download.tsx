@@ -11,9 +11,10 @@ import {
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { SITE, siteUrl } from "@/lib/site";
+import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
 
-const title = "Download Daily Spark - Android APK";
-const description = `Download the official Daily Spark ${SITE.apk.version} Android APK (${SITE.apk.size}). Free, offline habit tracking with no account, ads, or tracking. Android only.`;
+const title = "Download Daily Spark for Android, Web, Windows and Linux";
+const description = "Choose Daily Spark for Android, the installable web app, Windows, or Linux. Private, offline-first habit tracking with no account, ads, or tracking.";
 
 export const Route = createFileRoute("/download")({
   head: () => ({
@@ -61,11 +62,16 @@ function Download() {
       <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-20 w-full outline-none">
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold">Download</h1>
         <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">
-          Daily Spark ships as a single Android APK. Free, offline-first, and it never asks for an account.
+          Choose the version that fits your device. Every option keeps the same calm, local-first experience.
         </p>
 
+        <section aria-labelledby="platforms-title" className="mt-8 sm:mt-10">
+          <h2 id="platforms-title" className="sr-only">Choose your platform</h2>
+          <PlatformDownloadGrid />
+        </section>
+
         {/* Primary install card */}
-        <section className="glass-panel glass-sheen mt-8 sm:mt-10 rounded-3xl p-6 sm:p-9 border border-white/10">
+        <section className="glass-panel glass-sheen mt-8 rounded-3xl p-6 sm:p-9 border border-white/10">
           <div className="flex flex-wrap items-center gap-2 text-xs sm:text-[13px] font-bold uppercase tracking-wider text-ember">
             <PixelAndroid aria-hidden="true" className="size-4" />
             <span>Official Android APK</span>

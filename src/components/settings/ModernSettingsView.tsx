@@ -318,7 +318,7 @@ export function ModernSettingsView({
         if (perm === "granted") {
           new Notification("Daily Spark: Time to ignite your streak! 🔥", {
             body: "Your daily reminder is functioning perfectly. Keep up the momentum!",
-            icon: "/icons/icon-192.png",
+            icon: "/icon-192x192.svg",
           });
         }
       }

@@ -27,7 +27,7 @@ import {
   exportToMarkdown,
   isDoneOn,
 } from "./logic";
-import { DEFAULT_SETTINGS, type Habit, type StandaloneNote } from "./types";
+import { DEFAULT_SETTINGS, type Habit, type HabitCollection, type StandaloneNote } from "./types";
 
 const TODAY = "2026-10-26";
 
@@ -69,6 +69,15 @@ describe("calendar ratio", () => {
     const b = createHabit({ name: "B", emoji: "🔥" }, "2026-10-01");
     const later = createHabit({ name: "C", emoji: "🔥" }, "2026-10-27");
     expect(dayRatio([a, b, later], TODAY)).toEqual({ done: 1, total: 2 });
+  });
+
+  it("excludes paused and unscheduled habits from the daily opportunity count", () => {
+    const monday = "2026-10-26";
+    const due = createHabit({ name: "Monday", emoji: "M", frequencyType: "specific_days", customDays: [1] }, "2026-10-01");
+    const tuesdayOnly = createHabit({ name: "Tuesday", emoji: "T", frequencyType: "specific_days", customDays: [2] }, "2026-10-01");
+    const paused = { ...createHabit({ name: "Paused", emoji: "P" }, "2026-10-01"), isPaused: true };
+
+    expect(dayRatio([due, tuesdayOnly, paused], monday)).toEqual({ done: 0, total: 1 });
   });
 });
 
@@ -379,6 +388,31 @@ describe("Phase 2: Custom Streak Reordering", () => {
 });
 
 describe("Phase 2: Backup Preview & Notes Roundtrip", () => {
+  it("round-trips habit collections without changing their membership or launch mode", () => {
+    const habits = [
+      { ...createHabit({ name: "Read", emoji: "book" }, TODAY), id: "read" },
+      { ...createHabit({ name: "Water", emoji: "water" }, TODAY), id: "water" },
+    ];
+    const collections: HabitCollection[] = [{
+      id: "morning",
+      name: "Morning reset",
+      description: "Start with intention",
+      icon: "folder",
+      color: "ocean",
+      habitIds: ["water", "read"],
+      orderIndex: 0,
+      isPinned: true,
+      startMode: "guided",
+      createdAt: "2026-10-01T08:00:00Z",
+      updatedAt: "2026-10-02T08:00:00Z",
+    }];
+
+    const backup = buildBackup(habits, DEFAULT_SETTINGS, new Date("2026-10-26T12:00:00Z"), [], collections);
+    const restored = parseBackup(JSON.stringify(backup), TODAY);
+
+    expect(restored.collections).toEqual(collections);
+  });
+
   it("inspects backup correctly returning stats and notes", () => {
     const habits: Habit[] = [
       { ...createHabit({ name: "Active Habit", emoji: "🔥" }, TODAY), id: "h1", completedDates: [TODAY] },

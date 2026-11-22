@@ -1,6 +1,7 @@
 # TEST_READY — Daily Spark Master Redesign E2E Test Suite
 
 **Published**: 2026-10-30T00:50:00Z  
+**Last revalidated**: 2026-11-22 (full project suite: 36 files, 451 tests)
 **Status**: COMPLETE & VERIFIED (100% Pass Rate)  
 **Author**: E2E Test Writer (`teamwork_test_writer_e2e`)  
 **Target Specifications**: `ORIGINAL_REQUEST.md`, `PROJECT.md`, `TEST_INFRA.md`
@@ -13,9 +14,9 @@ The complete requirement-driven, opaque-box E2E test suite for the Daily Spark M
 
 - **Total Test Suites**: 4 E2E Tiers in `src/test/e2e/` (plus 30 unit & component test files)
 - **Total Tests in E2E Suite**: 210 tests across 18 redesign features
-- **Total Tests Across Entire Project**: 413 tests across 34 test files
+- **Total Tests Across Entire Project**: 451 tests across 36 test files
 - **E2E Test Pass Rate**: 100% (210/210 passed)
-- **Project Test Pass Rate**: 100% (413/413 passed)
+- **Project Test Pass Rate**: 100% (451/451 passed)
 - **TypeScript Static Verification**: 0 errors (`npm run typecheck` clean)
 - **ESLint Code Quality Verification**: 0 warnings, 0 errors (`npm run lint` clean)
 - **Implementation Code Impact**: ZERO changes to product implementation code (`src/components/`, `src/lib/`, `src/routes/`).
@@ -67,20 +68,20 @@ All tests are located in `src/test/e2e/` and are built on Vitest, React Testing 
 ```bash
 npm test
 ```
-*Result: 34 passed, 413 passed, 0 failed.*
+*Latest revalidation: 36 files passed, 451 tests passed, 0 failed.*
 
 ### Run Only E2E Test Suite (Tiers 1–4):
 ```bash
-npx vitest run src/test/e2e/
+npx vitest run --root . src/test/e2e/
 ```
 *Result: 4 passed, 210 passed, 0 failed.*
 
 ### Run Individual Tiers:
 ```bash
-npx vitest run src/test/e2e/tier1-features.test.ts
-npx vitest run src/test/e2e/tier2-boundaries.test.ts
-npx vitest run src/test/e2e/tier3-combinations.test.ts
-npx vitest run src/test/e2e/tier4-realworld.test.ts
+npx vitest run --root . src/test/e2e/tier1-features.test.ts
+npx vitest run --root . src/test/e2e/tier2-boundaries.test.ts
+npx vitest run --root . src/test/e2e/tier3-combinations.test.ts
+npx vitest run --root . src/test/e2e/tier4-realworld.test.ts
 ```
 
 ### Static Quality Verification:

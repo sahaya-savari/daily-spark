@@ -8,12 +8,18 @@
     android:orientation="vertical"
     android:padding="8dp">
 
+    <ImageView
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:contentDescription="Daily Spark logo"
+        android:src="@drawable/ic_launcher_brand" />
+
     <TextView
         android:id="@+id/widget_streak_emoji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="🔥"
-        android:textSize="26sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/widget_streak_count"

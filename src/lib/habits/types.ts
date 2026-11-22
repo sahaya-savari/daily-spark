@@ -55,6 +55,21 @@ export interface Habit {
   [extra: string]: unknown;
 }
 
+/** Optional organization layer; habits remain independent and can belong to multiple collections. */
+export interface HabitCollection {
+  id: string;
+  name: string;
+  description?: string | undefined;
+  icon: string;
+  color: string;
+  habitIds: string[];
+  orderIndex: number;
+  isPinned?: boolean | undefined;
+  startMode?: "guided" | "list" | undefined;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ElasticTargets {
   mini: number;
   plus: number;
@@ -107,6 +122,9 @@ export interface HabitSettings {
   themeMode?: "classic" | "minimal" | "expressive" | undefined;
   solarCircadianGlide?: boolean | undefined;
   rolloverHour?: number | undefined;
+  todayShowNextUp?: boolean | undefined;
+  todayShowWeeklyRhythm?: boolean | undefined;
+  todayShowRoutines?: boolean | undefined;
   [extra: string]: unknown;
 }
 
@@ -119,6 +137,9 @@ export const DEFAULT_SETTINGS: HabitSettings = {
   themeMode: "classic",
   solarCircadianGlide: true,
   rolloverHour: 0,
+  todayShowNextUp: true,
+  todayShowWeeklyRhythm: true,
+  todayShowRoutines: true,
 };
 
 export const COLOR_OPTIONS = [

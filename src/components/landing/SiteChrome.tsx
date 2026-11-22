@@ -13,7 +13,6 @@ import {
   PixelFdroid,
 } from "@/components/ui/pixel-icon";
 import { SparkMark } from "@/components/brand/Logo";
-import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { SITE } from "@/lib/site";
 
 const navLnk =
@@ -175,10 +174,13 @@ export function SiteHeader() {
 
         {/* Header Action Buttons */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          <DownloadApkButton
-            variant="header"
+          <Link
+            to="/download"
             className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
-          />
+          >
+            <Download aria-hidden="true" className="size-3.5" />
+            <span>Get app</span>
+          </Link>
 
           <a
             href={SITE.gitlab.repo}

@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Search, Pin, Plus, Trash2, Edit3, X, FileText } from "lucide-react";
 import FolderFloat from "@/components/ui/FolderFloat";
+import { toast } from "sonner";
 
-export function NotesView() {
+export function NotesView({ createRequest = 0 }: { createRequest?: number }) {
   const { notes } = useNotesStore();
   const [search, setSearch] = useState("");
   const [editingNote, setEditingNote] = useState<StandaloneNote | null>(null);
@@ -40,6 +41,10 @@ export function NotesView() {
     setEditingNote(null);
   };
 
+  React.useEffect(() => {
+    if (createRequest > 0) handleStartCreate();
+  }, [createRequest]);
+
   const folderItems = useMemo(() => {
     if (notes.length > 0) {
       return notes.slice(0, 8).map((n) => ({
@@ -63,6 +68,7 @@ export function NotesView() {
         color,
       });
       setEditingNote(null);
+      toast.success("Note updated");
     } else if (isCreating) {
       noteActions.addNote({
         title: title.trim() || "Untitled Note",
@@ -70,6 +76,7 @@ export function NotesView() {
         color,
       });
       setIsCreating(false);
+      toast.success("Note created");
     }
   };
 

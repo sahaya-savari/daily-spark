@@ -8,11 +8,9 @@ import {
   CheckCircle2,
   Clock,
   Download,
-  Flame,
+  FolderOpen,
   Lock,
   ShieldCheck,
-  Sparkles,
-  Star,
 } from "lucide-react";
 import {
   PixelGithub,
@@ -38,55 +36,56 @@ import {
 import { useReveal } from "@/hooks/use-reveal";
 import { useThemeAccent } from "@/hooks/use-theme-accent";
 import { SITE } from "@/lib/site";
+import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
 
 const FEATURES = [
   {
     icon: CheckCircle2,
-    tag: "Core Flow",
-    title: "Check in & Multi-Lap",
-    body: "Standard, quantitative targets (ml, pages, reps) with quick chips, or avoid clean streaks.",
+    tag: "Daily",
+    title: "Fast, flexible check-ins",
+    body: "Track simple habits, measurable goals such as water or pages, and habits you want to avoid.",
   },
   {
-    icon: Flame,
-    tag: "Decay Math",
-    title: "Half-Life Strength HUD",
-    body: "90-day window with 12-day exponential half-life decay gauge. Miss a day without losing everything.",
-  },
-  {
-    icon: BarChart3,
-    tag: "Circadian",
-    title: "Circadian & Stacking",
-    body: "24-hour Gaussian performance curve and conditional habit-stacking probability insights.",
-  },
-  {
-    icon: Clock,
-    tag: "Web Audio",
-    title: "Procedural Focus Timer",
-    body: "Synthesized Web Audio ambient rain, brown noise, and finish chime with zero cloud assets.",
-  },
-  {
-    icon: Sparkles,
-    tag: "Sanctuary",
-    title: "3D Voxel Island",
-    body: "A calm isometric voxel sanctuary that organically blossoms with your consistency.",
-  },
-  {
-    icon: ShieldCheck,
-    tag: "AES-GCM-256",
-    title: "Zero-Cloud Encrypted Vault",
-    body: "AES-GCM-256 encrypted vault with Set-Union conflict-free sync across devices.",
+    icon: FolderOpen,
+    tag: "Organize",
+    title: "Collections & routines",
+    body: "Group existing habits into morning, study, health, or evening routines and complete them in a guided flow.",
   },
   {
     icon: Calendar,
-    tag: "Visual Matrix",
+    tag: "Schedule",
+    title: "Plans that fit real weeks",
+    body: "Choose daily, selected-day, or weekly-target schedules, with pause, snooze, and vacation support.",
+  },
+  {
+    icon: Clock,
+    tag: "Focus",
+    title: "Built-in focus timer",
+    body: "Start a focused session from a habit, use optional ambient sound, and record the time when you finish.",
+  },
+  {
+    icon: BarChart3,
+    tag: "Progress",
+    title: "Useful progress, no pressure",
+    body: "See streaks, completion rates, consistency, and activity patterns without leaderboards or guilt.",
+  },
+  {
+    icon: ShieldCheck,
+    tag: "Local first",
+    title: "Private data & portable backups",
+    body: "Your habits stay on your device. Export, inspect, and restore backups whenever you choose.",
+  },
+  {
+    icon: Calendar,
+    tag: "History",
     title: "Calendar & Heatmap",
-    body: "Glanceable monthly matrix and 6-month activity heatmap. Honest, verified metrics.",
+    body: "Review individual days, monthly completion, and longer activity patterns at a glance.",
   },
   {
     icon: Smartphone,
-    tag: "Home Screen",
-    title: "Android Widgets & Health",
-    body: "Home-screen glanceable widgets (4x2, 1x1, heatmap) and Health Connect bridge.",
+    tag: "Android",
+    title: "Home-screen widgets",
+    body: "Check today, your current streak, or recent activity without opening the full app.",
   },
 ] as const;
 
@@ -426,23 +425,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             />
             <h2 className="mb-3 sm:mb-4 font-display text-[34px] sm:text-[42px] md:text-[50px] font-bold text-foreground">Get Daily Spark</h2>
             <p className="mx-auto max-w-[52ch] text-base sm:text-lg text-muted-foreground">
-              Free, calm habit tracking directly on your Android phone.
+              One calm habit tracker for your phone, browser, Windows, or Linux computer.
             </p>
-            <div className="mb-6 mt-7 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full">
-              <DownloadApkButton
-                className="inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-3 rounded-full cta-solid px-8 text-base sm:text-lg font-bold text-center transition-all hover:scale-[1.02] [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background shadow-lg shadow-ember/25"
-              >
-                <Download className="size-5" />
-                <span>Download APK ({SITE.apk.size})</span>
-              </DownloadApkButton>
-              <a
-                href={SITE.desktop.windowsZip}
-                download="Daily-Spark-v1.0.1-windows.zip"
-                className="glass-pill inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-3 rounded-full border border-white/10 bg-surface/70 px-7 text-sm sm:text-base font-semibold text-foreground transition-all hover:scale-[1.02] hover:border-ember/40 [&_svg]:size-5 sm:[&_svg]:size-6 w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-              >
-                <span>Windows Standalone (.zip)</span>
-              </a>
-            </div>
+            <div className="mx-auto mb-7 mt-8 max-w-4xl text-left"><PlatformDownloadGrid compact /></div>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <a
@@ -465,7 +450,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </a>
             </div>
             <p className="text-xs sm:text-sm text-faint">
-              Android only · APK{" "}
+              Android, Web, Windows and Linux · version{" "}
               <code className="rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[12px] sm:text-[13px] text-muted-foreground">
                 {SITE.apk.version}
               </code>{" "}

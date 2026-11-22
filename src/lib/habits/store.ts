@@ -19,7 +19,7 @@ import { toggleSubtask as toggleHabitSubtask, addSubtaskToHabit, removeSubtaskFr
 import { addVacationRange as addHabitVacation, removeVacationRange as removeHabitVacation } from "./vacation";
 import { mergeVaultHabits } from "./vaultSync";
 import { syncWidgetData } from "./widgetBridge";
-import { DEFAULT_SETTINGS, type Habit, type HabitSettings } from "./types";
+import { DEFAULT_SETTINGS, type Habit, type HabitCollection, type HabitSettings } from "./types";
 
 /**
  * Local-only habit store. Data lives in this browser/device's localStorage under the
@@ -31,6 +31,7 @@ export const STORAGE_KEYS = {
   lastBackup: "streakflame_last_backup",
   autoBackupHistory: "streakflame_autobackup_history",
   recoveryStash: "streakflame_recovery_stash",
+  collections: "streakflame_collections",
 } as const;
 
 export interface LocalBackupSnapshot {
@@ -38,15 +39,17 @@ export interface LocalBackupSnapshot {
   timestamp: string;
   habits: Habit[];
   settings: HabitSettings;
+  collections?: HabitCollection[];
 }
 
 export interface HabitState {
   loaded: boolean;
   habits: Habit[];
+  collections: HabitCollection[];
   settings: HabitSettings;
 }
 
-const SERVER_STATE: HabitState = { loaded: false, habits: [], settings: DEFAULT_SETTINGS };
+const SERVER_STATE: HabitState = { loaded: false, habits: [], collections: [], settings: DEFAULT_SETTINGS };
 let state: HabitState = SERVER_STATE;
 const listeners = new Set<() => void>();
 
@@ -59,7 +62,7 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
-function saveRollingBackup(habits: Habit[], settings: HabitSettings) {
+function saveRollingBackup(habits: Habit[], settings: HabitSettings, collections: HabitCollection[]) {
   if (typeof window === "undefined" || habits.length === 0) return;
   if (settings.autoBackupHistoryEnabled === false) return;
   try {
@@ -72,6 +75,7 @@ function saveRollingBackup(habits: Habit[], settings: HabitSettings) {
         timestamp: new Date().toISOString(),
         habits,
         settings,
+        collections,
       },
       ...filtered,
     ].slice(0, 7);
@@ -124,7 +128,22 @@ function load() {
 
   const { healed, issuesFound } = verifyAndHealIntegrity(candidateHabits, today);
   const settings = { ...DEFAULT_SETTINGS, ...readJson<Partial<HabitSettings>>(STORAGE_KEYS.settings, {}) };
-  state = { loaded: true, habits: healed, settings };
+  const habitIds = new Set(healed.map((habit) => habit.id));
+  const rawCollections = readJson<HabitCollection[]>(STORAGE_KEYS.collections, []);
+  const collections = (Array.isArray(rawCollections) ? rawCollections : [])
+    .filter((collection) => collection && typeof collection.id === "string" && typeof collection.name === "string")
+    .map((collection, index): HabitCollection => ({
+      ...collection,
+      name: collection.name.trim() || "Untitled Collection",
+      icon: typeof collection.icon === "string" ? collection.icon : "folder",
+      color: typeof collection.color === "string" ? collection.color : "fire",
+      habitIds: Array.isArray(collection.habitIds) ? collection.habitIds.filter((id) => habitIds.has(id)) : [],
+      orderIndex: typeof collection.orderIndex === "number" ? collection.orderIndex : index,
+      startMode: collection.startMode === "guided" ? "guided" : "list",
+      createdAt: collection.createdAt || new Date().toISOString(),
+      updatedAt: collection.updatedAt || new Date().toISOString(),
+    }));
+  state = { loaded: true, habits: healed, collections, settings };
 
   if (issuesFound > 0 || corruptObjects.length > 0) {
     persist();
@@ -136,7 +155,8 @@ function persist() {
   try {
     localStorage.setItem(STORAGE_KEYS.habits, JSON.stringify(state.habits));
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
-    saveRollingBackup(state.habits, state.settings);
+    localStorage.setItem(STORAGE_KEYS.collections, JSON.stringify(state.collections));
+    saveRollingBackup(state.habits, state.settings, state.collections);
     syncWidgetData(state.habits, state.settings).catch(() => {});
   } catch (e) {
     console.error("[daily-spark] could not save", e);
@@ -153,7 +173,7 @@ function subscribe(cb: () => void) {
   load();
   listeners.add(cb);
   const onStorage = (e: StorageEvent) => {
-    if (e.key === STORAGE_KEYS.habits || e.key === STORAGE_KEYS.settings) {
+    if (e.key === STORAGE_KEYS.habits || e.key === STORAGE_KEYS.settings || e.key === STORAGE_KEYS.collections) {
       state = { ...state, loaded: false };
       load();
       listeners.forEach((l) => l());
@@ -212,7 +232,13 @@ export const habitActions = {
     mapHabit(id, (h) => ({ ...h, archivedAt: archived ? new Date().toISOString() : null }));
   },
   remove(id: string) {
-    set({ habits: state.habits.filter((h) => h.id !== id) });
+    set({
+      habits: state.habits.filter((h) => h.id !== id),
+      collections: state.collections.map((collection) => ({
+        ...collection,
+        habitIds: collection.habitIds.filter((habitId) => habitId !== id),
+      })),
+    });
   },
   reorder(orderedIdsOrSource: string[] | string, targetId?: string) {
     load();
@@ -244,7 +270,13 @@ export const habitActions = {
   bulkDelete(ids: string[]) {
     load();
     const idSet = new Set(ids);
-    set({ habits: state.habits.filter((h) => !idSet.has(h.id)) });
+    set({
+      habits: state.habits.filter((h) => !idSet.has(h.id)),
+      collections: state.collections.map((collection) => ({
+        ...collection,
+        habitIds: collection.habitIds.filter((habitId) => !idSet.has(habitId)),
+      })),
+    });
   },
   updateNotes(id: string, notes: string) {
     mapHabit(id, (h) => ({ ...h, notes: notes.slice(0, 1000) }));
@@ -271,11 +303,53 @@ export const habitActions = {
     load();
     set({ settings: { ...state.settings, ...patch } });
   },
-  replaceAll(habits: Habit[], settings: HabitSettings) {
-    set({ loaded: true, habits, settings });
+  replaceAll(habits: Habit[], settings: HabitSettings, collections: HabitCollection[] = state.collections) {
+    set({ loaded: true, habits, collections, settings });
   },
   clearAll() {
-    set({ loaded: true, habits: [], settings: DEFAULT_SETTINGS });
+    set({ loaded: true, habits: [], collections: [], settings: DEFAULT_SETTINGS });
+  },
+  addCollection(input: Pick<HabitCollection, "name"> & Partial<HabitCollection>): HabitCollection {
+    load();
+    const now = new Date().toISOString();
+    const collection: HabitCollection = {
+      id: input.id || `collection-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name: input.name.trim(),
+      description: input.description?.trim() || undefined,
+      icon: input.icon || "folder",
+      color: input.color || "fire",
+      habitIds: Array.from(new Set(input.habitIds || [])).filter((id) => state.habits.some((habit) => habit.id === id)),
+      orderIndex: input.orderIndex ?? state.collections.length,
+      isPinned: input.isPinned ?? false,
+      startMode: input.startMode || "list",
+      createdAt: input.createdAt || now,
+      updatedAt: now,
+    };
+    set({ collections: [...state.collections, collection] });
+    return collection;
+  },
+  updateCollection(id: string, patch: Partial<HabitCollection>) {
+    load();
+    set({
+      collections: state.collections.map((collection) =>
+        collection.id === id
+          ? {
+              ...collection,
+              ...patch,
+              id: collection.id,
+              name: patch.name?.trim() || collection.name,
+              habitIds: patch.habitIds
+                ? Array.from(new Set(patch.habitIds)).filter((habitId) => state.habits.some((habit) => habit.id === habitId))
+                : collection.habitIds,
+              updatedAt: new Date().toISOString(),
+            }
+          : collection,
+      ),
+    });
+  },
+  removeCollection(id: string) {
+    load();
+    set({ collections: state.collections.filter((collection) => collection.id !== id) });
   },
   reload() {
     state = { ...SERVER_STATE };
@@ -306,7 +380,7 @@ export const habitActions = {
     const history = habitActions.getRollingBackups();
     const target = history[index];
     if (target) {
-      habitActions.replaceAll(target.habits, target.settings);
+      habitActions.replaceAll(target.habits, target.settings, target.collections ?? []);
     }
   },
   // Phase 4 & 5 additions
@@ -363,7 +437,36 @@ export const habitActions = {
     }
     const today = todayKey();
     const demoHabits = getInitialSeedHabits(today);
-    set({ habits: demoHabits });
+    const now = new Date().toISOString();
+    const demoCollections: HabitCollection[] = [
+      {
+        id: "demo-morning-reset",
+        name: "Morning reset",
+        description: "Hydrate, focus, and start with intention.",
+        icon: "folder",
+        color: "ocean",
+        habitIds: ["demo-water", "demo-read"],
+        orderIndex: 0,
+        isPinned: true,
+        startMode: "guided",
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: "demo-evening-wind-down",
+        name: "Evening wind-down",
+        description: "A light routine to close the day.",
+        icon: "folder",
+        color: "violet",
+        habitIds: ["demo-walk"],
+        orderIndex: 1,
+        isPinned: true,
+        startMode: "list",
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+    set({ habits: demoHabits, collections: demoCollections });
   },
 };
 

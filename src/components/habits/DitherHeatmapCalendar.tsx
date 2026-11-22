@@ -38,7 +38,7 @@ export const DitherHeatmapCalendar: React.FC<DitherHeatmapCalendarProps> = ({
       >
         {data.map((day, idx) => (
           <div
-            key={day.date || idx}
+            key={`${day.date || "day"}-${idx}`}
             data-testid="heatmap-cell"
             data-date={day.date}
             data-level={day.level}

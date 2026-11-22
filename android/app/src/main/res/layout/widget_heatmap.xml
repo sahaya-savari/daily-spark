@@ -13,6 +13,13 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Daily Spark logo"
+            android:src="@drawable/ic_launcher_brand" />
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"

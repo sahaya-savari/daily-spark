@@ -1,5 +1,5 @@
 import { addDays, isValidKey, lastNDays, todayKey } from "./dates";
-import { DEFAULT_SETTINGS, MILESTONES, type Habit, type HabitSettings, type MilestoneDef, type StandaloneNote } from "./types";
+import { DEFAULT_SETTINGS, MILESTONES, type Habit, type HabitCollection, type HabitSettings, type MilestoneDef, type StandaloneNote } from "./types";
 import { calculateCleanStreak } from "./avoid";
 import { currentStreakWithNeutral } from "./vacation";
 
@@ -155,7 +155,8 @@ export const isArchived = (h: Habit) => Boolean(h.archivedAt);
 function countsOn(h: Habit, day: string): boolean {
   if (h.createdAt && h.createdAt > day) return false;
   if (h.archivedAt && h.archivedAt.slice(0, 10) <= day) return false;
-  return true;
+  if (h.isPaused) return false;
+  return isHabitDueToday(h, day);
 }
 
 export function dayRatio(habits: Habit[], day: string): { done: number; total: number } {
@@ -466,7 +467,7 @@ export interface BackupFile {
   version: string;
   exportDate: string;
   app: "daily-spark";
-  data: { streaks: Habit[]; settings: HabitSettings; notes?: StandaloneNote[] };
+  data: { streaks: Habit[]; settings: HabitSettings; notes?: StandaloneNote[]; collections?: HabitCollection[] };
 }
 
 export function buildBackup(
@@ -474,6 +475,7 @@ export function buildBackup(
   settings: HabitSettings,
   now = new Date(),
   notes?: StandaloneNote[],
+  collections?: HabitCollection[],
 ): BackupFile {
   return {
     version: BACKUP_VERSION,
@@ -483,6 +485,7 @@ export function buildBackup(
       streaks: habits,
       settings,
       ...(notes && notes.length > 0 ? { notes } : {}),
+      ...(collections && collections.length > 0 ? { collections } : {}),
     },
   };
 }
@@ -492,6 +495,7 @@ export interface ParsedBackup {
   habits: Habit[];
   settings: HabitSettings;
   notes?: StandaloneNote[];
+  collections?: HabitCollection[];
   skipped: number;
   exportDate: string | null;
 }
@@ -502,7 +506,7 @@ interface Raw {
   id?: unknown; name?: unknown; title?: unknown; emoji?: unknown; createdAt?: unknown;
   completedDates?: unknown; history?: unknown; archivedAt?: unknown; archived?: unknown;
   isStarred?: unknown; starred?: unknown; bestStreak?: unknown;
-  data?: unknown; streaks?: unknown; settings?: unknown; exportDate?: unknown; notes?: unknown; version?: unknown;
+  data?: unknown; streaks?: unknown; settings?: unknown; exportDate?: unknown; notes?: unknown; collections?: unknown; version?: unknown;
   [k: string]: unknown;
 }
 
@@ -567,6 +571,7 @@ export function parseBackup(text: string, today: string): ParsedBackup {
   let settings: unknown;
   let exportDate: unknown;
   let notes: StandaloneNote[] | undefined;
+  let collections: HabitCollection[] | undefined;
 
   if (Array.isArray(json)) {
     streaks = json;
@@ -590,6 +595,29 @@ export function parseBackup(text: string, today: string): ParsedBackup {
           color: typeof n.color === "string" ? n.color : undefined,
         }));
     }
+    const rawCollections = Array.isArray(data.collections)
+      ? data.collections
+      : Array.isArray(o.collections)
+        ? o.collections
+        : undefined;
+    if (Array.isArray(rawCollections)) {
+      collections = rawCollections
+        .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === "object"))
+        .filter((item) => typeof item.id === "string" && typeof item.name === "string")
+        .map((item, index) => ({
+          id: String(item.id),
+          name: String(item.name).trim() || "Untitled Collection",
+          description: typeof item.description === "string" ? item.description : undefined,
+          icon: typeof item.icon === "string" ? item.icon : "folder",
+          color: typeof item.color === "string" ? item.color : "fire",
+          habitIds: Array.isArray(item.habitIds) ? item.habitIds.filter((id): id is string => typeof id === "string") : [],
+          orderIndex: typeof item.orderIndex === "number" ? item.orderIndex : index,
+          isPinned: Boolean(item.isPinned),
+          startMode: item.startMode === "guided" ? "guided" : "list",
+          createdAt: typeof item.createdAt === "string" ? item.createdAt : today,
+          updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : today,
+        }));
+    }
   }
   if (!Array.isArray(streaks)) {
     throw new BackupError("No habits found in this file. Is it a Daily Spark backup?");
@@ -607,6 +635,11 @@ export function parseBackup(text: string, today: string): ParsedBackup {
     seen.add(h.id);
     habits.push(h);
   }
+  const restoredHabitIds = new Set(habits.map((habit) => habit.id));
+  const validCollections = collections?.map((collection) => ({
+    ...collection,
+    habitIds: collection.habitIds.filter((habitId) => restoredHabitIds.has(habitId)),
+  }));
 
   return {
     version: typeof (json as Raw)?.version === "string" ? ((json as Raw).version as string) : "1",
@@ -616,6 +649,7 @@ export function parseBackup(text: string, today: string): ParsedBackup {
       ...(settings && typeof settings === "object" ? (settings as Partial<HabitSettings>) : {}),
     },
     notes,
+    collections: validCollections,
     skipped,
     exportDate: typeof exportDate === "string" ? exportDate : null,
   };

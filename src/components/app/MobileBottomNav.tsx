@@ -74,7 +74,7 @@ export function MobileBottomNav({
         onClick={onAddClick}
         style={{ boxShadow: "0 4px 22px var(--ember-glow)" }}
         className="size-12 min-h-[48px] min-w-[48px] shrink-0 rounded-full bg-gradient-to-tr from-ember to-heat-4 text-white border border-ember/30 hover:brightness-110 active:scale-95 flex items-center justify-center p-0 mx-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
-        aria-label="Add new habit"
+        aria-label="Add new habit, collection, or note"
       >
         <Plus className="size-6 text-white" strokeWidth={2.5} />
       </Button>

@@ -2,7 +2,7 @@
 
 **Date Target**: Phase 8 Finalized & Released  
 **Current Release Version**: `v1.0.1`  
-**Current Git State**: `origin/main` & `gitlab/main` (Working tree 100% clean, 450/450 tests passing across 36 suites)
+**Current validation baseline**: 451/451 tests passing across 36 suites (revalidated locally on 2026-11-22)
 
 ---
 
@@ -55,7 +55,7 @@ All Phase 1 through Phase 8 core objectives, visual overhauls, typography unific
 
 ```mermaid
 flowchart TD
-  A["Git Branch: main"] --> B["npm test (450/450 Passing across 36 suites)"]
+  A["Git Branch: main"] --> B["npm test (451/451 Passing across 36 suites)"]
   C --> D["npm run lint (0 Warnings)"]
   B --> C["npm run typecheck (0 Errors)"]
   D --> E["npm run build (Vite + SSG in 1.9s)"]
@@ -68,7 +68,7 @@ flowchart TD
 | **Status Check** | `git status` | `On branch main, working tree clean` |
 | **Type Safety** | `npm run typecheck` | 0 errors |
 | **Lint Check** | `npm run lint` | 0 errors |
-| **Vitest Suite** | `npm test` | 27 test files passed, 140 tests passed |
+| **Vitest Suite** | `npm test` | 36 test files passed, 451 tests passed |
 | **Production Build** | `npm run build` | Clean Vite bundle in under 2.5s |
 | **Android Sync** | `npm run build:android` | Assets synced to `android/app/src/main/assets/public` |
 

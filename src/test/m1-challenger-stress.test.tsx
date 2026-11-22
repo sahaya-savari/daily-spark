@@ -577,14 +577,17 @@ describe("Empirical Challenger — Milestone 1 Stress Suite", () => {
       expect(habitsDesktopBtn).toHaveAttribute("aria-current", "page");
     });
 
-    it("opens Add Habit dialog when center FAB is clicked on MobileBottomNav", async () => {
+    it("opens the unified create menu when center FAB is clicked on MobileBottomNav", async () => {
       const { DailySparkApp } = await import("@/components/app/DailySparkApp");
       render(<DailySparkApp embedded={false} />);
 
       const fab = screen.getByRole("button", { name: /add new habit/i });
       fireEvent.click(fab);
 
-      expect(screen.getByText("Create New Habit")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /create something/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /new habit/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /new collection/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /new note/i })).toBeInTheDocument();
     });
   });
 });
