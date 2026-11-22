@@ -28,7 +28,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             <span className="grid size-12 place-items-center rounded-xl border border-ember/25 bg-ember/10 text-ember transition-transform group-hover:scale-105">
               <Smartphone aria-hidden="true" className="size-6" />
             </span>
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-emerald-400">
+            <span className="rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-ember">
               Android
             </span>
           </div>
@@ -102,7 +102,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             <span className="grid size-12 place-items-center rounded-xl border border-ember/25 bg-ember/10 text-ember transition-transform group-hover:scale-105">
               <Monitor aria-hidden="true" className="size-6" />
             </span>
-            <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-blue-400">
+            <span className="rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-ember">
               Windows
             </span>
           </div>
@@ -139,7 +139,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             <span className="grid size-12 place-items-center rounded-xl border border-ember/25 bg-ember/10 text-ember transition-transform group-hover:scale-105">
               <Terminal aria-hidden="true" className="size-6" />
             </span>
-            <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-orange-400">
+            <span className="rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-ember">
               Linux
             </span>
           </div>

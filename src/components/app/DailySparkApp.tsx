@@ -175,7 +175,6 @@ export function DailySparkApp({
   }, [isLocked, isBiometricEnabled]);
 
   useEffect(() => {
-    habitActions.seedDemoIfEmpty();
     registerServiceWorker();
   }, []);
 
@@ -1068,7 +1067,7 @@ export function DailySparkApp({
             <button
               type="button"
               onClick={() => handleSelectTab(3)}
-              className="size-9 rounded-full cursor-pointer overflow-hidden border border-white/10 hover:border-ember transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0 flex items-center justify-center bg-surface-2"
+              className="size-11 rounded-full cursor-pointer overflow-hidden border border-white/10 hover:border-ember transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0 flex items-center justify-center bg-surface-2"
               title="Profile & Settings"
               aria-label="Profile and Settings"
             >
@@ -2503,13 +2502,27 @@ function AddHabitForm({
         />
       </div>
 
-      {/* Habit Color Picker (All Tiers - Tints the Spark Mark) */}
+      <details className="rounded-xl border border-border px-3">
+        <summary className="cursor-pointer py-3 text-sm font-semibold">
+          Habit icon · {HABIT_ICONS.find(item => item.key === icon)?.label}
+        </summary>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(44px,1fr))] gap-1 pb-3">
+          {HABIT_ICONS.map(({ key, label, Icon }) => (
+            <button key={key} type="button" aria-label={label} aria-pressed={icon === key}
+              title={label} onClick={() => setIcon(key)}
+              className="grid min-h-11 place-items-center rounded-lg aria-pressed:bg-surface-2 aria-pressed:ring-2 aria-pressed:ring-ember"
+              style={{ color: COLOR_SWATCH[color] }}>
+              <Icon />
+            </button>
+          ))}
+        </div>
+      </details>
       <div className="space-y-1.5">
         <label className="text-xs font-semibold text-muted-foreground uppercase flex items-center justify-between">
           <span>Habit Spark Color</span>
           <span className="text-[10px] text-muted-foreground capitalize">{color}</span>
         </label>
-        <div className="flex items-center gap-2 pt-0.5">
+        <div className="flex flex-wrap items-center gap-2 pt-0.5">
           {COLOR_OPTIONS.map((c) => {
             const swatch = COLOR_SWATCH[c.value];
             const isSelected = color === c.value;
@@ -2518,6 +2531,7 @@ function AddHabitForm({
                 key={c.value}
                 type="button"
                 onClick={() => setColor(c.value)}
+                aria-pressed={isSelected}
                 className={cn(
                   "size-11 rounded-full border-2 transition-transform cursor-pointer flex items-center justify-center",
                   isSelected

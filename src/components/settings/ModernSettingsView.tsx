@@ -29,6 +29,7 @@ import {
 import { AppearanceSwitcher } from "@/components/habits/AppearanceSwitcher";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { THEME_CONFIGS, getStoredTheme } from "@/lib/habits/appearance";
+import { sendTestHabitNotification } from "@/lib/habits/reminders";
 import { SITE } from "@/lib/site";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -107,6 +108,7 @@ export function ModernSettingsView({
     i18nActions.getLanguage()
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const rollingBackups = habitActions.getRollingBackups();
 
   const openProfileEditor = () => {
     setDraftProfile(profile);
@@ -240,9 +242,9 @@ export function ModernSettingsView({
             id: "about",
             section: "about",
             title: "About Daily Spark",
-            subtitle: `v${SITE.apk.version} • 100% offline, MIT licensed, privacy guarantee`,
+            subtitle: `${SITE.apk.version} • 100% offline, MIT licensed, privacy guarantee`,
             icon: Info,
-            statusText: `v${SITE.apk.version}`,
+            statusText: `${SITE.apk.version}`,
             keywords: ["about", "version", "license", "privacy", "terms", "mit", "author", "guarantee"],
           },
           {
@@ -310,26 +312,12 @@ export function ModernSettingsView({
   const handleSendTestNotification = async () => {
     setTestNotificationStatus("Sending...");
     try {
-      if (typeof window !== "undefined" && "Notification" in window) {
-        let perm = Notification.permission;
-        if (perm === "default") {
-          perm = await Notification.requestPermission();
-        }
-        if (perm === "granted") {
-          new Notification("Daily Spark: Time to ignite your streak! 🔥", {
-            body: "Your daily reminder is functioning perfectly. Keep up the momentum!",
-            icon: "/icon-192x192.svg",
-          });
-        }
-      }
-      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-        navigator.vibrate([100, 50, 100]);
-      }
-      setTestNotificationStatus("Sent! ✓");
+      const sent = await sendTestHabitNotification();
+      setTestNotificationStatus(sent ? "Sent! ✓" : "Permission denied");
       setTimeout(() => setTestNotificationStatus(null), 3000);
     } catch (err) {
       console.error("Test notification error:", err);
-      setTestNotificationStatus("Done");
+      setTestNotificationStatus("Failed");
       setTimeout(() => setTestNotificationStatus(null), 3000);
     }
   };
@@ -879,6 +867,40 @@ export function ModernSettingsView({
               />
             </div>
 
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+              <div>
+                <p className="font-semibold text-sm">Reminder Time</p>
+                <p className="text-xs text-muted-foreground">Used as the default for habit reminders</p>
+              </div>
+              <Input
+                type="time"
+                value={settings.defaultTime || "20:00"}
+                onChange={(event) => habitActions.updateSettings({ defaultTime: event.target.value || "20:00" })}
+                className="h-9 w-28 rounded-xl border-border/40 bg-surface px-2 text-xs font-semibold"
+                aria-label="Default reminder time"
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+              <div>
+                <p className="font-semibold text-sm">Pre-task Reminder</p>
+                <p className="text-xs text-muted-foreground">Notify before each scheduled habit time</p>
+              </div>
+              <select
+                value={settings.preTaskReminderOffsetMinutes ?? 0}
+                onChange={(event) => habitActions.updateSettings({ preTaskReminderOffsetMinutes: Number(event.target.value) })}
+                className="h-9 px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember shrink-0 ml-3"
+                aria-label="Pre-task reminder offset"
+              >
+                <option value={0}>Off</option>
+                <option value={5}>5 minutes before</option>
+                <option value={10}>10 minutes before</option>
+                <option value={15}>15 minutes before</option>
+                <option value={30}>30 minutes before</option>
+                <option value={60}>1 hour before</option>
+              </select>
+            </div>
+
             {/* Send Test Notification Button */}
             <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
               <div>
@@ -1102,6 +1124,42 @@ export function ModernSettingsView({
               </div>
               <ChevronRight className="size-4 text-faint" />
             </button>
+
+            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+              <div>
+                <p className="font-semibold text-sm">Automatic Local Snapshots</p>
+                <p className="text-xs text-muted-foreground">Keep up to seven daily recovery snapshots on this device</p>
+              </div>
+              <Switch
+                checked={settings.autoBackupHistoryEnabled !== false}
+                onCheckedChange={(checked) => habitActions.updateSettings({ autoBackupHistoryEnabled: checked })}
+                aria-label="Automatic local snapshots"
+              />
+            </div>
+
+            {settings.autoBackupHistoryEnabled !== false && rollingBackups.length > 0 && (
+              <div className="space-y-2 rounded-2xl bg-surface-2 border border-white/5 p-3">
+                <p className="text-sm font-semibold">Restore History</p>
+                {rollingBackups.map((snapshot, index) => (
+                  <button
+                    key={snapshot.timestamp}
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm("Restore this local snapshot? It will replace current habit data.")) {
+                        habitActions.restoreRollingBackup(index);
+                        alert("Snapshot restored.");
+                      }
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl border border-border/40 px-3 py-2 text-left hover:bg-white/[0.04]"
+                  >
+                    <span className="text-xs text-foreground">
+                      {new Date(snapshot.timestamp).toLocaleString()} · {snapshot.habits.length} habits
+                    </span>
+                    <ChevronRight className="size-3.5 text-faint" />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Restore File Input accepting all 5 formats */}
             <label className="flex w-full items-center gap-3 rounded-2xl p-3 bg-surface-2 border border-white/5 hover:bg-white/[0.04] text-left transition-colors cursor-pointer">
@@ -1328,7 +1386,7 @@ export function ModernSettingsView({
               Privacy Policy
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Effective Date: October 2026 · Daily Spark v{SITE.apk.version}
+              Effective Date: October 2026 · Daily Spark {SITE.apk.version}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">

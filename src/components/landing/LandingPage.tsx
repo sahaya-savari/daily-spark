@@ -195,7 +195,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <span className="flex size-7 items-center justify-center rounded-lg bg-[rgba(217,161,132,0.14)] text-ember">
                 <Download className="size-4" />
               </span>
-              <b className="font-sans text-[14.5px] sm:text-[15.5px] font-bold text-white">v1.0.1</b>
+              <b className="font-sans text-[14.5px] sm:text-[15.5px] font-bold text-white">{SITE.apk.version}</b>
               <span className="text-[#626262]">·</span>
               <span className="font-medium text-[#9A9A9A]">100% Offline APK</span>
             </a>
@@ -216,7 +216,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <ShieldCheck className="size-3.5 text-[#EC894C]" /> 100% Offline
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
-                <Smartphone className="size-3.5 text-[#EC894C]" /> 4.2 MB APK
+                <Smartphone className="size-3.5 text-[#EC894C]" /> {SITE.apk.size} APK
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
                 <Lock className="size-3.5 text-[#EC894C]" /> Zero Tracking
@@ -224,14 +224,15 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </div>
 
             {/* Action Tier 1: Primary Mobile & Desktop Executables */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full sm:w-auto">
+            <div className="grid w-full max-w-md grid-cols-1 gap-2 sm:grid-cols-2 sm:[&>:first-child]:col-span-2">
               <DownloadApkButton
-                className="btn-ember-glow inline-flex min-h-[48px] items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-base font-bold uppercase tracking-wider text-[#090A0D] shadow-lg whitespace-nowrap active:scale-95 transition-all shrink-0"
+                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2.5 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide text-[#090A0D] shadow-lg active:scale-95 transition-all sm:px-6 sm:text-base sm:tracking-wider"
               >
-                <span className="flex items-center gap-2 whitespace-nowrap">
-                  <Download className="size-4 stroke-[2.5]" />
-                  <span>Download Daily Spark APK</span>
-                  <span className="font-mono text-xs font-semibold opacity-90">({SITE.apk.size})</span>
+                <span className="flex min-w-0 items-center justify-center gap-2">
+                  <Download className="size-4 shrink-0 stroke-[2.5]" />
+                  <span className="sm:hidden">Download APK</span>
+                  <span className="hidden sm:inline">Download Daily Spark APK</span>
+                  <span className="shrink-0 font-mono text-[11px] font-semibold opacity-90 sm:text-xs">({SITE.apk.size})</span>
                 </span>
               </DownloadApkButton>
 
@@ -255,7 +256,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </div>
 
             {/* Action Tier 2: Open Source Release Mirrors */}
-            <div className="mt-3.5 flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            <div className="mt-3 grid w-full max-w-md grid-cols-2 gap-2 [&>a]:min-h-11 [&>a]:justify-center">
               <a
                 href={SITE.desktop.windowsZip}
                 download="Daily-Spark-v1.0.1-windows.zip"
@@ -271,7 +272,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <span>Linux (.tar.gz)</span>
               </a>
               <a
-                href={SITE.fdroid.url}
+                href={`${SITE.basePath}download#fdroid`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#1976D2]/60"
@@ -467,7 +468,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             <div className="flex min-w-0 flex-col gap-3.5 w-full">
               <RowLink icon={<PixelGitlab className="text-[#FC6D26]" />} title="GitLab Project" sub="gitlab.com/sahaya-savari/daily-spark" href={SITE.gitlab.repo} />
               <RowLink icon={<PixelGithub />} title="GitHub Repository" sub="github.com/sahaya-savari/daily-spark" href={SITE.repo} />
-              <RowLink icon={<Bug className="size-4" />} title="Report an issue" sub="GitLab &amp; GitHub Issues" href={SITE.gitlab.issues} />
+              <RowLink icon={<Bug className="size-4" />} title="Report an issue" sub="GitLab &amp; GitHub Issues" href={SITE.issues} />
             </div>
           </div>
         </section>
@@ -485,7 +486,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </p>
             <div className="mx-auto mb-7 mt-8 max-w-5xl text-left"><PlatformDownloadGrid compact /></div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="mx-auto grid max-w-sm gap-3 sm:grid-cols-2 [&>a]:min-h-11 [&>a]:justify-center">
               <a
                 href={SITE.gitlab.releases}
                 target="_blank"
@@ -505,8 +506,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 <span>GitHub Releases</span>
               </a>
             </div>
-            <p className="text-xs sm:text-sm text-faint">
-              Android, Web, Windows and Linux · version{" "}
+            <p className="mt-5 text-xs sm:text-sm text-faint">
+              Android APK · version{" "}
               <code className="rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[12px] sm:text-[13px] text-muted-foreground">
                 {SITE.apk.version}
               </code>{" "}

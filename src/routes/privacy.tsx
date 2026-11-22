@@ -35,7 +35,7 @@ export const Route = createFileRoute("/privacy")({
 const SECTIONS = [
   ["What we collect", "Nothing. Daily Spark has no account system, no analytics, no ads and no tracking. We never see your habits."],
   ["Where your data lives", "In both the Android app and Web App, your habits and notes are stored strictly on your device (IndexedDB / local storage). Nothing is uploaded to any remote server. If you use Google Drive backup, your encrypted data is sent directly to your own personal Google Drive AppData folder with zero intermediary servers."],
-  ["Backups", "Backups are files you create and keep. They're saved wherever you choose and are never uploaded by Daily Spark."],
+  ["Backup & Restore", "Export a backup from the app and keep the file somewhere you can find it again. To restore your habits, open the app’s import option and select that backup file. Keep a current backup before clearing browser data or changing devices."],
   ["Reminders", "Reminders are optional. If you turn them on in the Android app, your phone asks for notification permission. Notifications are created on your device."],
   ["Links", "The website links to GitHub for source code and APK downloads. GitHub's own privacy policy applies there."],
   ["Questions", "Open an issue on GitHub and we'll answer in public."],
@@ -79,7 +79,7 @@ function Privacy() {
         </div>
         <div className="mt-12">
           {SECTIONS.map(([t, b]) => (
-            <section key={t} className="border-t border-border py-7">
+            <section key={t} id={t === "Backup & Restore" ? "backups" : undefined} className="scroll-mt-24 border-t border-border py-7">
               <h2 className="font-display text-xl font-semibold tracking-wide">{t}</h2>
               <p className="mt-2 leading-relaxed text-muted-foreground">{b}</p>
             </section>

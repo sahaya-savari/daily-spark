@@ -108,27 +108,27 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
         if ("expressive".equals(themeMode)) {
             return new int[] {
                     Color.parseColor("#171024"),
-                    Color.parseColor("#39225B"),
-                    Color.parseColor("#5B3991"),
-                    Color.parseColor("#7546B5"),
+                    Color.parseColor("#2E1065"),
+                    Color.parseColor("#5B21B6"),
+                    Color.parseColor("#7C3AED"),
                     Color.parseColor("#8B5CF6")
             };
         }
-        if ("minimal".equals(themeMode)) {
+        if ("classic".equals(themeMode)) {
             return new int[] {
                     Color.parseColor("#242018"),
-                    Color.parseColor("#665127"),
-                    Color.parseColor("#9D7831"),
-                    Color.parseColor("#C99A3F"),
-                    Color.parseColor("#E6B450")
+                    Color.parseColor("#45330A"),
+                    Color.parseColor("#785B0D"),
+                    Color.parseColor("#D99E0B"),
+                    Color.parseColor("#F59E0B")
             };
         }
         return new int[] {
                 Color.parseColor("#211C1B"),
-                Color.parseColor("#634231"),
-                Color.parseColor("#925C3E"),
-                Color.parseColor("#BF7245"),
-                Color.parseColor("#EC894C")
+                Color.parseColor("#2E1B13"),
+                Color.parseColor("#5A3320"),
+                Color.parseColor("#8F4E2B"),
+                Color.parseColor("#BF7245")
         };
     }
 }

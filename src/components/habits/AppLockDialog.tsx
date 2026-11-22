@@ -105,7 +105,7 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
       }}
     >
       <DialogContent
-        className="max-w-sm bg-card text-foreground border-border"
+        className="max-w-sm bg-card text-foreground border-border [&_button]:min-h-11 [&_button]:min-w-11"
         onEscapeKeyDown={(e) => {
           if (isLocked) e.preventDefault();
         }}
@@ -216,8 +216,7 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                         if (ok) {
                           setSuccess("Biometric unlock enabled!");
                         } else {
-                          lockActions.setBiometricEnabled(true);
-                          setSuccess("Biometric unlock set to active.");
+                          setError("Biometric setup was not completed. Your PIN remains available.");
                         }
                       } else {
                         lockActions.setBiometricEnabled(false);
@@ -315,4 +314,3 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
     </Dialog>
   );
 }
-

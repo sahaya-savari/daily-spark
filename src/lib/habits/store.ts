@@ -19,6 +19,10 @@ import { toggleSubtask as toggleHabitSubtask, addSubtaskToHabit, removeSubtaskFr
 import { addVacationRange as addHabitVacation, removeVacationRange as removeHabitVacation } from "./vacation";
 import { mergeVaultHabits } from "./vaultSync";
 import { syncWidgetData } from "./widgetBridge";
+import {
+  reconcileNativeReminders,
+  requestNotificationPermission,
+} from "./reminders";
 import { DEFAULT_SETTINGS, type Habit, type HabitCollection, type HabitSettings } from "./types";
 
 /**
@@ -157,7 +161,12 @@ function persist() {
     localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
     localStorage.setItem(STORAGE_KEYS.collections, JSON.stringify(state.collections));
     saveRollingBackup(state.habits, state.settings, state.collections);
-    syncWidgetData(state.habits, state.settings).catch(() => {});
+    syncWidgetData(state.habits, state.settings).catch((error) => {
+      console.error("[daily-spark] could not sync widget data", error);
+    });
+    reconcileNativeReminders(state.habits, state.settings).catch((error) => {
+      console.error("[daily-spark] could not reconcile reminders", error);
+    });
   } catch (e) {
     console.error("[daily-spark] could not save", e);
   }
@@ -302,6 +311,19 @@ export const habitActions = {
   updateSettings(patch: Partial<HabitSettings>) {
     load();
     set({ settings: { ...state.settings, ...patch } });
+    if (patch.enabled === true) {
+      requestNotificationPermission()
+        .then((granted) => {
+          if (!granted) {
+            console.warn("[daily-spark] notification permission was not granted");
+            return;
+          }
+          return reconcileNativeReminders(state.habits, state.settings);
+        })
+        .catch((error) => {
+          console.error("[daily-spark] could not enable reminders", error);
+        });
+    }
   },
   replaceAll(habits: Habit[], settings: HabitSettings, collections: HabitCollection[] = state.collections) {
     set({ loaded: true, habits, collections, settings });
@@ -557,4 +579,3 @@ export function getInitialSeedHabits(today: string): Habit[] {
     }, today),
   ];
 }
-

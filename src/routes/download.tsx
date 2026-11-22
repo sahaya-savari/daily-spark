@@ -103,7 +103,7 @@ function Download() {
             </a>
 
             <a
-              href={SITE.fdroid.url}
+              href={`${SITE.repo}/blob/main/.fdroid.yml`}
               target="_blank"
               rel="noreferrer"
               className="glass-pill inline-flex h-[54px] sm:h-[58px] items-center justify-center gap-2.5 rounded-full border border-white/10 bg-surface/70 px-6 text-sm sm:text-[15px] font-semibold text-foreground transition-all hover:scale-[1.02] hover:border-[#1976D2]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
@@ -183,7 +183,7 @@ function Download() {
           </div>
 
           <div className="glass-surface rounded-2xl p-5 sm:p-6">
-            <h3 className="font-display text-base sm:text-lg font-bold text-foreground">
+            <h3 id="fdroid" className="font-display text-base sm:text-lg font-bold text-foreground">
               F-Droid Compatible
             </h3>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">

@@ -214,7 +214,7 @@ export function SiteHeader() {
             ref={toggleRef}
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="grid size-9 place-items-center rounded-full border border-white/20 bg-surface-2/90 text-foreground shadow-sm transition-all hover:border-ember/50 hover:text-ember active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember lg:hidden shrink-0"
+            className="grid size-11 place-items-center rounded-full border border-white/20 bg-surface-2/90 text-foreground shadow-sm transition-all hover:border-ember/50 hover:text-ember active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember lg:hidden shrink-0"
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
@@ -345,7 +345,7 @@ export function SiteFooter() {
         {/* Main Footer Grid: Left Brand Block + Right 4-Column Navigation */}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 pb-12 border-b border-[#1C1F27]">
           {/* Left Brand Area (5 cols on lg) */}
-          <div className="lg:col-span-5 flex flex-col items-start">
+          <div className="lg:col-span-4 flex flex-col items-start">
             <Link
               to="/"
               className="inline-flex items-center gap-2.5 rounded-lg py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
@@ -431,7 +431,7 @@ export function SiteFooter() {
           </div>
 
           {/* Right 4-Column Navigation Layout (7 cols on lg) */}
-          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8">
             {/* Column 1: Product */}
             <div>
               <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
@@ -508,7 +508,7 @@ export function SiteFooter() {
                   </a>
                 </li>
                 <li>
-                  <Link to="/privacy" className="text-[#8A92A3] hover:text-white transition-colors">
+                  <Link to="/privacy" hash="backups" className="text-[#8A92A3] hover:text-white transition-colors">
                     Backup &amp; Restore
                   </Link>
                 </li>
@@ -555,7 +555,7 @@ export function SiteFooter() {
                 </li>
                 <li>
                   <a
-                    href={SITE.gitlab.issues}
+                    href={SITE.issues}
                     target="_blank"
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
@@ -565,7 +565,7 @@ export function SiteFooter() {
                 </li>
                 <li>
                   <a
-                    href={SITE.fdroid.url}
+                    href={`${SITE.basePath}download#fdroid`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-1.5 text-[#8A92A3] hover:text-white transition-colors"
@@ -634,7 +634,7 @@ export function SiteFooter() {
         </div>
 
         {/* Bottom Copyright Bar */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#737B8C]">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#9DA5B5]">
           <p>© {new Date().getFullYear()} Sahaya Savari F. Built under MIT License.</p>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318] px-3 py-1 font-mono text-[11px] text-emerald-400">

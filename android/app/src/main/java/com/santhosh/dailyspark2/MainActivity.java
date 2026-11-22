@@ -19,20 +19,6 @@ public class MainActivity extends BridgeActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-      WebView.setWebContentsDebuggingEnabled(true);
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-      setShowWhenLocked(true);
-      setTurnScreenOn(true);
-    } else {
-      getWindow().addFlags(
-        android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-        android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-      );
-    }
-
     // ✅ Classic back button (works for button + some gestures)
     getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
       @Override

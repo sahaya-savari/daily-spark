@@ -90,6 +90,31 @@ describe("habit store", () => {
     expect(stored[0].id).toBe(h2.id);
   });
 
+  it("persists a five-habit lifecycle including edit, completion, undo, archive, and deletion", () => {
+    const habits = [
+      habitActions.add({ name: "Read 20 minutes", emoji: "📚" }),
+      habitActions.add({ name: "Drink water", emoji: "💧" }),
+      habitActions.add({ name: "Evening walk", emoji: "🚶" }),
+      habitActions.add({ name: "Meditation", emoji: "🧘" }),
+      habitActions.add({ name: "Exercise", emoji: "🏋️" }),
+    ];
+
+    habitActions.update(habits[0].id, { name: "Read 30 minutes" });
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[0].name).toBe("Read 30 minutes");
+
+    expect(habitActions.toggleToday(habits[1].id)).toBe("done");
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[1].completedDates.length).toBe(1);
+    expect(habitActions.toggleToday(habits[1].id)).toBe("undone");
+
+    habitActions.archive(habits[2].id, true);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[2].archivedAt).toBeTruthy();
+
+    habitActions.remove(habits[4].id);
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!);
+    expect(stored).toHaveLength(4);
+    expect(stored.map((habit: { name: string }) => habit.name)).toContain("Read 30 minutes");
+  });
+
   it("stores and restores automatic rolling backups", () => {
     habitActions.add({ name: "Habit A", emoji: "🅰️" });
     const rolling = habitActions.getRollingBackups();
@@ -161,4 +186,3 @@ describe("habit store", () => {
     expect(stored[0].snoozedUntil).toBeUndefined();
   });
 });
-

@@ -74,4 +74,13 @@ describe("appearance.ts", () => {
     expect(THEME_CONFIGS.expressive.bg).toBe("#000000");
     expect(THEME_CONFIGS.expressive.radius).toBe("16px");
   });
+
+  it("provides an accent-derived heatmap scale for every supported theme", () => {
+    for (const mode of ["minimal", "classic", "expressive"] as ThemeMode[]) {
+      const config = THEME_CONFIGS[mode];
+      expect(config.heat).toHaveLength(5);
+      expect(config.heat[4]).toBe(config.accent);
+      expect(config.heat[1]).not.toBe(config.heat[4]);
+    }
+  });
 });

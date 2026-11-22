@@ -3,6 +3,15 @@ import { LocalNotifications, type LocalNotificationSchema } from "@capacitor/loc
 import type { Habit, HabitSettings } from "./types";
 
 export const NOTIFICATION_CHANNEL_ID = "daily_spark_reminders";
+export const HABIT_NOTIFICATION_ID_START = 1000;
+const HABIT_NOTIFICATION_ID_END = 1999;
+
+export function subtractReminderOffset(hour: number, minute: number, offsetMinutes: number): { hour: number; minute: number } {
+  const safeOffset = Math.max(0, Math.min(120, offsetMinutes));
+  const total = hour * 60 + minute - safeOffset;
+  const normalized = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
+  return { hour: Math.floor(normalized / 60), minute: normalized % 60 };
+}
 
 /**
  * Initializes the Android notification channel at app startup.
@@ -45,53 +54,104 @@ export async function requestNotificationPermission(): Promise<boolean> {
  */
 export async function scheduleHabitReminders(habits: Habit[], settings: HabitSettings): Promise<void> {
   if (!Capacitor.isNativePlatform()) return;
-  if (!settings.enabled) {
-    try {
-      const pending = await LocalNotifications.getPending();
-      if (pending.notifications.length > 0) {
-        await LocalNotifications.cancel(pending);
-      }
-    } catch {
-      /* ignore */
-    }
-    return;
-  }
 
   try {
-    // Clear previously scheduled notifications before rescheduling
     const pending = await LocalNotifications.getPending();
-    if (pending.notifications.length > 0) {
-      await LocalNotifications.cancel(pending);
+    const habitNotifications = pending.notifications.filter(
+      (notification) =>
+        notification.id >= HABIT_NOTIFICATION_ID_START &&
+        notification.id <= HABIT_NOTIFICATION_ID_END,
+    );
+    if (habitNotifications.length > 0) {
+      await LocalNotifications.cancel({ notifications: habitNotifications });
+    }
+    if (!settings.enabled) {
+      return;
     }
 
     const eligible = habits.filter((h) => !h.archivedAt && (h.reminderEnabled ?? true));
     const notifications: LocalNotificationSchema[] = [];
 
-    let notifId = 1000;
-    for (const habit of eligible) {
+    for (const [index, habit] of eligible.entries()) {
       const timeStr = habit.reminderTime || settings.defaultTime || "20:00";
       const [hours, minutes] = timeStr.split(":").map(Number);
-      if (isNaN(hours ?? NaN) || isNaN(minutes ?? NaN)) continue;
+      if (
+        !Number.isInteger(hours) ||
+        !Number.isInteger(minutes) ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+      ) {
+        console.warn(`[reminders] Skipping invalid reminder time for habit ${habit.id}: ${timeStr}`);
+        continue;
+      }
 
       notifications.push({
-        id: notifId++,
+        id: HABIT_NOTIFICATION_ID_START + index,
         title: `${habit.emoji || "🌱"} Daily Spark`,
         body: `Time for your daily ${habit.name}. One small check-in today!`,
         channelId: NOTIFICATION_CHANNEL_ID,
         schedule: {
-          on: {
-            hour: hours,
-            minute: minutes,
-          },
+          on: { hour: hours, minute: minutes },
           allowWhileIdle: settings.respectDND ? false : true,
         },
+        smallIcon: "ic_notification_icon",
       });
+
+      const offsetMinutes = Math.max(0, Math.min(120, settings.preTaskReminderOffsetMinutes ?? 0));
+      if (offsetMinutes > 0) {
+        const preTime = subtractReminderOffset(hours, minutes, offsetMinutes);
+        notifications.push({
+          id: 1500 + index,
+          title: `${habit.emoji || "🌱"} Upcoming habit`,
+          body: `${habit.name} starts in ${offsetMinutes} minutes.`,
+          channelId: NOTIFICATION_CHANNEL_ID,
+          schedule: {
+            on: {
+              hour: preTime.hour,
+              minute: preTime.minute,
+            },
+            allowWhileIdle: settings.respectDND ? false : true,
+          },
+          smallIcon: "ic_notification_icon",
+        });
+      }
     }
 
     if (notifications.length > 0) {
       await LocalNotifications.schedule({ notifications });
     }
   } catch (err) {
-    console.warn("[reminders] Scheduling failed safely:", err);
+    console.error("[reminders] Scheduling failed:", err);
   }
+}
+
+export async function reconcileNativeReminders(
+  habits: Habit[],
+  settings: HabitSettings,
+): Promise<void> {
+  if (!Capacitor.isNativePlatform()) return;
+  await initNotificationChannel();
+  await scheduleHabitReminders(habits, settings);
+}
+
+export async function sendTestHabitNotification(): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) return false;
+
+  const granted = await requestNotificationPermission();
+  if (!granted) return false;
+
+  await initNotificationChannel();
+  await LocalNotifications.schedule({
+    notifications: [{
+      id: 2000,
+      title: "Daily Spark test reminder",
+      body: "Notifications are working. Your reminder is ready.",
+      channelId: NOTIFICATION_CHANNEL_ID,
+      schedule: { at: new Date(Date.now() + 1500), allowWhileIdle: true },
+      smallIcon: "ic_notification_icon",
+    }],
+  });
+  return true;
 }
