@@ -123,8 +123,6 @@ export function ModernSettingsView({
     title: string;
     subtitle: string;
     icon: React.ComponentType<{ className?: string }>;
-    iconBg: string;
-    iconColor: string;
     statusText?: string;
     keywords: string[];
     action?: () => void;
@@ -148,8 +146,6 @@ export function ModernSettingsView({
             title: "Appearance & Themes",
             subtitle: "Palette mode, accent color, and circadian sunset warmth",
             icon: Palette,
-            iconBg: "bg-amber-500/15",
-            iconColor: "text-amber-500",
             statusText: currentThemeConfig.name,
             keywords: ["theme", "appearance", "dark", "light", "colors", "circadian", "sunset", "palette", "mode", "warmth"],
           },
@@ -159,8 +155,6 @@ export function ModernSettingsView({
             title: "Typography & Density",
             subtitle: "Font scales, layout spacing, and icon weights",
             icon: Smartphone,
-            iconBg: "bg-violet-500/15",
-            iconColor: "text-violet-400",
             statusText: "Standard",
             keywords: ["style", "typography", "font", "density", "icons", "size", "layout", "compact"],
           },
@@ -176,8 +170,6 @@ export function ModernSettingsView({
             title: "Routine & Preferences",
             subtitle: "Daily reminders, night owl rollover, and 10 languages",
             icon: Sliders,
-            iconBg: "bg-blue-500/15",
-            iconColor: "text-blue-400",
             statusText: settings.rolloverHour ? `${settings.rolloverHour}:00 AM (Night Owl)` : "Midnight",
             keywords: ["preferences", "notifications", "reminders", "time", "rollover", "night owl", "language", "circadian"],
           },
@@ -189,8 +181,6 @@ export function ModernSettingsView({
                   title: "App Lock & Security",
                   subtitle: "Protect habits and private notes with PIN or biometrics",
                   icon: Lock,
-                  iconBg: "bg-rose-500/15",
-                  iconColor: "text-rose-400",
                   statusText: "Secured",
                   keywords: ["lock", "security", "pin", "biometric", "privacy", "fingerprint", "faceid"],
                   action: onOpenAppLock,
@@ -209,8 +199,6 @@ export function ModernSettingsView({
             title: "Data & Backups",
             subtitle: "5 export formats (JSON, CSV, TSV, Markdown, Vault) and restore",
             icon: Database,
-            iconBg: "bg-emerald-500/15",
-            iconColor: "text-emerald-400",
             statusText: "5 Formats",
             keywords: ["data", "backup", "export", "restore", "csv", "tsv", "json", "markdown", "vault", "inspect", "import"],
           },
@@ -222,8 +210,6 @@ export function ModernSettingsView({
                   title: "Air-Gapped QR Transfer",
                   subtitle: "Transfer encrypted records peer-to-peer with zero network access",
                   icon: QrCode,
-                  iconBg: "bg-cyan-500/15",
-                  iconColor: "text-cyan-400",
                   statusText: "Offline QR",
                   keywords: ["qr", "sync", "air-gapped", "transfer", "offline", "camera"],
                   action: onOpenAirGapped,
@@ -238,8 +224,6 @@ export function ModernSettingsView({
                   title: "Encrypted Peer Vault Sync",
                   subtitle: "Set-union conflict-free multi-device synchronization",
                   icon: Sparkles,
-                  iconBg: "bg-indigo-500/15",
-                  iconColor: "text-indigo-400",
                   statusText: "AES-GCM",
                   keywords: ["vault", "peer", "sync", "aes", "encryption", "crdt"],
                   action: onOpenVaultSync,
@@ -258,8 +242,6 @@ export function ModernSettingsView({
             title: "About Daily Spark",
             subtitle: `v${SITE.apk.version} • 100% offline, MIT licensed, privacy guarantee`,
             icon: Info,
-            iconBg: "bg-neutral-500/15",
-            iconColor: "text-neutral-300",
             statusText: `v${SITE.apk.version}`,
             keywords: ["about", "version", "license", "privacy", "terms", "mit", "author", "guarantee"],
           },
@@ -269,8 +251,6 @@ export function ModernSettingsView({
             title: "Support & Community",
             subtitle: "Source repository, issue reporting, and feedback",
             icon: Heart,
-            iconBg: "bg-pink-500/15",
-            iconColor: "text-pink-400",
             statusText: "Open Source",
             keywords: ["support", "github", "issues", "bug", "star", "community", "contribute"],
           },
@@ -515,16 +495,10 @@ export function ModernSettingsView({
                           setActiveSection(item.section);
                         }
                       }}
-                      className="flex w-full items-center justify-between p-3.5 sm:p-4 text-left transition-colors hover:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+                      className="group flex w-full items-center justify-between p-3.5 sm:p-4 text-left transition-colors hover:bg-surface-2/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
                     >
                       <div className="flex items-center gap-3.5 min-w-0 pr-2">
-                        <span
-                          className={cn(
-                            "grid size-9 sm:size-10 shrink-0 place-items-center rounded-xl",
-                            item.iconBg,
-                            item.iconColor
-                          )}
-                        >
+                        <span className="grid size-9 sm:size-10 shrink-0 place-items-center rounded-xl bg-surface-2/90 border border-border/40 text-foreground/80 transition-colors group-hover:text-ember group-hover:border-ember/30 group-hover:bg-ember/5">
                           <IconComponent className="size-4.5" />
                         </span>
                         <div className="min-w-0">
