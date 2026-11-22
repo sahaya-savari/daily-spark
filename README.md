@@ -18,7 +18,8 @@ No login. No ads. No tracking. Just you and your progress.
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
 ![Tests](https://img.shields.io/badge/Tests-450%2F450%20Passing-brightgreen?style=flat&logo=vitest)
 
-[Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Website](https://dailyspark.sahayasavari.dev/) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
+[Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Web App (/app)](https://dailyspark.sahayasavari.dev/app) · [Website](https://dailyspark.sahayasavari.dev/) · [GitLab Releases](https://gitlab.com/sahaya-savari/daily-spark/-/releases) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
+
 
 </div>
 
@@ -330,34 +331,27 @@ Use the documented template below when restoring historical streaks.
 
 ---
 
-## Installation
+## Installation & Platforms
 
-### From GitHub Releases
+Daily Spark is available across mobile, browser, and desktop:
 
-1. Go to [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases)
-2. Download the latest APK file
-3. Install it on your Android phone
+| Platform | Channel | Description | Link |
+|---|---|---|---|
+| **Android (APK)** | Universal APK | Native Android app (Android 7.0+). No Google Play or accounts required. ~4.2 MB. | [Download APK](https://github.com/sahaya-savari/daily-spark/releases) |
+| **Mobile PWA** | Web / PWA | Open in mobile Chrome/Safari and select "Add to Home screen" for an offline app experience. | [Open /app](https://dailyspark.sahayasavari.dev/app) |
+| **Web Browser (PC)** | Web App | Full workstation view with sidebar navigation rail, `Ctrl+K` command palette, and local-first persistence. | [Launch Web App](https://dailyspark.sahayasavari.dev/app) |
+| **Windows** | Standalone (.zip) | Portable package for Windows x64. Unzip once and launch with no installation required. | [Windows .zip](https://github.com/sahaya-savari/daily-spark/releases) |
+| **Linux** | Standalone (.tar.gz) | Portable desktop package with shell launcher for Debian, Ubuntu, Fedora, Arch, etc. | [Linux .tar.gz](https://github.com/sahaya-savari/daily-spark/releases) |
+| **F-Droid** | Catalog | Open-source catalog listing. | [Pending Review](https://gitlab.com/sahaya-savari/daily-spark) |
 
-### Manual APK Installation
+### Note on Web View vs Mobile View:
+- Visiting the root domain `https://dailyspark.sahayasavari.dev/` provides the product landing page, interactive device preview, and direct release mirrors.
+- Direct web application access is at `https://dailyspark.sahayasavari.dev/app`. On mobile devices, entering `/app` displays the thumb-friendly mobile interface with floating pill navigation; on PC screens (&ge;1024px), it expands into the full workstation layout with sticky left sidebar navigation.
 
-1. Build the app locally (see [Technical Overview](#technical-overview-for-developers))
-2. Install via ADB:
+### Release Mirrors:
+- **GitHub Releases:** [github.com/sahaya-savari/daily-spark/releases](https://github.com/sahaya-savari/daily-spark/releases)
+- **GitLab Releases:** [gitlab.com/sahaya-savari/daily-spark/-/releases](https://gitlab.com/sahaya-savari/daily-spark/-/releases)
 
-   ```bash
-   adb install app-debug.apk
-   ```
-
-### Website & Live Web Application
-
-The project site, [dailyspark.sahayasavari.dev](https://dailyspark.sahayasavari.dev/),
-is the public home for Daily Spark. It explains what the app does, showcases
-real app screens via an interactive hardware device frame, links the privacy policy,
-and offers direct APK downloads.
-
-You can also run the full offline web application directly in your browser at
-[dailyspark.sahayasavari.dev/app](https://dailyspark.sahayasavari.dev/app) with 100% offline persistence.
-
-iOS is also planned. Android and offline Web are fully supported today.
 
 ---
 

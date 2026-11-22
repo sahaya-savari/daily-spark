@@ -6,6 +6,9 @@ import {
   Bug,
   Menu,
   X,
+  Pause,
+  Play,
+  ExternalLink,
 } from "lucide-react";
 import {
   PixelGithub,
@@ -14,6 +17,8 @@ import {
 } from "@/components/ui/pixel-icon";
 import { SparkMark } from "@/components/brand/Logo";
 import { SITE } from "@/lib/site";
+import { getStoredTheme, setStoredTheme, type ThemeMode } from "@/lib/habits/appearance";
+
 
 const navLnk =
   "whitespace-nowrap rounded-full border border-transparent px-4 py-2 text-[14px] sm:text-[15px] font-bold text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center tracking-normal";
@@ -310,32 +315,335 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const [currentTheme, setCurrentTheme] = useState<ThemeMode>(() => getStoredTheme());
+  const [motionPaused, setMotionPaused] = useState(false);
+
+  const handleThemeChange = (mode: ThemeMode) => {
+    setCurrentTheme(mode);
+    setStoredTheme(mode);
+  };
+
+  const toggleMotion = () => {
+    const next = !motionPaused;
+    setMotionPaused(next);
+    if (typeof document !== "undefined") {
+      const parade = document.querySelector(".parade") as HTMLElement | null;
+      if (parade) {
+        parade.setAttribute("data-paused", next ? "true" : "false");
+      }
+      if (next) {
+        document.documentElement.classList.add("motion-reduce");
+      } else {
+        document.documentElement.classList.remove("motion-reduce");
+      }
+    }
+  };
+
   return (
-    <footer className="border-t border-white/5 px-4 pt-10 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-10">
-      <div className="glass-surface mx-auto flex max-w-[1100px] flex-col gap-6 rounded-2xl p-6 text-[14.5px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:gap-x-8 sm:gap-y-2">
-        <div className="flex items-center gap-3">
-          <SparkMark className="size-5 shrink-0 opacity-80" />
-          <p>© {new Date().getFullYear()} {SITE.author} · MIT License</p>
+    <footer className="border-t border-[#262A34] bg-[#07080A] px-4 pt-14 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-12 text-left">
+      <div className="mx-auto max-w-[1100px]">
+        {/* Main Footer Grid: Left Brand Block + Right 4-Column Navigation */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 pb-12 border-b border-[#1C1F27]">
+          {/* Left Brand Area (5 cols on lg) */}
+          <div className="lg:col-span-5 flex flex-col items-start">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2.5 rounded-lg py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
+              <SparkMark className="size-6 text-ember shrink-0" />
+              <span className="font-display text-[19px] font-bold tracking-tight text-white">
+                Daily Spark
+              </span>
+              <span className="ml-1 rounded-full border border-ember/30 bg-ember/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ember">
+                OSS
+              </span>
+            </Link>
+
+            <p className="mt-3.5 max-w-[34ch] text-[14px] leading-relaxed text-[#8A92A3]">
+              A privacy-first, local-first habit tracker. One small action a day, per habit — zero accounts, zero analytics, zero pressure.
+            </p>
+
+            {/* Theme Accent Switcher (Orange / Saved Blue / Solar) */}
+            <div className="mt-5 flex items-center gap-2">
+              <span className="text-xs font-mono text-[#737B8C]">Theme:</span>
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#262A34] bg-[#111318] p-1">
+                <button
+                  type="button"
+                  onClick={() => handleThemeChange("minimal")}
+                  aria-pressed={currentTheme === "minimal"}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
+                    currentTheme === "minimal"
+                      ? "bg-[#1E222B] text-white border border-ember/40 shadow-sm"
+                      : "text-[#8A92A3] hover:text-white"
+                  }`}
+                >
+                  <span className="size-2 rounded-full bg-[#EC894C]" />
+                  <span>Ember</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleThemeChange("classic")}
+                  aria-pressed={currentTheme === "classic"}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
+                    currentTheme === "classic"
+                      ? "bg-[#1E222B] text-white border border-[#F59E0B]/40 shadow-sm"
+                      : "text-[#8A92A3] hover:text-white"
+                  }`}
+                >
+                  <span className="size-2 rounded-full bg-[#F59E0B]" />
+                  <span>Solar</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleThemeChange("expressive")}
+                  aria-pressed={currentTheme === "expressive"}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
+                    currentTheme === "expressive"
+                      ? "bg-[#1E222B] text-white border border-[#8B5CF6]/40 shadow-sm"
+                      : "text-[#8A92A3] hover:text-white"
+                  }`}
+                >
+                  <span className="size-2 rounded-full bg-[#8B5CF6]" />
+                  <span>Amethyst</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Pause Motion Button */}
+            <button
+              type="button"
+              onClick={toggleMotion}
+              aria-pressed={motionPaused}
+              className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#262A34] bg-[#111318] px-3.5 py-1.5 text-xs text-[#8A92A3] transition-colors hover:border-[#363B48] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
+              {motionPaused ? (
+                <>
+                  <Play className="size-3 text-ember" />
+                  <span>Resume motion</span>
+                </>
+              ) : (
+                <>
+                  <Pause className="size-3 text-[#737B8C]" />
+                  <span>Pause motion</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Right 4-Column Navigation Layout (7 cols on lg) */}
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-8">
+            {/* Column 1: Product */}
+            <div>
+              <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
+                Product
+              </h2>
+              <ul className="space-y-2.5 text-[14px]">
+                <li>
+                  <Link to="/" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Overview
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/features" className="text-[#8A92A3] hover:text-white transition-colors">
+                    What it does
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/screens" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Screens
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Privacy &amp; Data
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/download" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Download
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/app" className="text-ember font-medium hover:text-[#FFA366] transition-colors">
+                    Web App (/app)
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 2: Resources */}
+            <div>
+              <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
+                Resources
+              </h2>
+              <ul className="space-y-2.5 text-[14px]">
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark#readme"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    Documentation
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark/blob/main/docs/INSTALLATION_GUIDE.md"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    Getting started
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark/blob/main/FAQ.md"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Backup &amp; Restore
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark/blob/main/DESIGN.md"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    Design system
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3: Open Source */}
+            <div>
+              <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
+                Open Source
+              </h2>
+              <ul className="space-y-2.5 text-[14px]">
+                <li>
+                  <a
+                    href={SITE.repo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    <PixelGithub className="size-3.5 shrink-0" />
+                    <span>GitHub</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={SITE.gitlab.repo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    <PixelGitlab className="size-3.5 shrink-0 text-[#FC6D26]" />
+                    <span>GitLab</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={SITE.gitlab.issues}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    Issue Tracker
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={SITE.fdroid.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    <PixelFdroid className="size-3.5 shrink-0 text-[#1976D2]" />
+                    <span>F-Droid</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    MIT License
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: Project & Legal */}
+            <div>
+              <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
+                Project &amp; Legal
+              </h2>
+              <ul className="space-y-2.5 text-[14px]">
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark#overview"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    About
+                  </a>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark/blob/main/TERMS.md"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    Terms of Use
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://github.com/sahaya-savari/daily-spark/blob/main/SECURITY.md"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#8A92A3] hover:text-white transition-colors"
+                  >
+                    Security
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-1">
-          <Link to="/download" className={footerLink}>
-            <Download className="size-4" strokeWidth={2.2} /> Download
-          </Link>
-          <a href={SITE.fdroid.url} target="_blank" rel="noreferrer" className={footerLink} title="F-Droid Catalog (Pending)">
-            <PixelFdroid className="size-4 text-[#1976D2]" /> F-Droid
-          </a>
-          <a href={SITE.gitlab.repo} target="_blank" rel="noreferrer" className={footerLink}>
-            <PixelGitlab className="size-4 text-[#FC6D26]" /> GitLab
-          </a>
-          <a href={SITE.repo} target="_blank" rel="noreferrer" className={footerLink}>
-            <PixelGithub className="size-4" /> GitHub
-          </a>
-          <Link to="/privacy" className={footerLink}>
-            <ShieldCheck className="size-4" strokeWidth={2.2} /> Privacy
-          </Link>
-          <a href={SITE.gitlab.issues} target="_blank" rel="noreferrer" className={footerLink}>
-            <Bug className="size-4" strokeWidth={2.2} /> Issues
-          </a>
+
+        {/* Bottom Copyright Bar */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#737B8C]">
+          <p>© {new Date().getFullYear()} Sahaya Savari F. Built under MIT License.</p>
+          <div className="flex items-center gap-4">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318] px-3 py-1 font-mono text-[11px] text-emerald-400">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>100% Offline · Zero Tracking</span>
+            </span>
+            <span className="text-[#555A68]">·</span>
+            <span className="text-[#8A92A3]">Effects by React Bits</span>
+          </div>
         </div>
       </div>
     </footer>

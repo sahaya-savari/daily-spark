@@ -1,7 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
-import { useLocation, useRouter } from "@tanstack/react-router";
+import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import {
   Smartphone,
+  Monitor,
+  Globe2,
+  ArrowRight,
   Bug,
   Calendar,
   BarChart3,
@@ -22,6 +25,7 @@ import { SparkMark } from "@/components/brand/Logo";
 import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
+import { DesktopWorkspacePreview } from "@/components/landing/DesktopWorkspacePreview";
 import {
   CalendarScreen,
   DemoPhone,
@@ -37,6 +41,8 @@ import { useReveal } from "@/hooks/use-reveal";
 import { useThemeAccent } from "@/hooks/use-theme-accent";
 import { SITE } from "@/lib/site";
 import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
+import { cn } from "@/lib/utils";
+
 
 const FEATURES = [
   {
@@ -121,6 +127,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   const location = useLocation();
   const router = useRouter();
   const [motionPaused, setMotionPaused] = useState(false);
+  const [previewMode, setPreviewMode] = useState<"dual" | "desktop" | "mobile">("dual");
   const accent = useThemeAccent();
 
   useEffect(() => {
@@ -154,7 +161,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
   return (
     <div className="relative min-h-screen bg-background w-full max-w-full">
-
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[90] focus:rounded-[10px] focus:bg-ember focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground"
@@ -164,131 +170,255 @@ export function LandingPage({ targetSection }: LandingPageProps) {
       <SiteHeader />
 
       <main id="main" tabIndex={-1} className="w-full max-w-full outline-none">
-        {/* Hero */}
-        <section className="relative mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] items-center gap-10 sm:gap-11 px-4 sm:px-6 pb-8 pt-6 sm:pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px] overflow-hidden">
+        {/* Hero Section */}
+        <section className="relative mx-auto max-w-[1100px] px-4 sm:px-6 pt-8 sm:pt-14 pb-12 sm:pb-16 overflow-hidden">
           {/* dithercn Ember Hero Aura Shader */}
           <EmberHeroDither />
 
           {/* Matrix heatmap tile backdrop inspired by habit activity grid */}
           <HeatmapBackdrop />
 
-          <div className="order-1 md:order-1 flex min-w-0 flex-col items-start text-left w-full max-w-full">
+          <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
             {/* Hero badge with optical alignment and cross-platform version tag */}
             <a
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="mb-6 sm:mb-8 inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-[#141414] py-1.5 pl-2 pr-4 text-xs sm:text-[13.5px] text-[#9A9A9A] transition-all hover:border-white/20 hover:text-white"
+              className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-[#14161D] py-1.5 pl-2.5 pr-4 text-xs sm:text-[13px] text-[#A0A6B4] transition-all hover:border-ember/40 hover:text-white shadow-sm"
             >
-              <span className="flex size-7 items-center justify-center rounded-lg bg-[rgba(217,161,132,0.14)] text-ember">
-                <Download className="size-4" />
+              <span className="flex size-6 items-center justify-center rounded-full bg-ember/15 text-ember">
+                <Download className="size-3.5" />
               </span>
-              <b className="font-sans text-[14.5px] sm:text-[15.5px] font-bold text-white">v1.0.1</b>
-              <span className="text-[#626262]">·</span>
-              <span className="font-medium text-[#9A9A9A]">100% Offline APK</span>
+              <b className="font-mono font-bold text-white">v1.0.1</b>
+              <span className="text-[#555A68]">·</span>
+              <span className="font-medium text-[#A0A6B4]">100% Offline APK &amp; Web App</span>
             </a>
 
-            <h1 className="font-display text-[clamp(44px,7.5vw,78px)] font-black uppercase tracking-tight leading-[1.02] text-left max-w-full">
+            <h1 className="font-display text-[clamp(44px,7.5vw,76px)] font-black uppercase tracking-tight leading-[1.02] text-center max-w-full">
               <span className="block text-white animate-rise-1">Show up.</span>
-              <span className="block text-ember drop-shadow-[0_4px_28px_var(--ember-glow)] animate-rise-2">Tick it.</span>
-              <span className="block text-[#9A9A9A] font-bold animate-rise-3">Keep going.</span>
+              <span className="block text-ember drop-shadow-[0_4px_28px_var(--ember-glow)] animate-rise-2">
+                Tick it.
+              </span>
+              <span className="block text-[#8A92A3] font-bold animate-rise-3">
+                Keep going.
+              </span>
             </h1>
-            <p className="mb-5 sm:mb-6 mt-4 sm:mt-6 max-w-[42ch] text-[17px] sm:text-[20px] leading-relaxed text-muted-foreground text-left">
+
+            <p className="mb-6 mt-5 max-w-[48ch] text-[17px] sm:text-[20px] leading-relaxed text-[#A0A6B4]">
               A free, offline-first habit tracker. One small action a day, per habit. Check it off and watch your streak
-              grow - zero accounts, zero analytics, zero pressure.
+              grow — zero accounts, zero analytics, zero pressure.
             </p>
 
             {/* Quick trust & feature pills */}
-            <div className="flex flex-wrap items-center gap-2 mb-6 sm:mb-7 text-xs sm:text-[13px] font-semibold text-faint">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-7 text-xs sm:text-[13px] font-semibold text-faint">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318]/90 px-3.5 py-1 text-foreground/90">
                 <ShieldCheck className="size-3.5 text-ember" /> 100% Offline
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85">
-                <Smartphone className="size-3.5 text-ember" /> 4.2 MB APK
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318]/90 px-3.5 py-1 text-foreground/90">
+                <Smartphone className="size-3.5 text-ember" /> 4.2 MB Universal APK
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318]/90 px-3.5 py-1 text-foreground/90">
                 <Lock className="size-3.5 text-ember" /> Zero Tracking
               </span>
             </div>
 
-            {/* Action Tier 1: Primary Mobile & Desktop Executables */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            {/* Action Tier 1: Hero CTAs (Image 1 Upgrade) */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
               <DownloadApkButton
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-base sm:text-[16px] font-bold uppercase tracking-wider text-black transition-all hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shadow-lg"
-              />
+                className="btn-ember-glow inline-flex min-h-[50px] w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl px-7 py-3.5 text-base font-bold uppercase tracking-wider text-[#090A0D] shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember active:scale-95"
+              >
+                <span className="flex items-center gap-2">
+                  <Download className="size-4 stroke-[2.5]" />
+                  <span>Download Daily Spark APK</span>
+                  <span className="font-mono text-xs font-semibold opacity-90">({SITE.apk.size})</span>
+                </span>
+              </DownloadApkButton>
+
+              <Link
+                to="/app"
+                className="inline-flex min-h-[50px] w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#171A21] px-6 py-3.5 text-base font-semibold text-white transition-all hover:border-white/30 hover:bg-[#1E222B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember active:scale-95 shadow-sm"
+              >
+                <Globe2 className="size-4 text-ember" />
+                <span>Open Web App</span>
+              </Link>
+
               <a
                 href={SITE.repo}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#3A3A3A] bg-[#141414] px-6 py-3.5 text-base sm:text-[16px] font-semibold text-white transition-all hover:border-[#626262] hover:bg-[#1E1E1E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                className="hidden md:inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#111318] px-5 py-3.5 text-base font-semibold text-[#A0A6B4] transition-all hover:border-white/20 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
-                <span>View on GitHub</span>
+                <PixelGithub className="size-4" />
+                <span>GitHub</span>
               </a>
             </div>
 
             {/* Action Tier 2: Open Source Release Mirrors */}
-            <div className="mt-3 flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5 w-full">
               <a
                 href={SITE.desktop.windowsZip}
                 download="Daily-Spark-v1.0.1-windows.zip"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-white transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#111318]/70 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-[#A0A6B4] hover:text-white hover:border-white/20 transition-colors"
               >
+                <Monitor className="size-3.5 text-blue-400" />
                 <span>Windows (.zip)</span>
+              </a>
+              <a
+                href={SITE.desktop.linuxTarGz}
+                download="Daily-Spark-v1.0.1-linux.tar.gz"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#111318]/70 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-[#A0A6B4] hover:text-white hover:border-white/20 transition-colors"
+              >
+                <Monitor className="size-3.5 text-orange-400" />
+                <span>Linux (.tar.gz)</span>
               </a>
               <a
                 href={SITE.fdroid.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#1976D2]/60"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#111318]/70 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#1976D2]/60"
                 aria-label="View Daily Spark on F-Droid"
               >
                 <PixelFdroid className="size-3.5 shrink-0 text-[#1976D2]" />
                 <span>F-Droid</span>
-                <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded-full bg-[#1976D2]/20 text-[#64B5F6] border border-[#1976D2]/30">Pending</span>
+                <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded-full bg-[#1976D2]/20 text-[#64B5F6] border border-[#1976D2]/30">
+                  Pending
+                </span>
               </a>
               <a
                 href={SITE.gitlab.releases}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#FC6D26]/50"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-[#111318]/70 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#FC6D26]/50"
                 aria-label="View Daily Spark releases on GitLab"
               >
                 <PixelGitlab className="size-3.5 shrink-0 text-[#FC6D26]" />
                 <span>GitLab Releases</span>
               </a>
             </div>
-            <p className="mt-4 sm:mt-5 text-xs sm:text-[14px] text-faint text-left font-medium">Android 7.0 or superior · No account · No ads</p>
+
+            <p className="mt-4 text-xs sm:text-[14px] text-[#737B8C] font-medium">
+              Android 7.0+ Universal APK · PWA Installable · Windows &amp; Linux Portable · No account
+            </p>
           </div>
 
-          {/* LOCK A: Interactive Demo Phone */}
-          <div className="order-2 mt-6 sm:mt-0 flex min-w-0 justify-center md:order-2 w-full max-w-full">
-            <DemoPhone />
+          {/* LOCK A & Image 5: Interactive Device Showcase & Segmented Switcher */}
+          <div className="mt-12 sm:mt-16 w-full flex flex-col items-center">
+            {/* Segmented Switcher Pills (Image 5) */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#262A34] bg-[#111318] p-1.5 shadow-lg mb-8">
+              <button
+                type="button"
+                onClick={() => setPreviewMode("dual")}
+                aria-pressed={previewMode === "dual"}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-[13.5px] font-semibold transition-all",
+                  previewMode === "dual"
+                    ? "bg-[#1E222B] text-white border border-ember/40 shadow-sm"
+                    : "text-[#8A92A3] hover:text-white"
+                )}
+              >
+                <Monitor className="size-4 text-ember" />
+                <span>PC &amp; Mobile</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewMode("desktop")}
+                aria-pressed={previewMode === "desktop"}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-[13.5px] font-semibold transition-all",
+                  previewMode === "desktop"
+                    ? "bg-[#1E222B] text-white border border-ember/40 shadow-sm"
+                    : "text-[#8A92A3] hover:text-white"
+                )}
+              >
+                <Monitor className="size-4 text-ember" />
+                <span>PC Workspace</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewMode("mobile")}
+                aria-pressed={previewMode === "mobile"}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-[13.5px] font-semibold transition-all",
+                  previewMode === "mobile"
+                    ? "bg-[#1E222B] text-white border border-ember/40 shadow-sm"
+                    : "text-[#8A92A3] hover:text-white"
+                )}
+              >
+                <Smartphone className="size-4 text-ember" />
+                <span>Mobile Preview</span>
+              </button>
+            </div>
+
+            {/* Active Preview Showcase */}
+            <div className="relative w-full max-w-[1100px] flex justify-center items-center">
+              {previewMode === "dual" && (
+                <div className="relative w-full flex flex-col lg:flex-row items-center justify-center gap-8">
+                  <div className="w-full lg:w-[68%] shrink-0">
+                    <DesktopWorkspacePreview />
+                  </div>
+                  <div className="w-full lg:w-[32%] flex justify-center lg:-ml-12 lg:mt-6 z-20">
+                    <DemoPhone />
+                  </div>
+                </div>
+              )}
+              {previewMode === "desktop" && (
+                <div className="w-full flex justify-center">
+                  <DesktopWorkspacePreview />
+                </div>
+              )}
+              {previewMode === "mobile" && (
+                <div className="w-full flex justify-center py-4">
+                  <DemoPhone />
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
-        {/* What it does */}
-        <section id="features" className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_600px]">
-          <div className="mb-8 text-left">
-            <h2 className="font-display text-[32px] sm:text-[38px] md:text-[44px] font-bold uppercase tracking-wide text-white">What it does</h2>
-            <p className="mt-2 text-base sm:text-lg text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
+        {/* What it does (Image 2 Upgrade: Bento Capabilities) */}
+        <section
+          id="features"
+          className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_600px]"
+        >
+          <div className="mb-10 text-left">
+            <span className="font-mono text-xs font-bold tracking-wider uppercase text-ember">
+              Capabilities
+            </span>
+            <h2 className="mt-1 font-display text-[32px] sm:text-[38px] md:text-[44px] font-bold uppercase tracking-wide text-white">
+              What it does
+            </h2>
+            <p className="mt-2 text-base sm:text-lg text-[#A0A6B4]">
+              Honest, reliable tools designed to build lasting daily momentum.
+            </p>
           </div>
-          <div className="grid gap-x-12 grid-cols-1 md:grid-cols-2 w-full">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full">
             {FEATURES.map(({ icon: Icon, tag, title, body }) => (
               <article
                 key={title}
-                className="border-t border-[#262626] py-6 flex flex-col justify-between group transition-colors"
+                className="spotlight-card group flex flex-col justify-between rounded-2xl p-6 text-left transition-all hover:-translate-y-1"
               >
                 <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <h3 className="font-display text-[18px] sm:text-[19px] font-bold uppercase tracking-wide text-white">{title}</h3>
-                    <span className="text-xs font-semibold text-[#626262] uppercase tracking-wider">{tag}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="grid size-11 place-items-center rounded-xl border border-ember/25 bg-ember/10 text-ember transition-transform group-hover:scale-105">
+                      <Icon className="size-5" />
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-[#8A92A3] group-hover:text-ember group-hover:border-ember/30 transition-colors">
+                      {tag}
+                    </span>
                   </div>
-                  <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#9A9A9A]">{body}</p>
+                  <h3 className="font-display text-[18px] sm:text-[19px] font-bold text-white group-hover:text-ember transition-colors">
+                    {title}
+                  </h3>
+                  <p className="mt-2.5 text-[14px] leading-relaxed text-[#A0A6B4]">
+                    {body}
+                  </p>
                 </div>
               </article>
             ))}
           </div>
         </section>
+
 
         {/* LOCK B: Screens Carousel Parade */}
         <section id="screens" className="relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint] [content-visibility:auto] [contain-intrinsic-size:auto_700px]">
@@ -427,7 +557,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             <p className="mx-auto max-w-[52ch] text-base sm:text-lg text-muted-foreground">
               One calm habit tracker for your phone, browser, Windows, or Linux computer.
             </p>
-            <div className="mx-auto mb-7 mt-8 max-w-4xl text-left"><PlatformDownloadGrid compact /></div>
+            <div className="mx-auto mb-7 mt-8 max-w-5xl text-left"><PlatformDownloadGrid compact /></div>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <a

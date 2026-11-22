@@ -45,6 +45,7 @@ Daily Spark is an offline-first, local-first habit and streak tracker built with
 | 33 | 4-Tier Settings Hub & Live Search | Reorganized settings into 4 intuitive categories with real-time search filter, status preview badges, and 100% feature preservation | M7 | SETTINGS_REORG §S1 |
 | 34 | Codex Botanical Spark & Lucide Icons | Restored authentic Codex Botanical Spark brand mark across favicon, app header, and touch icons; mapped habit icons to modern open-source Lucide React icons; purged leftover pixel icon clutter | M7 | UX_RESET §U4 |
 | 35 | GymMane Design Architecture & Hardware Frame | Integrated GymMane-aligned deep obsidian canvas, metallic hardware device frame with physical side keys and dynamic island, 3-line animated display headline, dual high-contrast CTAs, and 2-column hairline feature list | M7 | UX_RESET §U5 |
+| 36 | Reference Design Components & Multi-Device Showcase | Upgraded Hero with glowing Ember CTA, segmented preview switcher (PC & Mobile, PC Workspace, Mobile Preview) with desktop window chrome, Bento Capabilities spotlight grid, aligned 4-column platform download cards, and 4-column structured footer with theme switcher & motion pause | M8 | UX_POLISH §U6 |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
@@ -56,6 +57,8 @@ Daily Spark is an offline-first, local-first habit and streak tracker built with
 | M5 | PWA, Desktop & Craft Polish | Features 21, 22, 23, 24, 25, 26: Enhanced manifest, service worker with update toast, desktop packaging scripts, Tauri 2 configuration, purple/cyan removal, 4.5:1 contrast, aria-labels | M1, M4 | DONE (Verified: 90/90 Tier 1, 90/90 Tier 2, 413/413 repo tests, build and desktop verified) |
 | M6 | Final Acceptance & Verification | Features 27, 28: Pass 100% of Dual-Track E2E tests (Tiers 1-4), Tier 5 adversarial coverage hardening, typecheck, lint, 140+ tests, build, and packaging verification | M1, M2, M3, M4, M5 | DONE (Verified: 413/413 tests, 0 TS errors, 0 ESLint warnings, production build passed, desktop packaging passed) |
 | M7 | UI/UX & Settings 100/100 Hardening | Features 29, 30, 31, 32, 33, 34, 35: Vector icon system, authentic Codex Botanical Spark mark, Lucide habit icons, GymMane design architecture & hardware device showcase, 1-tap starters, Web Audio tactile ticks, live a11y announcements, 4-tier Settings Hub with live search, 100/100 heuristic scores | M1-M6 | DONE (Verified: 450/450 tests, 0 TS errors, 0 ESLint warnings, impeccable clean, production build passed, GitHub Pages deployed) |
+| M8 | Reference Design & Component Architecture | Feature 36: Figma reference component upgrade, glowing ember CTA, Bento Spotlight Capabilities, aligned platform download cards, 4-column structured footer, and dual PC/Mobile workspace showcase | M7 | DONE (Verified: 452/452 tests, 0 TS errors, 0 ESLint warnings, production build passed, desktop packaging passed) |
+
 
 ## Interface Contracts
 
