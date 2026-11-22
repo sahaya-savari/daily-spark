@@ -11,11 +11,12 @@ No login. No ads. No tracking. Just you and your progress.
 [![Status](https://img.shields.io/badge/Status-Stable%20%26%20Offline--First-success?style=for-the-badge)](#core-principles)
 [![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](#installation)
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?logo=capacitor&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-450%2F450%20Passing-brightgreen?style=flat&logo=vitest)
 
 [Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Website](https://sahaya-savari.github.io/daily-spark/) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
 
@@ -202,6 +203,23 @@ Daily Spark uses **local storage only**. Your data never leaves your phone.
 
 ---
 
+### 11. Authentic Codex Botanical Spark Mark & Modern Lucide Icon System
+
+- 🌿 **Authentic Brand Mark:** Restored the handcrafted Codex Botanical Spark vector mark (`#EC894C` 4-point radiant diamond spark, `#BF7245` sprout stem, `#1C1D22` tile), eliminating AI-generated distorted graphics.
+- 🎯 **Modern Open-Source Icons:** 33 habit categories mapped directly to clean, accessible Lucide React vector SVGs, completely eliminating fuzzy bitmap icon clutter.
+- 🖤 **Quiet Obsidian Badge Containers:** Replaced arbitrary rainbow/candy icon badges in Settings with unified quiet obsidian containers and warm ember hover accents.
+
+---
+
+### 12. GymMane-Inspired Design Architecture & Hardware Device Showcase
+
+- 📱 **Precision Hardware Device Frame:** Realistic metallic gradient phone bezel (`Device`), dynamic island pill (`74px x 19px`), and tactile volume/power side keys with live interactive habit logging.
+- 🏛️ **Obsidian & Hairline Architecture:** Deep obsidian canvas (`#0A0908`), layered raised surfaces (`#141414` / `#1E1E1E`), architectural hairline dividers (`#262626`), and warm clay accents (`#D9A184`).
+- ⚡ **High-Contrast CTAs & Clean Feature Grid:** Dual high-contrast action buttons (solid white primary vs hairline ghost) and 2-column feature list with horizontal border-t dividers.
+- 🎞️ **Continuous Screens Carousel:** Preserved, interactive horizontal phone parade displaying real app screens (Today, Habits, New habit, Progress, Calendar, Settings).
+
+---
+
 ## What Daily Spark Does NOT Do
 
 These are intentionally missing to keep the app simple and calm:
@@ -329,17 +347,17 @@ Use the documented template below when restoring historical streaks.
    adb install app-debug.apk
    ```
 
-### Website
+### Website & Live Web Application
 
 The project site, [sahaya-savari.github.io/daily-spark/](https://sahaya-savari.github.io/daily-spark/),
-is the public page for Daily Spark. It explains what the app does, shows
-screenshots, links the privacy policy, and offers the APK download.
+is the public home for Daily Spark. It explains what the app does, showcases
+real app screens via an interactive hardware device frame, links the privacy policy,
+and offers direct APK downloads.
 
-The site does not run the habit tracker. A browser-based version is still in
-development and we will announce it when it ships.
+You can also run the full offline web application directly in your browser at
+[sahaya-savari.github.io/daily-spark/app](https://sahaya-savari.github.io/daily-spark/app) with 100% offline persistence.
 
-iOS is also planned but not yet available. Android is the only supported
-platform today.
+iOS is also planned. Android and offline Web are fully supported today.
 
 ---
 
@@ -349,13 +367,14 @@ platform today.
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18 + TypeScript |
+| Frontend | React 19 + TypeScript |
 | Native runtime | Capacitor (Android), Java 17 |
-| Build tool | Vite |
-| Testing | Vitest |
-| UI | Tailwind CSS + shadcn/ui |
-| State management | React Context API |
-| Storage | LocalStorage + JSON persistence (offline-first) |
+| Build tool | Vite 8 + Rolldown |
+| Testing | Vitest (36 test suites, 450 tests) |
+| UI & Icons | Tailwind CSS v4 + Radix UI + Lucide React |
+| Design Architecture | GymMane Obsidian Architecture + Botanical Spark Vector Mark |
+| State management | Reactive Local Storage Store (offline-first) |
+| Audio & Haptics | Web Audio API (tactile ticks) + Capacitor Haptics |
 | Notifications | Capacitor Push Notifications API (Android) |
 | File I/O | Capacitor Filesystem API |
 
