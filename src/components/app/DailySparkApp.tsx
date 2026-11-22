@@ -145,7 +145,13 @@ async function triggerLightHaptic() {
   await hapticEngine.tickTap();
 }
 
-export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {}) {
+export function DailySparkApp({
+  embedded = false,
+  initialTab = 0,
+}: {
+  embedded?: boolean;
+  initialTab?: number;
+} = {}) {
   const { habits, collections, settings } = useHabitStore();
   const { notes } = useNotesStore();
   const { isLocked, isEnabled: isLockEnabled, isBiometricEnabled } = useAppLockStore();
@@ -174,11 +180,12 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   }, []);
 
   useEffect(() => {
+    if (embedded) return;
     const warmth = settings.solarCircadianGlide !== false ? calculateCircadianWarmth() : 0;
     applyThemeToDocument(settings.themeMode || getStoredTheme(), warmth);
-  }, [settings.themeMode, settings.solarCircadianGlide]);
+  }, [settings.themeMode, settings.solarCircadianGlide, embedded]);
 
-  const [activeTab, setActiveTab] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<number>(initialTab);
   const [subTab, setSubTab] = useState<"habits" | "collections" | "notes">("habits");
   const [progressSubTab, setProgressSubTab] = useState<"overview" | "calendar">("overview");
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);

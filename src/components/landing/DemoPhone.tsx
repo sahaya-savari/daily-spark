@@ -1079,7 +1079,9 @@ export function DemoPhone() {
       onPointerLeave={() => setTilt({ x: 0, y: 0 })}
     >
       <Device tilt={tilt}>
-        <DailySparkApp embedded />
+        <div className="theme-minimal w-full h-full">
+          <DailySparkApp embedded initialTab={0} />
+        </div>
       </Device>
       <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
         <span className="text-ember font-bold">Interactive live app.</span> Tap habits, start focus timer, track laps, or check progress. 100% offline.

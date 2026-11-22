@@ -181,7 +181,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <Link
             to="/download"
-            className="inline-flex items-center gap-1.5 rounded-full border border-ember/30 bg-ember/15 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-ember transition-all hover:bg-ember/25 hover:border-ember/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#EC894C]/30 bg-[#EC894C]/15 px-3.5 py-2 text-xs sm:text-[13px] font-bold text-[#EC894C] transition-all hover:bg-[#EC894C]/25 hover:border-[#EC894C]/50 active:scale-95 whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
           >
             <Download aria-hidden="true" className="size-3.5" />
             <span>Get app</span>
