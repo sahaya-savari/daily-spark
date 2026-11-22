@@ -184,6 +184,24 @@ Daily Spark uses **local storage only**. Your data never leaves your phone.
 
 ---
 
+### 9. Tactile Feedback & Procedural Web Audio
+
+- 📳 **Mobile Haptics:** Native haptic pulses via `@capacitor/haptics` on Android.
+- 🔊 **Desktop Tactile Ticks:** Synthesized 16ms damped sine wave ($720\text{Hz} \to 140\text{Hz}$) via the Web Audio API when vibration hardware is absent, providing physical clicker feedback.
+- ♿ **Live Accessibility Announcements:** Dynamic `aria-live="polite"` announcements for screen readers when habits are completed or streaks update.
+
+---
+
+### 10. Reorganized 4-Tier Settings Hub
+
+- 🔍 **Live Search Filter:** Instant keyword filter across all settings without removing any configuration options.
+- 🎨 **Appearance & Style:** Quiet Obsidian (`#0E0F12`) background, dynamic accents, contrast mode, and sound toggle.
+- ⚙️ **Routine Preferences:** Rollover time (e.g. 3 AM night owl), weekend rest, vacation mode, and reminder settings.
+- 🛡️ **Data & Sovereignty:** 5-format export (JSON, CSV, Markdown, Text, Backup inspection), sandbox restore preview, app lock, and reset.
+- ℹ️ **About & Community:** Version details, privacy promise, license, and community links.
+
+---
+
 ## What Daily Spark Does NOT Do
 
 These are intentionally missing to keep the app simple and calm:
@@ -219,11 +237,11 @@ For legal details, see → [Terms](./TERMS.md)
 
 | Screen | What it does |
 |---|---|
-| **Today** | Daily check-in list, 1-tap completions, today focus mode, and next-up card. |
+| **Today** | Daily check-in list, 1-tap completions, 1-tap starter pack, today focus mode, and next-up card. |
 | **Habits & Journal** | Manage habits, search & filter, bulk actions, reordering, and offline journal notes. |
 | **Progress** | Consistency percentages, 6-month activity heatmap, and calm milestone badges. |
 | **Calendar** | Monthly completion history, day ratios, and historical review. |
-| **Settings** | Backup & restore, CSV/Markdown export, app PIN lock, gentle reminders, and themes. |
+| **Settings** | Reorganized 4-tier hub (Appearance, Routine, Data Sovereignty, About) with live search and 100% feature preservation. |
 
 ---
 

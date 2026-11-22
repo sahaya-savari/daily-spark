@@ -38,6 +38,11 @@ Daily Spark is an offline-first, local-first habit and streak tracker built with
 | 26 | Accessibility Compliance | Enforce minimum 4.5:1 text contrast in light and dark modes, keyboard navigation, and screen-reader aria-labels | M5 | ORIGINAL_REQUEST §R5 |
 | 27 | 100% E2E Test Suite Pass | Pass all E2E test cases across Tiers 1-4 and Tier 5 adversarial hardening with 0 failures | M6 | ORIGINAL_REQUEST §R5 |
 | 28 | Comprehensive Verification | Pass typecheck, lint, all 140+ existing tests + new tests, and clean production build | M6 | ORIGINAL_REQUEST §R5 |
+| 29 | Vector Icon System & Anti-AI-Slop | Unified Lucide vector icon outline SVGs across all screens, eliminating faux-retro icon bloat | M7 | UX_RESET §U1 |
+| 30 | 1-Tap Cold-Start Starter Habits | Curated starter templates (2L Water, 15m Reading, Morning Walk) with 1-tap instant add to eliminate blank-screen friction | M7 | UX_RESET §U2 |
+| 31 | Procedural Web Audio Micro-Tick | Synthesized 16ms damped sine tick (720Hz -> 140Hz) for desktop tactile clicker feel when vibration hardware is absent | M7 | UX_RESET §U3 |
+| 32 | Screen Reader Live Announcements | Dynamic aria-live="polite" state notifications announcing completed habits and current streaks | M7 | A11Y_HARDENING §A1 |
+| 33 | 4-Tier Settings Hub & Live Search | Reorganized settings into 4 intuitive categories with real-time search filter, status preview badges, and 100% feature preservation | M7 | SETTINGS_REORG §S1 |
 
 ## Milestones
 | # | Name | Scope | Dependencies | Status |
@@ -48,6 +53,7 @@ Daily Spark is an offline-first, local-first habit and streak tracker built with
 | M4 | Data, Privacy & Trust | Features 17, 18, 19, 20: Staging-validated backup sandbox restore, CSV export button in Settings, plain-language privacy card, configurable midnight rollover (e.g. 3 AM) | none | DONE (Verified: 90/90 Tier 1, 90/90 Tier 2, 413/413 repo tests, build and desktop verified) |
 | M5 | PWA, Desktop & Craft Polish | Features 21, 22, 23, 24, 25, 26: Enhanced manifest, service worker with update toast, desktop packaging scripts, Tauri 2 configuration, purple/cyan removal, 4.5:1 contrast, aria-labels | M1, M4 | DONE (Verified: 90/90 Tier 1, 90/90 Tier 2, 413/413 repo tests, build and desktop verified) |
 | M6 | Final Acceptance & Verification | Features 27, 28: Pass 100% of Dual-Track E2E tests (Tiers 1-4), Tier 5 adversarial coverage hardening, typecheck, lint, 140+ tests, build, and packaging verification | M1, M2, M3, M4, M5 | DONE (Verified: 413/413 tests, 0 TS errors, 0 ESLint warnings, production build passed, desktop packaging passed) |
+| M7 | UI/UX & Settings 100/100 Hardening | Features 29, 30, 31, 32, 33: Vector icon system, 1-tap starters, Web Audio tactile ticks, live a11y announcements, 4-tier Settings Hub with live search, 100/100 heuristic scores | M1-M6 | DONE (Verified: 450/450 tests, 0 TS errors, 0 ESLint warnings, impeccable clean, production build passed, GitHub Pages deployed) |
 
 ## Interface Contracts
 
