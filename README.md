@@ -18,7 +18,7 @@ No login. No ads. No tracking. Just you and your progress.
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
 ![Tests](https://img.shields.io/badge/Tests-450%2F450%20Passing-brightgreen?style=flat&logo=vitest)
 
-[Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Website](https://sahaya-savari.github.io/daily-spark/) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
+[Download APK](https://github.com/sahaya-savari/daily-spark/releases) · [Website](https://dailyspark.sahayasavari.dev/) · [FAQ](./FAQ.md) · [Report an Issue](https://github.com/sahaya-savari/daily-spark/issues)
 
 </div>
 
@@ -349,13 +349,13 @@ Use the documented template below when restoring historical streaks.
 
 ### Website & Live Web Application
 
-The project site, [sahaya-savari.github.io/daily-spark/](https://sahaya-savari.github.io/daily-spark/),
+The project site, [dailyspark.sahayasavari.dev](https://dailyspark.sahayasavari.dev/),
 is the public home for Daily Spark. It explains what the app does, showcases
 real app screens via an interactive hardware device frame, links the privacy policy,
 and offers direct APK downloads.
 
 You can also run the full offline web application directly in your browser at
-[sahaya-savari.github.io/daily-spark/app](https://sahaya-savari.github.io/daily-spark/app) with 100% offline persistence.
+[dailyspark.sahayasavari.dev/app](https://dailyspark.sahayasavari.dev/app) with 100% offline persistence.
 
 iOS is also planned. Android and offline Web are fully supported today.
 

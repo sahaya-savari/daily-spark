@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { SITE } from "@/lib/site";
 
 export function registerServiceWorker() {
   if (typeof window !== "undefined" && "serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
+      const swUrl = `${SITE.basePath}sw.js`;
+      navigator.serviceWorker.register(swUrl, { scope: SITE.basePath }).catch(() => {});
     });
   }
 }

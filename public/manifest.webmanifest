@@ -1,12 +1,12 @@
 {
-  "id": "/daily-spark/",
+  "id": "/",
   "name": "Daily Spark",
   "short_name": "Daily Spark",
   "description": "A focused, offline-first daily streak tracker. Create it, tick it, keep going.",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "/daily-spark/",
-  "scope": "/daily-spark/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
@@ -18,20 +18,20 @@
       "name": "Add Habit",
       "short_name": "Add",
       "description": "Quickly create a new habit",
-      "url": "/daily-spark/?action=add",
-      "icons": [{ "src": "/daily-spark/icon-192.png", "sizes": "192x192" }]
+      "url": "/?action=add",
+      "icons": [{ "src": "/icon-192x192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     },
     {
       "name": "Today's Habits",
       "short_name": "Today",
       "description": "View habits due today",
-      "url": "/daily-spark/?tab=today",
-      "icons": [{ "src": "/daily-spark/icon-192.png", "sizes": "192x192" }]
+      "url": "/?tab=today",
+      "icons": [{ "src": "/icon-192x192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
     }
   ],
   "icons": [
-    { "src": "/daily-spark/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/daily-spark/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/daily-spark/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "/icon-192x192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-512x512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }

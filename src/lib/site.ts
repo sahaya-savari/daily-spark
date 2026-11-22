@@ -10,16 +10,18 @@
  *   site can never advertise a build that does not exist.
  */
 
-const origin = typeof window !== "undefined" ? window.location.origin : "https://sahaya-savari.gitlab.io";
+const origin = typeof window !== "undefined"
+  ? window.location.origin
+  : (typeof import.meta.env?.VITE_SITE_ORIGIN === "string" ? import.meta.env.VITE_SITE_ORIGIN : "https://dailyspark.sahayasavari.dev");
 // Dynamic base path support for both root unique domains and subpath deployments.
-const rawBase = typeof import.meta.env?.BASE_URL === "string" ? import.meta.env.BASE_URL : "/daily-spark/";
+const rawBase = typeof import.meta.env?.BASE_URL === "string" ? import.meta.env.BASE_URL : "/";
 const basePath = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 
 export const SITE = {
   name: "Daily Spark",
   // Canonical site root, without a trailing slash.
   url: `${origin}${basePath.slice(0, -1)}`,
-  // Host-absolute base path ("/daily-spark/"). Use this for asset hrefs: it
+  // Host-absolute base path ("/" or "/daily-spark/"). Use this for asset hrefs: it
   // resolves correctly from any route depth, in dev and in production.
   basePath,
   repo: "https://github.com/sahaya-savari/daily-spark",
@@ -56,7 +58,7 @@ export const SITE = {
     githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
     filename: "Daily-Spark-v1.0.1.apk",
     // Exact universal release APK size: 4,442,803 bytes (~4.2 MB).
-    size: "4.2 MB",
+    size: "4.1 MB",
   },
   desktop: {
     windowsZip: `${basePath}Daily-Spark-v1.0.1-windows.zip`,

@@ -38,6 +38,9 @@ jobs:
         run: npm run typecheck
 
       - name: Build static web app
+        env:
+          VITE_BASE_PATH: '/'
+          VITE_SITE_ORIGIN: 'https://dailyspark.sahayasavari.dev'
         run: npm run build
 
       - name: Setup Pages

@@ -953,7 +953,7 @@ describe("Tier 2: Boundary Value Analysis & Edge Cases", () => {
     it("17.2 validates manifest start_url is relative and points to base path", () => {
       const manifestPath = path.resolve(process.cwd(), "public/manifest.webmanifest");
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
-      expect(manifest.start_url).toMatch(/^\/.*\/$/);
+      expect(manifest.start_url).toMatch(/^(\/|\/.*\/)$/);
     });
 
     it("17.3 verifies manifest theme_color and background_color are valid hex strings", () => {

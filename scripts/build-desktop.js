@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
 const distDir = path.join(rootDir, "dist");
 const desktopOutputDir = path.join(rootDir, "dist-desktop");
+const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, "package.json"), "utf-8"));
 
 console.log("=== Daily Spark Standalone Desktop Packaging Pipeline ===");
 
@@ -23,7 +24,7 @@ if (fs.existsSync(desktopOutputDir)) {
 }
 fs.mkdirSync(desktopOutputDir, { recursive: true });
 
-const version = "1.0.1";
+const version = packageJson.version;
 const windowsDir = path.join(desktopOutputDir, `Daily-Spark-${version}-windows`);
 const linuxDir = path.join(desktopOutputDir, `Daily-Spark-${version}-linux`);
 
@@ -34,6 +35,7 @@ fs.mkdirSync(linuxDir, { recursive: true });
 function copyFolderSync(from, to) {
   fs.mkdirSync(to, { recursive: true });
   fs.readdirSync(from).forEach((element) => {
+    if (/^Daily-Spark-v.*\.(apk|exe|zip|tar\.gz)$/i.test(element)) return;
     const fromPath = path.join(from, element);
     const toPath = path.join(to, element);
     if (fs.lstatSync(fromPath).isDirectory()) {
@@ -46,7 +48,7 @@ function copyFolderSync(from, to) {
 
 console.log("Bundling production web assets into desktop runners...");
 copyFolderSync(distDir, path.join(windowsDir, "resources", "app"));
-copyFolderSync(distDir, path.join(linuxDir, "resources", "app"));
+copyFolderSync(distDir, path.join(linuxDir, "resources", "daily-spark"));
 
 // -------------------------------------------------------------
 // WINDOWS DESKTOP PACKAGE
@@ -154,27 +156,25 @@ namespace DailySpark
                 }
             });
 
-            // Native Application Window
-            Form form = new Form();
-            form.Text = "Daily Spark - Calm, Offline Habit Tracker";
-            form.Size = new Size(1180, 820);
-            form.StartPosition = FormStartPosition.CenterScreen;
-            form.BackColor = Color.FromArgb(23, 23, 29);
-
-            WebBrowser browser = new WebBrowser();
-            browser.Dock = DockStyle.Fill;
-            browser.IsWebBrowserContextMenuEnabled = false;
-            browser.WebBrowserShortcutsEnabled = true;
-            browser.ScriptErrorsSuppressed = true;
-
-            form.Controls.Add(browser);
-            form.FormClosing += (s, ev) =>
+            // Open in the user's modern default browser. A tray icon owns the
+            // local-only server and provides an explicit, discoverable exit.
+            NotifyIcon tray = new NotifyIcon();
+            tray.Icon = SystemIcons.Application;
+            tray.Text = "Daily Spark";
+            tray.Visible = true;
+            ContextMenu menu = new ContextMenu();
+            menu.MenuItems.Add("Open Daily Spark", (s, e) => Process.Start(prefix + "daily-spark/app"));
+            menu.MenuItems.Add("Exit", (s, e) =>
             {
                 try { listener.Stop(); } catch { }
-            };
-
-            browser.Navigate(prefix + "daily-spark/");
-            Application.Run(form);
+                tray.Visible = false;
+                Application.Exit();
+            });
+            tray.ContextMenu = menu;
+            tray.ShowBalloonTip(2500, "Daily Spark is ready", "Running privately in your default browser.", ToolTipIcon.Info);
+            Process.Start(prefix + "daily-spark/app");
+            Application.ApplicationExit += (s, e) => { try { listener.Stop(); } catch { } tray.Dispose(); };
+            Application.Run();
         }
     }
 }
@@ -221,15 +221,30 @@ console.log("Building Linux Standalone Package (.tar.gz)...");
 // Linux shell launcher
 const linuxSh = `#!/usr/bin/env bash
 SCRIPT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")" && pwd)"
-APP_DIR="$SCRIPT_DIR/resources/app"
+SERVE_DIR="$SCRIPT_DIR/resources"
+PORT=8765
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "Daily Spark needs Python 3 to run its local offline server."
+  echo "You can also use the web app at https://dailyspark.sahayasavari.dev/app"
+  exit 1
+fi
+
+python3 -m http.server "$PORT" --bind 127.0.0.1 --directory "$SERVE_DIR" >/tmp/daily-spark.log 2>&1 &
+SERVER_PID=$!
+trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT INT TERM
+sleep 1
+APP_URL="http://127.0.0.1:$PORT/daily-spark/app"
 
 if command -v xdg-open >/dev/null 2>&1; then
-  xdg-open "$APP_DIR/index.html"
+  xdg-open "$APP_URL"
 elif command -v sensible-browser >/dev/null 2>&1; then
-  sensible-browser "$APP_DIR/index.html"
+  sensible-browser "$APP_URL"
 else
-  firefox "$APP_DIR/index.html" || google-chrome "$APP_DIR/index.html" || chromium-browser "$APP_DIR/index.html"
+  firefox "$APP_URL" || google-chrome "$APP_URL" || chromium-browser "$APP_URL"
 fi
+
+wait "$SERVER_PID"
 `;
 const shPath = path.join(linuxDir, "daily-spark.sh");
 fs.writeFileSync(shPath, linuxSh, { encoding: "utf-8", mode: 0o755 });

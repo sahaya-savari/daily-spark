@@ -6,7 +6,9 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   const isCapacitor = mode === 'capacitor';
-  const base = process.env.VITE_BASE_PATH ?? (isCapacitor ? './' : '/daily-spark/');
+  // Capacitor Android uses './', GitLab Pages uses '/daily-spark/', GitHub Pages / root custom domain uses '/'
+  const defaultBase = isCapacitor ? './' : (process.env.GITLAB_CI ? '/daily-spark/' : '/');
+  const base = process.env.VITE_BASE_PATH ?? defaultBase;
 
   return {
     base,

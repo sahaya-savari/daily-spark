@@ -21,9 +21,9 @@ const notFoundHtmlPath = path.join(dist, '404.html');
 const ogCardSource = path.join(dist, 'og-card.html');
 
 // Keep in sync with `base` in vite.config.ts and SITE.basePath in src/lib/site.ts.
-const BASE_PATH = process.env.VITE_BASE_PATH ?? '/daily-spark/';
-const SITE_ORIGIN = process.env.VITE_SITE_ORIGIN ?? 'https://sahaya-savari.gitlab.io';
-const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}`;
+const BASE_PATH = process.env.VITE_BASE_PATH ?? (process.env.GITLAB_CI ? '/daily-spark/' : '/');
+const SITE_ORIGIN = process.env.VITE_SITE_ORIGIN ?? (process.env.GITLAB_CI ? 'https://sahaya-savari.gitlab.io' : 'https://dailyspark.sahayasavari.dev');
+const SITE_URL = `${SITE_ORIGIN}${BASE_PATH.endsWith('/') ? BASE_PATH : `${BASE_PATH}/`}`;
 
 const SEO_BLOCK = /<!--seo:start-->[\s\S]*?<!--seo:end-->/;
 
@@ -152,9 +152,13 @@ function renderRoute(template, route) {
       'index.html is missing the <!--seo:start--> / <!--seo:end--> block; refusing to emit generic per-route heads.',
     );
   }
-  return absolutizeAssets(
+  let rendered = absolutizeAssets(
     template.replace(SEO_BLOCK, `<!--seo:start-->\n${seoBlock(route)}\n    <!--seo:end-->`),
   );
+  if (SITE_URL !== 'https://dailyspark.sahayasavari.dev/') {
+    rendered = rendered.replace(/https:\/\/dailyspark\.sahayasavari\.dev\//g, SITE_URL);
+  }
+  return rendered;
 }
 
 if (!fs.existsSync(indexHtmlPath)) {
@@ -188,6 +192,57 @@ for (const [route, dir] of Object.entries(ROUTE_DIRS)) {
 
 fs.writeFileSync(indexHtmlPath, renderRoute(template, ROUTES['/']));
 fs.writeFileSync(notFoundHtmlPath, renderRoute(template, ROUTES['/404']));
+
+// Synchronize PWA manifest for subpath environments (e.g. GitLab Pages)
+const manifestPath = path.join(dist, 'manifest.webmanifest');
+if (fs.existsSync(manifestPath) && BASE_PATH !== '/') {
+  const prefix = BASE_PATH.endsWith('/') ? BASE_PATH : `${BASE_PATH}/`;
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  manifest.id = prefix;
+  manifest.start_url = prefix;
+  manifest.scope = prefix;
+  if (Array.isArray(manifest.shortcuts)) {
+    manifest.shortcuts.forEach((sc) => {
+      if (sc.url) sc.url = sc.url.replace(/^\//, prefix);
+      if (Array.isArray(sc.icons)) {
+        sc.icons.forEach((ic) => {
+          if (ic.src) ic.src = ic.src.replace(/^\//, prefix);
+        });
+      }
+    });
+  }
+  if (Array.isArray(manifest.icons)) {
+    manifest.icons.forEach((ic) => {
+      if (ic.src) ic.src = ic.src.replace(/^\//, prefix);
+    });
+  }
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log(`✓ Synchronized dist/manifest.webmanifest with base path ${prefix}`);
+}
+
+// Synchronize sitemap.xml and robots.txt if building for non-custom-domain
+const sitemapPath = path.join(dist, 'sitemap.xml');
+if (fs.existsSync(sitemapPath) && SITE_URL !== 'https://dailyspark.sahayasavari.dev/') {
+  let sitemapContent = fs.readFileSync(sitemapPath, 'utf8');
+  sitemapContent = sitemapContent.replace(/https:\/\/dailyspark\.sahayasavari\.dev\//g, SITE_URL);
+  fs.writeFileSync(sitemapPath, sitemapContent);
+  console.log(`✓ Synchronized dist/sitemap.xml with origin ${SITE_URL}`);
+}
+
+const robotsPath = path.join(dist, 'robots.txt');
+if (fs.existsSync(robotsPath) && SITE_URL !== 'https://dailyspark.sahayasavari.dev/') {
+  let robotsContent = fs.readFileSync(robotsPath, 'utf8');
+  robotsContent = robotsContent.replace(/https:\/\/dailyspark\.sahayasavari\.dev\//g, SITE_URL);
+  fs.writeFileSync(robotsPath, robotsContent);
+  console.log(`✓ Synchronized dist/robots.txt with sitemap ${SITE_URL}sitemap.xml`);
+}
+
+// Ensure dist/CNAME is present for GitHub Pages deployment
+const cnameDist = path.join(dist, 'CNAME');
+if (!fs.existsSync(cnameDist) && !process.env.GITLAB_CI) {
+  fs.writeFileSync(cnameDist, 'dailyspark.sahayasavari.dev\n', 'utf8');
+  console.log('✓ Ensured dist/CNAME exists for GitHub Pages custom domain');
+}
 
 console.log(`✓ Wrote per-route static heads for: ${Object.keys(ROUTE_DIRS).join(', ')}`);
 console.log('✓ Created dist/404.html (noindex, no canonical) for GitHub Pages SPA routing');

@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://sahaya-savari.github.io/daily-spark/sitemap.xml
+Sitemap: https://dailyspark.sahayasavari.dev/sitemap.xml

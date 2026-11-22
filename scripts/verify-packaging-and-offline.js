@@ -33,7 +33,7 @@ if (fs.existsSync(offlineHtmlPath)) {
   const content = fs.readFileSync(offlineHtmlPath, "utf-8");
   assert(content.includes("<title>Offline - Daily Spark</title>"), "Contains <title>Offline - Daily Spark</title>");
   assert(content.includes('<meta name="robots" content="noindex" />'), "Contains <meta name=\"robots\" content=\"noindex\" />");
-  const expectedBase = process.env.VITE_BASE_PATH ?? '/daily-spark/';
+  const expectedBase = process.env.VITE_BASE_PATH ?? (process.env.GITLAB_CI ? '/daily-spark/' : '/');
   assert(content.includes(expectedBase), `Contains host-absolute ${expectedBase} asset paths`);
 }
 

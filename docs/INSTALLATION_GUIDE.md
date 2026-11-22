@@ -7,7 +7,7 @@ Daily Spark is a calm, 100% offline-first habit tracker available across **Andro
 ## 🎯 Android Installation Options
 
 ### Option 1: Direct APK Download (Fastest)
-1. Download `Daily-Spark-v1.0.1.apk` (4.2 MB) from the [official website](https://sahaya-savari.github.io/daily-spark/download) or [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases/latest).
+1. Download `Daily-Spark-v1.0.1.apk` (4.2 MB) from the [official website](https://dailyspark.sahayasavari.dev/download) or [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases/latest).
 2. Open the downloaded `.apk` on your Android device.
 3. If prompted, toggle **"Allow from this source"** for your browser.
 4. Tap **"Install"**. All your data stays 100% private on your device.
@@ -33,12 +33,12 @@ Daily Spark provides a reproducible F-Droid recipe in the repository:
 Daily Spark is engineered as a fully installable, offline-first Progressive Web Application (PWA):
 
 ### Windows (Edge, Chrome, Brave)
-1. Visit [Daily Spark Web](https://sahaya-savari.github.io/daily-spark/) in your browser.
+1. Visit [Daily Spark Web](https://dailyspark.sahayasavari.dev/) in your browser.
 2. Click the **Install** icon in the address bar (or menu `...` → **Apps** → **Install Daily Spark**).
 3. Daily Spark installs as a standalone native Windows desktop application with Start Menu, Taskbar pinning, and offline storage.
 
 ### Linux (Chrome, Chromium, Brave)
-1. Open the [Daily Spark Web App](https://sahaya-savari.github.io/daily-spark/) in Chromium / Chrome.
+1. Open the [Daily Spark Web App](https://dailyspark.sahayasavari.dev/) in Chromium / Chrome.
 2. In the browser menu, select **Install Daily Spark** (or **Save and Share** → **Install page as app**).
 3. The app is added to your desktop application launcher (`.desktop` entry) and runs isolated without browser address bars.
 

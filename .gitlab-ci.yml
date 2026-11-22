@@ -23,7 +23,7 @@ pages:
   script:
     - npm ci --cache .npm --prefer-offline || npm install --cache .npm --prefer-offline
     - npm run typecheck
-    - npm run build
+    - VITE_BASE_PATH=/daily-spark/ VITE_SITE_ORIGIN=https://sahaya-savari.gitlab.io npm run build
     - |
       if [ -n "$CI_JOB_TOKEN" ]; then
         echo "Uploading release packages to GitLab Package Registry..."
