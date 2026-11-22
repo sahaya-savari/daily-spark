@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import {
   PixelSmartphone,
-  PixelPalette,
   PixelTune,
   PixelStorage,
   PixelHeart,
@@ -69,7 +68,6 @@ export interface ModernSettingsViewProps {
 
 type ActiveSection =
   | "appearance"
-  | "appStyle"
   | "preferences"
   | "data"
   | "support"
@@ -267,11 +265,11 @@ export function ModernSettingsView({
       {/* Right Column (Settings Sections on Desktop) */}
       <div className={cn("space-y-4", !embedded && "lg:col-span-7 xl:col-span-8")}>
 
-      {/* 2. Isolated Card: App style */}
+      {/* 2. Isolated Card: complete visual preset */}
       <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden">
         <button
           type="button"
-          onClick={() => setActiveSection("appStyle")}
+          onClick={() => setActiveSection("appearance")}
           className="flex w-full items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
         >
           <div className="flex items-center gap-3.5">
@@ -280,10 +278,10 @@ export function ModernSettingsView({
             </span>
             <div>
               <span className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground block">
-                App style
+                Visual identity
               </span>
               <span className="font-sans text-xs text-muted-foreground">
-                Typography, density, and icons
+                Complete theme, background, type and icons
               </span>
             </div>
           </div>
@@ -298,28 +296,6 @@ export function ModernSettingsView({
 
       {/* 3. Connected Grouped Card: Core Settings */}
       <section className="rounded-2xl sm:rounded-3xl border border-white/10 bg-surface/90 backdrop-blur-md shadow-sm overflow-hidden divide-y divide-white/5">
-        {/* Appearance Row */}
-        <button
-          type="button"
-          onClick={() => setActiveSection("appearance")}
-          className="flex w-full items-center justify-between p-4 sm:p-4.5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-        >
-          <div className="flex items-center gap-3.5">
-            <span className="grid size-9 sm:size-10 place-items-center rounded-xl bg-white/[0.06] text-foreground/80">
-              <PixelPalette className="size-5 text-ember" />
-            </span>
-            <div>
-              <p className="font-sans text-[15px] sm:text-[16px] font-semibold text-foreground leading-tight">
-                Appearance
-              </p>
-              <p className="font-sans text-xs sm:text-[13px] text-muted-foreground mt-0.5">
-                Theme, accent and circadian glide
-              </p>
-            </div>
-          </div>
-          <PixelChevronRight className="size-4 text-faint shrink-0" />
-        </button>
-
         {/* Preferences Row */}
         <button
           type="button"
@@ -665,27 +641,20 @@ export function ModernSettingsView({
         </DialogContent>
       </Dialog>
 
-      {/* MODAL: Appearance & App Style Sub-Screen */}
+      {/* MODAL: complete visual preset */}
       <Dialog
-        open={activeSection === "appearance" || activeSection === "appStyle"}
+        open={activeSection === "appearance"}
         onOpenChange={(open) => !open && setActiveSection(null)}
       >
         <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-display text-xl font-bold">
-              {activeSection === "appStyle" ? "App Style" : "Appearance"}
-            </DialogTitle>
+            <DialogTitle className="font-display text-xl font-bold">Visual identity</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              {activeSection === "appStyle"
-                ? "Configure typography, density, and icon preferences."
-                : "Select your theme palette and circadian night warmth glide."}
+              Select a complete theme preset and optional Expressive atmosphere.
             </DialogDescription>
           </DialogHeader>
           <div className="pt-2">
-            <AppearanceSwitcher
-              key={activeSection}
-              defaultTab={activeSection === "appStyle" ? "style" : "appearance"}
-            />
+            <AppearanceSwitcher key={activeSection} />
           </div>
         </DialogContent>
       </Dialog>

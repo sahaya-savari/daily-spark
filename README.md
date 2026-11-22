@@ -296,6 +296,12 @@ Use the documented template below when restoring historical streaks.
 
 ## Installation
 
+### From F-Droid
+
+Daily Spark is submitted to [F-Droid](https://f-droid.org/) via Merge Request [!56367](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/56367). Once indexed, install directly via the official F-Droid client.
+
+Detailed packaging notes, recipes, and CI configurations are documented in [FDROID_SUBMISSION_AND_BUILD_REFERENCE.md](./FDROID_SUBMISSION_AND_BUILD_REFERENCE.md).
+
 ### From GitHub Releases
 
 1. Go to [GitHub Releases](https://github.com/sahaya-savari/daily-spark/releases)

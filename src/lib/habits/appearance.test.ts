@@ -14,7 +14,7 @@ describe("appearance.ts", () => {
     document.documentElement.removeAttribute("style");
   });
 
-  it("defaults to minimal (warm terracotta brown) theme if none is stored", () => {
+  it("defaults to the clean minimal preset if none is stored", () => {
     expect(getStoredTheme()).toBe("minimal");
   });
 
@@ -34,44 +34,33 @@ describe("appearance.ts", () => {
     expect(document.documentElement.classList.contains("theme-minimal")).toBe(true);
     expect(document.documentElement.style.getPropertyValue("--radius")).toBe(THEME_CONFIGS.minimal.radius);
     expect(document.documentElement.style.getPropertyValue("--font-display")).toBe(THEME_CONFIGS.minimal.fontDisplay);
-    expect(document.documentElement.style.getPropertyValue("--background")).toBe("#000000");
+    expect(document.documentElement.style.getPropertyValue("--background")).toBe(THEME_CONFIGS.minimal.bg);
+    expect(document.documentElement.classList.contains("density-airy")).toBe(true);
+    expect(document.documentElement.classList.contains("icons-line")).toBe(true);
     expect(document.documentElement.style.getPropertyValue("--ember-glow")).toBe(THEME_CONFIGS.minimal.glow);
     expect(document.documentElement.style.getPropertyValue("--ember-soft")).toBe(THEME_CONFIGS.minimal.soft);
 
-    applyThemeToDocument("expressive", 0.75);
+    applyThemeToDocument("expressive", 0.75, "cozy-room-comet-sky");
     expect(document.documentElement.classList.contains("theme-expressive")).toBe(true);
     expect(document.documentElement.classList.contains("theme-minimal")).toBe(false);
     expect(document.documentElement.style.getPropertyValue("--circadian-warmth")).toBe("0.750");
-    expect(document.documentElement.style.getPropertyValue("--heat-0")).toBe("rgba(255, 255, 255, 0.05)");
+    expect(document.documentElement.style.getPropertyValue("--heat-0")).toBe(THEME_CONFIGS.expressive.heat[0]);
     expect(document.documentElement.style.getPropertyValue("--heat-4")).toBe(THEME_CONFIGS.expressive.accent);
-    expect(document.documentElement.style.getPropertyValue("--background")).toBe("#000000");
+    expect(document.documentElement.style.getPropertyValue("--background")).toBe(THEME_CONFIGS.expressive.bg);
+    expect(document.documentElement.style.getPropertyValue("--theme-wallpaper")).toContain("cozy-room-comet-sky.webp");
+    expect(document.documentElement.classList.contains("icons-bold")).toBe(true);
     expect(document.documentElement.style.getPropertyValue("--ember-glow")).toBe(THEME_CONFIGS.expressive.glow);
     expect(document.documentElement.style.getPropertyValue("--ember-soft")).toBe(THEME_CONFIGS.expressive.soft);
   });
 
-  it("verifies Tri-Modal theme configs have unified 16px radius and bold pitch black background", () => {
-    // 1. Minimal: Warm Terracotta Brown (#BF7245) on black (#000000)
-    expect(THEME_CONFIGS.minimal.accent).toBe("#BF7245");
-    expect(THEME_CONFIGS.minimal.accentForeground).toBe("#FFFFFF");
-    expect(THEME_CONFIGS.minimal.glow).toBe("rgba(191, 114, 69, 0.45)");
-    expect(THEME_CONFIGS.minimal.soft).toBe("rgba(191, 114, 69, 0.18)");
-    expect(THEME_CONFIGS.minimal.bg).toBe("#000000");
-    expect(THEME_CONFIGS.minimal.radius).toBe("16px");
-
-    // 2. Classic: Electric Solar Gold (#F59E0B) on black (#000000) with #0B0F17 foreground contrast
-    expect(THEME_CONFIGS.classic.accent).toBe("#F59E0B");
-    expect(THEME_CONFIGS.classic.accentForeground).toBe("#0B0F17");
-    expect(THEME_CONFIGS.classic.glow).toBe("rgba(245, 158, 11, 0.40)");
-    expect(THEME_CONFIGS.classic.soft).toBe("rgba(245, 158, 11, 0.18)");
-    expect(THEME_CONFIGS.classic.bg).toBe("#000000");
-    expect(THEME_CONFIGS.classic.radius).toBe("16px");
-
-    // 3. Expressive: Electric Violet (#8B5CF6) on black (#000000)
-    expect(THEME_CONFIGS.expressive.accent).toBe("#8B5CF6");
-    expect(THEME_CONFIGS.expressive.accentForeground).toBe("#FFFFFF");
-    expect(THEME_CONFIGS.expressive.glow).toBe("rgba(139, 92, 246, 0.45)");
-    expect(THEME_CONFIGS.expressive.soft).toBe("rgba(139, 92, 246, 0.18)");
-    expect(THEME_CONFIGS.expressive.bg).toBe("#000000");
-    expect(THEME_CONFIGS.expressive.radius).toBe("16px");
+  it("gives every preset a complete and distinct visual identity", () => {
+    const configs = Object.values(THEME_CONFIGS);
+    expect(new Set(configs.map((config) => config.fontDisplay)).size).toBe(3);
+    expect(new Set(configs.map((config) => config.radius)).size).toBe(3);
+    expect(new Set(configs.map((config) => config.density)).size).toBe(3);
+    expect(new Set(configs.map((config) => config.iconStyle)).size).toBe(3);
+    expect(THEME_CONFIGS.minimal.iconStyle).toBe("line");
+    expect(THEME_CONFIGS.classic.iconStyle).toBe("heritage");
+    expect(THEME_CONFIGS.expressive.iconStyle).toBe("bold");
   });
 });

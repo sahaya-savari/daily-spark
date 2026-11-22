@@ -2,7 +2,7 @@
   "id": "/daily-spark/",
   "name": "Daily Spark",
   "short_name": "Daily Spark",
-  "description": "A calm, offline-first habit and streak tracker. No login, no ads, no tracking.",
+  "description": "A focused, offline-first daily streak tracker. Create it, tick it, keep going.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/daily-spark/",
@@ -12,7 +12,7 @@
   "orientation": "portrait",
   "background_color": "#17171D",
   "theme_color": "#17171D",
-  "categories": ["productivity", "lifestyle", "health"],
+  "categories": ["productivity", "utilities"],
   "shortcuts": [
     {
       "name": "Add Habit",

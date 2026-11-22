@@ -40,51 +40,51 @@ import { SITE } from "@/lib/site";
 const FEATURES = [
   {
     icon: PixelCheckCircle,
-    tag: "Core Flow",
-    title: "Check in & Multi-Lap",
-    body: "Standard, quantitative targets (ml, pages, reps) with quick chips, or avoid clean streaks.",
+    tag: "One Tap",
+    title: "Tick today",
+    body: "One clear button records today's completion. No forms or health metrics in your daily path.",
   },
   {
     icon: PixelFire,
-    tag: "Decay Math",
-    title: "Half-Life Strength HUD",
-    body: "90-day window with 12-day exponential half-life decay gauge. Miss a day without losing everything.",
-  },
-  {
-    icon: PixelChart,
-    tag: "Circadian",
-    title: "Circadian & Stacking",
-    body: "24-hour Gaussian performance curve and conditional habit-stacking probability insights.",
+    tag: "Daily Streak",
+    title: "Watch the chain grow",
+    body: "Start at zero, tick today for one, then return tomorrow to build day two and beyond.",
   },
   {
     icon: PixelClock,
-    tag: "Web Audio",
-    title: "Procedural Focus Timer",
-    body: "Synthesized Web Audio ambient rain, brown noise, and finish chime with zero cloud assets.",
-  },
-  {
-    icon: PixelSparkles,
-    tag: "Sanctuary",
-    title: "3D Voxel Island",
-    body: "A calm isometric voxel sanctuary that organically blossoms with your consistency.",
-  },
-  {
-    icon: PixelShieldCheck,
-    tag: "AES-GCM-256",
-    title: "Zero-Cloud Encrypted Vault",
-    body: "AES-GCM-256 encrypted vault with Set-Union conflict-free sync across devices.",
-  },
-  {
-    icon: PixelCalendar,
-    tag: "Visual Matrix",
-    title: "Calendar & Heatmap",
-    body: "Glanceable monthly matrix and 6-month activity heatmap. Honest, verified metrics.",
+    tag: "Optional",
+    title: "Get a gentle reminder",
+    body: "Choose a reminder time when creating a streak, or leave reminders off completely.",
   },
   {
     icon: PixelAndroid,
     tag: "Home Screen",
-    title: "Android Widgets & Health",
-    body: "Home-screen glanceable widgets (4x2, 1x1, heatmap) and Health Connect bridge.",
+    title: "Tick from the widget",
+    body: "Tap a pending streak from the Android widget and Daily Spark records today's check-in safely.",
+  },
+  {
+    icon: PixelCalendar,
+    tag: "History",
+    title: "See days you showed up",
+    body: "A simple calendar and heatmap keep your history visible without turning it into a dashboard chore.",
+  },
+  {
+    icon: PixelShieldCheck,
+    tag: "Private",
+    title: "Keep it on your device",
+    body: "No account, ads, analytics, or required cloud. Your streaks stay under your control.",
+  },
+  {
+    icon: PixelSparkles,
+    tag: "Flexible",
+    title: "Advanced tools stay optional",
+    body: "Schedules, notes, timers, and targets remain available without crowding the everyday streak flow.",
+  },
+  {
+    icon: PixelChart,
+    tag: "Every Screen",
+    title: "Made for phone and desktop",
+    body: "A focused phone layout and a properly constrained desktop view use the same streak-first experience.",
   },
 ] as const;
 
@@ -196,8 +196,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <span className="block text-muted-foreground/80 font-bold">Keep going.</span>
             </h1>
             <p className="mb-5 sm:mb-6 mt-4 sm:mt-6 max-w-[42ch] text-[17px] sm:text-[20px] leading-relaxed text-muted-foreground text-left">
-              A free, offline-first habit tracker. One small action a day, per habit. Check it off and watch your streak
-              grow - zero accounts, zero analytics, zero pressure.
+              Create a streak, choose an optional reminder, and tick it once each day. Today is one, tomorrow is two.
+              No accounts, no health dashboard, and no pressure.
             </p>
 
             {/* Quick trust & feature pills */}

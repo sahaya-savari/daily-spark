@@ -60,6 +60,7 @@ import {
   isDoneOn,
   isArchived,
   dayRatio,
+  habitCompletionRate,
   totalCompletions,
   inspectBackup,
   inspectBackupSandbox,
@@ -133,6 +134,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { Settings as SettingsIcon } from "lucide-react";
 
 // Haptic feedback trigger for mobile
 async function triggerLightHaptic() {
@@ -146,6 +148,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   const [avatarProfile] = useAvatarProfile();
   const [unlockPin, setUnlockPin] = useState("");
   const [unlockError, setUnlockError] = useState<string | null>(null);
+  const processedWidgetUrls = useRef(new Set<string>());
 
   // Auto-prompt biometrics on lock screen
   useEffect(() => {
@@ -163,14 +166,45 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   }, [isLocked, isBiometricEnabled]);
 
   useEffect(() => {
-    habitActions.seedDemoIfEmpty();
+    if (embedded) habitActions.seedDemoIfEmpty();
     registerServiceWorker();
+  }, [embedded]);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const handleWidgetUrl = (url?: string) => {
+      if (!url || processedWidgetUrls.current.has(url)) return;
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== "dailyspark:" || parsed.hostname !== "checkin") return;
+        const habitId = decodeURIComponent(parsed.pathname.replace(/^\//, ""));
+        if (!habitId) return;
+        processedWidgetUrls.current.add(url);
+        habitActions.checkInToday(habitId);
+        setActiveTab(0);
+      } catch {
+        // Ignore malformed widget intents and leave the app usable.
+      }
+    };
+
+    let listener: { remove: () => void } | null = null;
+    CapacitorApp.getLaunchUrl().then((result) => handleWidgetUrl(result?.url));
+    CapacitorApp.addListener("appUrlOpen", ({ url }) => handleWidgetUrl(url)).then((handle) => {
+      listener = handle;
+    });
+
+    return () => listener?.remove();
   }, []);
 
   useEffect(() => {
     const warmth = settings.solarCircadianGlide !== false ? calculateCircadianWarmth() : 0;
-    applyThemeToDocument(settings.themeMode || getStoredTheme(), warmth);
-  }, [settings.themeMode, settings.solarCircadianGlide]);
+    applyThemeToDocument(
+      settings.themeMode || getStoredTheme(),
+      warmth,
+      settings.expressiveBackground || "abstract",
+    );
+  }, [settings.expressiveBackground, settings.themeMode, settings.solarCircadianGlide]);
 
   const [activeTab, setActiveTab] = useState<number>(0);
   const [subTab, setSubTab] = useState<"habits" | "notes">("habits");
@@ -780,7 +814,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
   return (
     <div
       className={cn(
-        "relative w-full bg-background bg-dots font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
+        "daily-spark-shell relative w-full bg-background bg-dots font-app text-[14px] leading-[1.45] text-foreground flex flex-col justify-between selection:bg-ember/30",
         embedded ? "h-[844px] overflow-hidden select-none" : "min-h-screen flex flex-col lg:flex-row pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0"
       )}
     >
@@ -973,51 +1007,16 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
           </div>
 
           <div className="flex items-center gap-2">
-            {progressStats.globalStreak > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-ember-soft px-2.5 py-1 text-xs font-bold text-ember">
-                <PixelFire className="size-3.5 fill-ember/20" />
-                <DitherNumber value={progressStats.globalStreak} suffix="d" />
-              </span>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setIsCommandPaletteOpen(true)}
-              className="grid min-h-[44px] min-w-[44px] size-11 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
-              title="Search and commands (Ctrl+K)"
-              aria-label="Open command palette"
-            >
-              <PixelSearch className="size-4" />
-            </button>
-
             <button
               type="button"
               onClick={() => handleSelectTab(3)}
-              className="size-9 rounded-full cursor-pointer overflow-hidden border border-white/10 hover:border-ember transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shrink-0 flex items-center justify-center bg-surface-2"
-              title="Profile & Settings"
-              aria-label="Profile and Settings"
+              className="grid size-12 shrink-0 cursor-pointer place-items-center rounded-xl text-muted-foreground transition-colors active:bg-surface-2 active:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+              title="Settings"
+              aria-label="Open settings"
             >
-              <Avatar
-                name={avatarProfile.name}
-                size={34}
-                shape={avatarProfile.shape}
-                fill={avatarProfile.fill}
-                status={avatarProfile.status}
-                color={settings.themeMode ? THEME_CONFIGS[settings.themeMode]?.accent : "orange"}
-              />
+              <SettingsIcon className="size-5" strokeWidth={2} aria-hidden="true" />
             </button>
 
-            {isLockEnabled && (
-              <button
-                type="button"
-                onClick={() => setIsAppLockDialogOpen(true)}
-                className="grid min-h-[44px] min-w-[44px] size-11 place-items-center rounded-xl bg-surface-2 text-faint hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
-                title="App Lock Settings"
-                aria-label="App Lock Settings"
-              >
-                <PixelLock className="size-4" />
-              </button>
-            )}
           </div>
         </div>
       </header>
@@ -1025,7 +1024,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       {/* Main Content Area */}
       <main
         className={cn(
-          "mx-auto w-full max-w-lg flex-1 px-4", !embedded && "lg:max-w-4xl lg:px-8",
+          "mx-auto w-full max-w-lg flex-1 px-4", !embedded && "lg:max-w-6xl lg:px-8 xl:px-10",
           embedded ? "overflow-y-auto overscroll-contain scrollbar-none pt-3 pb-24" : "pt-4"
         )}
       >
@@ -1036,7 +1035,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
         {activeTab === 0 && (
           <div className={cn("space-y-4", !embedded && "lg:grid lg:grid-cols-12 lg:gap-6 lg:space-y-0")}>
             {/* Primary / Habits Column */}
-            <div className={cn("space-y-4", !embedded && "lg:col-span-7 xl:col-span-8 lg:space-y-5")}>
+            <div className={cn("space-y-4", !embedded && "lg:col-span-8 lg:space-y-5")}>
               {/* Today Header */}
               <div className="flex items-end justify-between">
                 <div>
@@ -1058,117 +1057,33 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                   )}
                 >
                   <PixelSparkles className="size-3" />
-                  {todayFocus ? "Pending only" : "All habits"}
+                  Show: {todayFocus ? "Pending" : "All"}
                 </button>
               </div>
 
-              {/* Next Up Hero Card */}
-              <div className="relative overflow-hidden rounded-3xl border border-border/40 bg-surface p-5 shadow-sm">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="kicker">{nextHabit ? "Next up" : "Daily status"}</p>
-                    <p className="font-mono text-[24px] font-semibold leading-tight mt-1 truncate">
-                      {nextHabit ? nextHabit.name : "All caught up"}
-                    </p>
-                    <p className="text-[12.5px] font-medium text-muted-foreground mt-1">
-                      {nextHabit
-                        ? `${todayCompletedCount} of ${activeHabits.length} completed · ${nextHabit.currentStreak} day streak`
-                        : activeHabits.length === 0
-                        ? "Tap the + button below to create your first habit."
-                        : "Perfect day! You have completed all scheduled habits."}
-                    </p>
-                  </div>
-                  <AnimatedCircularProgressBar
-                    value={todayCompletedCount}
-                    max={activeHabits.length || 1}
-                    size={52}
-                    strokeWidth={5}
-                  >
-                    <span className="text-[11px] font-mono font-bold text-foreground">
-                      {todayCompletedCount}/{activeHabits.length}
-                    </span>
-                  </AnimatedCircularProgressBar>
+              {/* One concise daily summary; the list remains the primary action area. */}
+              <div className="flex items-center gap-3 rounded-2xl border border-border/40 bg-surface px-4 py-3">
+                <div
+                  className="h-2 flex-1 overflow-hidden rounded-full bg-surface-2"
+                  role="progressbar"
+                  aria-label="Today's habit completion"
+                  aria-valuemin={0}
+                  aria-valuemax={activeHabits.length}
+                  aria-valuenow={todayCompletedCount}
+                >
+                  <div
+                    className="h-full rounded-full bg-ember transition-[width] duration-300 motion-reduce:transition-none"
+                    style={{ width: `${activeHabits.length ? (todayCompletedCount / activeHabits.length) * 100 : 0}%` }}
+                  />
                 </div>
-
-                {nextHabit && (
-                  <Button
-                    onClick={(e) => {
-                      hapticEngine.tickTap();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
-                      const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
-                      setHeroBurst({ x, y });
-                      handleToggleHabit(nextHabit.id);
-                    }}
-                    className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98] cursor-pointer"
-                  >
-                    <PixelCheck className="size-4" /> Check in now
-                  </Button>
-                )}
-              </div>
-
-              {/* The Two-Day Rule Gentle Banner (Mobile placement) */}
-              {atRiskHabits.length > 0 && (
-                <div className={cn("rounded-2xl border border-ember/25 bg-ember/10 p-3 flex items-center justify-between text-xs", !embedded && "lg:hidden")}>
-                  <div className="flex items-center gap-2 min-w-0">
-                    <PixelFire className="size-4 text-ember shrink-0" />
-                    <span className="truncate text-foreground/90 font-medium">Missed yesterday: <strong className="text-foreground">{atRiskHabits[0].name}</strong></span>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      hapticEngine.tickTap();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = e.clientX && e.clientX > 0 ? e.clientX : rect.left + rect.width / 2;
-                      const y = e.clientY && e.clientY > 0 ? e.clientY : rect.top + rect.height / 2;
-                      setHeroBurst({ x, y });
-                      handleToggleHabit(atRiskHabits[0].id);
-                    }}
-                    className="h-7 rounded-full bg-ember text-white text-[11px] font-bold px-3 shrink-0 hover:bg-ember/90 cursor-pointer"
-                  >
-                    Check In
-                  </Button>
-                </div>
-              )}
-
-              {/* Mini 7-Day Consistency Bar (Mobile placement) */}
-              <div className={cn("rounded-3xl border border-border/40 bg-surface p-4", !embedded && "lg:hidden")}>
-                <div className="flex justify-between items-center">
-                  {weekDays.map((d, i) => {
-                    const isToday = d.date === today;
-                    const isPerfect = d.total > 0 && d.done === d.total;
-                    return (
-                      <div key={i} className="flex flex-col items-center gap-1.5">
-                        <span className={cn("text-[11px] font-semibold", isToday ? "text-ember font-bold" : "text-faint")}>
-                          {d.label}
-                        </span>
-                        <span
-                          className={cn(
-                            "grid size-[30px] place-items-center rounded-full text-[10px] font-bold transition-all",
-                            isPerfect
-                              ? "bg-primary text-primary-foreground"
-                              : d.done > 0
-                              ? "bg-ember-soft text-ember"
-                              : "bg-surface-2 text-faint",
-                            isToday && !isPerfect && "ring-2 ring-ember"
-                          )}
-                        >
-                          {isPerfect ? <PixelCheck className="size-3.5" /> : d.done}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+                <p className="shrink-0 text-xs font-bold text-muted-foreground" aria-live="polite">
+                  {todayCompletedCount} of {activeHabits.length} completed
+                </p>
               </div>
 
               {/* Habits List */}
               <div>
-                <div className="mb-2.5 flex items-center justify-between">
-                  <p className="text-[16px] font-bold">Habits for Today</p>
-                  <span className="text-xs font-semibold text-faint">
-                    {todayCompletedCount}/{activeHabits.length} done
-                  </span>
-                </div>
+                <div className="mb-2.5"><p className="text-[16px] font-bold">Today&apos;s habits</p></div>
 
                 {todayHabits.length === 0 ? (
                   <EmptyState
@@ -1190,24 +1105,43 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                           Show all habits
                         </Button>
                       ) : (
-                        <Button
-                          size="sm"
-                          onClick={() => setIsAddOpen(true)}
-                          className="rounded-full bg-ember text-white hover:bg-ember/90 cursor-pointer"
-                        >
-                          <PixelPlus className="size-3.5 mr-1.5" />
-                          Add Habit
-                        </Button>
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => setIsAddOpen(true)}
+                            className="rounded-full bg-ember text-white hover:bg-ember/90 cursor-pointer"
+                          >
+                            <PixelPlus className="size-3.5 mr-1.5" />
+                            Create a habit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => habitActions.add({
+                              name: "Duolingo lesson",
+                              description: "Complete one lesson",
+                              emoji: "🦉",
+                              color: "fire",
+                              category: "learning",
+                              frequencyType: "daily",
+                              kind: "boolean",
+                            })}
+                            className="rounded-full"
+                          >
+                            Try a streak example
+                          </Button>
+                        </div>
                       )
                     }
                     color="orange"
                     className="rounded-3xl border border-border/40 bg-surface py-8"
                   />
                 ) : (
-                  <div className={cn("space-y-3", !embedded && "xl:grid xl:grid-cols-2 xl:gap-3.5 xl:space-y-0")}>
+                  <div className="space-y-3">
                     {todayHabits.map((h) => (
                       <NeoGlassHabitCard
                         key={h.id}
+                        compact
                         habit={h}
                         today={today}
                         onToggleToday={(id) => {
@@ -1244,7 +1178,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
 
             {/* Desktop Side Widget Column */}
             {!embedded && (
-              <div className="hidden lg:flex lg:col-span-5 xl:col-span-4 flex-col gap-5">
+              <div className="hidden lg:flex lg:col-span-4 flex-col gap-5">
                 {/* At-Risk Alert Banner */}
                 {atRiskHabits.length > 0 && (
                   <div className="rounded-2xl border border-ember/25 bg-ember/10 p-3.5 flex items-center justify-between text-xs shadow-sm">
@@ -1669,8 +1603,8 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
               <p className="mb-3 text-[15px] font-bold">Habit Consistency</p>
               <div className="space-y-3">
                 {activeHabits.map((h) => {
-                  const total = h.completedDates.length;
-                  const pct = Math.min(100, Math.round((total / 30) * 100));
+                  const rate = habitCompletionRate(h, today, 30);
+                  const pct = rate.percent;
                   return (
                     <div key={h.id} className="space-y-1">
                       <div className="flex justify-between text-xs font-semibold">
@@ -1678,7 +1612,9 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
                           <span>{h.emoji}</span>
                           <span className="truncate">{h.name}</span>
                         </span>
-                        <span className="text-muted-foreground shrink-0">{h.currentStreak}d ({pct}%)</span>
+                        <span className="text-muted-foreground shrink-0">
+                          {rate.done}/{rate.scheduled} scheduled ({pct}%)
+                        </span>
                       </div>
                       <div className="h-1.5 rounded-full bg-surface-2 overflow-hidden">
                         <div
@@ -1854,7 +1790,7 @@ export function DailySparkApp({ embedded = false }: { embedded?: boolean } = {})
       {/* DIALOG: ADD NEW HABIT                                          */}
       {/* ============================================================== */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-md bg-card text-foreground border-border max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bottom-0 top-auto translate-y-0 max-w-md rounded-b-none rounded-t-3xl border-border bg-card text-foreground max-h-[92vh] overflow-y-auto sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:rounded-2xl">
           <DialogHeader>
             <DialogTitle className="font-display text-xl">Create New Habit</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
@@ -2046,8 +1982,9 @@ function AddHabitForm({
   onAdd: (habit: Partial<Habit> & { name: string; emoji: string }) => void;
   onCancel: () => void;
 }) {
-  const [tier, setTier] = useState<"simple" | "standard" | "advanced">("simple");
+  const [tier, setTier] = useState<"basics" | "schedule" | "customize">("basics");
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [color, setColor] = useState("fire");
   const [kind, setKind] = useState<"boolean" | "quantitative" | "avoid">("boolean");
   const [targetValue, setTargetValue] = useState<number>(2000);
@@ -2087,6 +2024,7 @@ function AddHabitForm({
     onAdd({
       name: name.trim(),
       emoji: "🔥",
+      description: description.trim() || undefined,
       kind,
       targetValue: kind === "quantitative" ? targetValue : undefined,
       unit: kind === "quantitative" ? unit : undefined,
@@ -2107,43 +2045,31 @@ function AddHabitForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-1 text-sm">
-      {/* 3-Tier Progressive Tabs */}
+      {/* Task-based progressive sections */}
       <div className="flex rounded-xl bg-surface-2 p-1 border border-white/5">
         <button
           type="button"
-          onClick={() => setTier("simple")}
+          onClick={() => setTier("basics")}
           className={cn(
             "flex-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
-            tier === "simple"
+            tier === "basics"
               ? "bg-surface text-foreground shadow-sm font-bold"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          ⚡ Simple (5-sec)
+          Quick setup
         </button>
         <button
           type="button"
-          onClick={() => setTier("standard")}
+          onClick={() => setTier("customize")}
           className={cn(
             "flex-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
-            tier === "standard"
+            tier !== "basics"
               ? "bg-surface text-foreground shadow-sm font-bold"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
-          Standard
-        </button>
-        <button
-          type="button"
-          onClick={() => setTier("advanced")}
-          className={cn(
-            "flex-1 py-1 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
-            tier === "advanced"
-              ? "bg-surface text-foreground shadow-sm font-bold"
-              : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          Advanced
+          Advanced options
         </button>
       </div>
 
@@ -2157,30 +2083,42 @@ function AddHabitForm({
             {name.trim() || "Your habit name"}
           </p>
           <p className="text-[11px] text-muted-foreground">
-            {tier === "simple"
-              ? "Quick 5-second setup"
-              : tier === "standard"
-              ? `${frequencyType === "daily" ? "Daily rhythm" : "Scheduled rhythm"}`
-              : "Advanced metrics & friction tracking"}
+            {tier === "basics"
+              ? "Name it, choose how to track it, and save"
+              : tier === "schedule"
+              ? `${frequencyType === "daily" ? "Every day" : "Custom schedule"}`
+              : "Optional appearance, reminders, steps, and notes"}
           </p>
         </div>
       </div>
 
       {/* Habit Name Input (All Tiers) */}
-      <div className="space-y-1.5">
+      {tier !== "basics" && <div className="space-y-1.5">
         <label className="text-xs font-semibold text-muted-foreground uppercase">Habit Name</label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g., Read 20 minutes, Morning walk"
+          placeholder="e.g., Duolingo lesson, Read 10 pages"
           required
           autoFocus
           className="text-sm bg-surface-2 rounded-xl"
         />
+      </div>}
+
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-muted-foreground uppercase">
+          Description <span className="normal-case font-normal text-faint">(optional)</span>
+        </label>
+        <Input
+          value={description}
+          onChange={(e) => setDescription(e.target.value.slice(0, 160))}
+          placeholder="e.g., Complete one Duolingo lesson"
+          className="text-sm bg-surface-2 rounded-xl"
+        />
       </div>
 
-      {/* Habit Color Picker (All Tiers - Tints the Spark Mark) */}
-      <div className="space-y-1.5">
+      {/* Optional appearance */}
+      {tier === "customize" && <div className="space-y-1.5">
         <label className="text-xs font-semibold text-muted-foreground uppercase flex items-center justify-between">
           <span>Habit Spark Color</span>
           <span className="text-[10px] text-muted-foreground capitalize">{color}</span>
@@ -2209,26 +2147,26 @@ function AddHabitForm({
             );
           })}
         </div>
-      </div>
+      </div>}
 
-      {/* STANDARD & ADVANCED TIERS: Targets, Units & Frequency */}
-      {tier !== "simple" && (
+      {/* Advanced tracking stays available without crowding the quick setup. */}
+      {tier !== "basics" && (
         <>
           {/* Tracking Type */}
           <div className="space-y-1.5 pt-1">
-            <label className="text-xs font-semibold text-muted-foreground uppercase">Tracking Type</label>
-            <div className="grid grid-cols-3 gap-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase">How do you track it?</label>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {[
-                { id: "boolean", label: "Standard", desc: "Done / Not done" },
-                { id: "quantitative", label: "Quantitative", desc: "Target & units" },
-                { id: "avoid", label: "Avoid / Quit", desc: "Clean streak & cost" },
+                { id: "boolean", label: "Check it off", desc: "One clear daily check" },
+                { id: "quantitative", label: "Track an amount", desc: "Build toward a target" },
+                { id: "avoid", label: "Avoid a behavior", desc: "Record staying on track" },
               ].map((k) => (
                 <button
                   key={k.id}
                   type="button"
                   onClick={() => setKind(k.id as typeof kind)}
                   className={cn(
-                    "rounded-xl p-2 text-left border transition-all cursor-pointer",
+                    "min-h-12 rounded-xl p-2.5 text-left border transition-colors cursor-pointer",
                     kind === k.id
                       ? "bg-surface-2 border-ember text-foreground shadow-sm"
                       : "border-border/30 text-faint hover:text-foreground"
@@ -2325,7 +2263,7 @@ function AddHabitForm({
       )}
 
       {/* ADVANCED TIER ONLY: Quit/Avoid Cost Tracker, Subtasks, Day Mask, Friction Notes */}
-      {tier === "advanced" && (
+      {tier === "customize" && (
         <div className="space-y-4 pt-1 border-t border-white/5">
           {/* Avoid / Quit Cost Tracker */}
           {kind === "avoid" && (
@@ -2444,22 +2382,13 @@ function AddHabitForm({
       )}
 
       {/* Progressive Tier Helper Link */}
-      {tier === "simple" && (
+      {tier === "basics" && (
         <button
           type="button"
-          onClick={() => setTier("standard")}
+          onClick={() => setTier("customize")}
           className="text-xs text-ember hover:underline font-semibold block pt-1 cursor-pointer"
         >
-          More Options (Target, schedule &amp; units) →
-        </button>
-      )}
-      {tier === "standard" && (
-        <button
-          type="button"
-          onClick={() => setTier("advanced")}
-          className="text-xs text-ember hover:underline font-semibold block pt-1 cursor-pointer"
-        >
-          Advanced Options (Subtasks, avoid costs &amp; friction notes) →
+          Add schedule, tracking type, notes, and appearance
         </button>
       )}
 

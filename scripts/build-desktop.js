@@ -34,6 +34,8 @@ fs.mkdirSync(linuxDir, { recursive: true });
 function copyFolderSync(from, to) {
   fs.mkdirSync(to, { recursive: true });
   fs.readdirSync(from).forEach((element) => {
+    // Public release artifacts belong beside the app, never recursively inside it.
+    if (/^Daily-Spark-v.*\.(?:apk|exe|zip|tar\.gz)$/i.test(element)) return;
     const fromPath = path.join(from, element);
     const toPath = path.join(to, element);
     if (fs.lstatSync(fromPath).isDirectory()) {

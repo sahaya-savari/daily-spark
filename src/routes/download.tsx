@@ -207,8 +207,8 @@ function Download() {
               className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
             >
               <div>
-                <p className="font-sans font-semibold text-sm text-foreground">Windows Portable (.zip)</p>
-                <p className="text-xs text-muted-foreground">v1.0.1 · Standalone .exe + assets (Direct)</p>
+                <p className="font-sans font-semibold text-sm text-foreground">Windows App (.zip)</p>
+                <p className="text-xs text-muted-foreground">v1.0.1 · Extract, then run Daily-Spark.exe</p>
               </div>
               <PixelDownload className="size-4 text-ember shrink-0" />
             </a>

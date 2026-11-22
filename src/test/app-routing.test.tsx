@@ -8,7 +8,10 @@ import { routeTree } from "@/routeTree.gen";
 // network the test run lacks, and jsdom never loads the stylesheets React waits on.
 describe("App routing", () => {
   it("matches a page for / instead of falling back to not found", () => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const router = createRouter({
+      routeTree,
+      context: { queryClient: new QueryClient() },
+    });
 
     const matches = router.matchRoutes("/");
 
@@ -16,7 +19,10 @@ describe("App routing", () => {
   });
 
   it("matches valid public routes", () => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const router = createRouter({
+      routeTree,
+      context: { queryClient: new QueryClient() },
+    });
 
     const featuresMatch = router.matchRoutes("/features");
     expect(featuresMatch.at(-1)?.routeId).toBe("/features");
@@ -31,12 +37,15 @@ describe("App routing", () => {
     expect(privacyMatch.at(-1)?.routeId).toBe("/privacy");
   });
 
-  it("does not match /app and falls back to root not-found", () => {
-    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+  it("matches the local full-screen tracker at /app", () => {
+    const router = createRouter({
+      routeTree,
+      context: { queryClient: new QueryClient() },
+    });
 
     const matches = router.matchRoutes("/app");
 
-    expect(matches.at(-1)?.routeId).toBe(rootRouteId);
+    expect(matches.at(-1)?.routeId).toBe("/app");
   });
 
   describe("RootPage component", () => {
@@ -50,9 +59,11 @@ describe("App routing", () => {
     it("renders DailySparkApp on native Capacitor platform", async () => {
       const { RootPage } = await import("@/routes/index");
       const { DailySparkApp } = await import("@/components/app/DailySparkApp");
-      
+
       const original = (window as unknown as { Capacitor?: unknown }).Capacitor;
-      (window as unknown as { Capacitor?: { isNativePlatform: () => boolean } }).Capacitor = {
+      (
+        window as unknown as { Capacitor?: { isNativePlatform: () => boolean } }
+      ).Capacitor = {
         isNativePlatform: () => true,
       };
 
@@ -68,16 +79,17 @@ describe("App routing", () => {
       const { RootPage } = await import("@/routes/index");
       const { DailySparkApp } = await import("@/components/app/DailySparkApp");
 
-      const original = (window as unknown as { androidBridge?: unknown }).androidBridge;
+      const original = (window as unknown as { androidBridge?: unknown })
+        .androidBridge;
       (window as unknown as { androidBridge?: unknown }).androidBridge = {};
 
       try {
         const page = RootPage();
         expect(page.type).toBe(DailySparkApp);
       } finally {
-        (window as unknown as { androidBridge?: unknown }).androidBridge = original;
+        (window as unknown as { androidBridge?: unknown }).androidBridge =
+          original;
       }
     });
   });
 });
-

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  PixelHome,
-  PixelCheckList,
-  PixelPlus,
-  PixelChart,
-  PixelSettings,
-} from "@/components/ui/pixel-icon";
+import { BarChart3, CheckSquare2, Home, Plus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,10 +22,10 @@ export function MobileBottomNav({
       aria-label="Mobile navigation"
       className={cn(
         !embedded && "lg:hidden",
-        "z-30 flex items-center justify-around rounded-full border border-border/40 bg-surface/90 px-2 backdrop-blur-xl shadow-lg",
+        "z-30 flex items-center justify-around border-t border-border/60 bg-surface/95 px-2 shadow-[0_-8px_24px_rgba(0,0,0,0.12)] backdrop-blur-xl",
         embedded
-          ? "absolute inset-x-3 bottom-3 h-[64px]"
-          : "fixed left-1/2 -translate-x-1/2 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] h-[68px] w-[calc(100%-2rem)] max-w-lg"
+          ? "absolute inset-x-0 bottom-0 h-[64px]"
+          : "fixed inset-x-0 bottom-0 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)]"
       )}
     >
       <Button
@@ -45,7 +39,7 @@ export function MobileBottomNav({
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 0 && "bg-ember-soft")}>
-          <PixelHome className="size-4" />
+          <Home className="size-5" strokeWidth={2} />
         </span>
         Today
       </Button>
@@ -61,7 +55,7 @@ export function MobileBottomNav({
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 1 && "bg-ember-soft")}>
-          <PixelCheckList className="size-4" />
+          <CheckSquare2 className="size-5" strokeWidth={2} />
         </span>
         Habits
       </Button>
@@ -77,7 +71,7 @@ export function MobileBottomNav({
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 2 && "bg-ember-soft")}>
-          <PixelChart className="size-4" />
+          <BarChart3 className="size-5" strokeWidth={2} />
         </span>
         Progress
       </Button>
@@ -93,7 +87,7 @@ export function MobileBottomNav({
         )}
       >
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 3 && "bg-ember-soft")}>
-          <PixelSettings className="size-4" />
+          <Settings className="size-5" strokeWidth={2} />
         </span>
         Settings
       </Button>
@@ -107,14 +101,14 @@ export function MobileBottomNav({
       style={{ boxShadow: "0 8px 28px var(--ember-glow)" }}
       className={cn(
         !embedded && "lg:hidden",
-        "size-13 min-h-[48px] min-w-[48px] rounded-full bg-gradient-to-tr from-ember to-heat-4 text-[var(--ember-foreground,#FFFFFF)] border border-ember/40 hover:scale-105 active:scale-95 transition-all flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
+        "size-14 min-h-[48px] min-w-[48px] rounded-2xl bg-ember text-[var(--ember-foreground,#FFFFFF)] border border-ember/40 active:opacity-80 transition-opacity flex items-center justify-center p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer",
         embedded
-          ? "absolute right-4 bottom-20 z-30"
-          : "fixed right-4 sm:right-6 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] z-40"
+          ? "absolute right-4 bottom-[76px] z-30"
+          : "fixed right-4 sm:right-6 bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-40"
       )}
       aria-label="Add new habit"
     >
-      <PixelPlus className="size-6 text-[var(--ember-foreground,#FFFFFF)]" />
+      <Plus className="size-6 text-[var(--ember-foreground,#FFFFFF)]" strokeWidth={2.25} />
     </Button>
   </>
   );

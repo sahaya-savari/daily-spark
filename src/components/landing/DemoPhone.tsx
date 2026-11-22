@@ -1074,7 +1074,7 @@ export function DemoPhone() {
         <DailySparkApp embedded />
       </Device>
       <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
-        <span className="text-ember font-bold">Interactive live app.</span> Tap habits, start focus timer, track laps, or check progress. 100% offline.
+        <span className="text-ember font-bold">This is the real app.</span> Tick a habit in the phone and watch its daily streak grow. 100% offline.
       </p>
     </div>
   );

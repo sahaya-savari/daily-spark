@@ -201,6 +201,14 @@ export const habitActions = {
     mapHabit(id, (x) => (done ? undoToday(x, today) : completeToday(x, today)));
     return done ? "undone" : "done";
   },
+  checkInToday(id: string): "done" | "already-done" | null {
+    const today = todayKey();
+    const h = state.habits.find((x) => x.id === id);
+    if (!h) return null;
+    if (h.completedDates.includes(today)) return "already-done";
+    mapHabit(id, (x) => completeToday(x, today));
+    return "done";
+  },
   togglePastDay(id: string, targetDate: string) {
     const today = todayKey();
     mapHabit(id, (h) => togglePastDay(h, targetDate, today));
@@ -357,7 +365,11 @@ export const habitActions = {
   },
   seedDemoIfEmpty() {
     load();
-    if (state.habits.length > 0) return;
+    const isLegacyDemoSet =
+      state.habits.length > 0 &&
+      state.habits.every((habit) => habit.id.startsWith("demo-")) &&
+      !state.habits.some((habit) => habit.id === "demo-duolingo");
+    if (state.habits.length > 0 && !isLegacyDemoSet) return;
     if (typeof window !== "undefined" && localStorage.getItem("streakflame_cleared_by_user") === "1") {
       return;
     }
@@ -368,88 +380,47 @@ export const habitActions = {
 };
 
 export function getInitialSeedHabits(today: string): Habit[] {
-  const pastDates12 = Array.from({ length: 12 }, (_, i) => addDays(today, -i));
-  const pastDates31 = Array.from({ length: 31 }, (_, i) => addDays(today, -i));
-  const pastDates4 = Array.from({ length: 4 }, (_, i) => addDays(today, -(i + 1)));
+  const previousFourDays = Array.from({ length: 4 }, (_, i) => addDays(today, -(i + 1)));
+  const previousTwoDays = Array.from({ length: 2 }, (_, i) => addDays(today, -(i + 1)));
 
   return [
     refresh({
       ...createHabit({
-        id: "demo-read",
-        name: "Read 20 minutes",
-        emoji: "📚",
-        icon: "read",
-        color: "fire",
-        category: "study",
-        isStarred: true,
-        notes: "Chapter 3: How to build good habits.",
-        completedDates: pastDates12,
-      }, today),
-    }, today),
-    refresh({
-      ...createHabit({
-        id: "demo-water",
-        name: "Drink water",
-        emoji: "💧",
-        icon: "water",
-        color: "ocean",
-        category: "health",
-        isStarred: true,
-        kind: "quantitative",
-        targetValue: 2000,
-        unit: "ml",
-        stepIncrement: 250,
-        quantitativeValues: { [today]: 1250 },
-        completedDates: pastDates31,
-        notes: "Target 2.5L daily with a pinch of lemon.",
-      }, today),
-    }, today),
-    refresh({
-      ...createHabit({
-        id: "demo-nosugar",
-        name: "No Sugary Drinks",
-        emoji: "🛡️",
-        icon: "shield",
-        color: "ember",
-        category: "health",
-        kind: "avoid",
-        dailyCost: 5,
-        startDate: addDays(today, -14),
-        relapses: [],
-        completedDates: Array.from({ length: 14 }, (_, i) => addDays(today, -i)),
-        notes: "Clean streak! Saving $5 every day without soda.",
-      }, today),
-    }, today),
-    refresh({
-      ...createHabit({
-        id: "demo-routine",
-        name: "Morning Routine",
-        emoji: "✨",
+        id: "demo-duolingo",
+        name: "Duolingo lesson",
+        emoji: "🦉",
+        description: "Complete one lesson",
         icon: "sparkles",
-        color: "gold",
-        category: "daily",
-        subtasks: [
-          { id: "sub-1", title: "Make bed" },
-          { id: "sub-2", title: "5 min stretch" },
-          { id: "sub-3", title: "Glass of water" },
-        ],
-        subtaskCompletions: {
-          [today]: ["sub-1", "sub-2"],
-        },
-        completedDates: [addDays(today, -1)],
-        notes: "Small checklist to start the day with clarity.",
+        color: "fire",
+        category: "learning",
+        isStarred: true,
+        reminderEnabled: true,
+        reminderTime: "19:00",
+        completedDates: previousFourDays,
       }, today),
     }, today),
     refresh({
       ...createHabit({
-        id: "demo-walk",
-        name: "Evening walk",
-        emoji: "🚶",
-        icon: "run",
-        color: "forest",
-        category: "health",
-        completedDates: pastDates4,
-        notes: "Gentle 30-min walk after dinner.",
+        id: "demo-read",
+        name: "Read 10 pages",
+        emoji: "📖",
+        description: "A little progress every day",
+        icon: "read",
+        color: "gold",
+        category: "learning",
+        completedDates: previousTwoDays,
+      }, today),
+    }, today),
+    refresh({
+      ...createHabit({
+        id: "demo-journal",
+        name: "Write one sentence",
+        emoji: "✍️",
+        description: "Keep the chain alive",
+        icon: "edit",
+        color: "ocean",
+        category: "daily",
+        completedDates: [],
       }, today),
     }, today),
   ];

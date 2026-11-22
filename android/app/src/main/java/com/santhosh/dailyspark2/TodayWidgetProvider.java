@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -35,7 +36,10 @@ public class TodayWidgetProvider extends AppWidgetProvider {
             // Launch main app with checkin action
             Intent launchIntent = new Intent(context, MainActivity.class);
             launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            launchIntent.putExtra(EXTRA_HABIT_ID, intent.getStringExtra(EXTRA_HABIT_ID));
+            String habitId = intent.getStringExtra(EXTRA_HABIT_ID);
+            launchIntent.setData(Uri.parse(
+                    "dailyspark://checkin/" + Uri.encode(habitId) + "?t=" + System.currentTimeMillis()
+            ));
             context.startActivity(launchIntent);
         }
     }
@@ -83,8 +87,19 @@ public class TodayWidgetProvider extends AppWidgetProvider {
                                 JSONObject item = pendingList.getJSONObject(i);
                                 String name = item.optString("name", "Habit");
                                 String emoji = item.optString("emoji", "⚡");
+                                String habitId = item.optString("id", "");
                                 views.setViewVisibility(itemIds[i], View.VISIBLE);
                                 views.setTextViewText(itemIds[i], emoji + "  " + name);
+                                Intent checkIn = new Intent(context, TodayWidgetProvider.class);
+                                checkIn.setAction(ACTION_CHECKIN_HABIT);
+                                checkIn.putExtra(EXTRA_HABIT_ID, habitId);
+                                PendingIntent pendingCheckIn = PendingIntent.getBroadcast(
+                                        context,
+                                        habitId.hashCode(),
+                                        checkIn,
+                                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                                );
+                                views.setOnClickPendingIntent(itemIds[i], pendingCheckIn);
                             } else {
                                 views.setViewVisibility(itemIds[i], View.GONE);
                             }

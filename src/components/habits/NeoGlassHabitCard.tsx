@@ -24,6 +24,7 @@ import { hapticEngine } from "@/lib/habits/haptics";
 import { cn } from "@/lib/utils";
 import { CheckPopBurst } from "./CheckPopBurst";
 import { DitherNumber } from "@/components/dithercn/dither-number";
+import { Check, Flame } from "lucide-react";
 
 interface NeoGlassHabitCardProps {
   habit: Habit;
@@ -36,6 +37,7 @@ interface NeoGlassHabitCardProps {
   onOpenFocusTimer: (habit: Habit) => void;
   onToggleStar?: (habitId: string) => void;
   onEdit?: (habit: Habit) => void;
+  compact?: boolean;
 }
 
 export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
@@ -49,6 +51,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
   onOpenFocusTimer,
   onToggleStar,
   onEdit,
+  compact = false,
 }) => {
   const [showSubtasks, setShowSubtasks] = useState(false);
   const [showRelapseModal, setShowRelapseModal] = useState(false);
@@ -160,6 +163,57 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
     setIsSwiping(false);
   };
 
+  if (compact && kind === "boolean") {
+    return (
+      <div
+        data-testid="neo-glass-habit-card"
+        role="button"
+        tabIndex={0}
+        aria-label={`Open ${habit.name}`}
+        onClick={() => onEdit?.(habit)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onEdit?.(habit);
+          }
+        }}
+        className={cn(
+          "group flex min-h-[72px] items-center gap-3 rounded-2xl border bg-surface px-3 py-2.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
+          isDoneToday ? "border-ember/35" : "border-border/55 active:bg-surface-2",
+        )}
+      >
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-2" style={{ color: accentColor }} aria-hidden="true">
+          <HabitIcon habit={habit} className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className={cn("block truncate text-[15px] font-bold", isDoneToday && "text-muted-foreground line-through")}>
+            {habit.name}
+          </span>
+          <span className="mt-0.5 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+            <Flame className={cn("size-3.5", habit.currentStreak > 0 && "text-ember")} aria-hidden="true" />
+            {habit.currentStreak} day streak
+          </span>
+        </span>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            hapticEngine.tickTap();
+            onToggleToday(habit.id);
+          }}
+          aria-label={isDoneToday ? `Undo ${habit.name} check-in` : `Complete ${habit.name} for today`}
+          aria-pressed={isDoneToday}
+          className={cn(
+            "grid size-12 shrink-0 place-items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
+            isDoneToday ? "border-ember bg-ember text-white" : "border-border bg-surface-2 text-muted-foreground active:border-ember active:text-ember",
+          )}
+        >
+          <Check className="size-5" strokeWidth={2.5} aria-hidden="true" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       data-testid="neo-glass-habit-card"
@@ -212,7 +266,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
 
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <h3 className="truncate font-mono text-[14.5px] font-semibold text-foreground">
+                <h3 className="truncate font-display text-[15px] font-bold text-foreground">
                   {habit.name}
                 </h3>
                 {habit.isStarred && (
@@ -232,8 +286,14 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                 )}
               </div>
 
+              {habit.description && (
+                <p className="mt-0.5 line-clamp-1 text-[11.5px] text-muted-foreground">
+                  {habit.description}
+                </p>
+              )}
+
               {habit.cueText && (
-                <p className="mt-0.5 truncate text-[11px] font-medium text-ember">
+                <p className="mt-0.5 hidden truncate text-[11px] font-medium text-ember sm:block">
                   ⚓ After {habit.cueText}
                 </p>
               )}
@@ -242,7 +302,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               {hasNotes && (
                 <p
                   data-testid="habit-notes-indicator"
-                  className="mt-0.5 flex items-center gap-1 truncate text-[11px] font-medium text-faint"
+                  className="mt-0.5 hidden items-center gap-1 truncate text-[11px] font-medium text-faint sm:flex"
                   title={noteText}
                   aria-label={`Notes: ${noteText}`}
                 >
@@ -263,16 +323,16 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                     )}
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-[11.5px] font-semibold text-faint">
+                  <span className="flex items-center gap-1 text-xs font-bold text-foreground">
                     <PixelFire
                       className={cn(
                         "size-3",
                         habit.currentStreak > 0 && "text-ember"
                       )}
                     />{" "}
-                    <DitherNumber value={habit.currentStreak} suffix=" days" />
+                    <DitherNumber value={habit.currentStreak} suffix=" day streak" />
                     {habit.category && (
-                      <span className="ml-1 rounded-full bg-surface-2 px-1.5 py-0.2 text-[10px] text-faint">
+                      <span className="ml-1 hidden rounded-full bg-surface-2 px-1.5 py-0.2 text-[10px] text-faint sm:inline">
                         #{habit.category}
                       </span>
                     )}
@@ -289,7 +349,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenFocusTimer(habit)}
-                className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+                className="hidden size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer sm:grid"
                 title="Start Focus Timer"
                 aria-label="Start Focus Timer"
               >
@@ -301,7 +361,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
             <button
               type="button"
               onClick={() => onEdit?.(habit)}
-              className="grid size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer"
+              className="hidden size-9 place-items-center rounded-xl bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember cursor-pointer sm:grid"
               title={`Edit ${habit.name}`}
               aria-label={`Edit ${habit.name}`}
             >
@@ -321,7 +381,8 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
                   }
                   onToggleToday(habit.id);
                 }}
-                aria-label={`Toggle ${habit.name}`}
+                aria-label={isDoneToday ? `Undo ${habit.name} check-in` : `Complete ${habit.name} for today`}
+                aria-pressed={isDoneToday}
                 className={cn(
                   "check-orb grid size-12 shrink-0 place-items-center rounded-full p-0 transition-transform active:scale-95 cursor-pointer",
                   isDoneToday

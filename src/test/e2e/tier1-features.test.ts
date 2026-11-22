@@ -498,7 +498,7 @@ describe("Tier 1: Feature Inventory Requirements Verification", () => {
         })
       );
 
-      const checkBtn = screen.getByRole("button", { name: /toggle direct habit/i });
+      const checkBtn = screen.getByRole("button", { name: /complete direct habit for today/i });
       fireEvent.click(checkBtn);
       expect(onToggle).toHaveBeenCalledWith("direct-1");
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -771,7 +771,7 @@ describe("Tier 1: Feature Inventory Requirements Verification", () => {
           onOpenFocusTimer: vi.fn(),
         })
       );
-      const checkBtn = screen.getByRole("button", { name: /toggle/i });
+      const checkBtn = screen.getByRole("button", { name: /undo daily reading check-in/i });
       expect(checkBtn).toBeVisible();
     });
 
