@@ -109,19 +109,23 @@ function useAutoWidth<T extends HTMLElement>(fallback: number) {
   return [ref, width] as const;
 }
 
-/** Large hero device with side keys and a soft 3D tilt. */
+/** Large hero device with side keys and a soft 3D tilt, inspired by GymMane hardware styling. */
 export function Device({ children, tilt }: { children: React.ReactNode; tilt?: { x: number; y: number } }) {
   const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(280);
   return (
     <div
-      className="bezel relative w-[285px] sm:w-[310px] max-w-[calc(100vw-2rem)] rounded-[38px] p-2.5 transition-transform duration-500 shadow-2xl"
-      style={{ transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined }}
+      className="relative w-[285px] sm:w-[320px] md:w-[340px] max-w-[calc(100vw-2rem)] rounded-[46px] p-[10px] transition-transform duration-500 shadow-2xl"
+      style={{
+        background: "linear-gradient(155deg, #3a3a3a 0%, #121212 26%, #0b0b0b 62%, #2c2c2c 100%)",
+        boxShadow: "0 60px 90px -40px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06), inset 0 0 0 1px rgba(0,0,0,.6)",
+        transform: tilt ? `perspective(1200px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` : undefined,
+      }}
     >
-      <span className="absolute -left-[3px] top-[116px] h-[38px] w-[3px] rounded-[3px] bg-neutral-700/80 border-r border-black/40" />
-      <span className="absolute -left-[3px] top-[162px] h-[38px] w-[3px] rounded-[3px] bg-neutral-700/80 border-r border-black/40" />
-      <span className="absolute -right-[3px] top-[148px] h-[54px] w-[3px] rounded-[3px] bg-neutral-700/80 border-l border-black/40" />
-      <div ref={innerRef} className="relative overflow-hidden rounded-[33px] shadow-[inset_0_0_0_1px_oklch(1_0_0/5%)]">
-        <span className="pointer-events-none absolute left-1/2 top-2.5 z-40 h-[17px] w-[66px] -translate-x-1/2 rounded-xl bg-background shadow-[inset_0_0_0_1px_oklch(1_0_0/6%)]" />
+      <span className="absolute -left-[3px] top-[132px] h-[42px] w-[3px] rounded-[3px] bg-gradient-to-b from-[#3a3a3a] to-[#151515]" />
+      <span className="absolute -left-[3px] top-[184px] h-[42px] w-[3px] rounded-[3px] bg-gradient-to-b from-[#3a3a3a] to-[#151515]" />
+      <span className="absolute -right-[3px] top-[168px] h-[62px] w-[3px] rounded-[3px] bg-gradient-to-b from-[#3a3a3a] to-[#151515]" />
+      <div ref={innerRef} className="relative overflow-hidden rounded-[37px] bg-[#0A0A0A] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
+        <span className="pointer-events-none absolute left-1/2 top-3 z-40 h-[19px] w-[74px] -translate-x-1/2 rounded-[12px] bg-[#000] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
         <Scaled width={innerWidth}>{children}</Scaled>
       </div>
     </div>
@@ -134,10 +138,14 @@ export function MiniPhone({ children }: { children: React.ReactNode }) {
     <div
       aria-hidden="true"
       inert
-      className="bezel relative w-[208px] rounded-[32px] p-[7px] transition-transform duration-300 group-hover:-translate-y-2"
+      className="relative w-[208px] rounded-[32px] p-[7px] transition-transform duration-300 group-hover:-translate-y-2"
+      style={{
+        background: "linear-gradient(155deg, #3a3a3a 0%, #121212 26%, #0b0b0b 62%, #2c2c2c 100%)",
+        boxShadow: "0 40px 62px -34px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06)",
+      }}
     >
-      <span className="absolute left-1/2 top-[9px] z-10 h-[13px] w-[52px] -translate-x-1/2 rounded-[9px] bg-background" />
-      <div className="overflow-hidden rounded-[26px]">
+      <span className="absolute left-1/2 top-[9px] z-10 h-[13px] w-[52px] -translate-x-1/2 rounded-[9px] bg-[#000] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
+      <div className="overflow-hidden rounded-[26px] bg-[#0A0A0A]">
         <Scaled width={194}>{children}</Scaled>
       </div>
     </div>

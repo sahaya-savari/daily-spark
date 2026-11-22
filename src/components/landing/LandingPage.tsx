@@ -179,23 +179,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               href={SITE.releases}
               target="_blank"
               rel="noreferrer"
-              className="glass-pill mb-6 sm:mb-8 inline-flex items-center gap-2.5 sm:gap-3 rounded-full py-1.5 sm:py-2 pl-2 sm:pl-2.5 pr-4 sm:pr-5 text-sm sm:text-[15.5px] text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:text-foreground max-w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="mb-6 sm:mb-8 inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-[#141414] py-1.5 pl-2 pr-4 text-xs sm:text-[13.5px] text-[#9A9A9A] transition-all hover:border-white/20 hover:text-white"
             >
-              <span className="rounded-full bg-ember/15 border border-ember/30 px-2.5 py-0.5 text-xs sm:text-[12.5px] font-bold text-ember tracking-wide">
-                v1.0.1
+              <span className="flex size-7 items-center justify-center rounded-lg bg-[rgba(217,161,132,0.14)] text-ember">
+                <Download className="size-4" />
               </span>
-              <span className="font-sans text-[15px] sm:text-[16.5px] font-semibold tracking-normal text-foreground leading-none pt-0.5">
-                Android &amp; Desktop
-              </span>
-              <span className="rounded-full bg-surface-2/80 border border-white/10 px-2.5 py-0.5 text-xs sm:text-[12px] font-semibold text-muted-foreground leading-none">
-                100% Offline
-              </span>
+              <b className="font-sans text-[14.5px] sm:text-[15.5px] font-bold text-white">v1.0.1</b>
+              <span className="text-[#626262]">·</span>
+              <span className="font-medium text-[#9A9A9A]">100% Offline APK</span>
             </a>
 
-            <h1 className="font-display text-[clamp(42px,7.5vw,76px)] font-black tracking-tight leading-[1.05] text-left max-w-full">
-              <span className="block text-foreground">Show up.</span>
-              <span className="block text-ember drop-shadow-[0_4px_28px_var(--ember-glow)]">Tick it.</span>
-              <span className="block text-muted-foreground/80 font-bold">Keep going.</span>
+            <h1 className="font-display text-[clamp(44px,7.5vw,78px)] font-black uppercase tracking-tight leading-[1.02] text-left max-w-full">
+              <span className="block text-white animate-rise-1">Show up.</span>
+              <span className="block text-ember drop-shadow-[0_4px_28px_var(--ember-glow)] animate-rise-2">Tick it.</span>
+              <span className="block text-[#9A9A9A] font-bold animate-rise-3">Keep going.</span>
             </h1>
             <p className="mb-5 sm:mb-6 mt-4 sm:mt-6 max-w-[42ch] text-[17px] sm:text-[20px] leading-relaxed text-muted-foreground text-left">
               A free, offline-first habit tracker. One small action a day, per habit. Check it off and watch your streak
@@ -218,24 +215,32 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             {/* Action Tier 1: Primary Mobile & Desktop Executables */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
               <DownloadApkButton
-                className={`${btn} cta-solid border-transparent px-7 py-3.5 text-base sm:text-[17px] font-bold transition-all hover:scale-[1.03] justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-background leading-none shadow-lg shadow-ember/25`}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-base sm:text-[16px] font-bold uppercase tracking-wider text-black transition-all hover:bg-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember shadow-lg"
               />
               <a
-                href={SITE.desktop.windowsZip}
-                download="Daily-Spark-v1.0.1-windows.zip"
-                className={`glass-pill ${btn} border-white/10 bg-surface/70 px-6 py-3.5 text-sm sm:text-base font-semibold text-foreground transition-all hover:scale-[1.02] hover:border-ember/40 justify-center text-center w-full sm:w-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none`}
+                href={SITE.repo}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#3A3A3A] bg-[#141414] px-6 py-3.5 text-base sm:text-[16px] font-semibold text-white transition-all hover:border-[#626262] hover:bg-[#1E1E1E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
               >
-                <span>Windows (.zip)</span>
+                <span>View on GitHub</span>
               </a>
             </div>
 
             {/* Action Tier 2: Open Source Release Mirrors */}
             <div className="mt-3 flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
               <a
+                href={SITE.desktop.windowsZip}
+                download="Daily-Spark-v1.0.1-windows.zip"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-white transition-colors"
+              >
+                <span>Windows (.zip)</span>
+              </a>
+              <a
                 href={SITE.fdroid.url}
                 target="_blank"
                 rel="noreferrer"
-                className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs sm:text-[13px] font-semibold text-foreground/90 transition-all hover:scale-[1.02] hover:border-[#1976D2]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#1976D2]/60"
                 aria-label="View Daily Spark on F-Droid"
               >
                 <PixelFdroid className="size-3.5 shrink-0 text-[#1976D2]" />
@@ -246,24 +251,14 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 href={SITE.gitlab.releases}
                 target="_blank"
                 rel="noreferrer"
-                className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs sm:text-[13px] font-semibold text-foreground/90 transition-all hover:scale-[1.02] hover:border-[#FC6D26]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#FC6D26]/50"
                 aria-label="View Daily Spark releases on GitLab"
               >
                 <PixelGitlab className="size-3.5 shrink-0 text-[#FC6D26]" />
                 <span>GitLab Releases</span>
               </a>
-              <a
-                href={SITE.releases}
-                target="_blank"
-                rel="noreferrer"
-                className="glass-pill inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface/60 px-4 py-2 text-xs sm:text-[13px] font-semibold text-muted-foreground hover:text-foreground transition-all hover:scale-[1.02] hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none"
-                aria-label="View Daily Spark releases on GitHub"
-              >
-                <PixelGithub className="size-3.5 shrink-0" />
-                <span>GitHub Releases</span>
-              </a>
             </div>
-            <p className="mt-4 sm:mt-5 text-xs sm:text-[14px] text-faint text-left font-medium">Direct APK install · Windows &amp; Linux portable · 100% offline</p>
+            <p className="mt-4 sm:mt-5 text-xs sm:text-[14px] text-faint text-left font-medium">Android 7.0 or superior · No account · No ads</p>
           </div>
 
           {/* LOCK A: Interactive Demo Phone */}
@@ -275,26 +270,21 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         {/* What it does */}
         <section id="features" className="reveal anchor-section mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_600px]">
           <div className="mb-8 text-left">
-            <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">What it does</h2>
+            <h2 className="font-display text-[32px] sm:text-[38px] md:text-[44px] font-bold uppercase tracking-wide text-white">What it does</h2>
             <p className="mt-2 text-base sm:text-lg text-muted-foreground">Honest, reliable tools designed to build lasting daily momentum.</p>
           </div>
-          <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
+          <div className="grid gap-x-12 grid-cols-1 md:grid-cols-2 w-full">
             {FEATURES.map(({ icon: Icon, tag, title, body }) => (
               <article
                 key={title}
-                className="glass-card group flex flex-col justify-between rounded-2xl p-6 transition-all duration-300 hover:border-ember/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-ember/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember border border-white/10 bg-surface/75"
+                className="border-t border-[#262626] py-6 flex flex-col justify-between group transition-colors"
               >
                 <div>
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="inline-flex size-11 items-center justify-center rounded-xl border border-ember/25 bg-gradient-to-br from-ember/15 to-transparent text-ember shadow-sm shadow-ember/10 transition-transform duration-300 group-hover:scale-110 group-hover:border-ember/50">
-                      <Icon className="size-5" />
-                    </div>
-                    <span className="rounded-full border border-white/10 bg-surface-2/80 px-2.5 py-0.5 text-[11px] font-semibold text-faint group-hover:text-ember group-hover:border-ember/30 transition-colors">
-                      {tag}
-                    </span>
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="font-display text-[18px] sm:text-[19px] font-bold uppercase tracking-wide text-white">{title}</h3>
+                    <span className="text-xs font-semibold text-[#626262] uppercase tracking-wider">{tag}</span>
                   </div>
-                  <h3 className="mb-2 font-display text-[19px] sm:text-[20px] font-bold tracking-tight text-foreground">{title}</h3>
-                  <p className="text-[14px] sm:text-[15px] leading-relaxed text-muted-foreground">{body}</p>
+                  <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#9A9A9A]">{body}</p>
                 </div>
               </article>
             ))}
