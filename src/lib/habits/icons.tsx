@@ -1,64 +1,106 @@
 import type { ComponentType } from "react";
-import {
-  MaterialBolt,
-  MaterialBook,
-  MaterialClock,
-  MaterialCode,
-  MaterialFlame,
-  MaterialHeart,
-  MaterialIconProps,
-  MaterialLightbulb,
-  MaterialMoon,
-  MaterialMusic,
-  MaterialPen,
-  MaterialSparkles,
-  MaterialStar,
-  MaterialSun,
-  MaterialTrophy,
-} from "@/components/ui/material-icon";
 import { cn } from "@/lib/utils";
 import { COLOR_SWATCH, type Habit } from "./types";
+import {
+  Flame,
+  Dumbbell,
+  Footprints,
+  Bike,
+  Waves,
+  Brain,
+  Wind,
+  Droplet,
+  Salad,
+  Apple,
+  Moon,
+  Sunrise,
+  BookOpen,
+  PenTool,
+  BookMarked,
+  GraduationCap,
+  Languages,
+  Code2,
+  Laptop,
+  Target,
+  Timer,
+  Lightbulb,
+  Palette,
+  Music,
+  Sprout,
+  Leaf,
+  Heart,
+  HeartHandshake,
+  Smile,
+  Star,
+  Pill,
+  Coins,
+  Coffee,
+} from "lucide-react";
 
-export type HabitIconComponent = ComponentType<MaterialIconProps>;
+export interface HabitIconProps extends React.SVGProps<SVGSVGElement> {
+  className?: string;
+  size?: number | string;
+}
+
+export type HabitIconComponent = ComponentType<HabitIconProps>;
+
+function wrapLucide(
+  IconComponent: ComponentType<{
+    className?: string;
+    size?: number | string;
+    strokeWidth?: number;
+  }>
+) {
+  return function WrappedHabitIcon({ className, size = 20, ...props }: HabitIconProps) {
+    return (
+      <IconComponent
+        className={cn("inline-block shrink-0", className)}
+        size={size}
+        strokeWidth={2}
+        {...(props as Record<string, unknown>)}
+      />
+    );
+  };
+}
 
 /**
- * Habit icon set using official Google Material Design Icons (Apache 2.0).
+ * Habit icon set using modern, crisp, open-source Lucide React icons (ISC License).
  * `emoji` is kept only so backups stay readable by the original Daily Spark Android app.
  */
 export const HABIT_ICONS: { key: string; label: string; Icon: HabitIconComponent; emoji: string }[] = [
-  { key: "flame", label: "Spark", Icon: MaterialFlame, emoji: "🔥" },
-  { key: "dumbbell", label: "Strength", Icon: MaterialBolt, emoji: "💪" },
-  { key: "run", label: "Run", Icon: MaterialFlame, emoji: "🏃" },
-  { key: "bike", label: "Cycle", Icon: MaterialBolt, emoji: "🚴" },
-  { key: "swim", label: "Swim", Icon: MaterialSparkles, emoji: "🏊" },
-  { key: "mindful", label: "Meditate", Icon: MaterialSun, emoji: "🧘" },
-  { key: "breathe", label: "Breathe", Icon: MaterialSparkles, emoji: "🌬️" },
-  { key: "water", label: "Water", Icon: MaterialSparkles, emoji: "💧" },
-  { key: "food", label: "Eat well", Icon: MaterialSun, emoji: "🥗" },
-  { key: "fruit", label: "Fruit", Icon: MaterialHeart, emoji: "🍎" },
-  { key: "sleep", label: "Sleep", Icon: MaterialMoon, emoji: "💤" },
-  { key: "morning", label: "Morning", Icon: MaterialSun, emoji: "☀️" },
-  { key: "read", label: "Read", Icon: MaterialBook, emoji: "📚" },
-  { key: "write", label: "Write", Icon: MaterialPen, emoji: "✍️" },
-  { key: "journal", label: "Journal", Icon: MaterialPen, emoji: "📝" },
-  { key: "learn", label: "Learn", Icon: MaterialLightbulb, emoji: "🧠" },
-  { key: "language", label: "Language", Icon: MaterialBook, emoji: "🗣️" },
-  { key: "code", label: "Code", Icon: MaterialCode, emoji: "💻" },
-  { key: "work", label: "Deep work", Icon: MaterialCode, emoji: "🖥️" },
-  { key: "focus", label: "Focus", Icon: MaterialTrophy, emoji: "🎯" },
-  { key: "timer", label: "Timer", Icon: MaterialClock, emoji: "⏱️" },
-  { key: "idea", label: "Ideas", Icon: MaterialLightbulb, emoji: "💡" },
-  { key: "art", label: "Art", Icon: MaterialSparkles, emoji: "🎨" },
-  { key: "music", label: "Music", Icon: MaterialMusic, emoji: "🎵" },
-  { key: "grow", label: "Grow", Icon: MaterialSun, emoji: "🌱" },
-  { key: "nature", label: "Nature", Icon: MaterialSun, emoji: "🍃" },
-  { key: "heart", label: "Care", Icon: MaterialHeart, emoji: "❤️" },
-  { key: "gratitude", label: "Gratitude", Icon: MaterialHeart, emoji: "🙏" },
-  { key: "mood", label: "Mood", Icon: MaterialStar, emoji: "🙂" },
-  { key: "star", label: "Goal", Icon: MaterialStar, emoji: "🌟" },
-  { key: "meds", label: "Meds", Icon: MaterialHeart, emoji: "💊" },
-  { key: "money", label: "Money", Icon: MaterialTrophy, emoji: "💰" },
-  { key: "coffee", label: "Less coffee", Icon: MaterialSun, emoji: "☕" },
+  { key: "flame", label: "Spark", Icon: wrapLucide(Flame), emoji: "🔥" },
+  { key: "dumbbell", label: "Strength", Icon: wrapLucide(Dumbbell), emoji: "💪" },
+  { key: "run", label: "Run", Icon: wrapLucide(Footprints), emoji: "🏃" },
+  { key: "bike", label: "Cycle", Icon: wrapLucide(Bike), emoji: "🚴" },
+  { key: "swim", label: "Swim", Icon: wrapLucide(Waves), emoji: "🏊" },
+  { key: "mindful", label: "Meditate", Icon: wrapLucide(Brain), emoji: "🧘" },
+  { key: "breathe", label: "Breathe", Icon: wrapLucide(Wind), emoji: "🌬️" },
+  { key: "water", label: "Water", Icon: wrapLucide(Droplet), emoji: "💧" },
+  { key: "food", label: "Eat well", Icon: wrapLucide(Salad), emoji: "🥗" },
+  { key: "fruit", label: "Fruit", Icon: wrapLucide(Apple), emoji: "🍎" },
+  { key: "sleep", label: "Sleep", Icon: wrapLucide(Moon), emoji: "💤" },
+  { key: "morning", label: "Morning", Icon: wrapLucide(Sunrise), emoji: "☀️" },
+  { key: "read", label: "Read", Icon: wrapLucide(BookOpen), emoji: "📚" },
+  { key: "write", label: "Write", Icon: wrapLucide(PenTool), emoji: "✍️" },
+  { key: "journal", label: "Journal", Icon: wrapLucide(BookMarked), emoji: "📝" },
+  { key: "learn", label: "Learn", Icon: wrapLucide(GraduationCap), emoji: "🧠" },
+  { key: "language", label: "Language", Icon: wrapLucide(Languages), emoji: "🗣️" },
+  { key: "code", label: "Code", Icon: wrapLucide(Code2), emoji: "💻" },
+  { key: "work", label: "Deep work", Icon: wrapLucide(Laptop), emoji: "🖥️" },
+  { key: "focus", label: "Focus", Icon: wrapLucide(Target), emoji: "🎯" },
+  { key: "timer", label: "Timer", Icon: wrapLucide(Timer), emoji: "⏱️" },
+  { key: "idea", label: "Ideas", Icon: wrapLucide(Lightbulb), emoji: "💡" },
+  { key: "art", label: "Art", Icon: wrapLucide(Palette), emoji: "🎨" },
+  { key: "music", label: "Music", Icon: wrapLucide(Music), emoji: "🎵" },
+  { key: "grow", label: "Grow", Icon: wrapLucide(Sprout), emoji: "🌱" },
+  { key: "nature", label: "Nature", Icon: wrapLucide(Leaf), emoji: "🍃" },
+  { key: "heart", label: "Care", Icon: wrapLucide(Heart), emoji: "❤️" },
+  { key: "gratitude", label: "Gratitude", Icon: wrapLucide(HeartHandshake), emoji: "🙏" },
+  { key: "mood", label: "Mood", Icon: wrapLucide(Smile), emoji: "🙂" },
+  { key: "star", label: "Goal", Icon: wrapLucide(Star), emoji: "🌟" },
+  { key: "meds", label: "Meds", Icon: wrapLucide(Pill), emoji: "💊" },
+  { key: "money", label: "Money", Icon: wrapLucide(Coins), emoji: "💰" },
+  { key: "coffee", label: "Less coffee", Icon: wrapLucide(Coffee), emoji: "☕" },
 ];
 
 const BY_KEY = new Map(HABIT_ICONS.map((i) => [i.key, i]));
@@ -69,6 +111,8 @@ const BY_EMOJI = new Map<string, string>(
     ([e, k]) => [bare(e), k] as [string, string],
   ),
 );
+
+const DefaultFallbackIcon = wrapLucide(Flame);
 
 /** Resolve a habit's icon key: explicit `icon`, else mapped from its legacy emoji. */
 export function iconKeyFor(h: Pick<Habit, "icon" | "emoji">): string {
@@ -82,10 +126,10 @@ export function emojiForIcon(key: string): string {
 }
 
 export function getIcon(key: string): HabitIconComponent {
-  return BY_KEY.get(key)?.Icon ?? MaterialFlame;
+  return BY_KEY.get(key)?.Icon ?? DefaultFallbackIcon;
 }
 
-/** Rounded tile with the habit's pixel icon, tinted by its color tag. */
+/** Rounded tile with the habit's icon, tinted by its color tag. */
 export function HabitIcon({
   habit,
   size = "md",

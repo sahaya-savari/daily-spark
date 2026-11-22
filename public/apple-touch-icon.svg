@@ -1,44 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="180" height="180">
   <defs>
-    <linearGradient id="flameGrad180" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ff8c42"/>
-      <stop offset="50%" style="stop-color:#f97316"/>
-      <stop offset="100%" style="stop-color:#ea580c"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#202026"/>
+      <stop offset="1" stop-color="#17171D"/>
     </linearGradient>
-    <filter id="shadow180">
-      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.3"/>
-    </filter>
+    <linearGradient id="sp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F29559"/>
+      <stop offset="1" stop-color="#DDA77B"/>
+    </linearGradient>
   </defs>
-  
-  <!-- Background -->
-  <rect width="180" height="180" fill="#0a0a0a"/>
-  
-  <!-- Main flame body -->
-  <path d="M 90 34 
-           C 90 34, 73 51, 73 68
-           C 73 85, 82 93, 90 104
-           C 90 93, 96 85, 102 76
-           C 104 71, 107 65, 107 59
-           C 107 48, 102 40, 90 34 Z"
-        fill="url(#flameGrad180)" 
-        filter="url(#shadow180)"/>
-  
-  <path d="M 90 104
-           C 82 113, 62 124, 62 146
-           C 62 163, 73 177, 90 180
-           C 107 177, 118 163, 118 146
-           C 118 124, 98 113, 90 104 Z"
-        fill="url(#flameGrad180)" 
-        filter="url(#shadow180)"/>
-  
-  <!-- Inner highlights -->
-  <path d="M 90 51
-           C 90 51, 85 59, 85 68
-           C 85 76, 87 82, 90 87
-           C 93 82, 95 76, 95 68
-           C 95 59, 90 51, 90 51 Z"
-        fill="#ffd700" 
-        opacity="0.6"/>
-  
-  <ellipse cx="90" cy="141" rx="14" ry="20" fill="#ffe680" opacity="0.5"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 440c9-70-11-130-62-181" fill="none" stroke="#DDA77B" stroke-width="26" stroke-linecap="round"/>
+  <path d="M194 259c-50-16-83 3-96 50 46 9 83-12 96-50Z" fill="#DDA77B"/>
+  <path d="M228 302c46-19 83-5 101 42-45 13-83-6-101-42Z" fill="#DDA77B"/>
+  <path d="M256 56c10 72 37 99 109 109-72 10-99 37-109 109-10-72-37-99-109-109 72-10 99-37 109-109Z" fill="url(#sp)"/>
+  <circle cx="394" cy="106" r="20" fill="#DDA77B"/>
 </svg>
