@@ -163,7 +163,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
     <div
       data-testid="neo-glass-habit-card"
       className={cn(
-        "group relative overflow-hidden rounded-3xl border transition-all duration-300",
+        "habit-card group relative overflow-hidden rounded-3xl border transition-all duration-300",
         isDoneToday
           ? "border-ember/40 bg-surface/95 shadow-md shadow-ember/10"
           : "border-border/40 bg-surface hover:border-border/80"
@@ -195,7 +195,7 @@ export const NeoGlassHabitCard: React.FC<NeoGlassHabitCardProps> = ({
           transform: swipeOffset ? `translateX(${swipeOffset}px)` : undefined,
           transition: isSwiping ? "none" : "transform 200ms ease-out",
         }}
-        className="p-4"
+        className="habit-card__content p-4"
       >
         {/* Main Card Header */}
         <div className="flex items-center justify-between gap-3">

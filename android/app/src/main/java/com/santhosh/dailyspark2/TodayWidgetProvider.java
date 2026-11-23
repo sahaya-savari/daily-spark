@@ -50,6 +50,7 @@ public class TodayWidgetProvider extends AppWidgetProvider {
 
     private static void updateWidget(Context context, AppWidgetManager manager, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_today);
+        WidgetThemePalette palette = WidgetThemePalette.forMode("classic");
 
         // Click on widget opens app
         Intent openApp = new Intent(context, MainActivity.class);
@@ -72,6 +73,7 @@ public class TodayWidgetProvider extends AppWidgetProvider {
 
                 if (read > 0) {
                     JSONObject json = new JSONObject(new String(data, StandardCharsets.UTF_8));
+                    palette = WidgetThemePalette.forMode(json.optString("themeMode", "classic"));
                     int overallStreak = json.optInt("overallStreak", 0);
                     views.setTextViewText(R.id.widget_today_streak_badge, "🔥 " + overallStreak);
 
@@ -99,6 +101,16 @@ public class TodayWidgetProvider extends AppWidgetProvider {
             }
         } catch (Exception e) {
             // Fallback gracefully
+        }
+
+        views.setInt(R.id.widget_today_container, "setBackgroundColor", palette.background);
+        views.setTextColor(R.id.widget_today_title, palette.foreground);
+        views.setTextColor(R.id.widget_today_subtitle, palette.muted);
+        views.setTextColor(R.id.widget_today_streak_badge, palette.accent);
+        int[] itemIds = { R.id.widget_today_item_1, R.id.widget_today_item_2, R.id.widget_today_item_3 };
+        for (int itemId : itemIds) {
+            views.setInt(itemId, "setBackgroundColor", palette.surface);
+            views.setTextColor(itemId, palette.foreground);
         }
 
         manager.updateAppWidget(appWidgetId, views);

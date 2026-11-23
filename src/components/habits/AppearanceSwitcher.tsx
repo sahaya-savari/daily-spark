@@ -6,6 +6,7 @@ import {
   getStoredTheme,
   setStoredTheme,
   applyThemeToDocument,
+  applyStoredInterfacePreferences,
 } from "@/lib/habits/appearance";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
@@ -60,22 +61,8 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
 
   useEffect(() => {
     if (typeof document === "undefined") return;
-    const root = document.documentElement;
-
-    if (font === "modern-sans") {
-      root.style.setProperty("--font-display", '"Inter", system-ui, sans-serif');
-      root.style.setProperty("--font-app", '"Inter", system-ui, sans-serif');
-    } else if (font === "humanist-display") {
-      root.style.setProperty("--font-display", '"Mozilla Headline", Georgia, serif');
-      root.style.setProperty("--font-app", '"Inter", system-ui, sans-serif');
-    } else if (font === "compact-mono") {
-      root.style.setProperty("--font-display", '"Geist Mono", "JetBrains Mono", monospace');
-      root.style.setProperty("--font-app", '"Geist Mono", "JetBrains Mono", monospace');
-    }
-
-    root.classList.remove("density-comfortable", "density-compact");
-    root.classList.add(`density-${density}`);
-  }, [font, density]);
+    applyStoredInterfacePreferences();
+  }, [font, density, iconStyle]);
 
   const handleSelectTheme = (mode: ThemeMode) => {
     setCurrentMode(mode);

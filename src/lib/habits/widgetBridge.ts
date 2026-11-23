@@ -1,8 +1,14 @@
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { todayKey, addDays } from "./dates";
 import { overallStreak, isDoneOn } from "./logic";
 import type { Habit, HabitSettings } from "./types";
+
+interface WidgetRefreshPlugin {
+  refresh(): Promise<{ refreshed: boolean }>;
+}
+
+const WidgetRefresh = registerPlugin<WidgetRefreshPlugin>("WidgetRefresh");
 
 /**
  * Shared Storage Bridge for Android Home-Screen Widgets.
@@ -63,6 +69,7 @@ export async function syncWidgetData(habits: Habit[], settings?: HabitSettings):
       directory: Directory.Data,
       encoding: Encoding.UTF8,
     });
+    await WidgetRefresh.refresh();
   } catch (err) {
     // Graceful fallback for environments where filesystem isn't accessible
     console.debug("[widgetBridge] syncWidgetData skipped", err);

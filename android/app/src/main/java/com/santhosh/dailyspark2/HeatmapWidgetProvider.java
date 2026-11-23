@@ -4,10 +4,10 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.widget.RemoteViews;
@@ -26,6 +26,12 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId);
         }
+    }
+
+    public static void updateAllWidgets(Context context) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        int[] ids = manager.getAppWidgetIds(new ComponentName(context, HeatmapWidgetProvider.class));
+        for (int id : ids) updateWidget(context, manager, id);
     }
 
     private static void updateWidget(Context context, AppWidgetManager manager, int appWidgetId) {
@@ -52,7 +58,7 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
         // Classic is the safe fallback. The mode is replaced after reading the
         // web app's shared widget payload, so every appearance mode stays one
         // cohesive color family.
-        int[] palette = paletteForTheme("classic");
+        WidgetThemePalette theme = WidgetThemePalette.forMode("classic");
 
         // Try reading heat levels from widget_habits.json
         int[] levels = new int[70];
@@ -65,7 +71,7 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
                 fis.close();
                 if (read > 0) {
                     JSONObject json = new JSONObject(new String(data, StandardCharsets.UTF_8));
-                    palette = paletteForTheme(json.optString("themeMode", "classic"));
+                    theme = WidgetThemePalette.forMode(json.optString("themeMode", "classic"));
                     JSONArray arr = json.optJSONArray("recentHeatLevels");
                     if (arr != null) {
                         for (int i = 0; i < Math.min(arr.length(), levels.length); i++) {
@@ -92,7 +98,7 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
                 int lvl = (idx < levels.length) ? levels[idx] : 0;
                 lvl = Math.max(0, Math.min(4, lvl));
 
-                paint.setColor(palette[lvl]);
+                paint.setColor(theme.heat[lvl]);
                 float left = startX + c * (cellSize + gap);
                 float top = startY + r * (cellSize + gap);
                 RectF rect = new RectF(left, top, left + cellSize, top + cellSize);
@@ -100,36 +106,10 @@ public class HeatmapWidgetProvider extends AppWidgetProvider {
             }
         }
 
+        views.setInt(R.id.widget_heatmap_container, "setBackgroundColor", theme.background);
+        views.setTextColor(R.id.widget_heatmap_score, theme.accent);
         views.setImageViewBitmap(R.id.widget_heatmap_image, bitmap);
         manager.updateAppWidget(appWidgetId, views);
-    }
-
-    private static int[] paletteForTheme(String themeMode) {
-        if ("expressive".equals(themeMode)) {
-            return new int[] {
-                    Color.parseColor("#171024"),
-                    Color.parseColor("#2E1065"),
-                    Color.parseColor("#5B21B6"),
-                    Color.parseColor("#7C3AED"),
-                    Color.parseColor("#8B5CF6")
-            };
-        }
-        if ("classic".equals(themeMode)) {
-            return new int[] {
-                    Color.parseColor("#242018"),
-                    Color.parseColor("#45330A"),
-                    Color.parseColor("#785B0D"),
-                    Color.parseColor("#D99E0B"),
-                    Color.parseColor("#F59E0B")
-            };
-        }
-        return new int[] {
-                Color.parseColor("#211C1B"),
-                Color.parseColor("#2E1B13"),
-                Color.parseColor("#5A3320"),
-                Color.parseColor("#8F4E2B"),
-                Color.parseColor("#BF7245")
-        };
     }
 }
 

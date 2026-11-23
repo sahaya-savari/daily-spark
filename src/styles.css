@@ -4,6 +4,29 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.density-compact .habit-card__content {
+  padding: 0.75rem;
+}
+
+.density-compact .habit-card {
+  border-radius: 1rem;
+}
+
+.icon-style-minimal-modern .habit-icon {
+  border-color: transparent;
+  background: transparent;
+  border-radius: 0.5rem;
+}
+
+.icon-style-pixel-retro .habit-icon {
+  border-radius: 0.25rem;
+  box-shadow: 2px 2px 0 var(--border);
+}
+
+.icon-style-pixel-retro .habit-icon svg {
+  shape-rendering: crispEdges;
+}
+
 /*
  * Daily Spark design system - Sunlit Apricot & Smoked Slate: slate page,
  * tonal surfaces, apricot accent, tan progress. Arvo display headings and

@@ -145,7 +145,7 @@ export function HabitIcon({
   const ic = { sm: "size-4", md: "size-5", lg: "size-7" }[size];
   return (
     <span
-      className={cn("grid shrink-0 place-items-center border border-border bg-surface-2", box, className)}
+      className={cn("habit-icon grid shrink-0 place-items-center border border-border bg-surface-2", box, className)}
       style={{ color: tint }}
     >
       <Icon className={ic} />

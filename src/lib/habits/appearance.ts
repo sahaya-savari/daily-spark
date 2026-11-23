@@ -82,6 +82,32 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
 
 const STORAGE_KEY = "streakflame_appearance_theme";
 
+export function applyStoredInterfacePreferences(): void {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  const root = document.documentElement;
+  const font = localStorage.getItem("dailyspark_font_style") || "modern-sans";
+  const density = localStorage.getItem("dailyspark_density") || "comfortable";
+  const iconStyle = localStorage.getItem("dailyspark_icon_style") || "signature-spark";
+
+  const fontFamily = font === "compact-mono"
+    ? '"Geist Mono", "JetBrains Mono", monospace'
+    : '"Inter", system-ui, sans-serif';
+  root.style.setProperty("--font-app", fontFamily);
+  root.style.setProperty("--font-sans", fontFamily);
+  if (font === "compact-mono") {
+    root.style.setProperty("--font-display", fontFamily);
+  } else if (font === "humanist-display") {
+    root.style.setProperty("--font-display", '"Mozilla Headline", Georgia, serif');
+  } else {
+    root.style.setProperty("--font-display", THEME_CONFIGS[getStoredTheme()].fontDisplay);
+  }
+
+  root.classList.remove("density-comfortable", "density-compact");
+  root.classList.add(`density-${density === "compact" ? "compact" : "comfortable"}`);
+  root.classList.remove("icon-style-signature-spark", "icon-style-minimal-modern", "icon-style-pixel-retro");
+  root.classList.add(`icon-style-${iconStyle}`);
+}
+
 export function getStoredTheme(): ThemeMode {
   if (typeof window === "undefined") return "minimal";
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -153,4 +179,6 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
   } catch {
     /* ignore in non-browser env */
   }
+
+  applyStoredInterfacePreferences();
 }

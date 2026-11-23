@@ -86,7 +86,7 @@ import {
   COLOR_SWATCH,
   COLOR_OPTIONS,
 } from "@/lib/habits/types";
-import { HabitIcon, HABIT_ICONS, getIcon } from "@/lib/habits/icons";
+import { HabitIcon, HABIT_ICONS, emojiForIcon, getIcon } from "@/lib/habits/icons";
 import { Heatmap } from "@/components/habits/Heatmap";
 import { NotesView } from "@/components/habits/NotesView";
 import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitSearchFilter";
@@ -104,7 +104,7 @@ import { getAtRiskHabits, getMiniRecoveryPrompt } from "@/lib/habits/elastic";
 import { predictNextHabit } from "@/lib/habits/markovPredictor";
 import { generateFrictionDiagnostics } from "@/lib/habits/bottleneckDetector";
 import { generateArchaeologyReport } from "@/lib/habits/archaeology";
-import { getStoredTheme, applyThemeToDocument, setStoredTheme, type ThemeMode } from "@/lib/habits/appearance";
+import { getStoredTheme, applyThemeToDocument, applyStoredInterfacePreferences, setStoredTheme, type ThemeMode } from "@/lib/habits/appearance";
 import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
 import { hapticEngine } from "@/lib/habits/haptics";
 import { ModernSettingsView } from "@/components/settings/ModernSettingsView";
@@ -176,12 +176,14 @@ export function DailySparkApp({
 
   useEffect(() => {
     registerServiceWorker();
+    applyStoredInterfacePreferences();
   }, []);
 
   useEffect(() => {
     if (embedded) return;
     const warmth = settings.solarCircadianGlide !== false ? calculateCircadianWarmth() : 0;
     applyThemeToDocument(settings.themeMode || getStoredTheme(), warmth);
+    applyStoredInterfacePreferences();
   }, [settings.themeMode, settings.solarCircadianGlide, embedded]);
 
   const [activeTab, setActiveTab] = useState<number>(initialTab);
@@ -2855,6 +2857,9 @@ function HabitDetailModal({
   onSnooze: (habit: Habit) => void;
   onDelete: (habit: Habit) => void;
 }) {
+  const [editName, setEditName] = useState(habit.name);
+  const [editIcon, setEditIcon] = useState(habit.icon || "flame");
+  const [editColor, setEditColor] = useState(habit.color || "fire");
   const [notes, setNotes] = useState(habit.notes ?? "");
   const [isPaused, setIsPaused] = useState(Boolean(habit.isPaused));
   const [showVacationInput, setShowVacationInput] = useState(false);
@@ -2906,6 +2911,17 @@ function HabitDetailModal({
     habitActions.updateNotes(habit.id, notes);
   };
 
+  const handleSaveIdentity = () => {
+    const name = editName.trim();
+    if (!name) return;
+    habitActions.update(habit.id, {
+      name,
+      icon: editIcon,
+      emoji: emojiForIcon(editIcon),
+      color: editColor,
+    });
+  };
+
   const handleTogglePause = () => {
     if (isPaused) {
       habitActions.resume(habit.id);
@@ -2936,6 +2952,41 @@ function HabitDetailModal({
           </div>
         </div>
       </DialogHeader>
+
+      <details className="rounded-2xl border border-border/40 bg-surface-2/60 p-3">
+        <summary className="cursor-pointer text-xs font-bold text-ember">Edit name, icon &amp; color</summary>
+        <div className="mt-3 space-y-3">
+          <Input
+            value={editName}
+            onChange={(event) => setEditName(event.target.value)}
+            maxLength={80}
+            aria-label="Habit name"
+            className="bg-surface"
+          />
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(44px,1fr))] gap-1">
+            {HABIT_ICONS.map(({ key, label, Icon }) => (
+              <button key={key} type="button" title={label} aria-label={label}
+                aria-pressed={editIcon === key} onClick={() => setEditIcon(key)}
+                className="grid min-h-11 place-items-center rounded-lg aria-pressed:bg-surface aria-pressed:ring-2 aria-pressed:ring-ember"
+                style={{ color: COLOR_SWATCH[editColor] }}>
+                <Icon />
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {COLOR_OPTIONS.map((option) => (
+              <button key={option.value} type="button" title={option.name}
+                aria-label={`Color ${option.name}`} aria-pressed={editColor === option.value}
+                onClick={() => setEditColor(option.value)}
+                className="size-11 rounded-full border-2 border-transparent aria-pressed:border-white aria-pressed:ring-2 aria-pressed:ring-ember"
+                style={{ backgroundColor: COLOR_SWATCH[option.value] }} />
+            ))}
+          </div>
+          <Button type="button" onClick={handleSaveIdentity} disabled={!editName.trim()} className="w-full">
+            Save habit changes
+          </Button>
+        </div>
+      </details>
 
       {/* Streak Stats */}
       <div className="grid grid-cols-3 gap-2 text-center">

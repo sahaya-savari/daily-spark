@@ -17,6 +17,7 @@ public class MainActivity extends BridgeActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    registerPlugin(WidgetRefreshPlugin.class);
     super.onCreate(savedInstanceState);
 
     // ✅ Classic back button (works for button + some gestures)

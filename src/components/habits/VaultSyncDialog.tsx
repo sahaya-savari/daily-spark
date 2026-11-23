@@ -130,7 +130,7 @@ export const VaultSyncDialog: React.FC<VaultSyncDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-surface border-border/40 text-foreground backdrop-blur-2xl p-6 rounded-3xl shadow-2xl">
+      <DialogContent className="max-w-md max-h-[85vh] overflow-x-hidden overflow-y-auto bg-surface border-border/40 text-foreground backdrop-blur-2xl p-6 rounded-3xl shadow-2xl">
         <DialogHeader className="pb-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-ember-soft border border-ember/20 flex items-center justify-center text-ember">
@@ -148,14 +148,14 @@ export const VaultSyncDialog: React.FC<VaultSyncDialogProps> = ({
         </DialogHeader>
 
         {/* Tab switcher */}
-        <div className="grid grid-cols-3 gap-1 p-1 bg-surface-2 border border-border/30 rounded-2xl my-2">
+        <div className="grid min-w-0 grid-cols-3 gap-1 p-1 bg-surface-2 border border-border/30 rounded-2xl my-2">
           <button
             onClick={() => {
               setActiveTab("export");
               setErrorMessage(null);
               setImportStatus(null);
             }}
-            className={`py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`min-w-0 min-h-11 px-1 py-2 rounded-xl text-[11px] leading-tight font-semibold transition-all ${
               activeTab === "export" ? "bg-ember text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -167,7 +167,7 @@ export const VaultSyncDialog: React.FC<VaultSyncDialogProps> = ({
               setErrorMessage(null);
               setImportStatus(null);
             }}
-            className={`py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`min-w-0 min-h-11 px-1 py-2 rounded-xl text-[11px] leading-tight font-semibold transition-all ${
               activeTab === "import" ? "bg-ember text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -179,7 +179,7 @@ export const VaultSyncDialog: React.FC<VaultSyncDialogProps> = ({
               setErrorMessage(null);
               setImportStatus(null);
             }}
-            className={`py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`min-w-0 min-h-11 px-1 py-2 rounded-xl text-[11px] leading-tight font-semibold transition-all ${
               activeTab === "gdrive" ? "bg-ember text-white shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -213,7 +213,7 @@ export const VaultSyncDialog: React.FC<VaultSyncDialogProps> = ({
 
             <Button
               onClick={handleExportVault}
-              className="w-full rounded-xl bg-ember hover:bg-ember/90 text-white font-bold py-2.5"
+              className="w-full min-h-11 h-auto whitespace-normal rounded-xl bg-ember hover:bg-ember/90 text-white font-bold py-2.5"
             >
               <Download className="w-4 h-4 mr-2" /> Encrypt & Export Vault (.json)
             </Button>

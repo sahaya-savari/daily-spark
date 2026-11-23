@@ -4,6 +4,7 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.widget.RemoteViews;
 
@@ -22,6 +23,12 @@ public class StreakWidgetProvider extends AppWidgetProvider {
         }
     }
 
+    public static void updateAllWidgets(Context context) {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        int[] ids = manager.getAppWidgetIds(new ComponentName(context, StreakWidgetProvider.class));
+        for (int id : ids) updateWidget(context, manager, id);
+    }
+
     private static void updateWidget(Context context, AppWidgetManager manager, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_streak);
 
@@ -35,6 +42,7 @@ public class StreakWidgetProvider extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widget_streak_container, pendingOpen);
 
         int streak = 0;
+        WidgetThemePalette palette = WidgetThemePalette.forMode("classic");
         try {
             File file = new File(context.getFilesDir(), "widget_habits.json");
             if (file.exists()) {
@@ -45,12 +53,16 @@ public class StreakWidgetProvider extends AppWidgetProvider {
                 if (read > 0) {
                     JSONObject json = new JSONObject(new String(data, StandardCharsets.UTF_8));
                     streak = json.optInt("overallStreak", 0);
+                    palette = WidgetThemePalette.forMode(json.optString("themeMode", "classic"));
                 }
             }
         } catch (Exception e) {
             /* fallback */
         }
 
+        views.setInt(R.id.widget_streak_container, "setBackgroundColor", palette.background);
+        views.setTextColor(R.id.widget_streak_count, palette.accent);
+        views.setTextColor(R.id.widget_streak_label, palette.muted);
         views.setTextViewText(R.id.widget_streak_count, String.valueOf(streak));
         manager.updateAppWidget(appWidgetId, views);
     }

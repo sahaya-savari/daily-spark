@@ -796,7 +796,7 @@ export function ModernSettingsView({
         open={activeSection === "preferences"}
         onOpenChange={(open) => !open && setActiveSection(null)}
       >
-        <DialogContent className="max-w-lg rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-x-hidden overflow-y-auto rounded-3xl border border-white/10 bg-surface p-6 space-y-4">
           <DialogHeader>
             <DialogTitle className="font-display text-xl font-bold">Preferences</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
@@ -805,8 +805,8 @@ export function ModernSettingsView({
           </DialogHeader>
           <div className="space-y-3 pt-2">
             {/* 10+ Languages Selector */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
-              <div>
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5 max-sm:flex-col max-sm:items-stretch">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">Language</p>
                 <p className="text-xs text-muted-foreground">Supported across 10 languages</p>
               </div>
@@ -817,7 +817,7 @@ export function ModernSettingsView({
                   setCurrentLang(lang);
                   i18nActions.setLanguage(lang);
                 }}
-                className="h-9 px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember"
+                className="h-11 min-w-0 max-w-full px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember max-sm:w-full"
               >
                 {SUPPORTED_LANGUAGES.map((lang) => (
                   <option key={lang.code} value={lang.code}>
@@ -838,7 +838,7 @@ export function ModernSettingsView({
             </button>
 
             {/* Solar Circadian Warmth */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5">
               <div>
                 <p className="font-semibold text-sm">Solar Circadian Warmth</p>
                 <p className="text-xs text-muted-foreground">Gentle sunset glow reduction at night</p>
@@ -852,7 +852,7 @@ export function ModernSettingsView({
             </div>
 
             {/* Daily Habit Reminders */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5">
               <div>
                 <p className="font-semibold text-sm">Daily Habit Reminders</p>
                 <p className="text-xs text-muted-foreground">
@@ -867,8 +867,8 @@ export function ModernSettingsView({
               />
             </div>
 
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
-              <div>
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5 max-sm:flex-col max-sm:items-stretch">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">Reminder Time</p>
                 <p className="text-xs text-muted-foreground">Used as the default for habit reminders</p>
               </div>
@@ -876,20 +876,20 @@ export function ModernSettingsView({
                 type="time"
                 value={settings.defaultTime || "20:00"}
                 onChange={(event) => habitActions.updateSettings({ defaultTime: event.target.value || "20:00" })}
-                className="h-9 w-28 rounded-xl border-border/40 bg-surface px-2 text-xs font-semibold"
+                className="h-11 w-28 max-w-full rounded-xl border-border/40 bg-surface px-2 text-xs font-semibold max-sm:w-full"
                 aria-label="Default reminder time"
               />
             </div>
 
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
-              <div>
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5 max-sm:flex-col max-sm:items-stretch">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">Pre-task Reminder</p>
                 <p className="text-xs text-muted-foreground">Notify before each scheduled habit time</p>
               </div>
               <select
                 value={settings.preTaskReminderOffsetMinutes ?? 0}
                 onChange={(event) => habitActions.updateSettings({ preTaskReminderOffsetMinutes: Number(event.target.value) })}
-                className="h-9 px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember shrink-0 ml-3"
+                className="h-11 min-w-0 max-w-full px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember shrink-0 sm:ml-3 max-sm:w-full"
                 aria-label="Pre-task reminder offset"
               >
                 <option value={0}>Off</option>
@@ -902,8 +902,8 @@ export function ModernSettingsView({
             </div>
 
             {/* Send Test Notification Button */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
-              <div>
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5 max-sm:flex-col max-sm:items-stretch">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">Test Notifications</p>
                 <p className="text-xs text-muted-foreground">
                   Verify alert permissions, audio, and vibration
@@ -914,15 +914,15 @@ export function ModernSettingsView({
                 variant="outline"
                 size="sm"
                 onClick={handleSendTestNotification}
-                className="h-8 rounded-xl border-white/10 text-xs font-semibold hover:bg-white/5"
+                className="h-11 rounded-xl border-white/10 text-xs font-semibold hover:bg-white/5 max-sm:w-full"
               >
                 {testNotificationStatus || "Send Test"}
               </Button>
             </div>
 
             {/* Directive 4: Realigned Day Rollover (Night Owl) */}
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-surface-2 border border-white/5">
-              <div>
+            <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5 max-sm:flex-col max-sm:items-stretch">
+              <div className="min-w-0">
                 <p className="font-semibold text-sm">Day Rollover (Night Owl)</p>
                 <p className="text-xs text-muted-foreground">
                   Keep yesterday&apos;s habits active until chosen hour
@@ -933,7 +933,7 @@ export function ModernSettingsView({
                 onChange={(e) =>
                   habitActions.updateSettings({ rolloverHour: Number(e.target.value) })
                 }
-                className="h-9 px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember shrink-0 ml-3"
+                className="h-11 min-w-0 max-w-full px-3 rounded-xl bg-surface border border-border/40 text-xs font-semibold text-foreground cursor-pointer focus:outline-none focus:ring-2 focus:ring-ember shrink-0 sm:ml-3 max-sm:w-full"
               >
                 <option value={0}>Midnight (12:00 AM)</option>
                 <option value={1}>1:00 AM</option>
