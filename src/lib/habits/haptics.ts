@@ -7,7 +7,10 @@ import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
  * Uses @capacitor/haptics on Android/iOS native containers with navigator.vibrate fallback for Web.
  */
 
+let enabled = true;
+
 async function nativeImpact(style: ImpactStyle) {
+  if (!enabled) return true;
   if (Capacitor.isNativePlatform()) {
     try {
       await Haptics.impact({ style });
@@ -20,6 +23,7 @@ async function nativeImpact(style: ImpactStyle) {
 }
 
 function webVibrate(pattern: number | number[]) {
+  if (!enabled) return true;
   if (typeof window !== "undefined" && "navigator" in window && typeof navigator.vibrate === "function") {
     try {
       navigator.vibrate(pattern);
@@ -37,7 +41,7 @@ function webVibrate(pattern: number | number[]) {
  * to deliver tactile confirmation when hardware vibration is absent.
  */
 function playWebAudioTick(freq = 720, duration = 0.016) {
-  if (typeof window === "undefined") return;
+  if (!enabled || typeof window === "undefined") return;
   try {
     const AudioContextClass =
       window.AudioContext ||
@@ -64,6 +68,7 @@ function playWebAudioTick(freq = 720, duration = 0.016) {
 }
 
 export const hapticEngine = {
+  setEnabled(value: boolean) { enabled = value; },
   /**
    * Subtle 10ms crisp tap when incrementing a quantitative step.
    */
@@ -99,6 +104,7 @@ export const hapticEngine = {
    * 3-step ascending resonant vibration upon reaching a streak milestone or multi-lap target.
    */
   async crescendoPulse(): Promise<void> {
+    if (!enabled) return;
     if (Capacitor.isNativePlatform()) {
       try {
         await Haptics.notification({ type: NotificationType.Success });

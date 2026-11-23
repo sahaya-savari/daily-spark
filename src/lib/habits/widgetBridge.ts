@@ -1,7 +1,7 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { todayKey, addDays } from "./dates";
-import { overallStreak, isDoneOn } from "./logic";
+import { overallStreak, isDoneOn, isHabitDueToday } from "./logic";
 import type { Habit, HabitSettings } from "./types";
 
 interface WidgetRefreshPlugin {
@@ -19,12 +19,12 @@ export async function syncWidgetData(habits: Habit[], settings?: HabitSettings):
   if (!Capacitor.isNativePlatform()) return;
 
   try {
-    const today = todayKey();
+    const today = todayKey(new Date(), settings?.rolloverHour);
     const streak = overallStreak(habits, today);
 
     // Top pending habits for TodayWidget (max 3)
     const pendingHabits = habits
-      .filter((h) => !h.archivedAt && !h.isPaused && !isDoneOn(h, today))
+      .filter((h) => !h.archivedAt && !h.isPaused && isHabitDueToday(h, today) && !isDoneOn(h, today))
       .slice(0, 3)
       .map((h) => ({
         id: h.id,

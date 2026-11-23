@@ -14,6 +14,8 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
@@ -85,6 +87,9 @@
                 android:resource="@xml/widget_heatmap_info" />
         </receiver>
 
+        <service android:name=".FolderBackupJob"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

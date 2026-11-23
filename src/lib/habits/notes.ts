@@ -160,6 +160,10 @@ export const noteActions = {
     });
   },
 
+  reloadFromStorage() {
+    state = { loaded: true, notes: readNotesFromStorage() };
+    listeners.forEach((listener) => listener());
+  },
   replaceAll(notes: StandaloneNote[]) {
     set({ loaded: true, notes });
   },

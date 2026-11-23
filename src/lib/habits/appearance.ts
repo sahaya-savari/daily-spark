@@ -24,9 +24,9 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
   minimal: {
     id: "minimal",
     name: "Minimal",
-    subtitle: "Warm Terracotta Brown",
-    fontDisplay: '"Mozilla Headline", sans-serif',
-    fontApp: '"Inter", "JetBrains Mono", monospace',
+    subtitle: "Quiet terracotta and compact type",
+    fontDisplay: '"Geist Mono", ui-monospace, monospace',
+    fontApp: 'system-ui, sans-serif',
     bg: "#000000",
     surface: "rgba(22, 16, 13, 0.75)",
     surface2: "rgba(32, 23, 19, 0.85)",
@@ -43,8 +43,8 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
   classic: {
     id: "classic",
     name: "Classic",
-    subtitle: "Electric Solar Gold on Cosmic Black",
-    fontDisplay: '"Mozilla Headline", sans-serif',
+    subtitle: "Solar gold and clear, familiar type",
+    fontDisplay: '"Inter", system-ui, sans-serif',
     fontApp: '"Inter", system-ui, sans-serif',
     bg: "#000000",
     surface: "#10131B",
@@ -62,9 +62,9 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
   expressive: {
     id: "expressive",
     name: "Expressive",
-    subtitle: "Electric Violet on Deep Obsidian",
-    fontDisplay: '"Mozilla Headline", sans-serif',
-    fontApp: '"Inter", system-ui, sans-serif',
+    subtitle: "Violet and bold editorial type",
+    fontDisplay: '"Mozilla Headline", Georgia, serif',
+    fontApp: 'Georgia, serif',
     bg: "#000000",
     surface: "#0A0812",
     surface2: "#130E20",
@@ -82,16 +82,17 @@ export const THEME_CONFIGS: Record<ThemeMode, ThemeConfig> = {
 
 const STORAGE_KEY = "streakflame_appearance_theme";
 
-export function applyStoredInterfacePreferences(): void {
+export function applyStoredInterfacePreferences(mode?: ThemeMode): void {
   if (typeof window === "undefined" || typeof document === "undefined") return;
   const root = document.documentElement;
-  const font = localStorage.getItem("dailyspark_font_style") || "modern-sans";
+  const config = THEME_CONFIGS[mode ?? getStoredTheme()];
+  const font = localStorage.getItem("dailyspark_font_style") || "theme-default";
   const density = localStorage.getItem("dailyspark_density") || "comfortable";
   const iconStyle = localStorage.getItem("dailyspark_icon_style") || "signature-spark";
 
   const fontFamily = font === "compact-mono"
     ? '"Geist Mono", "JetBrains Mono", monospace'
-    : '"Inter", system-ui, sans-serif';
+    : font === "theme-default" ? config.fontApp : '"Inter", system-ui, sans-serif';
   root.style.setProperty("--font-app", fontFamily);
   root.style.setProperty("--font-sans", fontFamily);
   if (font === "compact-mono") {
@@ -99,7 +100,7 @@ export function applyStoredInterfacePreferences(): void {
   } else if (font === "humanist-display") {
     root.style.setProperty("--font-display", '"Mozilla Headline", Georgia, serif');
   } else {
-    root.style.setProperty("--font-display", THEME_CONFIGS[getStoredTheme()].fontDisplay);
+    root.style.setProperty("--font-display", config.fontDisplay);
   }
 
   root.classList.remove("density-comfortable", "density-compact");
@@ -123,15 +124,55 @@ export function setStoredTheme(mode: ThemeMode): void {
   applyThemeToDocument(mode);
 }
 
+export type ColorMode = "system" | "light" | "dark" | "amoled";
+
+export function accentInk(hex: string): string {
+  const rgb = [1, 3, 5].map((offset) => parseInt(hex.slice(offset, offset + 2), 16) / 255);
+  const [r, g, b] = rgb.map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.179 ? "#000000" : "#FFFFFF";
+}
+
+export function resetStoredInterfacePreferences(): void {
+  for (const key of ["dailyspark_font_style", "dailyspark_density", "dailyspark_icon_style"]) {
+    localStorage.removeItem(key);
+  }
+  applyStoredInterfacePreferences();
+}
+
 /**
  * Injects CSS variables and theme classes directly onto the document root.
  * 100% offline, zero network requests, zero CDNs.
  */
-export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void {
+export function applyThemeToDocument(
+  mode: ThemeMode,
+  circadianWarmth = 0,
+  options: { colorMode?: ColorMode | undefined; customAccent?: string | null | undefined } = {},
+): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   const config = THEME_CONFIGS[mode] || THEME_CONFIGS.minimal;
 
+  const light = options.colorMode === "light" || (options.colorMode === "system" &&
+    typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: light)").matches);
+  const background = light ? "#F8F6F2" : options.colorMode === "dark" || options.colorMode === "system" ? "#111115" : config.bg;
+  const surface = light ? "#FFFFFF" : config.surface;
+  const surface2 = light ? "#EFEAE5" : config.surface2;
+  const foreground = light ? "#211C19" : config.fg;
+  const muted = light ? "#625A54" : config.muted;
+  const custom = options.customAccent && /^#[0-9a-f]{6}$/i.test(options.customAccent) ? options.customAccent : null;
+  const lightAccents: Record<ThemeMode, string> = { minimal: "#914719", classic: "#865200", expressive: "#6D28D9" };
+  const accent = custom ?? (light ? lightAccents[config.id] : config.accent);
+  // Keep accent text readable on its surrounding surface as well as on filled buttons.
+  const textAccent = custom
+    ? `color-mix(in srgb, ${accent} 60%, ${light ? "#000000" : "#FFFFFF"})`
+    : accent;
+  const ink = custom || light ? accentInk(accent) : config.accentForeground;
+  const heat = custom || light
+    ? [light ? "#E9E3DE" : config.heat[0], ...[25, 45, 70].map((level) => `color-mix(in srgb, ${accent} ${level}%, ${surface})`), accent]
+    : config.heat;
+
+  root.classList.toggle("light", light);
+  root.style.colorScheme = light ? "light" : "dark";
   // Set theme classes
   root.classList.remove("theme-classic", "theme-minimal", "theme-expressive");
   root.classList.add(`theme-${mode}`);
@@ -152,20 +193,31 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
     root.style.setProperty("--circadian-amber-tint", "transparent");
   }
 
-  // Ensure background stays deep pure black (#000000) across all themes
-  root.style.setProperty("--background", config.bg);
-  root.style.setProperty("--color-ember", config.accent);
-  root.style.setProperty("--ember", config.accent);
-  root.style.setProperty("--ember-glow", config.glow);
-  root.style.setProperty("--ember-soft", config.soft);
-  root.style.setProperty("--primary", config.accent);
-  root.style.setProperty("--ember-foreground", config.accentForeground);
-  root.style.setProperty("--primary-foreground", config.accentForeground);
-  root.style.setProperty("--heat-0", config.heat[0]);
-  root.style.setProperty("--heat-1", config.heat[1]);
-  root.style.setProperty("--heat-2", config.heat[2]);
-  root.style.setProperty("--heat-3", config.heat[3]);
-  root.style.setProperty("--heat-4", config.heat[4]);
+  root.style.setProperty("--surface", surface);
+  root.style.setProperty("--surface-2", surface2);
+  root.style.setProperty("--card", surface);
+  root.style.setProperty("--foreground", foreground);
+  root.style.setProperty("--popover", surface);
+  root.style.setProperty("--popover-foreground", foreground);
+  root.style.setProperty("--card-foreground", foreground);
+  root.style.setProperty("--muted-foreground", muted);
+  root.style.setProperty("--faint", muted);
+  root.style.setProperty("--border", light ? "#D8CEC6" : config.border);
+  root.style.setProperty("--ring", textAccent);
+  root.style.setProperty("--background", background);
+  root.style.setProperty("--color-ember", accent);
+  root.style.setProperty("--ember-text", textAccent);
+  root.style.setProperty("--ember", accent);
+  root.style.setProperty("--ember-glow", custom ? `color-mix(in srgb, ${accent} 40%, transparent)` : config.glow);
+  root.style.setProperty("--ember-soft", custom ? `color-mix(in srgb, ${accent} 18%, transparent)` : config.soft);
+  root.style.setProperty("--primary", accent);
+  root.style.setProperty("--ember-foreground", ink);
+  root.style.setProperty("--primary-foreground", ink);
+  root.style.setProperty("--heat-0", heat[0]);
+  root.style.setProperty("--heat-1", heat[1]);
+  root.style.setProperty("--heat-2", heat[2]);
+  root.style.setProperty("--heat-3", heat[3]);
+  root.style.setProperty("--heat-4", heat[4]);
 
   // Update <meta name="theme-color"> dynamically
   try {
@@ -175,10 +227,10 @@ export function applyThemeToDocument(mode: ThemeMode, circadianWarmth = 0): void
       metaTheme.setAttribute("name", "theme-color");
       document.head.appendChild(metaTheme);
     }
-    metaTheme.setAttribute("content", config.bg);
+    metaTheme.setAttribute("content", background);
   } catch {
     /* ignore in non-browser env */
   }
 
-  applyStoredInterfacePreferences();
+  applyStoredInterfacePreferences(config.id);
 }

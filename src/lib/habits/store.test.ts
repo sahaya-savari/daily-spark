@@ -1,4 +1,6 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { DEFAULT_SETTINGS } from "./types";
+import { isHabitDueToday } from "./logic";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import { habitActions, STORAGE_KEYS } from "./store";
 
 describe("habit store", () => {
@@ -26,6 +28,101 @@ describe("habit store", () => {
 
     const res2 = habitActions.toggleToday(h.id);
     expect(res2).toBe("undone");
+  });
+
+  it("records and undoes a check-in on the configured logical day", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date(2026, 10, 24, 1, 30));
+      habitActions.updateSettings({ rolloverHour: 3 });
+      const habit = habitActions.add({ name: "Read", emoji: "R" });
+      expect(habitActions.toggleToday(habit.id)).toBe("done");
+      const readHabit = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[0];
+      expect(readHabit().completedDates).toEqual(["2026-11-23"]);
+      expect(habitActions.toggleToday(habit.id)).toBe("undone");
+      expect(readHabit().completedDates).toEqual([]);
+      vi.setSystemTime(new Date(2026, 10, 24, 3));
+      expect(habitActions.toggleToday(habit.id)).toBe("done");
+      expect(readHabit().completedDates).toEqual(["2026-11-24"]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("saves a history note with completion and undoes both together", () => {
+    const habit = habitActions.add({ name: "Read", emoji: "R", createdAt: "2026-10-20" });
+    const readHabits = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!);
+    const editedDay = "2026-10-25";
+    const undo = habitActions.editHistoryDay(habit.id, editedDay, {
+      completed: true, amount: 0, note: "Read a chapter",
+    });
+    expect(readHabits()[0]).toMatchObject({
+      completedDates: [editedDay], dayNotes: { [editedDay]: "Read a chapter" },
+    });
+    expect(undo?.()).toBe(true);
+    expect(readHabits()[0].completedDates).toEqual([]);
+    expect(readHabits()[0].dayNotes).toBeUndefined();
+    expect(habitActions.editHistoryDay(habit.id, "9999-01-01", {
+      completed: true, amount: 0, note: "",
+    })).toBeNull();
+  });
+
+  it("preserves earlier weekday schedules across edits on the same day", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    try {
+      vi.setSystemTime(new Date(2026, 10, 24, 12));
+      const habit = habitActions.add({
+        name: "Training", emoji: "T", createdAt: "2026-11-20",
+        frequencyType: "specific_days", customDays: [1],
+      });
+      habitActions.updateSchedule(habit.id, { frequencyType: "daily" });
+      habitActions.updateSchedule(habit.id, { frequencyType: "specific_days", customDays: [2] });
+      const [saved] = JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!);
+      expect(isHabitDueToday(saved, "2026-11-22")).toBe(false);
+      expect(isHabitDueToday(saved, "2026-11-23")).toBe(true);
+      expect(isHabitDueToday(saved, "2026-11-24")).toBe(true);
+      expect(isHabitDueToday(saved, "2026-11-30")).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("records focus once and never toggles an existing check-in off", () => {
+    const habit = habitActions.add({ name: "Read", emoji: "R" });
+    habitActions.toggleToday(habit.id);
+    const end = Date.now();
+    expect(habitActions.recordFocusSession("session", 25, end, habit.id, true)).toBe(true);
+    expect(habitActions.recordFocusSession("session", 25, end, habit.id, true)).toBe(false);
+    const [saved] = JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!);
+    expect(saved.totalFocusMinutes).toBe(25);
+    expect(saved.completedDates).toHaveLength(1);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.settings)!).focusSessions).toHaveLength(1);
+  });
+
+  it("keeps local records on merge and makes a recovery snapshot before replacement", () => {
+    const habit = habitActions.add({ name: "Keep", emoji: "K" });
+    const backup = { habits: [{ ...habit, name: "Incoming version" }], settings: DEFAULT_SETTINGS };
+    habitActions.restoreBackup(backup, "merge");
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[0].name).toBe("Keep");
+    habitActions.restoreBackup({ ...backup, habits: [] }, "replace");
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)).toEqual([]);
+    habitActions.restoreRollingBackup(0);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[0].name).toBe("Keep");
+  });
+
+  it("rolls back completed storage writes if a restore write fails", () => {
+    const original = habitActions.add({ name: "Keep", emoji: "K" });
+    const write = Storage.prototype.setItem;
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (this: Storage, key, value) {
+      if (key === STORAGE_KEYS.settings) throw new Error("Storage rejected the write");
+      write.call(this, key, value);
+    });
+    try {
+      expect(() => habitActions.restoreBackup({ habits: [], settings: DEFAULT_SETTINGS }, "replace")).toThrow();
+      expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.habits)!)[0].id).toBe(original.id);
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it("stars and archives a habit", () => {

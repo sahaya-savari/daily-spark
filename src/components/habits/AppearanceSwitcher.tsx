@@ -5,15 +5,16 @@ import {
   THEME_CONFIGS,
   getStoredTheme,
   setStoredTheme,
-  applyThemeToDocument,
+  accentInk,
+  resetStoredInterfacePreferences,
+  type ColorMode,
   applyStoredInterfacePreferences,
 } from "@/lib/habits/appearance";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
-import { calculateCircadianWarmth } from "@/lib/habits/circadianGlide";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-export type TypographyOption = "modern-sans" | "humanist-display" | "compact-mono";
+export type TypographyOption = "theme-default" | "modern-sans" | "humanist-display" | "compact-mono";
 export type DensityOption = "comfortable" | "compact";
 export type IconStyleOption = "signature-spark" | "minimal-modern" | "pixel-retro";
 
@@ -34,14 +35,14 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
 }) => {
   const { settings } = useHabitStore();
   const [activeTab, setActiveTab] = useState<"appearance" | "style">(defaultTab);
-  const [currentMode, setCurrentMode] = useState<ThemeMode>(() => getStoredTheme());
+  const currentMode = settings.themeMode || getStoredTheme();
   const [isGlideEnabled, setIsGlideEnabled] = useState<boolean>(
     () => settings.solarCircadianGlide !== false
   );
 
   const [font, setFont] = useState<TypographyOption>(() => {
-    if (typeof window === "undefined") return "modern-sans";
-    return (localStorage.getItem(STORAGE_KEYS.font) as TypographyOption) || "modern-sans";
+    if (typeof window === "undefined") return "theme-default";
+    return (localStorage.getItem(STORAGE_KEYS.font) as TypographyOption) || "theme-default";
   });
 
   const [density, setDensity] = useState<DensityOption>(() => {
@@ -55,17 +56,11 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
   });
 
   useEffect(() => {
-    const warmth = isGlideEnabled ? calculateCircadianWarmth() : 0;
-    applyThemeToDocument(currentMode, warmth);
-  }, [currentMode, isGlideEnabled]);
-
-  useEffect(() => {
     if (typeof document === "undefined") return;
-    applyStoredInterfacePreferences();
-  }, [font, density, iconStyle]);
+    applyStoredInterfacePreferences(currentMode);
+  }, [font, density, iconStyle, currentMode]);
 
   const handleSelectTheme = (mode: ThemeMode) => {
-    setCurrentMode(mode);
     setStoredTheme(mode);
     habitActions.updateSettings({ themeMode: mode });
   };
@@ -210,6 +205,44 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
             })}
           </div>
 
+          <div className="space-y-3 rounded-2xl border border-border bg-surface-2 p-3">
+            <label className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold">
+              Color mode
+              <select className="min-h-11 rounded-xl border border-border bg-surface px-3" value={settings.colorMode ?? "amoled"}
+                onChange={(event) => habitActions.updateSettings({ colorMode: event.target.value as ColorMode })}>
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="amoled">AMOLED</option>
+              </select>
+            </label>
+            <label className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold">
+              Custom accent
+              <input aria-label="Custom accent" className="h-11 w-16 rounded-lg border border-border bg-surface p-1" type="color"
+                value={settings.customAccent ?? THEME_CONFIGS[currentMode].accent}
+                onChange={(event) => habitActions.updateSettings({ customAccent: event.target.value })} />
+            </label>
+            {settings.customAccent && (
+              <p className="w-fit rounded-lg px-3 py-2 text-sm font-semibold" style={{ background: settings.customAccent, color: accentInk(settings.customAccent) }}>Accent preview</p>
+            )}
+            <label className="flex min-h-11 items-center justify-between gap-2 text-sm font-semibold">
+              Reduce motion
+              <Switch checked={settings.reduceMotion === true} onCheckedChange={(checked) => habitActions.updateSettings({ reduceMotion: checked })} />
+            </label>
+            <label className="flex min-h-11 items-center justify-between gap-2 text-sm font-semibold">
+              Haptic feedback
+              <Switch checked={settings.hapticsEnabled !== false} onCheckedChange={(checked) => habitActions.updateSettings({ hapticsEnabled: checked })} />
+            </label>
+            <button type="button" className="min-h-11 text-sm font-semibold text-foreground underline" onClick={() => {
+              resetStoredInterfacePreferences();
+              setFont("theme-default");
+              setDensity("comfortable");
+              setIconStyle("signature-spark");
+              setIsGlideEnabled(true);
+              setStoredTheme("classic");
+              habitActions.updateSettings({ themeMode: "classic", colorMode: "amoled", customAccent: null, solarCircadianGlide: true, reduceMotion: false, hapticsEnabled: true });
+            }}>Reset appearance</button>
+          </div>
           {/* Solar Circadian Theme Glide Switch */}
           <div className="rounded-2xl border border-border/40 bg-surface p-3.5 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -246,6 +279,7 @@ export const AppearanceSwitcher: React.FC<AppearanceSwitcherProps> = ({
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
+                { id: "theme-default", name: "Follow theme", desc: "Use the selected theme?s fonts" },
                 { id: "modern-sans", name: "Modern Sans", desc: "Inter geometric clean" },
                 { id: "humanist-display", name: "Humanist", desc: "Mozilla headline editorial" },
                 { id: "compact-mono", name: "Compact Mono", desc: "Geist tabular code" },

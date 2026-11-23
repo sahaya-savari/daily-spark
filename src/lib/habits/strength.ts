@@ -1,3 +1,4 @@
+import { scheduleOn } from "./schedule";
 import { addDays, isValidKey } from "./dates";
 import type { Habit } from "./types";
 
@@ -32,10 +33,11 @@ export function isScheduledOn(habit: Habit, day: string): boolean {
   if (habit.archivedAt && day >= habit.archivedAt.slice(0, 10)) return false;
 
   // Custom days of week check (0=Sun, 1=Mon, ..., 6=Sat)
-  if (habit.frequencyType === "specific_days" && Array.isArray(habit.customDays) && habit.customDays.length > 0) {
+  const schedule = scheduleOn(habit, day);
+  if (schedule.frequencyType === "specific_days" && Array.isArray(schedule.customDays) && schedule.customDays.length > 0) {
     const dateObj = new Date(`${day}T12:00:00Z`);
     const dayOfWeek = dateObj.getUTCDay();
-    return habit.customDays.includes(dayOfWeek);
+    return schedule.customDays.includes(dayOfWeek);
   }
 
   return true;

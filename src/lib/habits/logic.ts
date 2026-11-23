@@ -1,3 +1,4 @@
+import { scheduleOn } from "./schedule";
 import { addDays, isValidKey, lastNDays, todayKey } from "./dates";
 import { DEFAULT_SETTINGS, MILESTONES, type Habit, type HabitCollection, type HabitSettings, type MilestoneDef, type StandaloneNote } from "./types";
 import { calculateCleanStreak } from "./avoid";
@@ -484,7 +485,7 @@ export function buildBackup(
     data: {
       streaks: habits,
       settings,
-      ...(notes && notes.length > 0 ? { notes } : {}),
+      ...(notes !== undefined ? { notes } : {}),
       ...(collections && collections.length > 0 ? { collections } : {}),
     },
   };
@@ -1079,19 +1080,20 @@ export function parseTsvHabits(
  */
 export function isHabitDueToday(habit: Habit, dateKey: string): boolean {
   if (habit.isPaused) return false;
-  if (!habit.frequencyType || habit.frequencyType === "daily") return true;
+  const schedule = scheduleOn(habit, dateKey);
+  if (!schedule.frequencyType || schedule.frequencyType === "daily") return true;
 
-  if (habit.frequencyType === "specific_days") {
-    if (!Array.isArray(habit.customDays) || habit.customDays.length === 0) return true;
+  if (schedule.frequencyType === "specific_days") {
+    if (!Array.isArray(schedule.customDays) || schedule.customDays.length === 0) return true;
     const d = new Date(dateKey + "T12:00:00Z");
     const dayOfWeek = d.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
-    return habit.customDays.includes(dayOfWeek);
+    return schedule.customDays.includes(dayOfWeek);
   }
 
-  if (habit.frequencyType === "weekly_target") {
+  if (schedule.frequencyType === "weekly_target") {
     // If already completed on this date, it's satisfied
     if (habit.completedDates.includes(dateKey)) return true;
-    const target = habit.targetDaysPerWeek ?? 1;
+    const target = schedule.targetDaysPerWeek ?? 1;
 
     // Calculate completions in current ISO week (Mon - Sun)
     const d = new Date(dateKey + "T12:00:00Z");
@@ -1101,7 +1103,7 @@ export function isHabitDueToday(habit: Habit, dateKey: string): boolean {
     let completionsThisWeek = 0;
     for (let i = 0; i < 7; i++) {
       const day = addDays(monday, i);
-      if (habit.completedDates.includes(day)) {
+      if (day <= dateKey && day >= schedule.effectiveOn && habit.completedDates.includes(day)) {
         completionsThisWeek++;
       }
     }

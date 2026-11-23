@@ -1,5 +1,7 @@
+import { noteActions, NOTES_STORAGE_KEY } from "./notes";
+import { changeSchedule, scheduleOn } from "./schedule";
 import { useSyncExternalStore } from "react";
-import { todayKey, addDays } from "./dates";
+import { todayKey, addDays, isValidKey } from "./dates";
 import {
   completeToday,
   createHabit,
@@ -23,7 +25,7 @@ import {
   reconcileNativeReminders,
   requestNotificationPermission,
 } from "./reminders";
-import { DEFAULT_SETTINGS, type Habit, type HabitCollection, type HabitSettings } from "./types";
+import { DEFAULT_SETTINGS, type Habit, type HabitCollection, type HabitSettings, type HabitSchedule, type FocusSession, type StandaloneNote, type PlannerTask } from "./types";
 
 /**
  * Local-only habit store. Data lives in this browser/device's localStorage under the
@@ -44,6 +46,7 @@ export interface LocalBackupSnapshot {
   habits: Habit[];
   settings: HabitSettings;
   collections?: HabitCollection[];
+  notes?: StandaloneNote[];
 }
 
 export interface HabitState {
@@ -80,6 +83,7 @@ function saveRollingBackup(habits: Habit[], settings: HabitSettings, collections
         habits,
         settings,
         collections,
+        notes: noteActions.getNotes(),
       },
       ...filtered,
     ].slice(0, 7);
@@ -91,7 +95,8 @@ function saveRollingBackup(habits: Habit[], settings: HabitSettings, collections
 
 function load() {
   if (state.loaded || typeof window === "undefined") return;
-  const today = todayKey();
+  const settings = { ...DEFAULT_SETTINGS, ...readJson<Partial<HabitSettings>>(STORAGE_KEYS.settings, {}) };
+  const today = todayKey(new Date(), settings.rolloverHour);
   let raw: unknown = [];
   try {
     const item = localStorage.getItem(STORAGE_KEYS.habits);
@@ -131,7 +136,6 @@ function load() {
   }
 
   const { healed, issuesFound } = verifyAndHealIntegrity(candidateHabits, today);
-  const settings = { ...DEFAULT_SETTINGS, ...readJson<Partial<HabitSettings>>(STORAGE_KEYS.settings, {}) };
   const habitIds = new Set(healed.map((habit) => habit.id));
   const rawCollections = readJson<HabitCollection[]>(STORAGE_KEYS.collections, []);
   const collections = (Array.isArray(rawCollections) ? rawCollections : [])
@@ -212,10 +216,15 @@ function mapHabit(id: string, fn: (h: Habit) => Habit) {
   set({ habits: state.habits.map((h) => (h.id === id ? fn(h) : h)) });
 }
 
+function currentHabitDay(): string {
+  load();
+  return todayKey(new Date(), state.settings.rolloverHour);
+}
+
 export const habitActions = {
   add(input: Pick<Habit, "name" | "emoji"> & Partial<Habit>): Habit {
     load();
-    const h = createHabit(input, todayKey());
+    const h = createHabit(input, currentHabitDay());
     set({ habits: [...state.habits, h] });
     return h;
   },
@@ -223,7 +232,7 @@ export const habitActions = {
     mapHabit(id, (h) => ({ ...h, ...patch, id: h.id }));
   },
   toggleToday(id: string): "done" | "undone" | null {
-    const today = todayKey();
+    const today = currentHabitDay();
     const h = state.habits.find((x) => x.id === id);
     if (!h) return null;
     const done = h.completedDates.includes(today);
@@ -231,8 +240,68 @@ export const habitActions = {
     return done ? "undone" : "done";
   },
   togglePastDay(id: string, targetDate: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => togglePastDay(h, targetDate, today));
+  },
+  editHistoryDay(id: string, day: string, change: { completed: boolean; amount: number; note: string }): (() => boolean) | null {
+    const today = currentHabitDay();
+    const previous = state.habits.find((habit) => habit.id === id);
+    if (!previous || !isValidKey(day) || day > today) return null;
+    let next = previous;
+    if (previous.kind === "quantitative") {
+      if (!Number.isFinite(change.amount) || change.amount < 0) return null;
+      if ((previous.quantitativeValues?.[day] ?? 0) !== change.amount) {
+        next = setQuantValue(previous, day, change.amount, today);
+      }
+    } else if (previous.kind === "avoid") {
+      const relapsed = previous.relapses?.some((entry) => entry.date === day);
+      if (change.completed && relapsed) next = undoHabitRelapse(previous, day, today);
+      if (!change.completed && !relapsed && day >= previous.createdAt.slice(0, 10)) {
+        next = logHabitRelapse(previous, day, undefined, undefined, today);
+      }
+    } else if (previous.completedDates.includes(day) !== change.completed) {
+      next = togglePastDay(previous, day, today);
+    }
+    const dayNotes = { ...next.dayNotes };
+    const note = change.note.trim().slice(0, 1000);
+    if (note) dayNotes[day] = note;
+    else delete dayNotes[day];
+    const saved = { ...next, dayNotes };
+    mapHabit(id, () => saved);
+    return () => {
+      if (state.habits.find((habit) => habit.id === id) !== saved) return false;
+      mapHabit(id, () => previous);
+      return true;
+    };
+  },
+  duplicate(id: string): Habit | null {
+    const today = currentHabitDay();
+    const original = state.habits.find((habit) => habit.id === id);
+    if (!original) return null;
+    const { frequencyType, customDays, targetDaysPerWeek } = scheduleOn(original, today);
+    const copy = createHabit({
+      name: `${original.name} (copy)`,
+      emoji: original.emoji,
+      icon: original.icon,
+      color: original.color,
+      kind: original.kind,
+      category: original.category,
+      description: original.description,
+      frequencyType,
+      customDays: customDays ? [...customDays] : undefined,
+      targetDaysPerWeek,
+      targetValue: original.targetValue,
+      unit: original.unit,
+      stepIncrement: original.stepIncrement,
+      dailyCost: original.dailyCost,
+      subtasks: original.subtasks?.map((subtask) => ({ ...subtask })),
+    }, today);
+    set({ habits: [...state.habits, copy] });
+    return copy;
+  },
+  updateSchedule(id: string, schedule: HabitSchedule) {
+    const today = currentHabitDay();
+    mapHabit(id, (habit) => changeSchedule(habit, schedule, today));
   },
   star(id: string) {
     mapHabit(id, (h) => ({ ...h, isStarred: !h.isStarred }));
@@ -291,22 +360,49 @@ export const habitActions = {
     mapHabit(id, (h) => ({ ...h, notes: notes.slice(0, 1000) }));
   },
   pause(id: string, reason?: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => pauseHabit(h, reason, today));
   },
   resume(id: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => resumeHabit(h, today));
   },
   applyGrace(id: string, type: "weekly" | "monthly") {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => applyGrace(h, type, today));
+  },
+  handleReminderAction(id: string, day: string, at: number, action: "done" | "snooze") {
+    const today = currentHabitDay();
+    const habit = state.habits.find((item) => item.id === id);
+    if (!habit || habit.archivedAt || habit.isPaused || day !== today || !Number.isFinite(at)) return;
+    const last = typeof habit.lastReminderActionAt === "number" ? habit.lastReminderActionAt : 0;
+    if (at <= last) return;
+    if (action === "done" && habit.kind && habit.kind !== "boolean") return;
+    mapHabit(id, (item) => {
+      const next = { ...item, lastReminderActionAt: at };
+      return action === "done" ? completeToday({ ...next, snoozedUntil: undefined }, day) : {
+        ...next, snoozedUntil: Date.now() + 10 * 60 * 1000,
+      };
+    });
+  },
+  refreshAndroidData() {
+    load();
+    void syncWidgetData(state.habits, state.settings);
+    void reconcileNativeReminders(state.habits, state.settings).catch((error) =>
+      console.warn("[daily-spark] reminder refresh failed", error));
   },
   snooze(id: string, until: number) {
     mapHabit(id, (h) => ({ ...h, snoozedUntil: until }));
   },
   clearSnooze(id: string) {
     mapHabit(id, (h) => ({ ...h, snoozedUntil: undefined }));
+  },
+  updatePlannerTasks(update: (tasks: PlannerTask[]) => PlannerTask[]) {
+    load();
+    const tasks = Array.isArray(state.settings.plannerTasks) ? state.settings.plannerTasks.filter((task) =>
+      task && typeof task.id === "string" && typeof task.title === "string"
+    ) : [];
+    set({ settings: { ...state.settings, plannerTasks: update(tasks) } });
   },
   updateSettings(patch: Partial<HabitSettings>) {
     load();
@@ -324,6 +420,64 @@ export const habitActions = {
           console.error("[daily-spark] could not enable reminders", error);
         });
     }
+  },
+  restoreBackup(
+    backup: { habits: Habit[]; settings: HabitSettings; collections?: HabitCollection[]; notes?: StandaloneNote[] },
+    mode: "merge" | "replace",
+  ) {
+    load();
+    const notes = noteActions.getNotes();
+    const appendNew = <T extends { id: string }>(local: T[], incoming: T[]) => {
+      const merged = new Map(local.map((item) => [item.id, item]));
+      for (const item of incoming) if (!merged.has(item.id)) merged.set(item.id, item);
+      return [...merged.values()];
+    };
+    const next: HabitState = mode === "merge" ? {
+      ...state,
+      habits: appendNew(state.habits, backup.habits),
+      collections: appendNew(state.collections, backup.collections ?? []),
+    } : {
+      loaded: true,
+      habits: backup.habits,
+      collections: backup.collections ?? [],
+      settings: backup.settings,
+    };
+    const nextNotes = mode === "merge" ? appendNew(notes, backup.notes ?? []) : backup.notes ?? notes;
+    const now = new Date();
+    const recovery: LocalBackupSnapshot = {
+      date: `before-restore:${now.toISOString()}`, timestamp: now.toISOString(),
+      habits: state.habits, settings: state.settings, collections: state.collections, notes,
+    };
+    const storage = window.localStorage;
+    const writes = [
+      [STORAGE_KEYS.habits, JSON.stringify(next.habits)],
+      [STORAGE_KEYS.settings, JSON.stringify(next.settings)],
+      [STORAGE_KEYS.collections, JSON.stringify(next.collections)],
+      [NOTES_STORAGE_KEY, JSON.stringify(nextNotes)],
+    ] as const;
+    const previous = writes.map(([key]) => storage.getItem(key));
+    storage.setItem(STORAGE_KEYS.autoBackupHistory, JSON.stringify([
+      recovery, ...habitActions.getRollingBackups(),
+    ].slice(0, 7)));
+    let written = 0;
+    try {
+      for (const [key, value] of writes) {
+        storage.setItem(key, value);
+        written++;
+      }
+    } catch (error) {
+      for (let index = written - 1; index >= 0; index--) {
+        const [key] = writes[index];
+        const value = previous[index];
+        if (value === null) storage.removeItem(key);
+        else storage.setItem(key, value);
+      }
+      throw error;
+    }
+    state = next;
+    noteActions.reloadFromStorage();
+    listeners.forEach((listener) => listener());
+    habitActions.refreshAndroidData();
   },
   replaceAll(habits: Habit[], settings: HabitSettings, collections: HabitCollection[] = state.collections) {
     set({ loaded: true, habits, collections, settings });
@@ -402,28 +556,28 @@ export const habitActions = {
     const history = habitActions.getRollingBackups();
     const target = history[index];
     if (target) {
-      habitActions.replaceAll(target.habits, target.settings, target.collections ?? []);
+      habitActions.restoreBackup(target, "replace");
     }
   },
   // Phase 4 & 5 additions
   setQuant(id: string, dateKey: string, value: number) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => setQuantValue(h, dateKey, value, today));
   },
   incrementQuant(id: string, dateKey: string, delta: number) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => incrementQuantValue(h, dateKey, delta, today));
   },
   logRelapse(id: string, dateKey: string, cost?: number, reason?: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => logHabitRelapse(h, dateKey, cost, reason, today));
   },
   undoRelapse(id: string, dateKey: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => undoHabitRelapse(h, dateKey, today));
   },
   toggleSubtask(id: string, subtaskId: string, dateKey: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => toggleHabitSubtask(h, subtaskId, dateKey, today));
   },
   addSubtask(id: string, title: string) {
@@ -433,22 +587,38 @@ export const habitActions = {
     mapHabit(id, (h) => removeSubtaskFromHabit(h, subtaskId));
   },
   addVacation(id: string, start: string, end: string, reason?: string) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => addHabitVacation(h, start, end, reason, today));
   },
   removeVacation(id: string, index: number) {
-    const today = todayKey();
+    const today = currentHabitDay();
     mapHabit(id, (h) => removeHabitVacation(h, index, today));
   },
-  addFocusMinutes(id: string, minutes: number) {
-    mapHabit(id, (h) => ({
-      ...h,
-      totalFocusMinutes: (h.totalFocusMinutes || 0) + minutes,
-    }));
+  recordFocusSession(id: string, minutes: number, endedAt: number, habitId: string | null, credit: boolean) {
+    load();
+    if (!id || ![15, 25, 50].includes(minutes) || !Number.isFinite(endedAt)) return false;
+    const sessions = Array.isArray(state.settings.focusSessions) ? state.settings.focusSessions : [];
+    if (sessions.some((session) => session?.id === id)) return false;
+    const end = new Date(endedAt);
+    if (!Number.isFinite(end.valueOf())) return false;
+    const day = todayKey(end, state.settings.rolloverHour);
+    const habit = state.habits.find((item) => item.id === habitId);
+    const credited = Boolean(credit && habit && !habit.archivedAt && !habit.completedDates.includes(day) && (!habit.kind || habit.kind === "boolean"));
+    const today = currentHabitDay();
+    const session: FocusSession = { id, minutes, endedAt: end.toISOString(), day, habitId, credited };
+    set({
+      settings: { ...state.settings, focusSessions: [...sessions, session] },
+      habits: state.habits.map((item) => {
+        if (item.id !== habitId) return item;
+        const next = { ...item, totalFocusMinutes: (item.totalFocusMinutes || 0) + minutes };
+        return credited ? refresh(completeToday(next, day, session.endedAt), today) : next;
+      }),
+    });
+    return true;
   },
   mergeHabits(remoteHabits: Habit[]) {
     load();
-    const merged = mergeVaultHabits(state.habits, remoteHabits);
+    const merged = mergeVaultHabits(state.habits, remoteHabits, currentHabitDay());
     set({ habits: merged });
   },
   seedDemoIfEmpty() {
@@ -457,7 +627,7 @@ export const habitActions = {
     if (typeof window !== "undefined" && localStorage.getItem("streakflame_cleared_by_user") === "1") {
       return;
     }
-    const today = todayKey();
+    const today = currentHabitDay();
     const demoHabits = getInitialSeedHabits(today);
     const now = new Date().toISOString();
     const demoCollections: HabitCollection[] = [

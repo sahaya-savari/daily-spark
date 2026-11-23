@@ -1,9 +1,11 @@
+import { Capacitor } from "@capacitor/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -116,12 +118,12 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  // Apply stored theme on mount so the landing page (and all non-app routes)
-  // reflect the user's chosen accent color (classic/minimal/expressive).
-  // DailySparkApp re-applies with circadian warmth on its own mount.
+  const onAppRoute = useRouterState({ select: (state) =>
+    state.matches.some((match) => match.routeId === "/app"),
+  });
   useEffect(() => {
-    applyThemeToDocument(getStoredTheme());
-  }, []);
+    if (!Capacitor.isNativePlatform() && !onAppRoute) applyThemeToDocument(getStoredTheme());
+  }, [onAppRoute]);
 
   return (
     <QueryClientProvider client={queryClient}>

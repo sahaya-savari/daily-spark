@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,8 @@ interface BackupPreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   inspection: BackupInspection | null;
-  onConfirmRestore: (inspection: BackupInspection) => void;
+  onConfirmRestore: (inspection: BackupInspection, mode: "merge" | "replace") => void;
+  allowMerge?: boolean;
 }
 
 export function BackupPreviewDialog({
@@ -23,8 +24,19 @@ export function BackupPreviewDialog({
   onOpenChange,
   inspection,
   onConfirmRestore,
+  allowMerge = false,
 }: BackupPreviewDialogProps) {
+  const [error, setError] = useState("");
   if (!inspection) return null;
+  const restore = (mode: "merge" | "replace") => {
+    setError("");
+    try {
+      onConfirmRestore(inspection, mode);
+      onOpenChange(false);
+    } catch {
+      setError("Restore could not be saved. Check available storage and try again.");
+    }
+  };
 
   const { preview } = inspection;
 
@@ -87,24 +99,18 @@ export function BackupPreviewDialog({
           <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive flex items-start gap-2.5">
             <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
             <p className="text-xs leading-relaxed font-medium">
-              Restoring will replace current streaks with the backup contents. Ensure you have backed up any current data you wish to keep.
+              Replace applies the backup over your current data. {allowMerge ? "Merge adds new records and keeps your existing records and settings. A recovery snapshot is saved first." : "Make a backup before replacing your data."}
             </p>
           </div>
         </div>
 
-        <DialogFooter className="flex gap-2 sm:justify-end">
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        <DialogFooter className="flex flex-wrap gap-2 sm:justify-end">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              onConfirmRestore(inspection);
-              onOpenChange(false);
-            }}
-          >
-            Confirm & Restore
-          </Button>
+          {allowMerge && <Button onClick={() => restore("merge")}>Merge</Button>}
+          <Button variant="destructive" onClick={() => restore("replace")}>Replace</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

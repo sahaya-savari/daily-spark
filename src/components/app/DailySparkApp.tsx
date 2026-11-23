@@ -1,3 +1,9 @@
+import { folderBackup, isAndroid } from "@/lib/habits/folderBackup";
+import { LocalNotifications } from "@capacitor/local-notifications";
+import { ProgressSummary } from "./ProgressSummary";
+import { HabitScheduleEditor } from "./HabitScheduleEditor";
+import { HabitDayEditor } from "./HabitDayEditor";
+import { TodayPlanner } from "./TodayPlanner";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   PixelHome,
@@ -41,18 +47,18 @@ import {
 import { Capacitor } from "@capacitor/core";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App as CapacitorApp } from "@capacitor/app";
-import { Dialog as CapacitorDialog } from "@capacitor/dialog";
 import { Share } from "@capacitor/share";
 
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { useNotesStore, noteActions } from "@/lib/habits/notes";
-import { useAppLockStore, lockActions } from "@/lib/habits/lock";
+import { useAppLockStore, lockActions, getLockTimeoutMinutes, isLockEnabled as hasAppLock } from "@/lib/habits/lock";
 import {
   todayKey,
   toKey,
   addDays,
   formatDisplayDate,
   monthMatrix,
+  fromKey,
   formatMonthYear,
   addMonths,
 } from "@/lib/habits/dates";
@@ -61,7 +67,6 @@ import {
   isArchived,
   dayRatio,
   completionRate,
-  totalCompletions,
   inspectBackup,
   inspectBackupSandbox,
   habitsToCsv,
@@ -153,8 +158,51 @@ export function DailySparkApp({
   initialTab?: number;
 } = {}) {
   const { habits, collections, settings } = useHabitStore();
+  useEffect(() => {
+    if (embedded) return;
+    hapticEngine.setEnabled(settings.hapticsEnabled !== false);
+    document.documentElement.classList.toggle("app-reduce-motion", settings.reduceMotion === true);
+    return () => {
+      hapticEngine.setEnabled(true);
+      document.documentElement.classList.remove("app-reduce-motion");
+    };
+  }, [embedded, settings.hapticsEnabled, settings.reduceMotion]);
   const { notes } = useNotesStore();
+  useEffect(() => {
+    if (embedded || !isAndroid()) return;
+    const timer = window.setTimeout(() => {
+      void folderBackup.status().then((status) => {
+        if (status.cadence !== "off" && status.writable) {
+          return folderBackup.stage({ json: JSON.stringify(buildBackup(habits, settings, new Date(), notes, collections)) });
+        }
+      }).catch((error) => console.warn("[daily-spark] could not stage a folder backup", error));
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [embedded, habits, settings, notes, collections]);
+
   const { isLocked, isEnabled: isLockEnabled, isBiometricEnabled } = useAppLockStore();
+  useEffect(() => {
+    if (embedded) return;
+    let backgroundAt: number | null = null;
+    const onActivity = (active: boolean) => {
+      if (!active) {
+        backgroundAt ??= Date.now();
+        if (getLockTimeoutMinutes() === 0) lockActions.lock();
+      } else if (backgroundAt !== null) {
+        if (Date.now() - backgroundAt >= getLockTimeoutMinutes() * 60_000) lockActions.lock();
+        backgroundAt = null;
+      }
+    };
+    const visibility = () => onActivity(!document.hidden);
+    document.addEventListener("visibilitychange", visibility);
+    const native = Capacitor.isNativePlatform()
+      ? CapacitorApp.addListener("appStateChange", ({ isActive }) => onActivity(isActive))
+      : null;
+    return () => {
+      document.removeEventListener("visibilitychange", visibility);
+      void native?.then((subscription) => subscription.remove()).catch(() => {});
+    };
+  }, [embedded]);
   const [avatarProfile] = useAvatarProfile();
   const [unlockPin, setUnlockPin] = useState("");
   const [unlockError, setUnlockError] = useState<string | null>(null);
@@ -181,14 +229,21 @@ export function DailySparkApp({
 
   useEffect(() => {
     if (embedded) return;
-    const warmth = settings.solarCircadianGlide !== false ? calculateCircadianWarmth() : 0;
-    applyThemeToDocument(settings.themeMode || getStoredTheme(), warmth);
-    applyStoredInterfacePreferences();
-  }, [settings.themeMode, settings.solarCircadianGlide, embedded]);
+    const apply = () => {
+      const warmth = settings.solarCircadianGlide !== false ? calculateCircadianWarmth() : 0;
+      applyThemeToDocument(settings.themeMode || getStoredTheme(), warmth, settings);
+    };
+    apply();
+    if (settings.colorMode !== "system" || typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(prefers-color-scheme: light)");
+    query.addEventListener("change", apply);
+    return () => query.removeEventListener("change", apply);
+  }, [settings, embedded]);
 
   const [activeTab, setActiveTab] = useState<number>(initialTab);
   const [subTab, setSubTab] = useState<"habits" | "collections" | "notes">("habits");
   const [progressSubTab, setProgressSubTab] = useState<"overview" | "calendar">("overview");
+  const [historyDay, setHistoryDay] = useState<{ habitId: string; day: string } | null>(null);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [selectedCollection, setSelectedCollection] = useState<HabitCollection | null>(null);
   const [runningCollection, setRunningCollection] = useState<HabitCollection | null>(null);
@@ -240,13 +295,48 @@ export function DailySparkApp({
 
   // Calendar month state
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(todayKey());
+  const [calendarHabitIds, setCalendarHabitIds] = useState<string[] | null>(null);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string>(() => todayKey(new Date(), settings.rolloverHour));
 
   const rolloverHour = (settings.rolloverHour as number | undefined) ?? 0;
-  const today = useMemo(() => todayKey(new Date(), rolloverHour), [rolloverHour]);
+  const [clock, setClock] = useState(() => new Date());
+  useEffect(() => {
+    const refresh = () => setClock(new Date());
+    const interval = window.setInterval(refresh, 15_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, []);
+  const today = todayKey(clock, rolloverHour);
+  const weekStartsOn = settings.weekStartsOn === 0 || settings.weekStartsOn === 6 ? settings.weekStartsOn : 1;
+  const focusSessions = (Array.isArray(settings.focusSessions) ? settings.focusSessions : [])
+    .filter((session) => session && typeof session.endedAt === "string" && Number.isFinite(session.minutes));
+  const focusToday = focusSessions.filter((session) => session.day === today).reduce((sum, session) => sum + session.minutes, 0);
+  useEffect(() => {
+    if (embedded || !Capacitor.isNativePlatform()) return;
+    habitActions.refreshAndroidData();
+  }, [embedded, today]);
 
+  useEffect(() => {
+    if (embedded || !Capacitor.isNativePlatform()) return;
+    const listener = LocalNotifications.addListener("localNotificationActionPerformed", ({ actionId, notification }) => {
+      if (hasAppLock() || (actionId !== "done" && actionId !== "snooze")) return;
+      const { habitId, day, at } = notification.extra ?? {};
+      if (typeof habitId === "string" && typeof day === "string" && typeof at === "number") {
+        habitActions.handleReminderAction(habitId, day, at, actionId);
+      }
+    });
+    return () => { void listener.then((handle) => handle.remove()).catch(() => {}); };
+  }, [embedded]);
+  const historyHabit = historyDay ? habits.find((habit) => habit.id === historyDay.habitId) : undefined;
+
+  const tabHistory = useRef<number[]>(initialTab === 0 ? [] : [0]);
+  const [exitOpen, setExitOpen] = useState(false);
   const handleSelectTab = (tab: number) => {
     if (tab === activeTab) return;
+    tabHistory.current = tab === 0 ? [] : [...tabHistory.current.filter((entry) => entry !== tab), activeTab];
     triggerLightHaptic();
     transitionTab(() => {
       setActiveTab(tab);
@@ -274,132 +364,40 @@ export function DailySparkApp({
   }, []);
 
   // Keep state ref updated for hardware back button handler
-  const appStateRef = useRef({
-    selectedHabit,
-    streakToDelete,
-    snoozeHabit,
-    isAddOpen,
-    isCreateMenuOpen,
-    isTodayCustomizeOpen,
-    isOnboardingOpen,
-    isCollectionEditorOpen,
-    runningCollection,
-    isCommandPaletteOpen,
-    isBackupPreviewOpen,
-    isAppLockDialogOpen,
-    isAirGappedOpen,
-    isShareCardOpen,
-    activeTab,
-    handleSelectTab,
+  const backAction = useRef(() => {});
+  useEffect(() => {
+    backAction.current = () => {
+      if (isLocked) return;
+      if (document.querySelector('[role="dialog"][data-state="open"], [role="alertdialog"][data-state="open"]')) {
+        // Radix sends Escape only to its topmost dismissible layer.
+        document.dispatchEvent(new KeyboardEvent("keydown", {
+          key: "Escape", bubbles: true, cancelable: true,
+        }));
+        return;
+      }
+      if (!document.dispatchEvent(new Event("daily-spark-back", { cancelable: true }))) return;
+      if (runningCollection) {
+        setRunningCollection(null);
+        return;
+      }
+      if (isSelectionMode) {
+        setIsSelectionMode(false);
+        setSelectedIds(new Set());
+        return;
+      }
+      if (activeTab !== 0) {
+        setActiveTab(tabHistory.current.pop() ?? 0);
+        return;
+      }
+      setExitOpen(true);
+    };
   });
 
   useEffect(() => {
-    appStateRef.current = {
-      selectedHabit,
-      streakToDelete,
-      snoozeHabit,
-      isAddOpen,
-      isCreateMenuOpen,
-      isTodayCustomizeOpen,
-      isOnboardingOpen,
-      isCollectionEditorOpen,
-      runningCollection,
-      isCommandPaletteOpen,
-      isBackupPreviewOpen,
-      isAppLockDialogOpen,
-      isAirGappedOpen,
-      isShareCardOpen,
-      activeTab,
-      handleSelectTab,
-    };
-  });
-
-  // Android hardware back-button listener (registered once on mount)
-  useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-
-    let sub: { remove: () => void } | null = null;
-    const registerListener = async () => {
-      sub = await CapacitorApp.addListener("backButton", async () => {
-        const s = appStateRef.current;
-        if (s.streakToDelete) {
-          setStreakToDelete(null);
-          return;
-        }
-        if (s.snoozeHabit) {
-          setSnoozeHabit(null);
-          return;
-        }
-        if (s.selectedHabit) {
-          setSelectedHabit(null);
-          return;
-        }
-        if (s.isCommandPaletteOpen) {
-          setIsCommandPaletteOpen(false);
-          return;
-        }
-        if (s.isAddOpen) {
-          setIsAddOpen(false);
-          return;
-        }
-        if (s.isCreateMenuOpen) {
-          setIsCreateMenuOpen(false);
-          return;
-        }
-        if (s.isTodayCustomizeOpen) {
-          setIsTodayCustomizeOpen(false);
-          return;
-        }
-        if (s.isOnboardingOpen) {
-          finishOnboarding();
-          return;
-        }
-        if (s.runningCollection) {
-          setRunningCollection(null);
-          return;
-        }
-        if (s.isCollectionEditorOpen) {
-          setIsCollectionEditorOpen(false);
-          return;
-        }
-        if (s.isAirGappedOpen) {
-          setIsAirGappedOpen(false);
-          return;
-        }
-        if (s.isShareCardOpen) {
-          setIsShareCardOpen(false);
-          return;
-        }
-        if (s.isBackupPreviewOpen) {
-          setIsBackupPreviewOpen(false);
-          return;
-        }
-        if (s.isAppLockDialogOpen) {
-          setIsAppLockDialogOpen(false);
-          return;
-        }
-        if (s.activeTab !== 0) {
-          s.handleSelectTab(0);
-          return;
-        }
-        // Exit app confirmation on home tab
-        const { value } = await CapacitorDialog.confirm({
-          title: "Exit Daily Spark?",
-          message: "Do you really want to close the app?",
-          okButtonTitle: "Exit",
-          cancelButtonTitle: "Cancel",
-        });
-        if (value) {
-          CapacitorApp.exitApp();
-        }
-      });
-    };
-    registerListener();
-
-    return () => {
-      if (sub) sub.remove();
-    };
-  }, []);
+    if (embedded || !Capacitor.isNativePlatform()) return;
+    const listener = CapacitorApp.addListener("backButton", () => backAction.current());
+    return () => { void listener.then((subscription) => subscription.remove()); };
+  }, [embedded]);
 
   // Reactively track selected habit across updates
   const currentSelectedHabit = useMemo(
@@ -410,6 +408,7 @@ export function DailySparkApp({
   // Active / filtered habits
   const activeHabits = useMemo(() => habits.filter((h) => !isArchived(h)), [habits]);
 
+  const calendarHabits = calendarHabitIds ? habits.filter((habit) => calendarHabitIds.includes(habit.id)) : habits;
   const scheduledTodayHabits = useMemo(
     () => activeHabits.filter((h) => isHabitDueToday(h, today) || isDoneOn(h, today)),
     [activeHabits, today]
@@ -434,17 +433,22 @@ export function DailySparkApp({
 
   // Today view habits
   const todayHabits = useMemo(() => {
-    const list = scheduledTodayHabits;
+    const display = settings.todayCompletedDisplay;
+    const list = display === "hide" ? scheduledTodayHabits.filter((habit) => !isDoneOn(habit, today)) : scheduledTodayHabits;
     if (todayFocus) {
       return list.filter((h) => !isDoneOn(h, today) && isHabitDueToday(h, today));
     }
     // Starred first, then by orderIndex or creation
     return [...list].sort((a, b) => {
+      if (display === "last") {
+        const completionOrder = Number(isDoneOn(a, today)) - Number(isDoneOn(b, today));
+        if (completionOrder !== 0) return completionOrder;
+      }
       if (a.isStarred && !b.isStarred) return -1;
       if (!a.isStarred && b.isStarred) return 1;
       return (a.orderIndex ?? 0) - (b.orderIndex ?? 0);
     });
-  }, [scheduledTodayHabits, todayFocus, today]);
+  }, [scheduledTodayHabits, settings.todayCompletedDisplay, todayFocus, today]);
 
   const todayCompletedCount = useMemo(
     () => scheduledTodayHabits.filter((h) => isDoneOn(h, today)).length,
@@ -486,17 +490,16 @@ export function DailySparkApp({
   const [liveAnnouncement, setLiveAnnouncement] = useState("");
 
   const handleToggleHabit = (id: string) => {
-    setLastCheckedHabitId(id);
-    const target = habits.find((h) => h.id === id);
-    if (target) {
-      const isDone = isDoneOn(target, today);
-      setLiveAnnouncement(
-        isDone
-          ? `Unmarked ${target.name}.`
-          : `Completed ${target.name}. Current streak ${target.currentStreak + 1} days.`
-      );
+    const target = habits.find((habit) => habit.id === id);
+    if (!target) return;
+    if (target.kind === "quantitative" || target.kind === "avoid") {
+      setHistoryDay({ habitId: id, day: today });
+      return;
     }
-    habitActions.toggleToday(id);
+    const result = habitActions.toggleToday(id);
+    if (!result) return;
+    setLastCheckedHabitId(id);
+    setLiveAnnouncement(result === "done" ? `Completed ${target.name}.` : `Unmarked ${target.name}.`);
   };
 
   // Phase 6 & 7 computed metrics
@@ -756,9 +759,8 @@ export function DailySparkApp({
       }
     }
 
-    const totalCompletionsCount = totalCompletions(habits);
 
-    return { last7Pct, last30Pct, globalStreak, totalCompletionsCount };
+    return { last7Pct, last30Pct, globalStreak };
   }, [habits, today]);
 
   // If app is locked, present the full-screen PIN entry screen (after all hooks run)
@@ -880,7 +882,7 @@ export function DailySparkApp({
         <aside className="hidden lg:flex w-64 flex-col justify-between border-r border-border/40 bg-surface/80 backdrop-blur-md p-5 shrink-0 min-h-screen sticky top-0 h-screen select-none">
           <div className="space-y-6">
             <div className="flex items-center gap-3 px-2">
-              <SparkMark className="size-8" />
+              <SparkMark themed className="size-8" />
               <div>
                 <h1 className="font-display text-[17px] font-bold text-foreground">Daily Spark</h1>
                 <p className="text-[11px] text-muted-foreground">Calm &amp; Offline</p>
@@ -1041,7 +1043,7 @@ export function DailySparkApp({
       >
         <div className={cn("mx-auto flex w-full max-w-lg items-center justify-between", embedded ? "h-full" : "h-14")}>
           <div className="flex items-center gap-2.5">
-            <SparkMark className="size-8" />
+            <SparkMark themed className="size-8" />
             <div>
               <h1 className="font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
               <p className="text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
@@ -1180,7 +1182,7 @@ export function DailySparkApp({
                     }}
                     className="mt-4 flex h-[50px] w-full items-center justify-center gap-2 rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground shadow-md transition-transform active:scale-[0.98] cursor-pointer"
                   >
-                    <PixelCheck className="size-4" /> Check in now
+                    <PixelCheck className="size-4" /> {nextHabit.kind === "quantitative" || nextHabit.kind === "avoid" ? "Record progress" : "Check in now"}
                   </Button>
                 )}
               </div>}
@@ -1239,6 +1241,8 @@ export function DailySparkApp({
                 </div>
               </div>}
 
+              {settings.todayPlannerEnabled === true && <TodayPlanner today={today} />}
+
               {/* Pinned Collections */}
               {settings.todayShowRoutines !== false && collections.some((collection) => collection.isPinned) && (
                 <section aria-labelledby="today-collections-title">
@@ -1277,18 +1281,25 @@ export function DailySparkApp({
                   <div className="space-y-4">
                     <EmptyState
                       illustration={todayFocus ? "planet" : "box"}
-                      title={todayFocus ? "All habits completed!" : "No habits for today"}
+                      title={scheduledTodayHabits.length > 0 ? "All caught up" : "No habits scheduled today"}
                       description={
-                        todayFocus
-                          ? "You've crushed all your scheduled habits for today."
-                          : "Tap below to add your first habit or pick a starter habit."
+                        scheduledTodayHabits.length > 0
+                          ? "Completed habits are hidden in this view."
+                          : activeHabits.length === 0
+                            ? "Add your first habit or pick a starter below."
+                            : "Your habits will appear here on their scheduled days."
                       }
                       action={
-                        todayFocus ? (
+                        scheduledTodayHabits.length > 0 ? (
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => setTodayFocus(false)}
+                            onClick={() => {
+                              setTodayFocus(false);
+                              if (settings.todayCompletedDisplay === "hide") {
+                                habitActions.updateSettings({ todayCompletedDisplay: "show" });
+                              }
+                            }}
                             className="rounded-full"
                           >
                             Show all habits
@@ -1787,7 +1798,7 @@ export function DailySparkApp({
               </button>
               <button
                 type="button"
-                onClick={() => setProgressSubTab("calendar")}
+                onClick={() => { setCalendarHabitIds(null); setProgressSubTab("calendar"); }}
                 className={cn(
                   "flex-1 rounded-full py-1.5 text-center text-xs font-normal transition-all",
                   progressSubTab === "calendar"
@@ -1802,36 +1813,42 @@ export function DailySparkApp({
             {progressSubTab === "overview" ? (
               <div className="space-y-4">
 
-            {/* 4 Metric Cards */}
-            <div className={cn("grid grid-cols-2 gap-2.5", !embedded && "lg:grid-cols-4 lg:gap-3.5")}>
-              <div className="rounded-3xl border border-border/40 bg-surface p-4">
-                <p className="kicker">Last 7 days</p>
-                <p className="text-[26px] font-extrabold text-ember">{progressStats.last7Pct}%</p>
-                <p className="text-[11px] text-faint">Consistency rate</p>
-              </div>
+            <ProgressSummary
+              habits={habits}
+              collections={collections}
+              today={today}
+              onOpenDay={(day, habitIds) => {
+                setCalendarHabitIds(habitIds);
+                setSelectedCalendarDate(day);
+                setCurrentMonthDate(fromKey(day));
+                setProgressSubTab("calendar");
+              }}
+            />
 
-              <div className="rounded-3xl border border-border/40 bg-surface p-4">
-                <p className="kicker">Last 30 days</p>
-                <p className="text-[26px] font-extrabold text-foreground">{progressStats.last30Pct}%</p>
-                <p className="text-[11px] text-muted-foreground">Monthly rate</p>
+            <section aria-label="Focus sessions" className="space-y-3 rounded-3xl border border-border bg-surface p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h2 className="font-semibold">Focus</h2>
+                  <p className="text-sm text-muted-foreground">{focusToday}{settings.focusDailyGoal ? ` / ${settings.focusDailyGoal}` : ""} min today</p>
+                </div>
+                <Button variant="outline" onClick={() => { setFocusHabit(null); setIsFocusTimerOpen(true); }}>
+                  Start focus
+                </Button>
               </div>
-
-              <div className="rounded-3xl border border-border/40 bg-surface p-4">
-                <p className="kicker">Days in a row</p>
-                <p className="text-[26px] font-extrabold text-gold">
-                  {progressStats.globalStreak}
-                </p>
-                <p className="text-[11px] text-muted-foreground">Active habit streak</p>
-              </div>
-
-              <div className="rounded-3xl border border-border/40 bg-surface p-4">
-                <p className="kicker">Check-ins</p>
-                <p className="text-[26px] font-extrabold text-foreground">
-                  {progressStats.totalCompletionsCount}
-                </p>
-                <p className="text-[11px] text-muted-foreground">Total completions</p>
-              </div>
-            </div>
+              {focusSessions.length > 0 && (
+                <details>
+                  <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold">Recent sessions</summary>
+                  <ul className="divide-y divide-border text-sm">
+                    {focusSessions.slice(-10).reverse().map((session) => (
+                      <li key={session.id} className="flex flex-wrap justify-between gap-2 py-2">
+                        <span className="min-w-0 break-words">{habits.find((habit) => habit.id === session.habitId)?.name ?? "Focus session"}</span>
+                        <span className="text-muted-foreground">{session.day} ? {session.minutes} min</span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </section>
 
             {/* 6-Month Dither Momentum Calendar */}
             <DitherHeatmapCalendar
@@ -1905,19 +1922,19 @@ export function DailySparkApp({
             {/* Monthly Calendar Grid */}
             <div className="rounded-3xl border border-border/40 bg-surface p-4">
               <div className="grid grid-cols-7 gap-1.5 text-center mb-2">
-                {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
+                {Array.from({ length: 7 }, (_, index) => ["S", "M", "T", "W", "T", "F", "S"][(index + weekStartsOn) % 7]).map((d, i) => (
                   <span key={i} className="text-[11px] font-semibold text-faint">
                     {d}
                   </span>
                 ))}
               </div>
 
-                {monthMatrix(currentMonthDate).map((week, wi) => (
+                {monthMatrix(currentMonthDate, weekStartsOn).map((week, wi) => (
                   <div key={wi} className="grid grid-cols-7 gap-1.5 text-center">
                     {week.map((dateStr, di) => {
                       if (!dateStr) return <span key={di} />;
                       const dayNum = parseInt(dateStr.slice(8), 10);
-                      const ratio = dayRatio(habits, dateStr);
+                      const ratio = dayRatio(calendarHabits, dateStr);
                       const isToday = dateStr === today;
                       const isSelected = dateStr === selectedCalendarDate;
                       const isFuture = dateStr > today;
@@ -1988,12 +2005,12 @@ export function DailySparkApp({
               <div className="flex items-center justify-between">
                 <p className="kicker">{formatDisplayDate(selectedCalendarDate)}</p>
                 <span className="text-xs font-semibold text-faint">
-                  {dayRatio(habits, selectedCalendarDate).done}/{dayRatio(habits, selectedCalendarDate).total} Done
+                  {dayRatio(calendarHabits, selectedCalendarDate).done}/{dayRatio(calendarHabits, selectedCalendarDate).total} Done
                 </span>
               </div>
 
               <div className="space-y-2 pt-1">
-                {activeHabits.map((h) => {
+                {(calendarHabitIds ? calendarHabits : activeHabits).map((h) => {
                   const done = isDoneOn(h, selectedCalendarDate);
                   return (
                     <div
@@ -2010,15 +2027,14 @@ export function DailySparkApp({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          habitActions.togglePastDay(h.id, selectedCalendarDate);
-                        }}
+                        disabled={selectedCalendarDate > today}
+                        onClick={() => setHistoryDay({ habitId: h.id, day: selectedCalendarDate })}
                         className={cn(
                           "h-7 px-2.5 rounded-full text-[11px] font-bold",
                           done ? "text-primary bg-primary/10" : "text-faint hover:text-foreground"
                         )}
                       >
-                        {done ? "Completed" : "Mark Done"}
+                        {done ? "Edit check-in" : "Edit day"}
                       </Button>
                     </div>
                   );
@@ -2059,6 +2075,18 @@ export function DailySparkApp({
       />
 
       {/* One clear entry point for every type of content. */}
+      <Dialog open={exitOpen} onOpenChange={setExitOpen}>
+        <DialogContent className="max-w-sm border border-border bg-card text-foreground">
+          <DialogHeader>
+            <DialogTitle>Close Daily Spark?</DialogTitle>
+            <DialogDescription>Your progress is saved on this device.</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button variant="outline" onClick={() => setExitOpen(false)}>Stay</Button>
+            <Button onClick={() => void CapacitorApp.exitApp()}>Close app</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <Dialog open={isCreateMenuOpen} onOpenChange={setIsCreateMenuOpen}>
         <DialogContent className="max-w-sm rounded-3xl border-border bg-card text-foreground">
           <DialogHeader>
@@ -2069,7 +2097,7 @@ export function DailySparkApp({
             {[
               { title: "New habit", description: "Track one action or goal", icon: PixelCheckList, action: () => setIsAddOpen(true) },
               { title: "New collection", description: "Group habits into a routine", icon: PixelArchive, action: () => { setSelectedCollection(null); setIsCollectionEditorOpen(true); } },
-              { title: "New note", description: "Write a reflection or journal entry", icon: PixelNotebook, action: () => { setSubTab("notes"); setActiveTab(1); setNoteCreateRequest((value) => value + 1); } },
+              { title: "New note", description: "Write a reflection or journal entry", icon: PixelNotebook, action: () => { setSubTab("notes"); handleSelectTab(1); setNoteCreateRequest((value) => value + 1); } },
             ].map(({ title, description, icon: Icon, action }) => (
               <button
                 key={title}
@@ -2107,6 +2135,10 @@ export function DailySparkApp({
               </div>
             ))}
           </div>
+          <label className="flex items-center justify-between gap-3 rounded-2xl bg-surface p-3">
+            <span className="text-sm font-bold">Day planner</span>
+            <Switch checked={settings.todayPlannerEnabled === true} onCheckedChange={(checked) => habitActions.updateSettings({ todayPlannerEnabled: checked })} />
+          </label>
           <DialogFooter><Button type="button" onClick={() => setIsTodayCustomizeOpen(false)} className="w-full rounded-full">Done</Button></DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2114,6 +2146,12 @@ export function DailySparkApp({
       <Dialog open={isOnboardingOpen} onOpenChange={(open) => { if (!open) finishOnboarding(); }}>
         <DialogContent className="max-w-sm rounded-3xl border-border bg-card text-foreground" onPointerDownOutside={(event) => event.preventDefault()}>
           <DialogHeader>
+            {onboardingStep === 0 && (
+              <div className="mb-4 flex flex-col items-center gap-2 text-center">
+                <SparkMark themed className="size-16 max-w-full sm:size-20" />
+                <p className="text-sm font-semibold text-ember">Small habits. Brighter days.</p>
+              </div>
+            )}
             <div className="mb-2 flex gap-1" aria-label={`Step ${onboardingStep + 1} of 3`}>
               {[0, 1, 2].map((step) => <span key={step} className={cn("h-1.5 flex-1 rounded-full", step <= onboardingStep ? "bg-ember" : "bg-surface-2")} />)}
             </div>
@@ -2171,16 +2209,27 @@ export function DailySparkApp({
       {/* DIALOG: HABIT DETAIL VIEW                                      */}
       {/* ============================================================== */}
       {currentSelectedHabit && (
-        <Dialog open={Boolean(currentSelectedHabit)} onOpenChange={(o) => !o && setSelectedHabit(null)}>
+        <Dialog open={Boolean(currentSelectedHabit)} onOpenChange={(o) => { if (!o && !historyDay) setSelectedHabit(null); }}>
           <DialogContent className="max-w-md bg-card text-foreground border-border max-h-[90vh] overflow-y-auto">
             <HabitDetailModal
+              today={today}
               habit={currentSelectedHabit}
               onClose={() => setSelectedHabit(null)}
               onSnooze={(h) => setSnoozeHabit(h)}
               onDelete={(h) => setStreakToDelete(h)}
+              onEditDay={(day) => setHistoryDay({ habitId: currentSelectedHabit.id, day })}
             />
           </DialogContent>
         </Dialog>
+      )}
+
+      {historyDay && historyHabit && (
+        <HabitDayEditor
+          key={`${historyDay.habitId}:${historyDay.day}`}
+          habit={historyHabit}
+          day={historyDay.day}
+          onClose={() => setHistoryDay(null)}
+        />
       )}
 
       {/* Delete Habit Confirmation Dialog */}
@@ -2261,14 +2310,12 @@ export function DailySparkApp({
         open={isBackupPreviewOpen}
         onOpenChange={setIsBackupPreviewOpen}
         inspection={backupInspection}
-        onConfirmRestore={(ins) => {
-          habitActions.replaceAll(ins.parsed.habits, ins.parsed.settings, ins.parsed.collections ?? []);
-          if (ins.notes && ins.notes.length > 0) {
-            noteActions.replaceAll(ins.notes);
-          }
+        allowMerge
+        onConfirmRestore={(ins, mode) => {
+          habitActions.restoreBackup({ ...ins.parsed, notes: ins.parsed.notes }, mode);
           setIsBackupPreviewOpen(false);
           setBackupInspection(null);
-          toast.success("Backup restored", { description: "Your habits, routines, and settings are ready." });
+          toast.success(mode === "merge" ? "Backup merged" : "Backup restored");
         }}
       />
 
@@ -2283,10 +2330,6 @@ export function DailySparkApp({
         open={isFocusTimerOpen}
         onOpenChange={setIsFocusTimerOpen}
         habit={focusHabit}
-        onCompleteHabit={(habitId, durationMinutes) => {
-          handleToggleHabit(habitId);
-          habitActions.addFocusMinutes(habitId, durationMinutes);
-        }}
       />
 
       {/* Universal Multi-Format Importer Dialog */}
@@ -2347,7 +2390,7 @@ export function DailySparkApp({
         }}
       />
 
-      {heroBurst && (
+      {heroBurst && !settings.reduceMotion && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches && (
         <CheckPopBurst
           x={heroBurst.x}
           y={heroBurst.y}
@@ -2848,14 +2891,18 @@ function AddHabitForm({
 /* ------------------------------------------------------------------ */
 function HabitDetailModal({
   habit,
+  today,
   onClose,
   onSnooze,
   onDelete,
+  onEditDay,
 }: {
   habit: Habit;
+  today: string;
   onClose: () => void;
   onSnooze: (habit: Habit) => void;
   onDelete: (habit: Habit) => void;
+  onEditDay: (day: string) => void;
 }) {
   const [editName, setEditName] = useState(habit.name);
   const [editIcon, setEditIcon] = useState(habit.icon || "flame");
@@ -2868,7 +2915,6 @@ function HabitDetailModal({
   const [vacReason, setVacReason] = useState("");
   const [reminderEnabled, setReminderEnabled] = useState(Boolean(habit.reminderEnabled));
   const [reminderTime, setReminderTime] = useState(habit.reminderTime || "09:00");
-  const today = todayKey();
   const milestones = getMilestones(habit.bestStreak);
 
   const handleToggleReminder = (enabled: boolean) => {
@@ -3004,17 +3050,19 @@ function HabitDetailModal({
         </div>
       </div>
 
+      <HabitScheduleEditor key={habit.id} habit={habit} today={today} />
+
       {/* 14-Day Completion History (Fill-in) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold text-muted-foreground uppercase">
             Recent 14 Days Check-In
           </label>
-          <span className="text-[10px] text-faint">Tap past day to toggle</span>
+          <span className="text-[10px] text-faint">Tap a day to edit</span>
         </div>
         <div className="grid grid-cols-7 gap-1.5 p-2 rounded-2xl bg-surface-2 text-center">
           {recent14Days.map(({ dateStr, label, dayNum }) => {
-            const isDone = habit.completedDates.includes(dateStr);
+            const isDone = isDoneOn(habit, dateStr);
             const isToday = dateStr === today;
             return (
               <button
@@ -3022,7 +3070,7 @@ function HabitDetailModal({
                 type="button"
                 onClick={() => {
                   triggerLightHaptic();
-                  habitActions.togglePastDay(habit.id, dateStr);
+                  onEditDay(dateStr);
                 }}
                 className={cn(
                   "flex flex-col items-center justify-center p-1 rounded-xl text-xs transition-all",
@@ -3031,7 +3079,7 @@ function HabitDetailModal({
                     : "bg-surface text-faint hover:text-foreground",
                   isToday && !isDone && "ring-1 ring-ember"
                 )}
-                title={`${dateStr}: ${isDone ? "Completed" : "Missed (tap to fill)"}`}
+                title={`${dateStr}: ${isDone ? "Completed" : "No completion recorded"}`}
               >
                 <span className="text-[9px] uppercase opacity-75">{label}</span>
                 <span className="text-[11px] font-bold mt-0.5">{dayNum}</span>
@@ -3255,7 +3303,16 @@ function HabitDetailModal({
       )}
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-border/40">
+      <div className="flex flex-wrap items-center justify-between gap-1 border-t border-border/40 pt-2">
+        <Button variant="ghost" size="sm" onClick={() => {
+          const copy = habitActions.duplicate(habit.id);
+          if (copy) {
+            onClose();
+            toast.success("Habit copied", { description: "The copy starts with an empty history." });
+          }
+        }}>
+          Duplicate
+        </Button>
         <Button
           variant="ghost"
           size="sm"

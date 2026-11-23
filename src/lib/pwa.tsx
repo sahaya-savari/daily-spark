@@ -1,7 +1,9 @@
+import { Capacitor } from "@capacitor/core";
 import React, { useEffect, useState } from "react";
 import { SITE } from "@/lib/site";
 
 export function registerServiceWorker() {
+  if (Capacitor.isNativePlatform()) return;
   if (typeof window !== "undefined" && "serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       const swUrl = `${SITE.basePath}sw.js`;
@@ -15,7 +17,7 @@ export function UpdateToast() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    if (Capacitor.isNativePlatform() || typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
     navigator.serviceWorker.ready
       .then((reg) => {

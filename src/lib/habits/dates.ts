@@ -75,16 +75,15 @@ export function addMonths(d: Date, n: number): Date {
 }
 
 /**
- * Builds a 7-column calendar matrix (Mon..Sun) of YYYY-MM-DD keys or null.
+ * Builds a 7-column calendar matrix (Monday first by default) of YYYY-MM-DD keys or null.
  */
-export function monthMatrix(d: Date): (string | null)[][] {
+export function monthMatrix(d: Date, weekStartsOn: 0 | 1 | 6 = 1): (string | null)[][] {
   const y = d.getFullYear();
   const m = d.getMonth();
   const firstDay = new Date(y, m, 1);
   const lastDay = new Date(y, m + 1, 0);
 
-  // 0=Sun..6=Sat, we want Mon=0..Sun=6
-  const startDay = (firstDay.getDay() + 6) % 7;
+  const startDay = (firstDay.getDay() - weekStartsOn + 7) % 7;
   const daysInMonth = lastDay.getDate();
 
   const weeks: (string | null)[][] = [];

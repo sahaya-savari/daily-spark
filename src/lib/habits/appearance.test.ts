@@ -75,6 +75,32 @@ describe("appearance.ts", () => {
     expect(THEME_CONFIGS.expressive.radius).toBe("16px");
   });
 
+  it("changes typography and surface tokens even when a different theme is stored", () => {
+    setStoredTheme("classic");
+    applyThemeToDocument("expressive");
+    const style = document.documentElement.style;
+    expect(style.getPropertyValue("--font-sans")).toBe(THEME_CONFIGS.expressive.fontApp);
+    expect(style.getPropertyValue("--font-display")).toBe(THEME_CONFIGS.expressive.fontDisplay);
+    expect(style.getPropertyValue("--surface")).toBe(THEME_CONFIGS.expressive.surface);
+    expect(style.getPropertyValue("--border")).toBe(THEME_CONFIGS.expressive.border);
+    applyThemeToDocument("minimal");
+    expect(style.getPropertyValue("--font-sans")).toBe(THEME_CONFIGS.minimal.fontApp);
+    expect(style.getPropertyValue("--surface")).toBe(THEME_CONFIGS.minimal.surface);
+  });
+
+  it("keeps the style while switching color modes and choosing contrasting accent ink", () => {
+    applyThemeToDocument("expressive", 0, { colorMode: "light", customAccent: "#ffffff" });
+    const root = document.documentElement;
+    expect(root.classList.contains("theme-expressive")).toBe(true);
+    expect(root.classList.contains("light")).toBe(true);
+    expect(root.style.getPropertyValue("--primary-foreground")).toBe("#000000");
+    expect(root.style.getPropertyValue("--surface")).toBe("#FFFFFF");
+    applyThemeToDocument("expressive", 0, { colorMode: "amoled" });
+    expect(root.classList.contains("light")).toBe(false);
+    expect(root.style.getPropertyValue("--background")).toBe("#000000");
+    expect(root.style.getPropertyValue("--ember")).toBe(THEME_CONFIGS.expressive.accent);
+  });
+
   it("provides an accent-derived heatmap scale for every supported theme", () => {
     for (const mode of ["minimal", "classic", "expressive"] as ThemeMode[]) {
       const config = THEME_CONFIGS[mode];

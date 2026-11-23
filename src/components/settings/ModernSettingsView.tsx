@@ -1,3 +1,7 @@
+import { FolderBackupSettings } from "./FolderBackupSettings";
+import { useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useAppLockStore } from "@/lib/habits/lock";
 import React, { useState, useRef, useMemo } from "react";
 import {
   Smartphone,
@@ -29,7 +33,7 @@ import {
 import { AppearanceSwitcher } from "@/components/habits/AppearanceSwitcher";
 import { useHabitStore, habitActions } from "@/lib/habits/store";
 import { THEME_CONFIGS, getStoredTheme } from "@/lib/habits/appearance";
-import { sendTestHabitNotification } from "@/lib/habits/reminders";
+import { notificationPermissionStatus, sendTestHabitNotification } from "@/lib/habits/reminders";
 import { SITE } from "@/lib/site";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -97,6 +101,24 @@ export function ModernSettingsView({
   onOpenAppLock,
   embedded = false,
 }: ModernSettingsViewProps) {
+  const [category, setCategory] = useState<string | null>(null);
+  const { isEnabled: lockEnabled } = useAppLockStore();
+  const categoryHeading = useRef<HTMLHeadingElement>(null);
+  const returnTile = useRef<string | null>(null);
+  const closeCategory = () => {
+    setCategory(null);
+    requestAnimationFrame(() => returnTile.current && document.getElementById(returnTile.current)?.focus());
+  };
+  useEffect(() => {
+    if (!category) return;
+    categoryHeading.current?.focus();
+    const goBack = (event: Event) => {
+      event.preventDefault();
+      closeCategory();
+    };
+    document.addEventListener("daily-spark-back", goBack);
+    return () => document.removeEventListener("daily-spark-back", goBack);
+  }, [category]);
   const { settings } = useHabitStore();
   const [activeSection, setActiveSection] = useState<ActiveSection>(null);
   const [profile, updateProfile] = useAvatarProfile();
@@ -157,7 +179,6 @@ export function ModernSettingsView({
             title: "Typography & Density",
             subtitle: "Font scales, layout spacing, and icon weights",
             icon: Smartphone,
-            statusText: "Standard",
             keywords: ["style", "typography", "font", "density", "icons", "size", "layout", "compact"],
           },
         ],
@@ -173,7 +194,7 @@ export function ModernSettingsView({
             subtitle: "Daily reminders, night owl rollover, and 10 languages",
             icon: Sliders,
             statusText: settings.rolloverHour ? `${settings.rolloverHour}:00 AM (Night Owl)` : "Midnight",
-            keywords: ["preferences", "notifications", "reminders", "time", "rollover", "night owl", "language", "circadian"],
+            keywords: ["preferences", "notifications", "reminders", "time", "rollover", "night owl", "language", "circadian", "completed habits", "hide completed", "planner", "tasks", "week start", "calendar", "focus goal", "timer", "quiet hours", "silence reminders"],
           },
           ...(onOpenAppLock
             ? [
@@ -183,7 +204,7 @@ export function ModernSettingsView({
                   title: "App Lock & Security",
                   subtitle: "Protect habits and private notes with PIN or biometrics",
                   icon: Lock,
-                  statusText: "Secured",
+                  statusText: lockEnabled ? "On" : "Off",
                   keywords: ["lock", "security", "pin", "biometric", "privacy", "fingerprint", "faceid"],
                   action: onOpenAppLock,
                 },
@@ -259,8 +280,20 @@ export function ModernSettingsView({
         ],
       },
     ];
-  }, [currentThemeConfig.name, settings.rolloverHour, onOpenAppLock, onOpenAirGapped, onOpenVaultSync]);
+  }, [currentThemeConfig.name, settings.rolloverHour, onOpenAppLock, onOpenAirGapped, onOpenVaultSync, lockEnabled]);
 
+  const categories = [
+    { title: "Appearance", icon: Palette, ids: ["appearance", "appStyle"] },
+    { title: "Preferences", icon: Sliders, ids: ["preferences"] },
+    { title: "Privacy & Security", icon: Lock, ids: ["appLock"] },
+    { title: "Data & Backups", icon: Database, ids: ["data"] },
+    { title: "Device Transfer", icon: QrCode, ids: ["airGapped", "vaultSync"] },
+    { title: "About & Support", icon: Info, ids: ["about", "support"] },
+  ].filter((entry) => groups.some((group) => group.items.some((item) => entry.ids.includes(item.id))));
+  const categoryItems = category
+    ? groups.flatMap((group) => group.items).filter((item) =>
+        categories.find((entry) => entry.title === category)?.ids.includes(item.id))
+    : [];
   const filteredGroups = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return groups;
@@ -288,6 +321,20 @@ export function ModernSettingsView({
   };
 
   const [testNotificationStatus, setTestNotificationStatus] = useState<string | null>(null);
+  const [permission, setPermission] = useState<Awaited<ReturnType<typeof notificationPermissionStatus>>>();
+  useEffect(() => {
+    if (activeSection !== "preferences") return;
+    let cancelled = false;
+    const refresh = () => {
+      void notificationPermissionStatus().then((value) => { if (!cancelled) setPermission(value); });
+    };
+    refresh();
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [activeSection, settings.enabled]);
 
   const handleCustomImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -313,6 +360,7 @@ export function ModernSettingsView({
     setTestNotificationStatus("Sending...");
     try {
       const sent = await sendTestHabitNotification();
+      setPermission(await notificationPermissionStatus());
       setTestNotificationStatus(sent ? "Sent! ✓" : "Permission denied");
       setTimeout(() => setTestNotificationStatus(null), 3000);
     } catch (err) {
@@ -349,7 +397,7 @@ export function ModernSettingsView({
       />
 
       {/* Left Column (Profile & Identity on Desktop) */}
-      <div className={cn("space-y-4", !embedded && "lg:col-span-5 xl:col-span-4")}>
+      <div hidden={Boolean(category)} className={cn("space-y-4", !embedded && "lg:col-span-5 xl:col-span-4")}>
         {/* 1. Ultra-Minimalist Profile Header */}
         <div className={cn("flex flex-col items-center justify-center text-center pt-2", !embedded && "lg:rounded-3xl lg:border lg:border-white/10 lg:bg-surface/90 lg:p-6 lg:backdrop-blur-md")}>
           <div
@@ -420,14 +468,38 @@ export function ModernSettingsView({
       </div>
 
       {/* Right Column (Settings Sections on Desktop) */}
-      <div className={cn("space-y-5", !embedded && "lg:col-span-7 xl:col-span-8")}>
+      <div className={cn("min-w-0 space-y-5", !embedded && (category ? "lg:col-span-12" : "lg:col-span-7 xl:col-span-8"))}>
+        {category && (
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="icon" onClick={closeCategory} aria-label="Back to settings">
+              <ArrowLeft aria-hidden="true" />
+            </Button>
+            <h2 ref={categoryHeading} tabIndex={-1} className="min-w-0 break-words text-xl font-semibold">{category}</h2>
+          </div>
+        )}
+        {!category && (
+          <div className="space-y-3">
+            <h2 className="font-display text-2xl font-bold text-foreground">Settings</h2>
+            <button
+              type="button"
+              onClick={() => setActiveSection("appearance")}
+              className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 text-left hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-ember"
+            >
+              <Palette className="size-5 shrink-0 text-ember" aria-hidden="true" />
+              <span className="min-w-0 flex-1 break-words font-semibold">App theme</span>
+              <span className="text-sm text-muted-foreground">{currentThemeConfig.name}</span>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            </button>
+          </div>
+        )}
         {/* Search Bar for Quick Navigation */}
-        <div className="relative">
+        <div className="relative" hidden={Boolean(category)}>
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-faint" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search settings (e.g. night owl, export, themes, lock)..."
+            aria-label="Search settings"
+            placeholder="Search settings"
             className="h-11 pl-10 pr-9 rounded-2xl bg-surface/90 border border-border/40 text-xs font-medium placeholder:text-faint focus-visible:ring-ember shadow-sm"
           />
           {searchQuery && (
@@ -443,7 +515,30 @@ export function ModernSettingsView({
         </div>
 
         {/* Filtered Sections */}
-        {filteredGroups.length === 0 ? (
+        {!category && !searchQuery.trim() ? (
+          <div className={cn(
+            "grid gap-3",
+            currentThemeMode === "minimal" ? "grid-cols-1" : "grid-cols-2",
+            currentThemeMode === "classic" && "sm:grid-cols-3",
+          )}>
+            {categories.map(({ title, icon: Icon }) => (
+              <button key={title} id={`settings-tile-${title.replace(/[^a-z]+/gi, "-").toLowerCase()}`} type="button" onClick={(event) => {
+                returnTile.current = event.currentTarget.id;
+                setCategory(title);
+              }} className={cn(
+                "flex min-h-14 min-w-0 gap-3 rounded-2xl border border-border bg-surface p-3 text-left hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-ember sm:p-4",
+                currentThemeMode === "minimal"
+                  ? "items-center"
+                  : "min-h-28 flex-col items-start justify-between",
+                currentThemeMode === "expressive" && "rounded-3xl bg-surface-2 first:col-span-2",
+              )}>
+                <Icon className="size-6 shrink-0 text-ember" aria-hidden="true" />
+                <span className="min-w-0 flex-1 break-words font-semibold leading-tight [overflow-wrap:anywhere]">{title}</span>
+                {currentThemeMode === "minimal" && <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
+              </button>
+            ))}
+          </div>
+        ) : !category && filteredGroups.length === 0 ? (
           <div className="p-8 text-center rounded-3xl border border-border/40 bg-surface/80 space-y-2">
             <p className="text-sm font-semibold text-foreground">No settings found</p>
             <p className="text-xs text-muted-foreground">
@@ -459,7 +554,7 @@ export function ModernSettingsView({
             </Button>
           </div>
         ) : (
-          filteredGroups.map((group) => (
+          (category ? [{ title: "", description: "", items: categoryItems }] : filteredGroups).map((group) => (
             <section key={group.title} className="space-y-1.5">
               <div className="flex items-center justify-between px-2 pt-1">
                 <p className="text-[11.5px] font-bold uppercase tracking-wider text-faint">
@@ -490,10 +585,10 @@ export function ModernSettingsView({
                           <IconComponent className="size-4.5" />
                         </span>
                         <div className="min-w-0">
-                          <p className="font-sans text-[14.5px] sm:text-[15.5px] font-semibold text-foreground leading-tight truncate">
+                          <p className="font-sans text-[14.5px] sm:text-[15.5px] font-semibold text-foreground leading-tight break-words">
                             {item.title}
                           </p>
-                          <p className="font-sans text-xs text-muted-foreground mt-0.5 truncate">
+                          <p className="font-sans text-xs text-muted-foreground mt-0.5 break-words">
                             {item.subtitle}
                           </p>
                         </div>
@@ -901,12 +996,79 @@ export function ModernSettingsView({
               </select>
             </div>
 
+            <label className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface-2 p-3.5">
+              <span className="text-sm font-semibold">Show day planner on Today</span>
+              <Switch checked={settings.todayPlannerEnabled === true} onCheckedChange={(checked) => habitActions.updateSettings({ todayPlannerEnabled: checked })} />
+            </label>
+            <label className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-border bg-surface-2 p-3.5">
+              <span className="text-sm font-semibold">Completed habits on Today</span>
+              <select
+                className="min-h-11 max-w-full rounded-xl border border-border bg-surface px-3 text-sm"
+                value={settings.todayCompletedDisplay ?? "show"}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (value === "show" || value === "last" || value === "hide") {
+                    habitActions.updateSettings({ todayCompletedDisplay: value });
+                  }
+                }}
+              >
+                <option value="show">Show</option>
+                <option value="last">Move to bottom</option>
+                <option value="hide">Hide</option>
+              </select>
+            </label>
+
+            <label className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-border bg-surface-2 p-3.5">
+              <span className="text-sm font-semibold">Calendar week starts on</span>
+              <select className="min-h-11 max-w-full rounded-xl border border-border bg-surface px-3 text-sm"
+                value={settings.weekStartsOn === 0 || settings.weekStartsOn === 6 ? settings.weekStartsOn : 1}
+                onChange={(event) => {
+                  const day = Number(event.target.value);
+                  if (day === 0 || day === 1 || day === 6) habitActions.updateSettings({ weekStartsOn: day });
+                }}>
+                <option value={1}>Monday</option>
+                <option value={0}>Sunday</option>
+                <option value={6}>Saturday</option>
+              </select>
+            </label>
+
+            <label className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-2xl border border-border bg-surface-2 p-3.5">
+              <span className="text-sm font-semibold">Daily focus goal</span>
+              <select className="min-h-11 max-w-full rounded-xl border border-border bg-surface px-3 text-sm"
+                value={settings.focusDailyGoal ?? 0}
+                onChange={(event) => habitActions.updateSettings({ focusDailyGoal: Number(event.target.value) })}>
+                <option value={0}>No goal</option>
+                {[15, 25, 30, 50, 60, 90].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
+              </select>
+            </label>
+
+            <div className="space-y-2 rounded-2xl border border-border bg-surface-2 p-3.5">
+              <label className="flex min-h-11 items-center justify-between gap-3 text-sm font-semibold">
+                Silence reminders after a check-in
+                <Switch checked={settings.muteCompletedReminders === true} onCheckedChange={(checked) => habitActions.updateSettings({ muteCompletedReminders: checked })} />
+              </label>
+              <label className="flex min-h-11 items-center justify-between gap-3 text-sm font-semibold">
+                Quiet hours
+                <Switch checked={settings.quietHoursEnabled === true} onCheckedChange={(checked) => habitActions.updateSettings({ quietHoursEnabled: checked })} />
+              </label>
+              {settings.quietHoursEnabled && (
+                <div className="flex flex-wrap gap-3">
+                  <label className="text-sm">Start <Input type="time" value={settings.quietHoursStart ?? "22:00"} onChange={(event) => habitActions.updateSettings({ quietHoursStart: event.target.value || "22:00" })} /></label>
+                  <label className="text-sm">End <Input type="time" value={settings.quietHoursEnd ?? "07:00"} onChange={(event) => habitActions.updateSettings({ quietHoursEnd: event.target.value || "07:00" })} /></label>
+                </div>
+              )}
+            </div>
+
             {/* Send Test Notification Button */}
             <div className="flex min-w-0 items-center justify-between gap-3 p-3.5 rounded-2xl bg-surface-2 border border-white/5 max-sm:flex-col max-sm:items-stretch">
               <div className="min-w-0">
                 <p className="font-semibold text-sm">Test Notifications</p>
                 <p className="text-xs text-muted-foreground">
-                  Verify alert permissions, audio, and vibration
+                  {permission === "granted" ? "Notifications are allowed on this device."
+                    : permission === "denied" ? "Notifications are blocked. Allow them in Android app settings."
+                    : permission === "prompt" ? "Android will ask for permission before sending a test."
+                    : permission === "unavailable" ? "Device notifications are available in the installed app."
+                    : "Checking notification permission?"}
                 </p>
               </div>
               <Button
@@ -914,6 +1076,7 @@ export function ModernSettingsView({
                 variant="outline"
                 size="sm"
                 onClick={handleSendTestNotification}
+                disabled={permission === "unavailable" || testNotificationStatus === "Sending..."}
                 className="h-11 rounded-xl border-white/10 text-xs font-semibold hover:bg-white/5 max-sm:w-full"
               >
                 {testNotificationStatus || "Send Test"}
@@ -1137,7 +1300,9 @@ export function ModernSettingsView({
               />
             </div>
 
-            {settings.autoBackupHistoryEnabled !== false && rollingBackups.length > 0 && (
+            <FolderBackupSettings />
+
+            {rollingBackups.length > 0 && (
               <div className="space-y-2 rounded-2xl bg-surface-2 border border-white/5 p-3">
                 <p className="text-sm font-semibold">Restore History</p>
                 {rollingBackups.map((snapshot, index) => (
@@ -1146,8 +1311,12 @@ export function ModernSettingsView({
                     type="button"
                     onClick={() => {
                       if (window.confirm("Restore this local snapshot? It will replace current habit data.")) {
-                        habitActions.restoreRollingBackup(index);
-                        alert("Snapshot restored.");
+                        try {
+                          habitActions.restoreRollingBackup(index);
+                          alert("Snapshot restored.");
+                        } catch {
+                          alert("Could not restore this snapshot. Check available storage.");
+                        }
                       }
                     }}
                     className="flex w-full items-center justify-between rounded-xl border border-border/40 px-3 py-2 text-left hover:bg-white/[0.04]"

@@ -9,8 +9,8 @@ export const LOCK_STORAGE_KEYS = {
   biometricCredId: "streakflame_biometric_cred_id",
 } as const;
 
-export const DEFAULT_TIMEOUT_MINUTES = 5;
-export const TIMEOUT_OPTIONS = [0, 1, 5, 10, 15, 30] as const;
+export const DEFAULT_TIMEOUT_MINUTES = 0;
+export const TIMEOUT_OPTIONS = [0, 0.5, 1, 5, 10, 15, 30] as const;
 export type LockTimeoutMinutes = (typeof TIMEOUT_OPTIONS)[number];
 
 export const INACTIVITY_TIMEOUT_MS = DEFAULT_TIMEOUT_MINUTES * 60 * 1000;

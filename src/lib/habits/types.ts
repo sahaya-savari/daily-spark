@@ -4,6 +4,9 @@
  * `icon` is the line-icon key shown in the UI; `emoji` is kept for backup
  * compatibility with the original Android app.
  */
+export type HabitSchedule = Pick<Habit, "frequencyType" | "targetDaysPerWeek" | "customDays">;
+export type DatedHabitSchedule = HabitSchedule & { effectiveOn: string };
+
 export interface Habit {
   id: string;
   name: string;
@@ -28,6 +31,7 @@ export interface Habit {
   isPaused?: boolean | undefined;
   pausedAt?: string | null | undefined;
   // Phase 3 additions
+  scheduleHistory?: DatedHabitSchedule[];
   frequencyType?: "daily" | "weekly_target" | "specific_days" | undefined;
   targetDaysPerWeek?: number | undefined;
   customDays?: number[] | undefined; // 0=Sun, 1=Mon, ..., 6=Sat
@@ -46,6 +50,7 @@ export interface Habit {
   subtaskCompletions?: Record<string, string[]> | undefined; // dateKey -> array of subtask IDs
   vacationRanges?: VacationRange[] | undefined;
   // Phase 5 additions
+  dayNotes?: Record<string, string>;
   completionTimes?: Record<string, string> | undefined; // dateKey -> ISO string or HH:MM
   totalFocusMinutes?: number | undefined;
   // Phase 6 & 7 additions
@@ -113,9 +118,40 @@ export interface StandaloneNote {
   color?: string | undefined; // Accent color swatch
 }
 
+export interface PlannerTask {
+  id: string;
+  title: string;
+  dueOn: string | null;
+  routineId: string | null;
+  completedOn: string | null;
+}
+
+export interface FocusSession {
+  id: string;
+  minutes: number;
+  endedAt: string;
+  day: string;
+  habitId: string | null;
+  credited: boolean;
+}
+
 export interface HabitSettings {
+  reduceMotion?: boolean;
+  hapticsEnabled?: boolean;
+  colorMode?: "system" | "light" | "dark" | "amoled";
+  customAccent?: string | null;
+  focusMinutes?: 15 | 25 | 50;
+  focusDailyGoal?: number;
+  focusSessions?: FocusSession[];
+  weekStartsOn?: 0 | 1 | 6;
+  todayPlannerEnabled?: boolean;
+  plannerTasks?: PlannerTask[];
   enabled: boolean; // reminders master switch
   defaultTime: string; // HH:MM
+  quietHoursEnabled?: boolean;
+  quietHoursStart?: string;
+  quietHoursEnd?: string;
+  muteCompletedReminders?: boolean;
   respectDND?: boolean | undefined;
   preTaskReminderOffsetMinutes?: number | undefined;
   autoBackupHistoryEnabled?: boolean | undefined;
@@ -124,6 +160,7 @@ export interface HabitSettings {
   rolloverHour?: number | undefined;
   todayShowNextUp?: boolean | undefined;
   todayShowWeeklyRhythm?: boolean | undefined;
+  todayCompletedDisplay?: "show" | "last" | "hide";
   todayShowRoutines?: boolean | undefined;
   [extra: string]: unknown;
 }

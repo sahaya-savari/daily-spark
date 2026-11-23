@@ -26,6 +26,15 @@ interface AppLockDialogProps {
 export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
   const { isPinSet, isEnabled, isLocked, isBiometricEnabled, timeoutMinutes } = useAppLockStore();
   const [pin, setPin] = useState("");
+  const [currentPin, setCurrentPin] = useState("");
+  useEffect(() => {
+    if (!open) {
+      setPin("");
+      setCurrentPin("");
+      setError(null);
+      setSuccess(null);
+    }
+  }, [open]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -44,6 +53,12 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
     }
   }, [open, isLocked, isBiometricEnabled, onOpenChange]);
 
+  const verifyExistingPin = async () => {
+    if (!isPinSet || await lockActions.verifyPin(currentPin)) return true;
+    setError("Enter your current PIN to change protection.");
+    return false;
+  };
+
   const handleSetOrUpdatePin = async () => {
     setError(null);
     setSuccess(null);
@@ -52,9 +67,11 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
       return;
     }
 
+    if (!(await verifyExistingPin())) return;
     const ok = await lockActions.setPin(pin);
     if (ok) {
-      setSuccess("4-digit PIN successfully saved and enabled!");
+      setCurrentPin("");
+      setSuccess("PIN saved.");
       setPin("");
     } else {
       setError("Failed to save PIN. Please try again.");
@@ -83,14 +100,18 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
     }
   };
 
-  const handleRemovePin = () => {
+  const handleRemovePin = async () => {
+    if (!(await verifyExistingPin())) return;
     lockActions.removePin();
+    setCurrentPin("");
     setPin("");
     setError(null);
     setSuccess("App lock disabled.");
   };
 
-  const handleToggleEnabled = () => {
+  const handleToggleEnabled = async () => {
+    if (!(await verifyExistingPin())) return;
+    setCurrentPin("");
     lockActions.setEnabled(!isEnabled);
     setError(null);
     setSuccess(isEnabled ? "App lock paused." : "App lock active.");
@@ -211,6 +232,8 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                   <Switch
                     checked={isBiometricEnabled}
                     onCheckedChange={async (checked) => {
+                      if (!(await verifyExistingPin())) return;
+                      setCurrentPin("");
                       if (checked) {
                         const ok = await lockActions.registerBiometrics();
                         if (ok) {
@@ -227,6 +250,13 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                 </div>
               )}
 
+              {isPinSet && (
+                <label className="block space-y-1 text-xs font-semibold">
+                  Current PIN
+                  <Input type="password" inputMode="numeric" maxLength={4} value={currentPin}
+                    onChange={(event) => setCurrentPin(event.target.value.replace(/\D/g, "").slice(0, 4))} />
+                </label>
+              )}
               <div>
                 <label className="text-xs font-semibold text-muted-foreground mb-1 block">
                   {isPinSet ? "Update 4-Digit PIN" : "Choose 4-Digit PIN"}
@@ -251,20 +281,20 @@ export function AppLockDialog({ open, onOpenChange }: AppLockDialogProps) {
                 <div className="space-y-1.5 p-3 rounded-lg bg-surface-1 border border-border">
                   <div className="flex items-center gap-2 text-xs font-semibold">
                     <Timer className="h-4 w-4 text-ember" />
-                    <span>Auto-Lock Inactivity Timer</span>
+                    <span>Lock after leaving the app</span>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    Automatically lock after inactive period or switching apps:
+                    Choose how long the app stays unlocked in the background.
                   </p>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {TIMEOUT_OPTIONS.map((mins) => {
                       const isSelected = timeoutMinutes === mins;
-                      const label = mins === 0 ? "Instant" : `${mins} min`;
+                      const label = mins === 0 ? "Instant" : mins === 0.5 ? "30 sec" : `${mins} min`;
                       return (
                         <button
                           key={mins}
                           type="button"
-                          onClick={() => lockActions.setTimeoutMinutes(mins)}
+                          onClick={async () => { if (await verifyExistingPin()) lockActions.setTimeoutMinutes(mins); }}
                           className={`px-2.5 py-1 text-xs rounded-md font-medium border transition-colors ${
                             isSelected
                               ? "bg-primary text-primary-foreground border-primary"

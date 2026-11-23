@@ -13,23 +13,29 @@ import {
 import { focusAudio, type SoundscapeType } from "@/lib/habits/focusAudio";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { habitActions, useHabitStore } from "@/lib/habits/store";
+import { newId } from "@/lib/habits/logic";
 import type { Habit } from "@/lib/habits/types";
 
 interface FocusTimerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   habit: Habit | null;
-  onCompleteHabit: (habitId: string, durationMinutes: number) => void;
 }
 
 export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
   open,
   onOpenChange,
   habit,
-  onCompleteHabit,
 }) => {
-  const [durationMinutes, setDurationMinutes] = useState(25);
-  const [secondsRemaining, setSecondsRemaining] = useState(25 * 60);
+  const { settings } = useHabitStore();
+  const preset = settings.focusMinutes === 15 || settings.focusMinutes === 50 ? settings.focusMinutes : 25;
+  const [durationMinutes, setDurationMinutes] = useState<15 | 25 | 50>(preset);
+  const [secondsRemaining, setSecondsRemaining] = useState(preset * 60);
+  const [credit, setCredit] = useState(false);
+  const deadline = useRef<number | null>(null);
+  const sessionId = useRef<string | null>(null);
+  const canCredit = Boolean(habit && (!habit.kind || habit.kind === "boolean"));
   const [isRunning, setIsRunning] = useState(false);
   const [soundscape, setSoundscape] = useState<SoundscapeType>("none");
   const [isMuted, setIsMuted] = useState(false);
@@ -41,6 +47,8 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
   // Reset timer when opened or habit changes
   useEffect(() => {
     if (open) {
+      deadline.current = null;
+      sessionId.current = null;
       setSecondsRemaining(durationMinutes * 60);
       setIsRunning(false);
       setHasCompleted(false);
@@ -59,29 +67,30 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
     }
   }, [isRunning, soundscape, isMuted]);
 
-  // Countdown loop
   useEffect(() => {
-    if (!isRunning) return;
-
-    const interval = setInterval(() => {
-      setSecondsRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsRunning(false);
-          setHasCompleted(true);
-          focusAudio.stopSoundscape();
-          focusAudio.playCompletionChime();
-          if (habit) {
-            onCompleteHabit(habit.id, durationMinutes);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, habit, durationMinutes, onCompleteHabit]);
+    if (!open || !isRunning) return;
+    const refresh = () => {
+      const end = deadline.current;
+      const id = sessionId.current;
+      if (end === null || id === null) return;
+      const left = Math.max(0, Math.ceil((end - Date.now()) / 1000));
+      setSecondsRemaining(left);
+      if (left > 0) return;
+      deadline.current = null;
+      sessionId.current = null;
+      setIsRunning(false);
+      setHasCompleted(true);
+      focusAudio.stopSoundscape();
+      focusAudio.playCompletionChime();
+      habitActions.recordFocusSession(id, durationMinutes, end, habit?.id ?? null, credit && canCredit);
+    };
+    const interval = window.setInterval(refresh, 250);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [open, isRunning, habit?.id, durationMinutes, credit, canCredit]);
 
   // Visualizer breathing pulse animation
   useEffect(() => {
@@ -121,7 +130,10 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
     return () => cancelAnimationFrame(animId);
   }, [isRunning, soundscape]);
 
-  const handleSelectPreset = (minutes: number) => {
+  const handleSelectPreset = (minutes: 15 | 25 | 50) => {
+    deadline.current = null;
+    sessionId.current = null;
+    habitActions.updateSettings({ focusMinutes: minutes });
     setDurationMinutes(minutes);
     setSecondsRemaining(minutes * 60);
     setIsRunning(false);
@@ -213,7 +225,7 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
 
         {/* Duration Presets */}
         <div className="flex items-center justify-center gap-2 mb-4">
-          {[15, 25, 50].map((m) => (
+          {([15, 25, 50] as const).map((m) => (
             <button
               key={m}
               onClick={() => handleSelectPreset(m)}
@@ -306,6 +318,12 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
           </div>
         </div>
 
+        {canCredit && (
+          <label className="mb-3 flex min-h-11 items-center gap-2 text-sm">
+            <input type="checkbox" disabled={isRunning} checked={credit} onChange={(event) => setCredit(event.target.checked)} />
+            Check off this habit when the timer ends
+          </label>
+        )}
         {/* Action Controls */}
         <div className="flex items-center gap-3">
           <Button
@@ -317,7 +335,19 @@ export const FocusTimerDialog: React.FC<FocusTimerDialogProps> = ({
           </Button>
 
           <Button
-            onClick={() => setIsRunning(!isRunning)}
+            disabled={hasCompleted}
+            onClick={() => {
+              if (isRunning) {
+                if (deadline.current === null || deadline.current <= Date.now()) return;
+                setSecondsRemaining(Math.ceil((deadline.current - Date.now()) / 1000));
+                deadline.current = null;
+                setIsRunning(false);
+              } else {
+                sessionId.current ??= newId();
+                deadline.current = Date.now() + secondsRemaining * 1000;
+                setIsRunning(true);
+              }
+            }}
             className={`flex-1 rounded-xl text-white font-bold transition-all ${
               isRunning
                 ? "bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-500/20"

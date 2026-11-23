@@ -697,6 +697,8 @@
 }
 
 .theme-classic {
+  --radius-2xl: 20px;
+  --radius-3xl: 28px;
   --background: #000000;
   --surface: #10131B;
   --surface-2: #181D29;
@@ -717,24 +719,19 @@
   --radius: 16px;
 }
 
-/* Ensure high-contrast dark text and icons on solid electric solar gold elements in Classic theme */
-.theme-classic button.bg-ember,
-.theme-classic button.bg-primary,
-.theme-classic a.bg-ember,
-.theme-classic a.bg-primary,
-.theme-classic .btn-ember {
-  color: #0B0F17 !important;
+/* Solid accent actions use the selected accent's contrast color. */
+:where(.theme-classic, .theme-minimal, .theme-expressive) :is(button, a):is(.bg-ember, .bg-primary),
+:where(.theme-classic, .theme-minimal, .theme-expressive) .btn-ember {
+  color: var(--ember-foreground);
 }
 
-.theme-classic button.bg-ember svg,
-.theme-classic button.bg-primary svg,
-.theme-classic a.bg-ember svg,
-.theme-classic a.bg-primary svg {
-  color: #0B0F17 !important;
-  stroke: #0B0F17 !important;
+:where(.theme-classic, .theme-minimal, .theme-expressive) .text-ember {
+  color: var(--ember-text, var(--ember));
 }
 
 .theme-minimal {
+  --radius-2xl: 10px;
+  --radius-3xl: 14px;
   --background: #000000;
   --surface: rgba(22, 16, 13, 0.75);
   --surface-2: rgba(32, 23, 19, 0.85);
@@ -754,6 +751,8 @@
 }
 
 .theme-expressive {
+  --radius-2xl: 26px;
+  --radius-3xl: 36px;
   --background: #000000;
   --surface: #0A0812;
   --surface-2: #130E20;
@@ -862,3 +861,10 @@
 }
 
 
+
+.app-reduce-motion *, .app-reduce-motion *::before, .app-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
