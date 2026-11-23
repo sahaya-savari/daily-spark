@@ -50,13 +50,13 @@ export const SITE = {
     // Source of truth for every download label on the site. Update only after
     // a release exists at
     // https://github.com/sahaya-savari/daily-spark/releases/latest
-    version: "v1.0.1",
+    version: "v1.0.2",
     // Direct same-origin asset path served straight from GitHub Pages with zero 302 redirects.
     // Eliminates mobile Chrome duplicate/triple download loops caused by cloud storage redirect hops.
-    url: `${basePath}Daily-Spark-v1.0.1.apk`,
+    url: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2.apk",
     // GitHub Releases URL for external managers (Obtainium, F-Droid metadata, direct releases)
-    githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1.apk",
-    filename: "Daily-Spark-v1.0.1.apk",
+    githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2.apk",
+    filename: "Daily-Spark-v1.0.2.apk",
     // Exact universal release APK size: 4,442,803 bytes (~4.2 MB).
     size: "4.1 MB",
   },
@@ -70,7 +70,7 @@ export const SITE = {
   // The website's own unreleased version. Mirrors "version" in package.json;
   // do not surface it next to the APK download. The download UI must use
   // SITE.apk.version instead.
-  webVersion: "1.0.1",
+  webVersion: "1.0.2",
   // Social preview card, 1200x630 PNG. Source document lives at
   // og/og-card.html (outside public/ so it is never served); re-render it to
   // public/og-image.png after editing.
