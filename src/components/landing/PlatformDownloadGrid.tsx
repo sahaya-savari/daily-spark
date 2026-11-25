@@ -96,7 +96,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
       </Link>
 
       {/* 3. Windows Portable */}
-      <a href={SITE.desktop.windowsZip} download="Daily-Spark-v1.0.1-windows.zip" className={cardBase}>
+      <a href={SITE.desktop.windowsZip} download={SITE.desktop.windowsZipFilename} className={cardBase}>
         <div>
           <div className="flex items-center justify-between">
             <span className="grid size-12 place-items-center rounded-xl border border-ember/25 bg-ember/10 text-ember transition-transform group-hover:scale-105">
@@ -111,7 +111,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             Windows
           </h3>
           <p className="mt-2 text-[14px] leading-relaxed text-[#A0A6B4] min-h-[42px]">
-            Standalone portable package for PC. Unzip once and launch with no installation required.
+            Portable desktop package that launches the full desktop workspace in your browser.
           </p>
 
           <ul className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-xs text-[#8A92A3]">
@@ -133,7 +133,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
       </a>
 
       {/* 4. Linux Archive */}
-      <a href={SITE.desktop.linuxTarGz} download="Daily-Spark-v1.0.1-linux.tar.gz" className={cardBase}>
+      <a href={SITE.desktop.linuxTarGz} download={SITE.desktop.linuxTarGzFilename} className={cardBase}>
         <div>
           <div className="flex items-center justify-between">
             <span className="grid size-12 place-items-center rounded-xl border border-ember/25 bg-ember/10 text-ember transition-transform group-hover:scale-105">

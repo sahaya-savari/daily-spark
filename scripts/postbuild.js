@@ -33,6 +33,10 @@ const HOME_DESCRIPTION =
   'A free, offline-first habit tracker for Android and the web. Track daily habits, streaks and progress without an account, ads or analytics. Optional encrypted backups.';
 const APK_FILENAME = 'Daily-Spark-v1.0.2.apk';
 const APK_SIZE_BYTES = 4289238;
+// Keep in sync with SITE.desktop.version in src/lib/site.ts.
+const DESKTOP_VERSION = 'v1.0.1';
+const WINDOWS_ZIP_FILENAME = `Daily-Spark-${DESKTOP_VERSION}-windows.zip`;
+const LINUX_TAR_GZ_FILENAME = `Daily-Spark-${DESKTOP_VERSION}-linux.tar.gz`;
 const SITE_FAQS = JSON.parse(fs.readFileSync(faqSourcePath, 'utf8'));
 
 /** HTML-escape text used inside attribute values and <title>. */
@@ -73,15 +77,20 @@ const featuresFallback = fallbackPage(
 
 const screensFallback = fallbackPage(
   'Daily Spark screens and layouts',
-  `<p>Preview the Today, habit setup, schedules, progress, calendar, settings, and backup screens. Some planner and widget previews are optional or in development and may differ from the latest released APK.</p>
+  `<p>Preview the Today, habit setup, schedules, progress, calendar, settings, and backup screens, plus the full desktop workspace rather than a stretched phone layout. Some planner and widget previews are optional or in development and may differ from the latest released APK.</p>
         <p><a href="${BASE_PATH}#features" style="color:#ec894c">Explore features</a> · <a href="${BASE_PATH}download/" style="color:#ec894c">Download the app</a></p>`,
 );
 
 const downloadFallback = fallbackPage(
-  'Download Daily Spark',
+  'Download Daily Spark for Android, Web, Windows and Linux',
   `<p>Download the official Daily Spark v1.0.2 Android APK (${(APK_SIZE_BYTES / 1024 / 1024).toFixed(1)} MB). Core habit tracking works offline and does not require a Daily Spark account.</p>
         <p><a href="${BASE_PATH}${APK_FILENAME}" download style="color:#ec894c">Download the Android APK</a></p>
-        <p>To install, open the downloaded APK and approve installation for your browser when Android asks. Optional encrypted vault exports can be moved between devices.</p>`,
+        <p>For desktop, open the current <a href="${BASE_PATH}app" style="color:#ec894c">Web App</a>, or download the Windows and Linux packages below. Both desktop packages are ${DESKTOP_VERSION}; each includes a launcher and offline assets, then opens the full desktop workspace in your browser. They are not native desktop windows. No macOS package is published yet.</p>
+        <ul>
+          <li><a href="${BASE_PATH}${WINDOWS_ZIP_FILENAME}" download style="color:#ec894c">Download Windows portable ZIP (${DESKTOP_VERSION})</a></li>
+          <li><a href="${BASE_PATH}${LINUX_TAR_GZ_FILENAME}" download style="color:#ec894c">Download Linux portable archive (${DESKTOP_VERSION})</a></li>
+        </ul>
+        <p>To install the APK, open the downloaded file and approve installation for your browser when Android asks. Optional encrypted vault exports can be moved between devices.</p>`,
 );
 
 const privacyFallback = fallbackPage(
@@ -140,7 +149,7 @@ const ROUTES = {
   '/screens': {
     title: 'Screens & Layouts - Daily Spark',
     description:
-      "Preview Daily Spark's Today, habit, schedule, progress, calendar, and settings screens, plus optional planner and widget previews. Feature availability varies by app release.",
+      "Preview Daily Spark's mobile screens and full desktop workspace, plus optional planner and widget previews. Feature availability varies by app release.",
     canonical: SITE_URL,
     ogType: 'website',
     twitterCard: 'summary_large_image',
@@ -148,12 +157,12 @@ const ROUTES = {
     fallback: screensFallback,
   },
   '/download': {
-    title: 'Download Daily Spark - Android APK',
+    title: 'Download Daily Spark for Android, Web, Windows and Linux',
     // Keep these values identical to SITE.apk in src/lib/site.ts and the
     // SoftwareApplication JSON-LD in index.html; they describe the published
     // APK, not the website's own version.
     description:
-      'Download the official Daily Spark v1.0.2 Android APK (4.1 MB). Free, offline-first habit tracking with no account, ads, or analytics. Optional encrypted exports.',
+      'Download Daily Spark v1.0.2 for Android, use the current Web App, or get v1.0.1 desktop packages for Windows and Linux. macOS is not yet available.',
     canonical: `${SITE_URL}download/`,
     ogType: 'website',
     twitterCard: 'summary_large_image',

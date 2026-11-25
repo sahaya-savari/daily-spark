@@ -11,8 +11,6 @@ import { NotesView } from "@/components/habits/NotesView";
 import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitSearchFilter";
 import { type BackupInspection, createHabit } from "@/lib/habits/logic";
 import { DEFAULT_SETTINGS } from "@/lib/habits/types";
-import { DailySparkApp } from "@/components/app/DailySparkApp";
-import { useHabitStore } from "@/lib/habits/store";
 import { THEME_CONFIGS } from "@/lib/habits/appearance";
 import {
   CalendarCheck2,
@@ -147,7 +145,7 @@ export function MiniPhone({ children }: { children: React.ReactNode }) {
     <div
       aria-hidden="true"
       inert
-      className="relative w-[250px] rounded-[36px] p-[8px] transition-transform duration-300 group-hover:-translate-y-2"
+      className="relative w-[208px] rounded-[36px] p-[8px] transition-transform duration-300 group-hover:-translate-y-2"
       style={{
         background: "linear-gradient(155deg, #3a3a3a 0%, #121212 26%, #0b0b0b 62%, #2c2c2c 100%)",
         boxShadow: "0 40px 62px -34px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06)",
@@ -155,7 +153,137 @@ export function MiniPhone({ children }: { children: React.ReactNode }) {
     >
       <span className="absolute left-1/2 top-[9px] z-10 h-[13px] w-[52px] -translate-x-1/2 rounded-[9px] bg-[#000] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
       <div className="overflow-hidden rounded-[29px] bg-[#0A0A0A]">
-        <Scaled width={234}>{children}</Scaled>
+        <Scaled width={194}>{children}</Scaled>
+      </div>
+    </div>
+  );
+}
+
+export function DesktopPreview() {
+  const sampleHabits = [
+    { name: "Read 20 minutes", detail: "Study · 12 day streak", done: true },
+    { name: "Drink water", detail: "Health · 7 day streak", done: true },
+    { name: "Evening walk", detail: "Health · 4 day streak", done: false },
+    { name: "Meditate", detail: "Mindfulness · New habit", done: false },
+  ];
+  const navItems = [
+    { label: "Today", Icon: CalendarCheck2, active: true },
+    { label: "Habits", Icon: CheckSquare, active: false },
+    { label: "Progress & Stats", Icon: BarChart3, active: false },
+    { label: "Settings", Icon: Settings, active: false },
+  ];
+
+  return (
+    <div
+      role="img"
+      aria-label="Illustrative desktop workspace with a sidebar, daily habit list, and weekly progress panel"
+      className="overflow-hidden rounded-2xl border border-white/10 bg-[#0D1016] shadow-2xl"
+    >
+      <div className="flex h-11 items-center gap-2 border-b border-white/10 bg-[#11141B] px-4 text-xs text-[#A0A6B4]">
+        <span className="size-2.5 rounded-full bg-[#EC6A5E]" />
+        <span className="size-2.5 rounded-full bg-[#F4BF4F]" />
+        <span className="size-2.5 rounded-full bg-[#61C554]" />
+        <span className="ml-3 font-medium">Daily Spark · Desktop workspace</span>
+      </div>
+      <div className="grid min-h-[400px] grid-cols-[150px_minmax(0,1fr)_220px]">
+        <aside className="flex flex-col justify-between border-r border-white/10 bg-[#11141B] p-4">
+          <div>
+            <div className="mb-6 flex items-center gap-2">
+              <span className="grid size-8 place-items-center rounded-lg bg-ember/15 text-ember">
+                <Sparkles aria-hidden="true" className="size-4" />
+              </span>
+              <div>
+                <p className="text-sm font-bold text-white">Daily Spark</p>
+                <p className="text-[10px] text-[#8A92A3]">Calm &amp; Offline</p>
+              </div>
+            </div>
+            <nav aria-label="Preview desktop navigation" className="space-y-1.5">
+              {navItems.map(({ label, Icon, active }) => (
+                <div
+                  key={label}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg px-2.5 py-2 text-[11px] font-semibold",
+                    active ? "bg-ember text-white" : "text-[#A0A6B4]",
+                  )}
+                >
+                  <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </nav>
+            <div className="mt-4 rounded-lg border border-ember/25 bg-ember/10 px-2.5 py-2 text-center text-[11px] font-bold text-ember">
+              + New habit
+            </div>
+          </div>
+          <p className="border-t border-white/10 pt-3 text-[10px] text-[#8A92A3]">
+            Sample data · not a real account
+          </p>
+        </aside>
+
+        <div className="min-w-0 p-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8A92A3]">Today</p>
+              <h3 className="mt-1 text-xl font-bold text-white">Today’s habits</h3>
+            </div>
+            <div className="rounded-full border border-ember/25 bg-ember/10 px-3 py-1.5 text-[11px] font-semibold text-ember">
+              2 of 4 completed
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-white/10 bg-[#151922] p-3">
+              <p className="text-[10px] font-semibold text-[#8A92A3]">CURRENT STREAK</p>
+              <p className="mt-1 text-lg font-bold text-white">12 days</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-[#151922] p-3">
+              <p className="text-[10px] font-semibold text-[#8A92A3]">WEEKLY PROGRESS</p>
+              <p className="mt-1 text-lg font-bold text-white">78%</p>
+            </div>
+          </div>
+
+          <section aria-label="Sample daily habits" className="mt-5 space-y-2.5">
+            {sampleHabits.map(({ name, detail, done }) => (
+              <div
+                key={name}
+                className="flex min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-[#151922] px-3 py-2.5"
+              >
+                <span
+                  className={cn(
+                    "grid size-7 shrink-0 place-items-center rounded-full border",
+                    done ? "border-ember bg-ember text-[#111318]" : "border-white/20 text-transparent",
+                  )}
+                >
+                  <Check aria-hidden="true" className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-white">{name}</p>
+                  <p className="truncate text-[10px] text-[#8A92A3]">{detail}</p>
+                </div>
+              </div>
+            ))}
+          </section>
+        </div>
+
+        <aside className="border-l border-white/10 bg-[#11141B] p-4">
+          <h3 className="text-sm font-bold text-white">This week</h3>
+          <p className="mt-1 text-[10px] text-[#8A92A3]">Your steady progress</p>
+          <div className="mt-5 flex h-28 items-end justify-between gap-2">
+            {[42, 64, 54, 80, 68, 92, 75].map((height, index) => (
+              <div key={index} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+                <span
+                  className={cn("w-full rounded-t-sm", index === 5 ? "bg-ember" : "bg-ember/45")}
+                  style={{ height: `${height}%` }}
+                />
+                <span className="text-[9px] text-[#8A92A3]">{["S", "M", "T", "W", "T", "F", "S"][index]}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-xl border border-white/10 bg-[#151922] p-3">
+            <p className="text-[10px] font-semibold text-[#8A92A3]">BEST STREAK</p>
+            <p className="mt-1 text-base font-bold text-white">31 days</p>
+          </div>
+        </aside>
       </div>
     </div>
   );
@@ -1390,10 +1518,18 @@ export function SettingsDetailsScreen({ onNav }: { onNav?: ((i: number) => void)
 
 export function DemoPhone() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [activeTab, setActiveTab] = useState(0);
+  const [demoHabits, setDemoHabits] = useState(INITIAL);
   const ref = useRef<HTMLDivElement>(null);
-  const { settings } = useHabitStore();
-  const currentTheme = settings.themeMode || "minimal";
-  const currentConfig = THEME_CONFIGS[currentTheme] || THEME_CONFIGS.minimal;
+  const currentConfig = THEME_CONFIGS.minimal;
+  const onNav = (tab: number) => setActiveTab(tab);
+  const onToggle = (id: string) => {
+    setDemoHabits((habits) =>
+      habits.map((habit) =>
+        habit.id === id ? { ...habit, done: !habit.done } : habit,
+      ),
+    );
+  };
 
   return (
     <div
@@ -1412,7 +1548,7 @@ export function DemoPhone() {
     >
       <Device tilt={tilt}>
         <div
-          className={cn(`theme-${currentTheme}`, "w-full h-full")}
+          className="theme-minimal h-full w-full"
           style={{
             "--ember": currentConfig.accent,
             "--primary": currentConfig.accent,
@@ -1425,11 +1561,15 @@ export function DemoPhone() {
             "--heat-4": currentConfig.heat[4],
           } as React.CSSProperties}
         >
-          <DailySparkApp embedded initialTab={0} />
+          {activeTab === 0 && <HomeScreen habits={demoHabits} onToggle={onToggle} onNav={onNav} />}
+          {activeTab === 1 && <HabitScreen onNav={onNav} />}
+          {activeTab === 2 && <ProgressScreen onNav={onNav} />}
+          {activeTab === 3 && <SettingsScreen onNav={onNav} />}
+          {activeTab === 4 && <NewHabitScreen onNav={onNav} />}
         </div>
       </Device>
       <p className="max-w-[280px] sm:max-w-[360px] px-3 text-center text-[12.5px] leading-snug text-faint">
-        <span className="text-ember font-bold">Interactive live app.</span> Tap habits, start focus timer, track laps, or check progress. 100% offline.
+        <span className="text-ember font-bold">Interactive sample preview.</span> Explore screens and tap sample habits; this preview never reads or changes your data.
       </p>
     </div>
   );

@@ -36,6 +36,7 @@ import {
   SettingsDetailsScreen,
   PreferencesScreen,
   BackupScreen,
+  DesktopPreview,
   DeviceTransferScreen,
   WidgetsScreen,
   ScheduleScreen,
@@ -273,17 +274,17 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             <div className="mt-3 grid w-full max-w-md grid-cols-2 gap-2 [&>a]:min-h-11 [&>a]:justify-center">
               <a
                 href={SITE.desktop.windowsZip}
-                download="Daily-Spark-v1.0.1-windows.zip"
+                download={SITE.desktop.windowsZipFilename}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-white transition-colors"
               >
-                <span>Windows (.zip)</span>
+                <span>Windows ZIP · {SITE.desktop.version}</span>
               </a>
               <a
                 href={SITE.desktop.linuxTarGz}
-                download="Daily-Spark-v1.0.1-linux.tar.gz"
+                download={SITE.desktop.linuxTarGzFilename}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-white transition-colors"
               >
-                <span>Linux (.tar.gz)</span>
+                <span>Linux · {SITE.desktop.version}</span>
               </a>
               <a
                 href={`${SITE.basePath}download#fdroid`}
@@ -362,7 +363,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
 
         {/* LOCK B: Screens Carousel Parade */}
-        <section id="screens" className="relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint] [content-visibility:auto] [contain-intrinsic-size:auto_700px]">
+        <section id="screens" className="relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint] [content-visibility:auto] [contain-intrinsic-size:auto_1200px]">
           <div
             className="aurora-field pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden"
             aria-hidden="true"
@@ -409,7 +410,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               {[...SHOTS, ...SHOTS].map(([label, screen], i) => (
                 <figure
                   key={i}
-                  className="group w-[250px] flex-none max-sm:snap-start"
+                  className="group w-[208px] flex-none max-sm:snap-start"
                   aria-hidden={i >= SHOTS.length || undefined}
                 >
                   <MiniPhone>{screen}</MiniPhone>
@@ -420,6 +421,37 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               ))}
             </div>
           </div>
+          <section
+            aria-labelledby="desktop-preview-title"
+            className="reveal mx-auto max-w-[1100px] px-4 pb-10 sm:px-6"
+          >
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h3 id="desktop-preview-title" className="font-display text-2xl font-bold sm:text-3xl">
+                  Desktop workspace
+                </h3>
+                <p className="mt-2 max-w-[66ch] text-sm text-muted-foreground sm:text-base">
+                  The Web App and Windows/Linux desktop packages use a full desktop workspace with navigation and side panels—not a stretched phone layout. Desktop packages are {SITE.desktop.version}; macOS is not yet available.
+                </p>
+              </div>
+              <Link
+                to="/app"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-ember/30 bg-ember/10 px-4 text-sm font-semibold text-ember transition-colors hover:bg-ember/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+              >
+                Open Web App
+              </Link>
+            </div>
+            <div
+              role="region"
+              aria-label="Desktop workspace preview, horizontally scrollable"
+              tabIndex={0}
+              className="overflow-x-auto rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
+              <div className="min-w-[760px] lg:min-w-0">
+                <DesktopPreview />
+              </div>
+            </div>
+          </section>
         </section>
 
         {/* Data */}
