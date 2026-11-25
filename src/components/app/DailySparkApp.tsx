@@ -1038,15 +1038,15 @@ export function DailySparkApp({
       <header
         className={cn(
           "sticky top-0 z-30 border-b border-border/40 bg-surface/85 backdrop-blur-md shrink-0 px-4", !embedded && "lg:hidden",
-          embedded ? "h-12" : "pt-[env(safe-area-inset-top,0px)] h-[calc(3.5rem+env(safe-area-inset-top,0px))]"
+          embedded ? "h-12" : "pt-[env(safe-area-inset-top,0px)]"
         )}
       >
-        <div className={cn("mx-auto flex w-full max-w-lg items-center justify-between", embedded ? "h-full" : "h-14")}>
-          <div className="flex items-center gap-2.5">
+        <div className={cn("mx-auto flex w-full max-w-lg items-center justify-between", embedded ? "h-full" : "min-h-14 gap-2 py-2")}>
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
             <SparkMark themed className="size-8" />
-            <div>
-              <h1 className="font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
-              <p className="text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
+            <div className="min-w-0">
+              <h1 className="[overflow-wrap:anywhere] font-display text-[16px] font-bold leading-tight tracking-[0.04em] text-foreground">Daily Spark</h1>
+              <p className="truncate text-[10px] font-medium text-muted-foreground">Calm &amp; Offline</p>
             </div>
           </div>
 

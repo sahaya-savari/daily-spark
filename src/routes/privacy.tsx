@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SITE, siteUrl } from "@/lib/site";
 
-const description = "Daily Spark collects nothing. No account, no analytics, no ads - your habits stay on your device.";
+const description = "Daily Spark stores habit data locally by default and has no account, ads, or analytics. Optional encrypted vault exports can be saved where you choose.";
 
 export const Route = createFileRoute("/privacy")({
   beforeLoad: ({ location }) => {
@@ -33,9 +33,9 @@ export const Route = createFileRoute("/privacy")({
 });
 
 const SECTIONS = [
-  ["What we collect", "Nothing. Daily Spark has no account system, no analytics, no ads and no tracking. We never see your habits."],
-  ["Where your data lives", "In both the Android app and Web App, your habits and notes are stored strictly on your device (IndexedDB / local storage). Nothing is uploaded to any remote server. If you use Google Drive backup, your encrypted data is sent directly to your own personal Google Drive AppData folder with zero intermediary servers."],
-  ["Backup & Restore", "Export a backup from the app and keep the file somewhere you can find it again. To restore your habits, open the app’s import option and select that backup file. Keep a current backup before clearing browser data or changing devices."],
+  ["What we collect", "Daily Spark has no account system, advertising, or analytics. Habit data is not sent to Daily Spark servers. Your hosting provider may process ordinary connection logs when you visit the website."],
+  ["Where your data lives", "Habits and notes are stored locally in the app or browser by default. If you choose to export an encrypted vault, encryption happens on your device with your passphrase. You choose where to save or transfer that file; the storage provider's own privacy terms apply."],
+  ["Backup & Restore", "Export an encrypted vault and save it somewhere you control, including a cloud storage folder if you choose. Import it on another device to merge your data. This is a user-started transfer, not automatic background syncing. Keep a current backup before clearing browser data or changing devices."],
   ["Reminders", "Reminders are optional. If you turn them on in the Android app, your phone asks for notification permission. Notifications are created on your device."],
   ["Links", "The website links to GitHub for source code and APK downloads. GitHub's own privacy policy applies there."],
   ["Questions", "Open an issue on GitHub and we'll answer in public."],
@@ -62,19 +62,19 @@ function Privacy() {
       <SiteHeader />
       <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-20 w-full outline-none">
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold">Privacy</h1>
-        <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">Short version: your habits never leave your device.</p>
+        <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">Short version: your data stays local by default; encrypted exports are optional and user-started.</p>
         <div
           data-testid="privacy-card"
           role="region"
           aria-label="Privacy Information"
           className="mt-8 rounded-3xl border border-white/10 bg-surface p-6 sm:p-8 space-y-3"
         >
-          <h2 className="font-display text-2xl font-bold text-foreground">Zero Knowledge, Zero Servers</h2>
+          <h2 className="font-display text-2xl font-bold text-foreground">Local by default</h2>
           <p className="text-base font-semibold text-ember">
-            No accounts, No servers, No ads, No analytics, No data leaves this device
+            No Daily Spark account, no ads, no analytics. Your habits stay local unless you choose to export them.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Daily Spark is local-first software. All streaks, check-in history, notes, and metrics remain encrypted in your browser or desktop storage.
+            Daily Spark does not run a habit-data sync server. Optional encrypted vault exports can be saved to a destination you choose.
           </p>
         </div>
         <div className="mt-12">

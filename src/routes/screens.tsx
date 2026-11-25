@@ -4,7 +4,7 @@ import { siteUrl } from "@/lib/site";
 
 const title = "Screens & Layouts - Daily Spark";
 const description =
-  "Take a look at the calm, high-contrast layouts of Daily Spark: Today, New habit, Details, Progress, and Calendar.";
+  "Preview Daily Spark's Today, habit, schedule, progress, calendar, and settings screens, plus optional planner and widget previews. Feature availability varies by app release.";
 
 // Same body as `/` (a deep link into its `#screens` section), so it shares the
 // homepage's canonical instead of competing with it. Give this route its own

@@ -47,7 +47,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
-              <span>100% Offline · Zero tracking</span>
+              <span>Offline habit tracking · No analytics</span>
             </li>
           </ul>
         </div>

@@ -12,6 +12,8 @@ import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitS
 import { type BackupInspection, createHabit } from "@/lib/habits/logic";
 import { DEFAULT_SETTINGS } from "@/lib/habits/types";
 import { DailySparkApp } from "@/components/app/DailySparkApp";
+import { useHabitStore } from "@/lib/habits/store";
+import { THEME_CONFIGS } from "@/lib/habits/appearance";
 import {
   CalendarCheck2,
   CheckSquare,
@@ -28,6 +30,13 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
+  Palette,
+  Sliders,
+  Database,
+  QrCode,
+  Smartphone,
+  ListTodo,
+  Bell,
 } from "lucide-react";
 
 /*
@@ -138,15 +147,15 @@ export function MiniPhone({ children }: { children: React.ReactNode }) {
     <div
       aria-hidden="true"
       inert
-      className="relative w-[208px] rounded-[32px] p-[7px] transition-transform duration-300 group-hover:-translate-y-2"
+      className="relative w-[250px] rounded-[36px] p-[8px] transition-transform duration-300 group-hover:-translate-y-2"
       style={{
         background: "linear-gradient(155deg, #3a3a3a 0%, #121212 26%, #0b0b0b 62%, #2c2c2c 100%)",
         boxShadow: "0 40px 62px -34px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06)",
       }}
     >
       <span className="absolute left-1/2 top-[9px] z-10 h-[13px] w-[52px] -translate-x-1/2 rounded-[9px] bg-[#000] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
-      <div className="overflow-hidden rounded-[26px] bg-[#0A0A0A]">
-        <Scaled width={194}>{children}</Scaled>
+      <div className="overflow-hidden rounded-[29px] bg-[#0A0A0A]">
+        <Scaled width={234}>{children}</Scaled>
       </div>
     </div>
   );
@@ -374,6 +383,26 @@ export function HomeScreen({
           ))}
         </div>
       </div>
+
+      <Card className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="kicker">Optional</p>
+            <p className="text-[16px] font-extrabold">Day planner</p>
+          </div>
+          <ListTodo className="size-5 text-ember" />
+        </div>
+        <div className="flex items-center gap-2 rounded-xl bg-surface-2 p-2.5 text-[12px]">
+          <CheckSquare className="size-4 text-ember" />
+          <span className="flex-1">Pack a lunch</span>
+          <span className="text-faint">Done</span>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl bg-surface-2 p-2.5 text-[12px]">
+          <span className="size-4 rounded border border-border" />
+          <span className="flex-1">Read before bed</span>
+          <span className="text-faint">Edit</span>
+        </div>
+      </Card>
 
       <button
         type="button"
@@ -833,39 +862,339 @@ export function HabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefin
 }
 
 export function NewHabitScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  const [selectedIcon, setSelectedIcon] = useState("run");
+  const [selectedColor, setSelectedColor] = useState("fire");
+
+  const colors = [
+    { id: "fire", hex: "#EC894C", label: "Fire" },
+    { id: "gold", hex: "#F59E0B", label: "Gold" },
+    { id: "forest", hex: "#4ADE80", label: "Forest" },
+    { id: "ocean", hex: "#38BDF8", label: "Ocean" },
+    { id: "purple", hex: "#8B5CF6", label: "Violet" },
+    { id: "rose", hex: "#FB7185", label: "Rose" },
+  ];
+
+  const activeColorHex = colors.find((c) => c.id === selectedColor)?.hex || "#EC894C";
+
   return (
     <Screen active={-1} onNav={onNav}>
       <div>
         <p className="kicker">New habit</p>
         <p className="font-display text-[26px] font-bold leading-tight">What will you show up for?</p>
       </div>
-      <div className="flex h-12 items-center rounded-2xl border-0 bg-surface-2 px-4 text-[15px] font-semibold">
-        Stretch 10 minutes<span className="ml-0.5 h-5 w-px bg-ember pulse-dot" />
+      <div className="flex h-12 items-center rounded-2xl border-0 bg-surface-2 px-4 text-[15px] font-semibold text-foreground">
+        <span>Stretch 10 minutes</span>
+        <span className="ml-0.5 h-5 w-px pulse-dot" style={{ backgroundColor: activeColorHex }} />
       </div>
-      <Card className="p-3.5">
-        <p className="kicker mb-2.5">Icon</p>
-        <div className="grid grid-cols-6 gap-1.5">
-          {HABIT_ICONS.slice(0, 18).map(({ key, Icon }) => (
-            <span
-              key={key}
-              className={cn(
-                "grid aspect-square place-items-center rounded-[12px] text-muted-foreground",
-                key === "mindful" && "bg-surface-2 text-ember shadow-[inset_0_0_0_1.5px_var(--ember)]",
-              )}
-            >
-              <Icon className="size-5" strokeWidth={1.9} />
-            </span>
-          ))}
+      <div className="flex rounded-xl bg-surface p-1 text-[11px] font-bold">
+        <span className="flex-1 rounded-lg bg-surface-2 py-2 text-center">Quick</span>
+        <span className="flex-1 py-2 text-center text-faint">Schedule</span>
+        <span className="flex-1 py-2 text-center text-faint">Advanced</span>
+      </div>
+      <Card className="p-3.5 space-y-3">
+        <div>
+          <p className="kicker mb-2">Habit icon · {HABIT_ICONS.find(({ key }) => key === selectedIcon)?.label}</p>
+          <div className="grid grid-cols-6 gap-1.5">
+            {HABIT_ICONS.map(({ key, label, Icon }) => {
+              const isSelected = selectedIcon === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-label={label}
+                  aria-pressed={isSelected}
+                  onClick={() => setSelectedIcon(key)}
+                  className={cn(
+                    "grid aspect-square place-items-center rounded-[12px] transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-surface-2 shadow-sm scale-105"
+                      : "text-muted-foreground hover:text-foreground hover:bg-surface-2/60"
+                  )}
+                  style={{
+                    color: isSelected ? activeColorHex : undefined,
+                    boxShadow: isSelected ? `inset 0 0 0 1.5px ${activeColorHex}` : undefined,
+                  }}
+                >
+                  <Icon className="size-5" strokeWidth={1.9} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Color Palette Swatches */}
+        <div>
+          <p className="kicker mb-2">Color</p>
+          <div className="flex items-center justify-between gap-1.5 px-0.5">
+            {colors.map((c) => {
+              const isSelected = selectedColor === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setSelectedColor(c.id)}
+                  aria-label={c.label}
+                  className={cn(
+                    "size-7.5 rounded-full transition-transform cursor-pointer flex items-center justify-center",
+                    isSelected
+                      ? "scale-115 ring-2 ring-white ring-offset-2 ring-offset-surface shadow-md"
+                      : "hover:scale-105 opacity-80 hover:opacity-100"
+                  )}
+                  style={{ backgroundColor: c.hex }}
+                >
+                  {isSelected && <Check className="size-3 text-black stroke-[3.5]" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </Card>
-      <div className="flex h-[52px] items-center justify-center rounded-full bg-primary text-[15px] font-extrabold text-primary-foreground">
+      <button
+        type="button"
+        className="flex h-[52px] w-full items-center justify-center rounded-full text-[15px] font-extrabold text-white shadow-lg transition-transform active:scale-95 cursor-pointer"
+        style={{
+          backgroundColor: activeColorHex,
+          boxShadow: `0 4px 20px ${activeColorHex}55`,
+        }}
+      >
         Add habit
+      </button>
+    </Screen>
+  );
+}
+
+export function PlannerScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  return (
+    <Screen active={0} onNav={onNav}>
+      <div>
+        <p className="kicker">Today</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Day planner</p>
       </div>
+      <Card className="space-y-2.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[14px] font-bold">Today</span>
+          <span className="text-[11px] text-faint">2 tasks</span>
+        </div>
+        <div className="flex items-center gap-2 border-t border-border/40 pt-2.5 text-[12px]">
+          <CheckSquare className="size-4 text-ember" />
+          <span className="flex-1">Plan the week</span>
+          <span className="text-faint">Done</span>
+        </div>
+        <div className="flex items-center gap-2 border-t border-border/40 pt-2.5 text-[12px]">
+          <span className="size-4 rounded border border-border" />
+          <span className="flex-1">Read 20 minutes</span>
+          <span className="text-faint">Edit</span>
+        </div>
+        <Button type="button" variant="outline" className="w-full">Add task</Button>
+      </Card>
+      <Card className="space-y-2">
+        <p className="text-[13px] font-bold">Task details</p>
+        <p className="text-[11px] text-muted-foreground">Set a due date and optionally link a routine.</p>
+        <div className="rounded-xl bg-surface-2 p-2.5 text-[11px]">Due date · Routine</div>
+      </Card>
+      <Card className="space-y-2">
+        <p className="text-[13px] font-bold">Upcoming</p>
+        <p className="rounded-xl bg-surface-2 p-2.5 text-[11px]">Review notes · Tomorrow</p>
+      </Card>
+    </Screen>
+  );
+}
+
+export function ScheduleScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  return (
+    <Screen active={-1} onNav={onNav}>
+      <div>
+        <p className="kicker">New habit · Schedule</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Choose a rhythm</p>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {["Every day", "Weekly goal", "Selected days"].map((item, index) => (
+          <div key={item} className={cn("rounded-xl border p-2 text-center text-[10px] font-bold", index === 1 ? "border-ember bg-ember-soft text-ember" : "border-border bg-surface text-muted-foreground")}>
+            {item}
+          </div>
+        ))}
+      </div>
+      <Card className="space-y-3">
+        <p className="kicker">Tracking type</p>
+        <div className="rounded-xl border border-border bg-surface-2 p-3">
+          <p className="text-[13px] font-bold">Quantitative</p>
+          <p className="text-[11px] text-muted-foreground">Target · units · step size</p>
+        </div>
+        <div className="flex justify-between rounded-xl bg-surface-2 p-3 text-[11px]">
+          <span>Goal</span><strong>3 days per week</strong>
+        </div>
+      </Card>
+      <Card className="space-y-2">
+        <p className="kicker">Advanced options</p>
+        <p className="text-[12px]">Subtasks · notes · reminders</p>
+      </Card>
+      <p className="text-center text-[11px] text-faint">Simple setup stays available in Quick.</p>
     </Screen>
   );
 }
 
 export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  const categories = [
+    { title: "Appearance", Icon: Palette, detail: "Themes and typography" },
+    { title: "Preferences", Icon: Sliders, detail: "Reminders and planner" },
+    { title: "Privacy & Security", Icon: Lock, detail: "PIN or biometrics" },
+    { title: "Data & Backups", Icon: Database, detail: "Export and restore" },
+    { title: "Device Transfer", Icon: QrCode, detail: "Offline transfer" },
+    { title: "About & Support", Icon: Sparkles, detail: "Version and widgets" },
+  ];
+
+  return (
+    <Screen active={3} onNav={onNav}>
+      <div>
+        <p className="kicker">Daily Spark</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Settings</p>
+      </div>
+      <Card className="space-y-2.5 p-3">
+        {categories.map(({ title, Icon, detail }) => (
+          <div key={title} className="flex items-center gap-3 rounded-xl bg-surface-2 p-3">
+            <Icon className="size-4 shrink-0 text-ember" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-bold">{title}</p>
+              <p className="text-[10px] text-faint">{detail}</p>
+            </div>
+            <ArrowRight className="size-3.5 text-faint" />
+          </div>
+        ))}
+      </Card>
+      <p className="text-center text-[11px] text-faint">Open a category to see its settings.</p>
+    </Screen>
+  );
+}
+
+export function PreferencesScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  return (
+    <Screen active={3} onNav={onNav}>
+      <div>
+        <p className="kicker">Settings · Preferences</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Your daily rhythm</p>
+      </div>
+      <Card className="space-y-3 p-3.5">
+        <div className="flex items-center gap-2.5">
+          <Bell className="size-4 text-ember" />
+          <div className="flex-1">
+            <p className="text-[12px] font-bold">Daily reminders</p>
+            <p className="text-[10px] text-faint">Set a time and pre-task notice</p>
+          </div>
+          <span className="rounded-full bg-ember-soft px-2 py-1 text-[10px] font-bold text-ember">On</span>
+        </div>
+        <div className="flex items-center justify-between border-t border-border/40 pt-2.5 text-[11px]">
+          <span>Pre-task reminder</span><strong>5 minutes</strong>
+        </div>
+      </Card>
+      <Card className="space-y-3 p-3.5">
+        <p className="text-[12px] font-bold">Today &amp; calendar</p>
+        <div className="flex items-center justify-between rounded-xl bg-surface-2 p-2.5 text-[11px]">
+          <span>Day planner</span><strong className="text-ember">On</strong>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-surface-2 p-2.5 text-[11px]">
+          <span>Completed habits</span><strong>Move to bottom</strong>
+        </div>
+        <div className="flex items-center justify-between rounded-xl bg-surface-2 p-2.5 text-[11px]">
+          <span>Week starts</span><strong>Monday</strong>
+        </div>
+      </Card>
+      <Card className="space-y-2 p-3.5">
+        <p className="text-[12px] font-bold">Focus &amp; quiet hours</p>
+        <p className="text-[11px] text-muted-foreground">Daily focus goal · Mute completed reminders · Quiet hours</p>
+      </Card>
+    </Screen>
+  );
+}
+
+export function BackupScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  return (
+    <Screen active={3} onNav={onNav}>
+      <div>
+        <p className="kicker">Settings · Data &amp; Backups</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Your data, your choice</p>
+      </div>
+      <Card className="space-y-2.5 p-3.5">
+        <div className="flex items-center gap-3">
+          <Download className="size-5 text-ember" />
+          <div><p className="text-[13px] font-bold">Export backup</p><p className="text-[10px] text-faint">JSON · CSV · TSV · Markdown · Vault</p></div>
+        </div>
+        <div className="flex items-center gap-3 border-t border-border/40 pt-2.5">
+          <ShieldCheck className="size-5 text-ember" />
+          <div><p className="text-[13px] font-bold">Inspect &amp; restore</p><p className="text-[10px] text-faint">Preview, then Merge or Replace</p></div>
+        </div>
+      </Card>
+      <Card className="space-y-2.5 p-3.5">
+        <p className="text-[13px] font-bold">Local snapshots</p>
+        <p className="text-[11px] text-muted-foreground">Automatic rolling history · up to 7 days</p>
+        <div className="rounded-xl bg-surface-2 p-2.5 text-[11px]">Saved on this device</div>
+      </Card>
+      <Card className="space-y-2.5 p-3.5">
+        <p className="text-[13px] font-bold">Portable folder backups · Android</p>
+        <p className="text-[11px] text-muted-foreground">Choose a folder · Daily or weekly · Back up now</p>
+        <div className="rounded-xl bg-surface-2 p-2.5 text-[11px]">Disconnect folder is available when connected.</div>
+      </Card>
+    </Screen>
+  );
+}
+
+export function DeviceTransferScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  return (
+    <Screen active={3} onNav={onNav}>
+      <div>
+        <p className="kicker">Settings · Device Transfer</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Move data privately</p>
+      </div>
+      <Card className="space-y-3 p-4">
+        <div className="grid size-11 place-items-center rounded-xl bg-ember-soft text-ember"><QrCode className="size-5" /></div>
+        <div>
+          <p className="text-[14px] font-bold">Air-Gapped QR Transfer</p>
+          <p className="text-[11px] text-muted-foreground">Transfer encrypted records without a network connection.</p>
+        </div>
+        <Button type="button" variant="outline" className="w-full">Open QR transfer</Button>
+      </Card>
+      <Card className="space-y-3 p-4">
+        <div className="grid size-11 place-items-center rounded-xl bg-ember-soft text-ember"><Sparkles className="size-5" /></div>
+        <div>
+          <p className="text-[14px] font-bold">Encrypted Peer Vault Sync</p>
+          <p className="text-[11px] text-muted-foreground">Exchange encrypted vault files between devices.</p>
+        </div>
+        <Button type="button" variant="outline" className="w-full">Open vault sync</Button>
+      </Card>
+      <p className="text-center text-[11px] text-faint">No account or cloud service required.</p>
+    </Screen>
+  );
+}
+
+export function WidgetsScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
+  return (
+    <Screen active={3} onNav={onNav}>
+      <div>
+        <p className="kicker">About Daily Spark · Android</p>
+        <p className="font-display text-[26px] font-bold leading-tight">Home screen widgets</p>
+      </div>
+      <Card className="space-y-3 p-3.5">
+        {[
+          ["Today", "Upcoming habits and current streak"],
+          ["Streak", "Current streak at a glance"],
+          ["Heatmap", "Recent activity in theme colors"],
+        ].map(([title, detail]) => (
+          <div key={title} className="flex items-center gap-3 border-b border-border/40 pb-3 last:border-0 last:pb-0">
+            <Smartphone className="size-5 shrink-0 text-ember" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[12px] font-bold">{title}</p>
+              <p className="text-[10px] text-faint">{detail}</p>
+            </div>
+            <span className="text-[10px] font-bold text-ember">Add</span>
+          </div>
+        ))}
+      </Card>
+      <Button type="button" variant="outline" className="w-full">Refresh widgets</Button>
+      <p className="text-center text-[11px] text-faint">Launcher confirmation or widget picker.</p>
+    </Screen>
+  );
+}
+
+export function SettingsDetailsScreen({ onNav }: { onNav?: ((i: number) => void) | undefined } = {}) {
   const [backupDialogOpen, setBackupDialogOpen] = useState(false);
   const [lockDialogOpen, setLockDialogOpen] = useState(false);
   const [autoRolling, setAutoRolling] = useState(true);
@@ -984,7 +1313,7 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
           </span>
           <div className="flex-1">
             <p className="text-[14px] font-bold">App Lock &amp; PIN</p>
-            <p className="text-[11.5px] font-semibold text-faint">SHA-256 protected with 5-min timeout</p>
+            <p className="text-[11.5px] font-semibold text-faint">PIN or biometrics · background lock</p>
           </div>
           <ArrowRight className="size-4 text-faint" />
         </Card>
@@ -1027,8 +1356,8 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
                 <Flame className="size-4" />
               </span>
               <div>
-                <p className="text-[13px] font-bold">Today Focus Mode</p>
-                <p className="text-[11px] text-faint">Show only today's tasks</p>
+                <p className="text-[13px] font-bold">Day planner</p>
+                <p className="text-[11px] text-faint">Optional tasks alongside habits</p>
               </div>
             </div>
             <Switch checked={false} />
@@ -1062,6 +1391,9 @@ export function SettingsScreen({ onNav }: { onNav?: ((i: number) => void) | unde
 export function DemoPhone() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const ref = useRef<HTMLDivElement>(null);
+  const { settings } = useHabitStore();
+  const currentTheme = settings.themeMode || "minimal";
+  const currentConfig = THEME_CONFIGS[currentTheme] || THEME_CONFIGS.minimal;
 
   return (
     <div
@@ -1079,7 +1411,20 @@ export function DemoPhone() {
       onPointerLeave={() => setTilt({ x: 0, y: 0 })}
     >
       <Device tilt={tilt}>
-        <div className="theme-minimal w-full h-full">
+        <div
+          className={cn(`theme-${currentTheme}`, "w-full h-full")}
+          style={{
+            "--ember": currentConfig.accent,
+            "--primary": currentConfig.accent,
+            "--ember-soft": currentConfig.soft,
+            "--ember-glow": currentConfig.glow,
+            "--heat-0": currentConfig.heat[0],
+            "--heat-1": currentConfig.heat[1],
+            "--heat-2": currentConfig.heat[2],
+            "--heat-3": currentConfig.heat[3],
+            "--heat-4": currentConfig.heat[4],
+          } as React.CSSProperties}
+        >
           <DailySparkApp embedded initialTab={0} />
         </div>
       </Device>

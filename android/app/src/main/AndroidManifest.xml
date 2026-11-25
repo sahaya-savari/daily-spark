@@ -20,8 +20,8 @@
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
         tools:replace="android:usesCleartextTraffic"
-        android:icon="@drawable/ic_launcher_brand"
-        android:roundIcon="@drawable/ic_launcher_brand"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">

@@ -1,4 +1,4 @@
-const CACHE_NAME = "daily-spark-v1.0.2";
+const CACHE_NAME = "daily-spark-v1.0.2-web-2";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
@@ -36,18 +36,37 @@ self.addEventListener("message", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+  const requestUrl = new URL(request.url);
+  const scopeUrl = new URL(self.registration.scope);
+
+  if (
+    request.method !== "GET" ||
+    requestUrl.origin !== scopeUrl.origin ||
+    !requestUrl.pathname.startsWith(scopeUrl.pathname)
+  ) {
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
+    (async () => {
+      const cached = await caches.match(request);
       if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") {
-          return response;
+
+      try {
+        const response = await fetch(request);
+        if (response.status === 200 && response.type === "basic") {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, response.clone());
         }
-        const toCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, toCache));
         return response;
-      }).catch(() => caches.match("./index.html"));
-    })
+      } catch (error) {
+        if (request.mode === "navigate") {
+          const fallback = await caches.match(new URL("index.html", scopeUrl).href);
+          if (fallback) return fallback;
+        }
+        throw error;
+      }
+    })()
   );
 });

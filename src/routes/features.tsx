@@ -4,7 +4,7 @@ import { siteUrl } from "@/lib/site";
 
 const title = "Features - Daily Spark";
 const description =
-  "Explore Daily Spark features: streaks, calendar heatmap, custom icons, reminders, and full local backup.";
+  "Explore Daily Spark's daily check-ins, schedules, reminders, streaks, calendar progress, and local-first data storage. Optional encrypted exports help you move a backup between devices.";
 
 // This route is a deep link into the homepage's `#features` section and renders
 // the same body as `/`, so it must not claim a canonical of its own. One body,

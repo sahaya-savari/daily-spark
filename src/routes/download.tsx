@@ -14,7 +14,7 @@ import { SITE, siteUrl } from "@/lib/site";
 import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
 
 const title = "Download Daily Spark for Android, Web, Windows and Linux";
-const description = "Choose Daily Spark for Android, the installable web app, Windows, or Linux. Private, offline-first habit tracking with no account, ads, or tracking.";
+const description = "Download Daily Spark for Android or choose the web, Windows, or Linux version. Offline-first habit tracking with no account, ads, or analytics; optional encrypted exports.";
 
 export const Route = createFileRoute("/download")({
   head: () => ({
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/download")({
 const STEPS = [
   {
     title: "Download the APK",
-    body: `Tap the button above. You get ${SITE.apk.filename} - ${SITE.apk.size}, straight from GitHub Releases.`,
+    body: `Tap the button above. You get ${SITE.apk.filename} - ${SITE.apk.size}, downloaded directly from this website.`,
   },
   {
     title: "Open the file",
@@ -81,7 +81,7 @@ function Download() {
             Daily Spark for Android
           </h2>
           <p className="mt-1 text-sm sm:text-base text-muted-foreground">
-            Direct same-origin APK install with zero redirects, tracking, or account requirements.
+            Direct same-origin APK download with no external redirect or Daily Spark account required.
           </p>
 
           <div className="mt-6 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
@@ -140,7 +140,7 @@ function Download() {
             </div>
             <div>
               <dt className="text-xs uppercase tracking-wider text-faint font-semibold">Privacy</dt>
-              <dd className="mt-1 text-emerald-400 font-semibold">100% Offline</dd>
+              <dd className="mt-1 text-emerald-400 font-semibold">Offline-first</dd>
             </div>
           </dl>
         </section>

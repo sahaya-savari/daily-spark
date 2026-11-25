@@ -1,3 +1,4 @@
+import { WidgetSettings } from "./WidgetSettings";
 import { FolderBackupSettings } from "./FolderBackupSettings";
 import { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
@@ -266,7 +267,7 @@ export function ModernSettingsView({
             subtitle: `${SITE.apk.version} • 100% offline, MIT licensed, privacy guarantee`,
             icon: Info,
             statusText: `${SITE.apk.version}`,
-            keywords: ["about", "version", "license", "privacy", "terms", "mit", "author", "guarantee"],
+            keywords: ["about", "widget", "home screen", "version", "license", "privacy", "terms", "mit", "author", "guarantee"],
           },
           {
             id: "support",
@@ -1472,6 +1473,7 @@ export function ModernSettingsView({
               A calm, honest habit tracker built for lasting consistency.
             </DialogDescription>
           </DialogHeader>
+          <WidgetSettings />
 
           <div className="space-y-3 pt-2 text-sm text-muted-foreground">
             <div className="p-4 rounded-2xl bg-surface-2 border border-white/5 space-y-2.5">

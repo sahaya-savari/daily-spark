@@ -212,6 +212,14 @@ describe("habit store", () => {
     expect(stored.map((habit: { name: string }) => habit.name)).toContain("Read 30 minutes");
   });
 
+  it("keeps planner-only data in automatic recovery snapshots", () => {
+    const task = { id: "task", title: "Plan tomorrow", dueOn: null, completedOn: null, routineId: null };
+    habitActions.updatePlannerTasks(() => [task]);
+    expect(habitActions.getRollingBackups()[0]).toMatchObject({
+      habits: [], settings: { plannerTasks: [task] },
+    });
+  });
+
   it("stores and restores automatic rolling backups", () => {
     habitActions.add({ name: "Habit A", emoji: "🅰️" });
     const rolling = habitActions.getRollingBackups();

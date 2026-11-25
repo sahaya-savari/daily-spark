@@ -47,17 +47,14 @@ export const SITE = {
   },
   apk: {
     // Latest *published* release, verified against the GitHub Releases API.
-    // Source of truth for every download label on the site. Update only after
-    // a release exists at
-    // https://github.com/sahaya-savari/daily-spark/releases/latest
+    // Keep this version, filename, and size aligned with the published asset.
     version: "v1.0.2",
-    // Direct same-origin asset path served straight from GitHub Pages with zero 302 redirects.
-    // Eliminates mobile Chrome duplicate/triple download loops caused by cloud storage redirect hops.
-    url: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2.apk",
-    // GitHub Releases URL for external managers (Obtainium, F-Droid metadata, direct releases)
+    // Download the verified release asset from this site's own origin.
+    url: `${basePath}Daily-Spark-v1.0.2.apk`,
     githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2.apk",
     filename: "Daily-Spark-v1.0.2.apk",
-    // Exact universal release APK size: 4,442,803 bytes (~4.2 MB).
+    // Exact release asset size: 4,289,238 bytes (about 4.1 MiB).
+    sizeBytes: 4289238,
     size: "4.1 MB",
   },
   desktop: {
@@ -95,3 +92,5 @@ export function siteUrl(path = ""): string {
   const isFile = /\.[a-z0-9]+$/i.test(normalised);
   return `${base}${normalised}${isFile || normalised.endsWith("/") ? "" : "/"}`;
 }
+
+export { default as SITE_FAQS } from "./site-faq.json";

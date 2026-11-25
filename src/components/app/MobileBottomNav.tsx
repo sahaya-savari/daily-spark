@@ -27,10 +27,10 @@ export function MobileBottomNav({
       aria-label="Mobile navigation"
       className={cn(
         !embedded && "lg:hidden",
-        "z-30 flex items-center justify-between rounded-full border border-border/40 bg-surface/90 px-3 backdrop-blur-xl shadow-lg",
+        "z-30 flex items-center justify-between rounded-full border border-border/40 bg-surface/90 px-1 sm:px-3 backdrop-blur-xl shadow-lg",
         embedded
           ? "absolute inset-x-3.5 bottom-3.5 h-[72px]"
-          : "fixed left-1/2 -translate-x-1/2 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] h-[72px] w-[calc(100%-2rem)] max-w-lg"
+          : "fixed left-1/2 -translate-x-1/2 bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))] sm:bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] h-[72px] w-[calc(100%-1rem)] max-w-lg"
       )}
     >
       {/* 1. Today */}
@@ -47,7 +47,7 @@ export function MobileBottomNav({
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 0 && "bg-ember-soft")}>
           <CalendarCheck2 className="size-4" strokeWidth={2.2} />
         </span>
-        <span className="text-[11px] font-bold">Today</span>
+        <span className="block w-full min-w-0 truncate px-0.5 text-center text-[11px] font-semibold">Today</span>
       </Button>
 
       {/* 2. Habits */}
@@ -64,7 +64,7 @@ export function MobileBottomNav({
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 1 && "bg-ember-soft")}>
           <CheckSquare className="size-4" strokeWidth={2.2} />
         </span>
-        <span className="text-[11px] font-bold">Habits</span>
+        <span className="block w-full min-w-0 truncate px-0.5 text-center text-[11px] font-semibold">Habits</span>
       </Button>
 
       {/* 3. Center Add (+) Button */}
@@ -93,7 +93,7 @@ export function MobileBottomNav({
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 2 && "bg-ember-soft")}>
           <BarChart3 className="size-4" strokeWidth={2.2} />
         </span>
-        <span className="text-[11px] font-bold">Progress</span>
+        <span className="block w-full min-w-0 truncate px-0.5 text-center text-[11px] font-semibold">Progress</span>
       </Button>
 
       {/* 5. Settings */}
@@ -110,7 +110,7 @@ export function MobileBottomNav({
         <span className={cn("grid h-7 w-12 place-items-center rounded-full", activeTab === 3 && "bg-ember-soft")}>
           <Settings className="size-4" strokeWidth={2.2} />
         </span>
-        <span className="text-[11px] font-bold">Settings</span>
+        <span className="block w-full min-w-0 truncate px-0.5 text-center text-[11px] font-semibold">Settings</span>
       </Button>
     </nav>
   );

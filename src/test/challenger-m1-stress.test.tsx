@@ -14,7 +14,7 @@ describe("Empirical Challenger M1-2: Stress & Boundary Verification", () => {
   // =========================================================================
   describe("1. Responsive Layout Boundaries", () => {
     it("1.1 enforces strict >=48px touch targets and safe-area padding at 320px width", () => {
-      // At 320px width (e.g. iPhone SE 1st gen), container max width is restricted to 288px
+      // At 320px width (e.g. iPhone SE 1st gen), container leaves an 8px gutter on each side
       const { container } = render(
         <MobileBottomNav
           activeTab={0}
@@ -28,7 +28,7 @@ describe("Empirical Challenger M1-2: Stress & Boundary Verification", () => {
       expect(nav).not.toBeNull();
       // Class checks
       expect(nav?.className).toContain("bottom-[calc(0.75rem+env(safe-area-inset-bottom,0px))]");
-      expect(nav?.className).toContain("w-[calc(100%-2rem)]");
+      expect(nav?.className).toContain("w-[calc(100%-1rem)]");
       expect(nav?.className).toContain("max-w-lg");
       expect(nav?.className).toContain("lg:hidden");
 

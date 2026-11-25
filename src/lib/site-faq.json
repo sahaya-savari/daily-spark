@@ -1,0 +1,18 @@
+[
+  {
+    "question": "What is Daily Spark?",
+    "answer": "Daily Spark is a free, offline-first habit tracker for Android and the web. It helps you record daily check-ins, review streaks and progress, and keep your routines simple."
+  },
+  {
+    "question": "Does Daily Spark need an account?",
+    "answer": "No. You can use the habit tracker without creating a Daily Spark account. The app does not use advertising or analytics, and your habit data is stored locally by default."
+  },
+  {
+    "question": "Can I move my habits to another device?",
+    "answer": "Yes. You can export an encrypted vault and save the file wherever you choose, then import and merge it on another device. This is an optional, user-started transfer; Daily Spark does not run an automatic sync server."
+  },
+  {
+    "question": "Does Daily Spark work offline?",
+    "answer": "Core habit tracking works offline after the app is installed or the web app has been loaded. Downloading the app and moving a backup between devices require an internet connection or a transfer method."
+  }
+]

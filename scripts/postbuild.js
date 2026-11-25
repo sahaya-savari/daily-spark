@@ -19,6 +19,7 @@ const dist = path.resolve(import.meta.dirname, '../dist');
 const indexHtmlPath = path.join(dist, 'index.html');
 const notFoundHtmlPath = path.join(dist, '404.html');
 const ogCardSource = path.join(dist, 'og-card.html');
+const faqSourcePath = path.resolve(import.meta.dirname, '../src/lib/site-faq.json');
 
 // Keep in sync with `base` in vite.config.ts and SITE.basePath in src/lib/site.ts.
 const BASE_PATH = process.env.VITE_BASE_PATH ?? (process.env.GITLAB_CI ? '/daily-spark/' : '/');
@@ -26,9 +27,13 @@ const SITE_ORIGIN = process.env.VITE_SITE_ORIGIN ?? (process.env.GITLAB_CI ? 'ht
 const SITE_URL = `${SITE_ORIGIN}${BASE_PATH.endsWith('/') ? BASE_PATH : `${BASE_PATH}/`}`;
 
 const SEO_BLOCK = /<!--seo:start-->[\s\S]*?<!--seo:end-->/;
+const FALLBACK_BLOCK = /<!--fallback:start-->[\s\S]*?<!--fallback:end-->/;
 
 const HOME_DESCRIPTION =
-  'Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK.';
+  'A free, offline-first habit tracker for Android and the web. Track daily habits, streaks and progress without an account, ads or analytics. Optional encrypted backups.';
+const APK_FILENAME = 'Daily-Spark-v1.0.2.apk';
+const APK_SIZE_BYTES = 4289238;
+const SITE_FAQS = JSON.parse(fs.readFileSync(faqSourcePath, 'utf8'));
 
 /** HTML-escape text used inside attribute values and <title>. */
 function esc(value) {
@@ -39,6 +44,69 @@ function esc(value) {
     .replace(/"/g, '&quot;');
 }
 
+function fallbackPage(title, content) {
+  return `<noscript>
+      <main style="max-width:48rem;margin:0 auto;padding:2rem 1.25rem;color:#f0f0f4;background:#0e0f12;font:16px/1.6 system-ui,sans-serif">
+        <h1 style="font-size:2rem;line-height:1.15">${esc(title)}</h1>
+        ${content}
+      </main>
+    </noscript>`;
+}
+
+const faqFallback = SITE_FAQS.map(({ question, answer }) =>
+  `<section><h2>${esc(question)}</h2><p>${esc(answer)}</p></section>`,
+).join('\n');
+
+const homeFallback = fallbackPage(
+  'Daily Spark: free offline-first habit tracker',
+  `<p>Daily Spark helps you track small daily habits, check-ins, streaks and progress on Android or the web. Core tracking works offline. There is no Daily Spark account, advertising, or analytics.</p>
+        <p>Your data stays local by default. You can optionally export an encrypted vault and move it yourself; Daily Spark does not run an automatic sync server.</p>
+        <p><a href="${BASE_PATH}download/" style="color:#ec894c">Download Daily Spark</a> · <a href="${BASE_PATH}#features" style="color:#ec894c">Explore features</a> · <a href="${BASE_PATH}privacy/" style="color:#ec894c">Read the privacy details</a></p>
+        <h2>Frequently asked questions</h2>${faqFallback}`,
+);
+
+const featuresFallback = fallbackPage(
+  'Daily Spark habit tracker features',
+  `<p>Daily Spark includes daily check-ins, habit schedules, streaks, calendar and progress views, reminders, and local data storage. Optional encrypted vault exports let you move a backup between devices.</p>
+        <p><a href="${BASE_PATH}#screens" style="color:#ec894c">Browse interface previews</a> · <a href="${BASE_PATH}download/" style="color:#ec894c">Download the app</a></p>`,
+);
+
+const screensFallback = fallbackPage(
+  'Daily Spark screens and layouts',
+  `<p>Preview the Today, habit setup, schedules, progress, calendar, settings, and backup screens. Some planner and widget previews are optional or in development and may differ from the latest released APK.</p>
+        <p><a href="${BASE_PATH}#features" style="color:#ec894c">Explore features</a> · <a href="${BASE_PATH}download/" style="color:#ec894c">Download the app</a></p>`,
+);
+
+const downloadFallback = fallbackPage(
+  'Download Daily Spark',
+  `<p>Download the official Daily Spark v1.0.2 Android APK (${(APK_SIZE_BYTES / 1024 / 1024).toFixed(1)} MB). Core habit tracking works offline and does not require a Daily Spark account.</p>
+        <p><a href="${BASE_PATH}${APK_FILENAME}" download style="color:#ec894c">Download the Android APK</a></p>
+        <p>To install, open the downloaded APK and approve installation for your browser when Android asks. Optional encrypted vault exports can be moved between devices.</p>`,
+);
+
+const privacyFallback = fallbackPage(
+  'Daily Spark privacy',
+  `<p>Habit data is stored locally in the app or browser by default. Daily Spark has no account system, advertising, or analytics, and does not run a habit-data sync server.</p>
+        <p>If you choose to export an encrypted vault, encryption happens on your device with your passphrase. You choose where to save or transfer that file; the storage provider's own privacy terms apply.</p>
+        <p><a href="${BASE_PATH}#get" style="color:#ec894c">Get Daily Spark</a></p>`,
+);
+
+const getFallback = fallbackPage(
+  'Download Daily Spark',
+  `<p>JavaScript is required for the automatic redirect. You can <a href="${BASE_PATH}${APK_FILENAME}" download style="color:#ec894c">download the Android APK directly</a> or visit the <a href="${BASE_PATH}download/" style="color:#ec894c">download page</a>.</p>`,
+);
+
+const offlineFallback = fallbackPage(
+  'Daily Spark offline',
+  `<p>Core habit tracking works offline after the app is installed or the web app has been loaded. Downloads and user-started backup transfers need a connection or another transfer method.</p>
+        <p><a href="${BASE_PATH}" style="color:#ec894c">Return to Daily Spark</a></p>`,
+);
+
+const notFoundFallback = fallbackPage(
+  'Page not found',
+  `<p>This Daily Spark page could not be found.</p><p><a href="${BASE_PATH}" style="color:#ec894c">Return to the home page</a> · <a href="${BASE_PATH}download/" style="color:#ec894c">Download the app</a></p>`,
+);
+
 /**
  * One <head> block per route. `canonical` doubles as og:url.
  * `noindex: true` is for redirect stubs and the 404 page: they must never be
@@ -46,12 +114,14 @@ function esc(value) {
  */
 const ROUTES = {
   '/': {
-    title: 'Daily Spark - Calm, offline habit tracker',
+    title: 'Daily Spark | Free Offline Habit Tracker',
     description: HOME_DESCRIPTION,
     ogTitle: 'Daily Spark - Show up. Tick it. Keep going.',
     canonical: SITE_URL,
     ogType: 'website',
     twitterCard: 'summary_large_image',
+    faqPage: true,
+    fallback: homeFallback,
   },
   // `/features` and `/screens` render the same body as `/` (they are deep links
   // into its sections), so they share the homepage's canonical rather than
@@ -60,18 +130,22 @@ const ROUTES = {
   '/features': {
     title: 'Features - Daily Spark',
     description:
-      'Explore Daily Spark features: streaks, calendar heatmap, custom icons, reminders, and full local backup.',
+      "Explore Daily Spark's daily check-ins, schedules, reminders, streaks, calendar progress, and local-first data storage. Optional encrypted exports help you move a backup between devices.",
     canonical: SITE_URL,
     ogType: 'website',
     twitterCard: 'summary_large_image',
+    faqPage: true,
+    fallback: featuresFallback,
   },
   '/screens': {
     title: 'Screens & Layouts - Daily Spark',
     description:
-      'Take a look at the calm, high-contrast layouts of Daily Spark: Today, New habit, Details, Progress, and Calendar.',
+      "Preview Daily Spark's Today, habit, schedule, progress, calendar, and settings screens, plus optional planner and widget previews. Feature availability varies by app release.",
     canonical: SITE_URL,
     ogType: 'website',
     twitterCard: 'summary_large_image',
+    faqPage: true,
+    fallback: screensFallback,
   },
   '/download': {
     title: 'Download Daily Spark - Android APK',
@@ -79,35 +153,40 @@ const ROUTES = {
     // SoftwareApplication JSON-LD in index.html; they describe the published
     // APK, not the website's own version.
     description:
-      'Download the official Daily Spark v1.0.2 Android APK (4.1 MB). Free, offline habit tracking with no account, ads, or tracking. Android only.',
+      'Download the official Daily Spark v1.0.2 Android APK (4.1 MB). Free, offline-first habit tracking with no account, ads, or analytics. Optional encrypted exports.',
     canonical: `${SITE_URL}download/`,
     ogType: 'website',
     twitterCard: 'summary_large_image',
+    fallback: downloadFallback,
   },
   '/privacy': {
     title: 'Privacy - Daily Spark',
     description:
-      'Daily Spark collects nothing. No account, no analytics, no ads - your habits stay on your device.',
+      'Daily Spark stores habit data locally by default and has no account, ads, or analytics. Optional encrypted vault exports can be saved where you choose.',
     canonical: `${SITE_URL}privacy/`,
     ogType: 'article',
     twitterCard: 'summary',
+    fallback: privacyFallback,
   },
   // Redirect stubs: real routes exist only so the SPA can navigate, and the
   // static copies exist so GitHub Pages returns 200 instead of 404.
   '/get': {
     title: 'Redirecting - Daily Spark',
     noindex: true,
+    fallback: getFallback,
   },
   '/offline': {
     title: 'Offline - Daily Spark',
     description:
-      'Daily Spark works 100% offline. All your habits, streaks, and notes are safe on this device.',
+      'Core Daily Spark habit tracking works offline after installation or the first web app load. Optional backup transfers are user-started.',
     canonical: `${SITE_URL}offline/`,
     noindex: true,
+    fallback: offlineFallback,
   },
   '/404': {
     title: 'Page not found - Daily Spark',
     noindex: true,
+    fallback: notFoundFallback,
   },
 };
 
@@ -137,6 +216,24 @@ function seoBlock(route) {
     `    <meta data-ssg-seo name="twitter:description" content="${esc(ogDescription)}" />`,
   );
 
+  if (route.faqPage) {
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: SITE_FAQS.map(({ question, answer }) => ({
+        '@type': 'Question',
+        name: question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: answer,
+        },
+      })),
+    };
+    lines.push(
+      `    <script type="application/ld+json">${JSON.stringify(faqSchema).replace(/</g, '\\u003c')}</script>`,
+    );
+  }
+
   return lines.join('\n');
 }
 
@@ -152,9 +249,19 @@ function renderRoute(template, route) {
       'index.html is missing the <!--seo:start--> / <!--seo:end--> block; refusing to emit generic per-route heads.',
     );
   }
+  if (!FALLBACK_BLOCK.test(template)) {
+    throw new Error(
+      'index.html is missing the <!--fallback:start--> / <!--fallback:end--> block; refusing to emit empty no-JavaScript route bodies.',
+    );
+  }
   let rendered = absolutizeAssets(
-    template.replace(SEO_BLOCK, `<!--seo:start-->\n${seoBlock(route)}\n    <!--seo:end-->`),
+    template
+      .replace(SEO_BLOCK, `<!--seo:start-->\n${seoBlock(route)}\n    <!--seo:end-->`)
+      .replace(FALLBACK_BLOCK, route.fallback),
   );
+  rendered = rendered
+    .replace(/__SITE_APK_URL__/g, `${SITE_URL}${APK_FILENAME}`)
+    .replace(/__SITE_APK_SIZE_BYTES__/g, String(APK_SIZE_BYTES));
   if (SITE_URL !== 'https://dailyspark.sahayasavari.dev/') {
     rendered = rendered.replace(/https:\/\/dailyspark\.sahayasavari\.dev\//g, SITE_URL);
   }

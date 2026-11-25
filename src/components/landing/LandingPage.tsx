@@ -33,10 +33,17 @@ import {
   NewHabitScreen,
   ProgressScreen,
   SettingsScreen,
+  SettingsDetailsScreen,
+  PreferencesScreen,
+  BackupScreen,
+  DeviceTransferScreen,
+  WidgetsScreen,
+  ScheduleScreen,
+  PlannerScreen,
 } from "@/components/landing/DemoPhone";
 import { useReveal } from "@/hooks/use-reveal";
 import { useThemeAccent } from "@/hooks/use-theme-accent";
-import { SITE } from "@/lib/site";
+import { SITE, SITE_FAQS } from "@/lib/site";
 import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
 
 
@@ -94,11 +101,18 @@ const FEATURES = [
 
 const SHOTS = [
   ["Today", <HomeScreen key="h" habits={DEMO_HABITS} />],
+  ["Today planner", <PlannerScreen key="planner" />],
   ["Habits", <HabitScreen key="d" />],
   ["New habit", <NewHabitScreen key="n" />],
+  ["Schedules & goals", <ScheduleScreen key="schedule" />],
   ["Progress", <ProgressScreen key="p" initialSubTab="overview" />],
   ["Calendar", <CalendarScreen key="c" />],
   ["Settings", <SettingsScreen key="s" />],
+  ["Preferences", <PreferencesScreen key="preferences" />],
+  ["Data & backups", <BackupScreen key="backups" />],
+  ["Device transfer", <DeviceTransferScreen key="transfer" />],
+  ["Android widgets", <WidgetsScreen key="widgets" />],
+  ["Settings options", <SettingsDetailsScreen key="settings-options" />],
 ] as const;
 
 const NOT_DOING = [
@@ -108,7 +122,7 @@ const NOT_DOING = [
   "No leaderboards",
   "No pushy streaks",
   "No forced reminders",
-  "No data syncing",
+  "No automatic data syncing",
   "No paywalls or ads",
 ] as const;
 
@@ -197,7 +211,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </span>
               <b className="font-sans text-[14.5px] sm:text-[15.5px] font-bold text-white">{SITE.apk.version}</b>
               <span className="text-[#626262]">·</span>
-              <span className="font-medium text-[#9A9A9A]">100% Offline APK</span>
+              <span className="font-medium text-[#9A9A9A]">Offline-first APK</span>
             </a>
 
             <h1 className="font-display text-[clamp(44px,7.5vw,78px)] font-black uppercase tracking-tight leading-[1.02] text-left max-w-full">
@@ -213,13 +227,13 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             {/* Quick trust & feature pills */}
             <div className="flex flex-wrap items-center gap-2 mb-6 sm:mb-7 text-xs sm:text-[13px] font-semibold text-faint">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
-                <ShieldCheck className="size-3.5 text-[#EC894C]" /> 100% Offline
+                <ShieldCheck className="size-3.5 text-[#EC894C]" /> Core tracking works offline
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
                 <Smartphone className="size-3.5 text-[#EC894C]" /> {SITE.apk.size} APK
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
-                <Lock className="size-3.5 text-[#EC894C]" /> Zero Tracking
+                <Lock className="size-3.5 text-[#EC894C]" /> No analytics
               </span>
             </div>
 
@@ -358,8 +372,12 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <div className="min-w-0 flex-1">
                 <h2 className="mb-3 font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">Screens</h2>
                 <p className="max-w-[52ch] text-base sm:text-lg text-muted-foreground">
-                  The real layouts with sample habits. On a phone it is a rail you swipe yourself; on wider screens it
-                  scrolls on its own and you can stop it.
+                  Explore the app with sample habits. Existing screens stay here, with new previews for the optional
+                  planner, schedules, settings categories, backups, transfers, and Android widgets.
+                  On phones, swipe the rail; on wider screens, pause or play it.
+                </p>
+                <p className="mt-2 text-sm text-faint">
+                  These are illustrative previews; optional and in-progress features may differ from the latest released APK.
                 </p>
               </div>
               <button
@@ -373,8 +391,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </button>
             </div>
             <p className="sr-only">
-              Screenshot gallery of the Daily Spark app, showing the Today, New habit, Habit, Progress, Calendar and
-              Settings screens.
+              Screenshot gallery of the Daily Spark app, showing Today, the optional planner, habits, schedules,
+              progress, calendar, settings, backups, device transfer and Android widgets.
             </p>
           </div>
 
@@ -391,7 +409,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               {[...SHOTS, ...SHOTS].map(([label, screen], i) => (
                 <figure
                   key={i}
-                  className="group w-[208px] flex-none max-sm:snap-start"
+                  className="group w-[250px] flex-none max-sm:snap-start"
                   aria-hidden={i >= SHOTS.length || undefined}
                 >
                   <MiniPhone>{screen}</MiniPhone>
@@ -409,20 +427,19 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
             <div className="min-w-0 text-left">
               <h2 className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold leading-tight">
-                Your data stays on your device
+                Your data stays local by default
               </h2>
               <p className="mt-3 max-w-[54ch] text-base sm:text-[17px] text-muted-foreground">
-                Daily Spark has no account and no server, so there's nowhere for your habits to go. No analytics, no ads.
+                Daily Spark has no account, ads, or analytics. Your habits are not sent to Daily Spark servers.
               </p>
               <p className="mt-3.5 max-w-[54ch] text-base sm:text-[17px] text-muted-foreground">
-                Everything is saved locally on your phone with the APK. Export a backup now and then, and
-                restore it on any device.
+                Export an encrypted vault when you choose, then save or transfer it yourself. Daily Spark does not run automatic background syncing.
               </p>
             </div>
             <div className="flex min-w-0 flex-col gap-3.5 w-full">
               <RowLink icon={<Lock className="size-4" />} title="No account" sub="Install and start immediately" />
-              <RowLink icon={<ShieldCheck className="size-4" />} title="Offline first" sub="Tracking needs zero internet" />
-              <RowLink icon={<ShieldCheck className="size-4" />} title="Privacy by design" sub="No ads or hidden telemetry" />
+              <RowLink icon={<ShieldCheck className="size-4" />} title="Offline first" sub="Core habit tracking works offline" />
+              <RowLink icon={<ShieldCheck className="size-4" />} title="Privacy by design" sub="No ads or analytics" />
             </div>
           </div>
         </section>
@@ -473,6 +490,25 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           </div>
         </section>
 
+        <section
+          aria-labelledby="faq-title"
+          className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] [content-visibility:auto] [contain-intrinsic-size:auto_500px]"
+        >
+          <h2 id="faq-title" className="font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">
+            Frequently asked questions
+          </h2>
+          <div className="mt-6 divide-y divide-white/10 rounded-2xl border border-white/10 bg-surface/60 px-5 sm:px-7">
+            {SITE_FAQS.map(({ question, answer }) => (
+              <details key={question} className="group py-4">
+                <summary className="min-h-11 cursor-pointer py-2 text-base font-semibold text-foreground marker:text-ember focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
+                  {question}
+                </summary>
+                <p className="max-w-[72ch] pb-2 leading-relaxed text-muted-foreground">{answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
         {/* Get it */}
         <section id="get" className="reveal anchor-section px-4 sm:px-6 pb-safe-section pt-[56px] sm:pt-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_600px]">
           <div className="glass-panel glass-sheen relative mx-auto max-w-[1100px] overflow-hidden rounded-3xl p-6 sm:p-10 md:p-14 text-center w-full">
@@ -511,7 +547,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               <code className="rounded-md border border-white/10 bg-surface-2/80 px-2 py-0.5 text-[12px] sm:text-[13px] text-muted-foreground">
                 {SITE.apk.version}
               </code>{" "}
-              · {SITE.apk.size} · 100% offline and privacy-first.
+              · {SITE.apk.size} · Offline-first, with optional encrypted exports.
             </p>
           </div>
         </section>

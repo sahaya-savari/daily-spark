@@ -18,16 +18,16 @@
       it, which lets React own the live head without creating duplicates.
     -->
     <!--seo:start-->
-    <title>Daily Spark - Calm, offline habit tracker</title>
-    <meta data-ssg-seo name="description" content="Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK." />
+    <title>Daily Spark | Free Offline Habit Tracker</title>
+    <meta data-ssg-seo name="description" content="A free, offline-first habit tracker for Android and the web. Track daily habits, streaks and progress without an account, ads or analytics. Optional encrypted backups." />
     <link data-ssg-seo rel="canonical" href="https://dailyspark.sahayasavari.dev/" />
     <meta data-ssg-seo property="og:type" content="website" />
     <meta data-ssg-seo property="og:title" content="Daily Spark - Show up. Tick it. Keep going." />
-    <meta data-ssg-seo property="og:description" content="Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK." />
+    <meta data-ssg-seo property="og:description" content="A free, offline-first habit tracker for Android and the web. Track daily habits, streaks and progress without an account, ads or analytics. Optional encrypted backups." />
     <meta data-ssg-seo property="og:url" content="https://dailyspark.sahayasavari.dev/" />
     <meta data-ssg-seo name="twitter:card" content="summary_large_image" />
     <meta data-ssg-seo name="twitter:title" content="Daily Spark - Show up. Tick it. Keep going." />
-    <meta data-ssg-seo name="twitter:description" content="Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK." />
+    <meta data-ssg-seo name="twitter:description" content="A free, offline-first habit tracker for Android and the web. Track daily habits, streaks and progress without an account, ads or analytics. Optional encrypted backups." />
     <!--seo:end-->
 
     <script>
@@ -57,14 +57,6 @@
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="./favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
-    <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
-    </noscript>
-
     <!--
       Site-level structured data. Route-independent, so it lives here rather than
       in `head()` (React does not hoist plain <script> tags).
@@ -77,19 +69,20 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "Daily Spark",
-        "description": "A calm, offline-first habit and streak tracker. No account, no ads, no tracking.",
+        "description": "A free, offline-first habit tracker for Android and the web. No Daily Spark account, ads, or analytics. Habit data stays local by default, with optional encrypted exports.",
         "url": "https://dailyspark.sahayasavari.dev/",
         "applicationCategory": "HealthApplication",
         "operatingSystem": "Android",
-        "downloadUrl": "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2.apk",
+        "downloadUrl": "__SITE_APK_URL__",
         "softwareVersion": "v1.0.2",
-        "fileSize": "4274792",
+        "fileSize": "__SITE_APK_SIZE_BYTES__",
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "author": { "@type": "Organization", "name": "Daily Spark", "url": "https://github.com/sahaya-savari" }
       }
     </script>
   </head>
   <body class="bg-background text-foreground antialiased selection:bg-ember selection:text-white">
+    <!--fallback:start--><!--fallback:end-->
     <div id="root"></div>
     <script type="module" src="./src/main.tsx"></script>
   </body>

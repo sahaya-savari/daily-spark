@@ -70,10 +70,13 @@ function readJson<T>(key: string, fallback: T): T {
 }
 
 function saveRollingBackup(habits: Habit[], settings: HabitSettings, collections: HabitCollection[]) {
-  if (typeof window === "undefined" || habits.length === 0) return;
+  if (typeof window === "undefined") return;
   if (settings.autoBackupHistoryEnabled === false) return;
   try {
-    const today = todayKey();
+    const notes = noteActions.getNotes();
+    if (habits.length === 0 && collections.length === 0 && notes.length === 0 &&
+        !settings.plannerTasks?.length && !settings.focusSessions?.length) return;
+    const today = todayKey(new Date(), settings.rolloverHour);
     const history = readJson<LocalBackupSnapshot[]>(STORAGE_KEYS.autoBackupHistory, []);
     const filtered = history.filter((s) => s.date !== today);
     const updated: LocalBackupSnapshot[] = [
@@ -83,7 +86,7 @@ function saveRollingBackup(habits: Habit[], settings: HabitSettings, collections
         habits,
         settings,
         collections,
-        notes: noteActions.getNotes(),
+        notes,
       },
       ...filtered,
     ].slice(0, 7);

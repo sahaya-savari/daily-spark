@@ -639,7 +639,7 @@ export function SiteFooter() {
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318] px-3 py-1 font-mono text-[11px] text-emerald-400">
               <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>100% Offline · Zero Tracking</span>
+              <span>Offline-first · No analytics</span>
             </span>
             <span className="text-[#555A68]">·</span>
             <span className="text-[#8A92A3]">Effects by React Bits</span>

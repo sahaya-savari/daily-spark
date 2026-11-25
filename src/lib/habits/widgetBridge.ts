@@ -4,19 +4,22 @@ import { todayKey, addDays } from "./dates";
 import { overallStreak, isDoneOn, isHabitDueToday } from "./logic";
 import type { Habit, HabitSettings } from "./types";
 
+export type WidgetKind = "today" | "streak" | "heatmap";
+
 interface WidgetRefreshPlugin {
+  requestPin(options: { kind: WidgetKind }): Promise<{ requested: boolean }>;
   refresh(): Promise<{ refreshed: boolean }>;
 }
 
-const WidgetRefresh = registerPlugin<WidgetRefreshPlugin>("WidgetRefresh");
+export const WidgetRefresh = registerPlugin<WidgetRefreshPlugin>("WidgetRefresh");
 
 /**
  * Shared Storage Bridge for Android Home-Screen Widgets.
  * Updates context.filesDir/widget_habits.json via Capacitor Filesystem bridge.
  * 100% offline-first, $0 server cost.
  */
-export async function syncWidgetData(habits: Habit[], settings?: HabitSettings): Promise<void> {
-  if (!Capacitor.isNativePlatform()) return;
+export async function syncWidgetData(habits: Habit[], settings?: HabitSettings): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) return false;
 
   try {
     const today = todayKey(new Date(), settings?.rolloverHour);
@@ -69,9 +72,10 @@ export async function syncWidgetData(habits: Habit[], settings?: HabitSettings):
       directory: Directory.Data,
       encoding: Encoding.UTF8,
     });
-    await WidgetRefresh.refresh();
+    return (await WidgetRefresh.refresh()).refreshed;
   } catch (err) {
     // Graceful fallback for environments where filesystem isn't accessible
     console.debug("[widgetBridge] syncWidgetData skipped", err);
+    return false;
   }
 }

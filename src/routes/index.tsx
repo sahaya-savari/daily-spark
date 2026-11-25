@@ -4,9 +4,9 @@ import { DailySparkApp } from "@/components/app/DailySparkApp";
 import { siteUrl } from "@/lib/site";
 import { isStandaloneApp } from "@/lib/launcher";
 
-const title = "Daily Spark - Calm, offline habit tracker";
+const title = "Daily Spark | Free Offline Habit Tracker";
 const description =
-  "Track one small action a day. Daily Spark is a free, offline-first habit and streak tracker. No account, no ads, no tracking. Download the Android APK.";
+  "A free, offline-first habit tracker for Android and the web. Track daily habits, streaks and progress without an account, ads or analytics. Optional encrypted backups.";
 const socialTitle = "Daily Spark - Show up. Tick it. Keep going.";
 
 export function RootPage() {
