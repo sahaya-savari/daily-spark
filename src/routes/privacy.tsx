@@ -59,7 +59,7 @@ function Privacy() {
       >
         Skip to content
       </a>
-      <SiteHeader />
+      <SiteHeader sticky={false} />
       <main id="main" tabIndex={-1} className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-20 w-full outline-none">
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold">Privacy</h1>
         <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">Short version: your data stays local by default; encrypted exports are optional and user-started.</p>

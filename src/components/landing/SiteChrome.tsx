@@ -46,7 +46,7 @@ function focusMainWhenReady() {
   requestAnimationFrame(attempt);
 }
 
-export function SiteHeader() {
+export function SiteHeader({ sticky = true }: { sticky?: boolean } = {}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -128,7 +128,7 @@ export function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-2.5 sm:top-3.5 z-50 px-3 sm:px-6 w-full max-w-full pt-[env(safe-area-inset-top)]">
+    <header className={`${sticky ? "sticky top-2.5 sm:top-3.5" : "relative"} z-50 px-3 sm:px-6 w-full max-w-full pt-[env(safe-area-inset-top)]`}>
       <div className="glass-strong mx-auto flex max-w-[1100px] items-center justify-between gap-1.5 sm:gap-3 rounded-full px-3 py-1.5 sm:px-4.5 sm:py-2.5 transition-all duration-300 hover:border-white/15">
         {/* Brand Logo & Title with perfect vertical optical baseline */}
         <Link

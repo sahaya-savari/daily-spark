@@ -188,7 +188,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
       >
         Skip to content
       </a>
-      <SiteHeader />
+      <SiteHeader sticky={targetSection === "screens"} />
 
       <main id="main" tabIndex={-1} className="w-full max-w-full outline-none">
         {/* Hero */}
