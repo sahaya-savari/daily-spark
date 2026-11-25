@@ -43,7 +43,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
           <ul className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-xs text-[#8A92A3]">
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
-              <span>Universal APK · {SITE.apk.size}</span>
+              <span>{SITE.apk.version} · Universal APK · {SITE.apk.size}</span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
@@ -74,7 +74,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             Web App
           </h3>
           <p className="mt-2 text-[14px] leading-relaxed text-[#A0A6B4] min-h-[42px]">
-            Open directly in any browser. Mobile views enter instantly; desktop gets the full workstation.
+            Open the current version in your browser. The workspace adapts to mobile or desktop screens.
           </p>
 
           <ul className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-xs text-[#8A92A3]">
@@ -103,7 +103,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
               <Monitor aria-hidden="true" className="size-6" />
             </span>
             <span className="rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-ember">
-              Windows
+              Windows · {SITE.desktop.version}
             </span>
           </div>
 
@@ -117,7 +117,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
           <ul className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-xs text-[#8A92A3]">
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
-              <span>Portable .ZIP · Self-contained</span>
+              <span>Portable .ZIP · Includes offline assets</span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
@@ -127,7 +127,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
         </div>
 
         <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-3.5 text-xs font-bold uppercase tracking-wider text-ember group-hover:text-[#FFA366]">
-          <span>Download .ZIP</span>
+          <span>Download Windows ZIP</span>
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </a>
@@ -140,7 +140,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
               <Terminal aria-hidden="true" className="size-6" />
             </span>
             <span className="rounded-full border border-ember/30 bg-ember/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-ember">
-              Linux
+              Linux · {SITE.desktop.version}
             </span>
           </div>
 
@@ -148,13 +148,13 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
             Linux
           </h3>
           <p className="mt-2 text-[14px] leading-relaxed text-[#A0A6B4] min-h-[42px]">
-            Portable desktop package with launcher script for Ubuntu, Debian, Fedora, Arch, and more.
+            Portable package with a launcher that opens the full desktop workspace in your browser.
           </p>
 
           <ul className="mt-4 space-y-1.5 border-t border-white/5 pt-3 text-xs text-[#8A92A3]">
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
-              <span>Standalone .TAR.GZ archive</span>
+              <span>Portable .TAR.GZ · Includes offline assets</span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="size-3.5 text-ember shrink-0" />
@@ -164,7 +164,7 @@ export function PlatformDownloadGrid({ compact = false, className }: PlatformDow
         </div>
 
         <div className="mt-5 flex items-center justify-between border-t border-white/5 pt-3.5 text-xs font-bold uppercase tracking-wider text-ember group-hover:text-[#FFA366]">
-          <span>Download TAR.GZ</span>
+          <span>Download Linux archive</span>
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
         </div>
       </a>

@@ -14,7 +14,7 @@ import { SITE, siteUrl } from "@/lib/site";
 import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
 
 const title = "Download Daily Spark for Android, Web, Windows and Linux";
-const description = "Download Daily Spark for Android or choose the web, Windows, or Linux version. Offline-first habit tracking with no account, ads, or analytics; optional encrypted exports.";
+const description = "Download Daily Spark for Android, or use the web app on desktop. Windows and Linux desktop packages are also available; macOS is not yet supported.";
 
 export const Route = createFileRoute("/download")({
   head: () => ({
@@ -63,6 +63,10 @@ function Download() {
         <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold">Download</h1>
         <p className="mt-3 sm:mt-4 text-base sm:text-lg text-muted-foreground">
           Choose the version that fits your device. Every option keeps the same calm, local-first experience.
+        </p>
+
+        <p className="mt-4 rounded-xl border border-white/10 bg-surface/60 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
+          The Android APK is {SITE.apk.version}. Windows and Linux packages are {SITE.desktop.version} and open the full desktop workspace in your browser. There is no macOS package yet; on a Mac, use the Web App.
         </p>
 
         <section aria-labelledby="platforms-title" className="mt-8 sm:mt-10">
@@ -200,33 +204,33 @@ function Download() {
           </div>
         </section>
 
-        {/* Windows, Linux, and Web Desktop Standalone */}
+        {/* Windows, Linux, and Web Desktop */}
         <section className="glass-surface mt-8 rounded-2xl p-5 sm:p-6">
-          <h2 className="font-display text-lg sm:text-xl font-semibold tracking-wide">Desktop Standalone (Windows &amp; Linux)</h2>
+          <h2 className="font-display text-lg sm:text-xl font-semibold tracking-wide">Windows &amp; Linux desktop packages</h2>
           <p className="mt-2 text-sm sm:text-[15px] leading-relaxed text-muted-foreground">
-            Daily Spark runs as a standalone desktop application on Windows and Linux with zero cloud requirements, 100% offline local persistence, and dedicated desktop workspace.
+            These portable packages include the app assets and a launcher. They run a local server and open Daily Spark’s full desktop workspace in your default browser; they are not native desktop windows. Use the Web App for the current version. No macOS package is published yet.
           </p>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <a
               href={SITE.desktop.windowsZip}
-              download="Daily-Spark-v1.0.1-windows.zip"
+              download={SITE.desktop.windowsZipFilename}
               className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
             >
               <div>
-                <p className="font-sans font-semibold text-sm text-foreground">Windows Portable (.zip)</p>
-                <p className="text-xs text-muted-foreground">v1.0.1 · Standalone .exe + assets (Direct)</p>
+                <p className="font-sans font-semibold text-sm text-foreground">Windows portable ZIP</p>
+                <p className="text-xs text-muted-foreground">{SITE.desktop.version} · Launcher + offline assets</p>
               </div>
               <PixelDownload className="size-4 text-ember shrink-0" />
             </a>
 
             <a
               href={SITE.desktop.linuxTarGz}
-              download="Daily-Spark-v1.0.1-linux.tar.gz"
+              download={SITE.desktop.linuxTarGzFilename}
               className="glass-pill flex items-center justify-between p-3.5 rounded-xl border border-white/10 hover:border-ember/40 transition-all text-left"
             >
               <div>
-                <p className="font-sans font-semibold text-sm text-foreground">Linux Standalone (.tar.gz)</p>
-                <p className="text-xs text-muted-foreground">v1.0.1 · Native launcher + .desktop (Direct)</p>
+                <p className="font-sans font-semibold text-sm text-foreground">Linux portable archive</p>
+                <p className="text-xs text-muted-foreground">{SITE.desktop.version} · Launcher + offline assets</p>
               </div>
               <PixelDownload className="size-4 text-ember shrink-0" />
             </a>
