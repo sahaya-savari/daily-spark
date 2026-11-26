@@ -623,12 +623,10 @@ export function SiteFooter() {
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#9DA5B5]">
           <p>© {new Date().getFullYear()} Sahaya Savari F. Built under MIT License.</p>
           <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318] px-3 py-1 font-mono text-[11px] text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111318] px-3 py-1 font-mono text-[11px] text-white">
               <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <span>Offline-first · No analytics</span>
             </span>
-            <span className="text-[#555A68]">·</span>
-            <span className="text-[#8A92A3]">Effects by React Bits</span>
           </div>
         </div>
       </div>
