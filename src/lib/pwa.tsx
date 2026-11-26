@@ -5,10 +5,13 @@ import { SITE } from "@/lib/site";
 export function registerServiceWorker() {
   if (Capacitor.isNativePlatform()) return;
   if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
+    const register = () => {
       const swUrl = `${SITE.basePath}sw.js`;
       navigator.serviceWorker.register(swUrl, { scope: SITE.basePath }).catch(() => {});
-    });
+    };
+    // Lazy app loading and client-side navigation can mount after window.load.
+    if (document.readyState === "complete") register();
+    else window.addEventListener("load", register, { once: true });
   }
 }
 

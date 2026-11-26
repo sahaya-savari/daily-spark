@@ -123,6 +123,7 @@ const notFoundFallback = fallbackPage(
  */
 const ROUTES = {
   '/': {
+    preload: ['LandingPage'],
     title: 'Daily Spark | Free Offline Habit Tracker',
     description: HOME_DESCRIPTION,
     ogTitle: 'Daily Spark - Show up. Tick it. Keep going.',
@@ -137,6 +138,7 @@ const ROUTES = {
   // competing as three near-identical pages. Both keep their own `title` and
   // `description` for browser tabs and unfurls.
   '/features': {
+    preload: ['LandingPage'],
     title: 'Features - Daily Spark',
     description:
       "Explore Daily Spark's daily check-ins, schedules, reminders, streaks, calendar progress, and local-first data storage. Optional encrypted exports help you move a backup between devices.",
@@ -147,6 +149,7 @@ const ROUTES = {
     fallback: featuresFallback,
   },
   '/screens': {
+    preload: ['LandingPage', 'ScreensGallery'],
     title: 'Screens & Layouts - Daily Spark',
     description:
       "Preview Daily Spark's mobile screens and full desktop workspace, plus optional planner and widget previews. Feature availability varies by app release.",
@@ -167,6 +170,13 @@ const ROUTES = {
     ogType: 'website',
     twitterCard: 'summary_large_image',
     fallback: downloadFallback,
+  },
+  '/app': {
+    title: 'Daily Spark App',
+    description: 'Open the calm, local-first Daily Spark habit tracker.',
+    noindex: true,
+    preload: ['DailySparkApp'],
+    fallback: fallbackPage('Daily Spark App', '<p>Enable JavaScript to open your local habit tracker.</p>'),
   },
   '/privacy': {
     title: 'Privacy - Daily Spark',
@@ -268,6 +278,19 @@ function renderRoute(template, route) {
       .replace(SEO_BLOCK, `<!--seo:start-->\n${seoBlock(route)}\n    <!--seo:end-->`)
       .replace(FALLBACK_BLOCK, route.fallback),
   );
+  // Discover the route's large lazy module while the document is being parsed,
+  // instead of waiting for the router and its Suspense wrapper to execute.
+  const assets = fs.readdirSync(path.join(dist, 'assets'));
+  const preloads = (route.preload ?? []).map((name) => {
+    const filename = assets.find((file) => file.startsWith(`${name}-`) && file.endsWith('.js'));
+    if (!filename) throw new Error(`Missing production chunk for ${name}`);
+    return `    <link rel="modulepreload" href="${BASE_PATH}assets/${filename}" />`;
+  });
+  for (const family of ['inter-latin-', 'jetbrains-mono-latin-']) {
+    const font = assets.find((file) => file.startsWith(family) && file.endsWith('.woff2'));
+    if (font) preloads.push(`    <link rel="preload" href="${BASE_PATH}assets/${font}" as="font" type="font/woff2" crossorigin />`);
+  }
+  rendered = rendered.replace('</head>', `${preloads.join('\n')}\n  </head>`);
   rendered = rendered
     .replace(/__SITE_APK_URL__/g, `${SITE_URL}${APK_FILENAME}`)
     .replace(/__SITE_APK_SIZE_BYTES__/g, String(APK_SIZE_BYTES));
@@ -292,6 +315,7 @@ if (fs.existsSync(ogCardSource)) {
 const template = fs.readFileSync(indexHtmlPath, 'utf8');
 
 const ROUTE_DIRS = {
+  '/app': 'app',
   '/features': 'features',
   '/screens': 'screens',
   '/download': 'download',

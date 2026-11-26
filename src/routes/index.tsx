@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LandingPage } from "@/components/landing/LandingPage";
-import { DailySparkApp } from "@/components/app/DailySparkApp";
+import { LazyLandingPage } from "@/components/landing/LazyLandingPage";
+import { StandaloneApp } from "@/components/app/StandaloneApp";
 import { siteUrl } from "@/lib/site";
 import { isStandaloneApp } from "@/lib/launcher";
 
@@ -11,10 +11,10 @@ const socialTitle = "Daily Spark - Show up. Tick it. Keep going.";
 
 export function RootPage() {
   if (isStandaloneApp()) {
-    return <DailySparkApp />;
+    return <StandaloneApp />;
   }
 
-  return <LandingPage />;
+  return <LazyLandingPage />;
 }
 
 

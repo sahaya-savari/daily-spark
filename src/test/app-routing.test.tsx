@@ -1,8 +1,8 @@
-import { QueryClient } from "@tanstack/react-query";
 import { createRouter, rootRouteId } from "@tanstack/react-router";
 import { describe, expect, it } from "vitest";
 
 import { routeTree } from "@/routeTree.gen";
+import { StandaloneApp } from "@/components/app/StandaloneApp";
 
 // Match routes without running loaders or rendering: loaders may need a server or
 // network the test run lacks, and jsdom never loads the stylesheets React waits on.
@@ -10,7 +10,6 @@ describe("App routing", () => {
   it("matches a page for / instead of falling back to not found", () => {
     const router = createRouter({
       routeTree,
-      context: { queryClient: new QueryClient() },
     });
 
     const matches = router.matchRoutes("/");
@@ -21,7 +20,6 @@ describe("App routing", () => {
   it("matches valid public routes", () => {
     const router = createRouter({
       routeTree,
-      context: { queryClient: new QueryClient() },
     });
 
     const featuresMatch = router.matchRoutes("/features");
@@ -40,7 +38,6 @@ describe("App routing", () => {
   it("matches the local full-screen tracker at /app", () => {
     const router = createRouter({
       routeTree,
-      context: { queryClient: new QueryClient() },
     });
 
     const matches = router.matchRoutes("/app");
@@ -49,16 +46,15 @@ describe("App routing", () => {
   });
 
   describe("RootPage component", () => {
-    it("renders LandingPage on web", async () => {
+    it("renders the lazy marketing page on web", async () => {
       const { RootPage } = await import("@/routes/index");
-      const { LandingPage } = await import("@/components/landing/LandingPage");
+      const { LazyLandingPage } = await import("@/components/landing/LazyLandingPage");
       const page = RootPage();
-      expect(page.type).toBe(LandingPage);
+      expect(page.type).toBe(LazyLandingPage);
     });
 
-    it("renders DailySparkApp on native Capacitor platform", async () => {
+    it("renders the lazy standalone app on native Capacitor platform", async () => {
       const { RootPage } = await import("@/routes/index");
-      const { DailySparkApp } = await import("@/components/app/DailySparkApp");
 
       const original = (window as unknown as { Capacitor?: unknown }).Capacitor;
       (
@@ -69,15 +65,14 @@ describe("App routing", () => {
 
       try {
         const page = RootPage();
-        expect(page.type).toBe(DailySparkApp);
+        expect(page.type).toBe(StandaloneApp);
       } finally {
         (window as unknown as { Capacitor?: unknown }).Capacitor = original;
       }
     });
 
-    it("renders DailySparkApp when androidBridge is present", async () => {
+    it("renders the lazy standalone app when androidBridge is present", async () => {
       const { RootPage } = await import("@/routes/index");
-      const { DailySparkApp } = await import("@/components/app/DailySparkApp");
 
       const original = (window as unknown as { androidBridge?: unknown })
         .androidBridge;
@@ -85,7 +80,7 @@ describe("App routing", () => {
 
       try {
         const page = RootPage();
-        expect(page.type).toBe(DailySparkApp);
+        expect(page.type).toBe(StandaloneApp);
       } finally {
         (window as unknown as { androidBridge?: unknown }).androidBridge =
           original;

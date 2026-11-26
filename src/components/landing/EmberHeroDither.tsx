@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { DitherShader } from "@/lib/dither";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import type { DitherShaderProps } from "@/lib/dither";
+
+const DitherShader = lazy(() =>
+  import("@/lib/dither").then(({ DitherShader: Shader }) => ({ default: Shader })),
+);
 
 /**
  * GLSL continuous tone field for the Daily Spark Hero Ember Aura.
@@ -69,6 +72,7 @@ export function EmberHeroDither({
     if (typeof window === "undefined") return;
 
     const isConstrained =
+      (window.matchMedia?.("(max-width: 767px) and (pointer: coarse)")?.matches ?? false) ||
       (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false) ||
       (typeof navigator !== "undefined" && (navigator.hardwareConcurrency ?? 8) <= 2);
 
@@ -104,30 +108,29 @@ export function EmberHeroDither({
     [focus, intensity, scale, tightness]
   );
 
+  const fallback = (
+    <div
+      className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,color-mix(in_srgb,var(--ember)_18%,transparent),transparent_70%)]"
+      aria-hidden="true"
+    />
+  );
+
   if (!ready) {
-    return (
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,color-mix(in_srgb,var(--ember)_18%,transparent),transparent_70%)]"
-        aria-hidden="true"
-      />
-    );
+    return fallback;
   }
 
   return (
-    <DitherShader
-      {...props}
-      field={FIELD}
-      palette={palette}
-      matrix={matrix}
-      stillTime={4.5}
-      uniforms={uniforms}
-      className={className}
-      fallback={
-        <div
-          className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_65%_40%,color-mix(in_srgb,var(--ember)_18%,transparent),transparent_70%)]"
-          aria-hidden="true"
-        />
-      }
-    />
+    <Suspense fallback={fallback}>
+      <DitherShader
+        {...props}
+        field={FIELD}
+        palette={palette}
+        matrix={matrix}
+        stillTime={4.5}
+        uniforms={uniforms}
+        className={className}
+        fallback={fallback}
+      />
+    </Suspense>
   );
 }

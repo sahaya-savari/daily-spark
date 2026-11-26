@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LandingPage } from "@/components/landing/LandingPage";
+import { LazyLandingPage } from "@/components/landing/LazyLandingPage";
 import { siteUrl } from "@/lib/site";
 
 const title = "Screens & Layouts - Daily Spark";
@@ -26,5 +26,5 @@ export const Route = createFileRoute("/screens")({
     ],
     links: [{ rel: "canonical", href: canonical }],
   }),
-  component: () => <LandingPage targetSection="screens" />,
+  component: () => <LazyLandingPage targetSection="screens" />,
 });

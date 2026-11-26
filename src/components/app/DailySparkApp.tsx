@@ -2152,7 +2152,15 @@ export function DailySparkApp({
                 <p className="text-sm font-semibold text-ember">Small habits. Brighter days.</p>
               </div>
             )}
-            <div className="mb-2 flex gap-1" aria-label={`Step ${onboardingStep + 1} of 3`}>
+            <div
+              className="mb-2 flex gap-1"
+              role="progressbar"
+              aria-label="Onboarding progress"
+              aria-valuemin={1}
+              aria-valuemax={3}
+              aria-valuenow={onboardingStep + 1}
+              aria-valuetext={`Step ${onboardingStep + 1} of 3`}
+            >
               {[0, 1, 2].map((step) => <span key={step} className={cn("h-1.5 flex-1 rounded-full", step <= onboardingStep ? "bg-ember" : "bg-surface-2")} />)}
             </div>
             <DialogTitle className="text-left text-2xl">

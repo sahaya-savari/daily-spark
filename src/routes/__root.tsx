@@ -1,51 +1,56 @@
 import { Capacitor } from "@capacitor/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
-  createRootRouteWithContext,
+  createRootRoute,
   useRouter,
   useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { Toaster } from "@/components/ui/sonner";
 import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
-import { NotFound } from "@/components/dithercn/not-found";
 import { SITE } from "@/lib/site";
 import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
+
+const NotFound = lazy(() =>
+  import("@/components/dithercn/not-found").then(({ NotFound: NotFoundView }) => ({
+    default: NotFoundView,
+  })),
+);
 
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <NotFound
-        code="404"
-        title="Page not found"
-        description="The page you're looking for doesn't exist or has been moved."
-        color="orange"
-        fill="gradient"
-        bloom="low"
-        actions={
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Link
-              to="/"
-              className="inline-flex items-center justify-center rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-ember/90 transition-colors"
-            >
-              Go home
-            </Link>
-            <Link
-              to="/download"
-              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-2 transition-colors"
-            >
-              Download App
-            </Link>
-          </div>
-        }
-      />
+      <Suspense fallback={<p role="status">Loading page not found…</p>}>
+        <NotFound
+          code="404"
+          title="Page not found"
+          description="The page you're looking for doesn't exist or has been moved."
+          color="orange"
+          fill="gradient"
+          bloom="low"
+          actions={
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link
+                to="/"
+                className="inline-flex items-center justify-center rounded-full bg-ember px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-ember/90 transition-colors"
+              >
+                Go home
+              </Link>
+              <Link
+                to="/download"
+                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-surface px-5 py-2.5 text-sm font-medium text-foreground hover:bg-surface-2 transition-colors"
+              >
+                Download App
+              </Link>
+            </div>
+          }
+        />
+      </Suspense>
     </div>
   );
 }
@@ -83,7 +88,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRoute({
   head: () => ({
     // Site-level, route-independent tags (charset, viewport, theme-color,
     // apple-mobile-web-app-*, og:image, twitter:image) and the icon/manifest/
@@ -116,8 +121,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-
   const onAppRoute = useRouterState({ select: (state) =>
     state.matches.some((match) => match.routeId === "/app"),
   });
@@ -126,10 +129,9 @@ function RootComponent() {
   }, [onAppRoute]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <SiteDitherBackground />
       <Outlet />
-      <Toaster theme="dark" position="top-center" />
-    </QueryClientProvider>
+    </>
   );
 }

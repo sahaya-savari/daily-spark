@@ -80,8 +80,6 @@ export function DownloadApkButton({
         className
       )}
       aria-live="polite"
-      aria-label={downloading ? "Starting download..." : "Download Daily Spark APK"}
-      role="button"
     >
       {downloading ? (
         <>

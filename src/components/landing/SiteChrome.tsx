@@ -29,6 +29,15 @@ const menuItem =
 const footerLink =
   "inline-flex min-h-11 items-center gap-2 py-2 text-[14.5px] font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember rounded-lg";
 
+function NewTabIndicator() {
+  return (
+    <>
+      <ExternalLink aria-hidden="true" className="ml-1 inline size-3 shrink-0 opacity-60" />
+      <span className="sr-only"> (opens in a new tab)</span>
+    </>
+  );
+}
+
 /**
  * Move focus to <main> once a route change has committed.
  */
@@ -342,10 +351,8 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-[#262A34] bg-[#07080A] px-4 pt-14 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-12 text-left">
       <div className="mx-auto max-w-[1100px]">
-        {/* Main Footer Grid: Left Brand Block + Right 4-Column Navigation */}
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12 pb-12 border-b border-[#1C1F27]">
-          {/* Left Brand Area (5 cols on lg) */}
-          <div className="lg:col-span-4 flex flex-col items-start">
+        <div className="grid grid-cols-1 gap-10 pb-12 border-b border-[#1C1F27] lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-12">
+          <div className="flex min-w-0 flex-col items-start">
             <Link
               to="/"
               className="inline-flex items-center gap-2.5 rounded-lg py-1 transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
@@ -430,8 +437,7 @@ export function SiteFooter() {
             </button>
           </div>
 
-          {/* Right 4-Column Navigation Layout (7 cols on lg) */}
-          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <nav aria-label="Footer navigation" className="grid min-w-0 grid-cols-2 gap-8 sm:grid-cols-4">
             {/* Column 1: Product */}
             <div>
               <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
@@ -484,7 +490,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Documentation
+                    Documentation<NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -494,7 +500,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Getting started
+                    Getting started<NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -504,7 +510,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    FAQ
+                    FAQ<NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -519,7 +525,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Design system
+                    Design system<NewTabIndicator />
                   </a>
                 </li>
               </ul>
@@ -540,6 +546,7 @@ export function SiteFooter() {
                   >
                     <PixelGithub className="size-3.5 shrink-0" />
                     <span>GitHub</span>
+                    <NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -551,6 +558,7 @@ export function SiteFooter() {
                   >
                     <PixelGitlab className="size-3.5 shrink-0 text-[#FC6D26]" />
                     <span>GitLab</span>
+                    <NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -560,7 +568,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Issue Tracker
+                    Issue Tracker<NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -572,6 +580,7 @@ export function SiteFooter() {
                   >
                     <PixelFdroid className="size-3.5 shrink-0 text-[#1976D2]" />
                     <span>F-Droid</span>
+                    <NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -581,16 +590,16 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    MIT License
+                    MIT License<NewTabIndicator />
                   </a>
                 </li>
               </ul>
             </div>
 
-            {/* Column 4: Project & Legal */}
+            {/* Column 4: About & Legal */}
             <div>
               <h2 className="text-[12px] font-mono font-bold uppercase tracking-wider text-white mb-4">
-                Project &amp; Legal
+                About &amp; Legal
               </h2>
               <ul className="space-y-2.5 text-[14px]">
                 <li>
@@ -600,7 +609,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    About
+                    About<NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -615,7 +624,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Terms of Use
+                    Terms of Use<NewTabIndicator />
                   </a>
                 </li>
                 <li>
@@ -625,12 +634,12 @@ export function SiteFooter() {
                     rel="noreferrer"
                     className="text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Security
+                    Security<NewTabIndicator />
                   </a>
                 </li>
               </ul>
-            </div>
           </div>
+          </nav>
         </div>
 
         {/* Bottom Copyright Bar */}

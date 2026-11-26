@@ -1,11 +1,8 @@
-import { QueryClient } from "@tanstack/react-query";
 import { createRouter, createHashHistory, createBrowserHistory } from "@tanstack/react-router";
 import { Capacitor } from "@capacitor/core";
 import { routeTree } from "./routeTree.gen";
 
 export const getRouter = () => {
-  const queryClient = new QueryClient();
-
   const isNative =
     typeof window !== "undefined" &&
     (Capacitor.isNativePlatform() ||
@@ -27,7 +24,6 @@ export const getRouter = () => {
     routeTree,
     history,
     basepath,
-    context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
   });

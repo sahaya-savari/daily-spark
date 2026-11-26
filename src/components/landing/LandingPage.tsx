@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, useMemo } from "react";
 import { Link, useLocation, useRouter } from "@tanstack/react-router";
 import {
   Smartphone,
@@ -11,7 +11,9 @@ import {
   Download,
   FolderOpen,
   Lock,
+  Monitor,
   ShieldCheck,
+  Terminal,
 } from "lucide-react";
 import {
   PixelGithub,
@@ -20,32 +22,19 @@ import {
 } from "@/components/ui/pixel-icon";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
+import { DeferredToaster } from "@/components/ui/DeferredToaster";
 import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
 import { HeatmapBackdrop } from "@/components/landing/HeatmapBackdrop";
 import { EmberHeroDither } from "@/components/landing/EmberHeroDither";
-import {
-  CalendarScreen,
-  DemoPhone,
-  DEMO_HABITS,
-  HabitScreen,
-  HomeScreen,
-  MiniPhone,
-  NewHabitScreen,
-  ProgressScreen,
-  SettingsScreen,
-  SettingsDetailsScreen,
-  PreferencesScreen,
-  BackupScreen,
-  DesktopPreview,
-  DeviceTransferScreen,
-  WidgetsScreen,
-  ScheduleScreen,
-  PlannerScreen,
-} from "@/components/landing/DemoPhone";
+import { DemoPhone } from "@/components/landing/DemoPhone";
 import { useReveal } from "@/hooks/use-reveal";
-import { useThemeAccent } from "@/hooks/use-theme-accent";
 import { SITE, SITE_FAQS } from "@/lib/site";
 import { PlatformDownloadGrid } from "@/components/landing/PlatformDownloadGrid";
+
+const ScreensGallery = lazy(() =>
+  import("./ScreensGallery").then(({ ScreensGallery: Gallery }) => ({ default: Gallery })),
+);
+
 
 
 
@@ -100,22 +89,6 @@ const FEATURES = [
   },
 ] as const;
 
-const SHOTS = [
-  ["Today", <HomeScreen key="h" habits={DEMO_HABITS} />],
-  ["Today planner", <PlannerScreen key="planner" />],
-  ["Habits", <HabitScreen key="d" />],
-  ["New habit", <NewHabitScreen key="n" />],
-  ["Schedules & goals", <ScheduleScreen key="schedule" />],
-  ["Progress", <ProgressScreen key="p" initialSubTab="overview" />],
-  ["Calendar", <CalendarScreen key="c" />],
-  ["Settings", <SettingsScreen key="s" />],
-  ["Preferences", <PreferencesScreen key="preferences" />],
-  ["Data & backups", <BackupScreen key="backups" />],
-  ["Device transfer", <DeviceTransferScreen key="transfer" />],
-  ["Android widgets", <WidgetsScreen key="widgets" />],
-  ["Settings options", <SettingsDetailsScreen key="settings-options" />],
-] as const;
-
 const NOT_DOING = [
   "No AI coaching",
   "No gamification",
@@ -130,7 +103,7 @@ const NOT_DOING = [
 const btn =
   "inline-flex items-center justify-center gap-2.5 sm:gap-3 rounded-full border px-6 sm:px-7 py-3.5 sm:py-4 font-display text-sm sm:text-base font-bold tracking-normal transition-all duration-200 max-w-full";
 
-interface LandingPageProps {
+export interface LandingPageProps {
   targetSection?: "features" | "screens" | "get";
 }
 
@@ -139,7 +112,33 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   const location = useLocation();
   const router = useRouter();
   const [motionPaused, setMotionPaused] = useState(false);
-  const accent = useThemeAccent();
+  const [screensReady, setScreensReady] = useState(
+    () => targetSection === "screens" || typeof window === "undefined" || !("IntersectionObserver" in window),
+  );
+  const [screensLoadedOnDemand, setScreensLoadedOnDemand] = useState(false);
+  const screensSectionRef = useRef<HTMLElement>(null);
+  const renderScreens = targetSection === "screens" || screensReady;
+
+  useEffect(() => {
+    if (renderScreens) return;
+
+    const section = screensSectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setScreensLoadedOnDemand(true);
+          setScreensReady(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "600px 0px" },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [renderScreens]);
 
   useEffect(() => {
     // Landing page always maintains the signature Ember brand palette
@@ -182,6 +181,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
   return (
     <div className="relative min-h-screen bg-background w-full max-w-full">
+      <DeferredToaster />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[90] focus:rounded-[10px] focus:bg-ember focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground"
@@ -238,10 +238,10 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </span>
             </div>
 
-            {/* Action Tier 1: Primary Mobile & Desktop Executables */}
-            <div className="grid w-full max-w-md grid-cols-1 gap-2 sm:grid-cols-2 sm:[&>:first-child]:col-span-2">
+            {/* Primary actions */}
+            <div className="grid w-full max-w-md grid-cols-1 gap-2 sm:grid-cols-2">
               <DownloadApkButton
-                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2.5 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide text-[#090A0D] shadow-lg active:scale-95 transition-all sm:px-6 sm:text-base sm:tracking-wider"
+                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2.5 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide text-[#090A0D] shadow-lg active:scale-95 transition-all sm:col-span-2 sm:px-6 sm:text-base sm:tracking-wider"
               >
                 <span className="flex min-w-0 items-center justify-center gap-2">
                   <Download className="size-4 shrink-0 stroke-[2.5]" />
@@ -253,60 +253,82 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
               <Link
                 to="/app"
-                className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#171A21] px-6 py-3 text-base font-semibold text-white whitespace-nowrap transition-all hover:border-white/30 hover:bg-[#1E222B] active:scale-95 shadow-sm shrink-0"
+                className="inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#171A21] px-6 py-3 text-base font-semibold text-white whitespace-nowrap transition-all hover:border-white/30 hover:bg-[#1E222B] active:scale-95 shadow-sm sm:col-span-2"
               >
                 <Globe2 className="size-4 text-[#EC894C]" />
                 <span className="whitespace-nowrap">Open Web App</span>
               </Link>
-
-              <a
-                href={SITE.repo}
-                target="_blank"
-                rel="noreferrer"
-                className="hidden md:inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#111318] px-5 py-3 text-base font-semibold text-[#A0A6B4] whitespace-nowrap transition-all hover:border-white/20 hover:text-white shrink-0"
-              >
-                <PixelGithub className="size-4" />
-                <span className="whitespace-nowrap">GitHub</span>
-              </a>
             </div>
 
-            {/* Action Tier 2: Open Source Release Mirrors */}
-            <div className="mt-3 grid w-full max-w-md grid-cols-2 gap-2 [&>a]:min-h-11 [&>a]:justify-center">
-              <a
-                href={SITE.desktop.windowsZip}
-                download={SITE.desktop.windowsZipFilename}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-white transition-colors"
+            <div className="mt-3 w-full max-w-md space-y-2">
+              <div
+                role="group"
+                aria-label={`Desktop packages, version ${SITE.desktop.version}`}
+                className="grid grid-cols-2 gap-2"
               >
-                <span>Windows ZIP · {SITE.desktop.version}</span>
-              </a>
-              <a
-                href={SITE.desktop.linuxTarGz}
-                download={SITE.desktop.linuxTarGzFilename}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-muted-foreground hover:text-white transition-colors"
-              >
-                <span>Linux · {SITE.desktop.version}</span>
-              </a>
-              <a
-                href={`${SITE.basePath}download#fdroid`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#1976D2]/60"
-                aria-label="View Daily Spark on F-Droid"
-              >
-                <PixelFdroid className="size-3.5 shrink-0 text-[#1976D2]" />
-                <span>F-Droid</span>
-                <span className="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded-full bg-[#1976D2]/20 text-[#64B5F6] border border-[#1976D2]/30">Pending</span>
-              </a>
-              <a
-                href={SITE.gitlab.releases}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-surface/60 px-3.5 py-1.5 text-xs sm:text-[13px] font-medium text-foreground/90 transition-all hover:border-[#FC6D26]/50"
-                aria-label="View Daily Spark releases on GitLab"
-              >
-                <PixelGitlab className="size-3.5 shrink-0 text-[#FC6D26]" />
-                <span>GitLab Releases</span>
-              </a>
+                  <a
+                    href={SITE.desktop.windowsZip}
+                    download={SITE.desktop.windowsZipFilename}
+                    className="group flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-surface/60 px-2.5 py-1.5 text-left transition-colors hover:border-ember/40 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Monitor aria-hidden="true" className="size-3.5 shrink-0 text-ember" />
+                      <span className="min-w-0">
+                        <span className="block truncate text-[11px] font-semibold text-foreground sm:text-xs">Windows ZIP</span>
+                        <span className="block text-[9px] text-faint sm:text-[10px]">{SITE.desktop.version} · Portable</span>
+                      </span>
+                    </span>
+                    <Download aria-hidden="true" className="size-3 shrink-0 text-ember/80" />
+                  </a>
+                  <a
+                    href={SITE.desktop.linuxTarGz}
+                    download={SITE.desktop.linuxTarGzFilename}
+                    className="group flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-surface/60 px-2.5 py-1.5 text-left transition-colors hover:border-ember/40 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Terminal aria-hidden="true" className="size-3.5 shrink-0 text-ember" />
+                      <span className="min-w-0">
+                        <span className="block truncate text-[11px] font-semibold text-foreground sm:text-xs">Linux archive</span>
+                        <span className="block text-[9px] text-faint sm:text-[10px]">{SITE.desktop.version} · .tar.gz</span>
+                      </span>
+                    </span>
+                    <Download aria-hidden="true" className="size-3 shrink-0 text-ember/80" />
+                  </a>
+              </div>
+
+              <div role="group" aria-label="More project and release links" className="grid grid-cols-3 gap-1.5">
+                <a
+                  href={SITE.repo}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-white/10 bg-surface/50 px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:text-[11px]"
+                  aria-label="View GitHub source code"
+                >
+                  <PixelGithub aria-hidden="true" className="size-3 shrink-0" />
+                  <span className="truncate">GitHub source</span>
+                </a>
+                <a
+                  href={SITE.gitlab.releases}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-white/10 bg-surface/50 px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-[#FC6D26]/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:text-[11px]"
+                >
+                  <PixelGitlab aria-hidden="true" className="size-3 shrink-0 text-[#FC6D26]" />
+                  <span className="truncate">GitLab releases</span>
+                </a>
+                <a
+                  href={`${SITE.basePath}download#fdroid`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-white/10 bg-surface/50 px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-[#1976D2]/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:text-[11px]"
+                >
+                  <PixelFdroid aria-hidden="true" className="size-3 shrink-0 text-[#1976D2]" />
+                  <span className="truncate">F-Droid</span>
+                  <span className="rounded-full border border-[#1976D2]/30 bg-[#1976D2]/15 px-1 py-0.5 text-[8px] font-bold uppercase text-[#64B5F6]">
+                    Pending
+                  </span>
+                </a>
+              </div>
             </div>
             <p className="mt-4 sm:mt-5 text-xs sm:text-[14px] text-faint text-left font-medium">Android 7.0 or superior · No account · No ads</p>
           </div>
@@ -363,7 +385,12 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
 
         {/* LOCK B: Screens Carousel Parade */}
-        <section id="screens" className="relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint] [content-visibility:auto] [contain-intrinsic-size:auto_1200px]">
+        <section
+          id="screens"
+          ref={screensSectionRef}
+          aria-busy={!renderScreens}
+          className={`relative anchor-section py-[56px] sm:py-[72px] overflow-hidden [contain:paint] [content-visibility:auto] [contain-intrinsic-size:auto_1200px] ${renderScreens ? "" : "min-h-[1200px]"}`}
+        >
           <div
             className="aurora-field pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[600px] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden"
             aria-hidden="true"
@@ -397,61 +424,14 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </p>
           </div>
 
-          <div
-            role="region"
-            aria-label="Screenshot gallery, scrollable"
-            tabIndex={0}
-            className="rail-mask scrollbar-none w-full max-w-full overflow-x-auto overflow-y-hidden py-2.5 sm:overflow-hidden max-sm:px-6 max-sm:[scroll-padding-inline:1.5rem] max-sm:[scroll-snap-type:x_mandatory] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-          >
-            <div
-              className="parade flex w-max gap-7 motion-reduce:animate-none max-sm:gap-4 max-sm:pr-6"
-              data-paused={motionPaused ? "true" : undefined}
-            >
-              {[...SHOTS, ...SHOTS].map(([label, screen], i) => (
-                <figure
-                  key={i}
-                  className="group w-[208px] flex-none max-sm:snap-start"
-                  aria-hidden={i >= SHOTS.length || undefined}
-                >
-                  <MiniPhone>{screen}</MiniPhone>
-                  <figcaption className="mt-4 text-center text-[16px] sm:text-[17px] font-bold text-foreground/90 transition-colors group-hover:text-ember">
-                    {label}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-          <section
-            aria-labelledby="desktop-preview-title"
-            className="reveal mx-auto max-w-[1100px] px-4 pb-10 sm:px-6"
-          >
-            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h3 id="desktop-preview-title" className="font-display text-2xl font-bold sm:text-3xl">
-                  Desktop workspace
-                </h3>
-                <p className="mt-2 max-w-[66ch] text-sm text-muted-foreground sm:text-base">
-                  The Web App and Windows/Linux desktop packages use a full desktop workspace with navigation and side panels—not a stretched phone layout. Desktop packages are {SITE.desktop.version}; macOS is not yet available.
-                </p>
-              </div>
-              <Link
-                to="/app"
-                className="inline-flex min-h-11 items-center justify-center rounded-full border border-ember/30 bg-ember/10 px-4 text-sm font-semibold text-ember transition-colors hover:bg-ember/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-              >
-                Open Web App
-              </Link>
-            </div>
-            <div
-              role="region"
-              aria-label="Desktop workspace preview, horizontally scrollable"
-              tabIndex={0}
-              className="overflow-x-auto rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-            >
-              <div className="min-w-[760px] lg:min-w-0">
-                <DesktopPreview />
-              </div>
-            </div>
-          </section>
+          {renderScreens && (
+            <Suspense fallback={null}>
+              <ScreensGallery
+                motionPaused={motionPaused}
+                screensLoadedOnDemand={screensLoadedOnDemand}
+              />
+            </Suspense>
+          )}
         </section>
 
         {/* Data */}

@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider } from '@tanstack/react-router';
 import { getRouter } from './router';
 import { Capacitor } from '@capacitor/core';
-import { DailySparkApp } from './components/app/DailySparkApp';
-import { Toaster } from './components/ui/sonner';
+import { StandaloneApp } from './components/app/StandaloneApp';
 import './styles.css';
 
 class NativeStartupBoundary extends React.Component<{ children: React.ReactNode }, { failed: boolean }> {
@@ -37,8 +36,7 @@ if (rootElement && !rootElement.innerHTML) {
     <React.StrictMode>
       {native ? (
         <NativeStartupBoundary>
-          <DailySparkApp />
-          <Toaster theme="dark" position="top-center" />
+          <StandaloneApp />
         </NativeStartupBoundary>
       ) : <RouterProvider router={getRouter()} />}
     </React.StrictMode>

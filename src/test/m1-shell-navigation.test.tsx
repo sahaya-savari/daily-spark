@@ -7,9 +7,9 @@ import { transitionTab } from "@/lib/viewTransition";
 import { detectAppLauncher, isStandaloneApp } from "@/lib/launcher";
 import { OfflinePage } from "@/routes/offline";
 import { RootPage } from "@/routes/index";
-import { LandingPage } from "@/components/landing/LandingPage";
+import { LazyLandingPage } from "@/components/landing/LazyLandingPage";
 import { DailySparkApp } from "@/components/app/DailySparkApp";
-import { QueryClient } from "@tanstack/react-query";
+import { StandaloneApp } from "@/components/app/StandaloneApp";
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import type { Habit } from "@/lib/habits/types";
@@ -316,7 +316,7 @@ describe("Milestone 1 — Shell & Navigation Tests", () => {
   // =========================================================================
   describe("Feature 5: Offline Fallback Route", () => {
     it("matches /offline route in router routeTree", () => {
-      const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+      const router = createRouter({ routeTree });
       const offlineMatch = router.matchRoutes("/offline");
       expect(offlineMatch.at(-1)?.routeId).toBe("/offline");
     });
@@ -418,10 +418,10 @@ describe("Milestone 1 — Shell & Navigation Tests", () => {
       expect(isStandaloneApp()).toBe(true);
     });
 
-    it("RootPage renders LandingPage on web and DailySparkApp on standalone", () => {
+    it("RootPage uses the lazy landing page on web and DailySparkApp on standalone", () => {
       // 1. Web browser
       const webResult = RootPage();
-      expect(webResult.type).toBe(LandingPage);
+      expect(webResult.type).toBe(LazyLandingPage);
 
       // 2. Standalone app (?mode=app)
       delete (window as unknown as { location: unknown }).location;
@@ -429,7 +429,7 @@ describe("Milestone 1 — Shell & Navigation Tests", () => {
         search: "?mode=app",
       };
       const appResult = RootPage();
-      expect(appResult.type).toBe(DailySparkApp);
+      expect(appResult.type).toBe(StandaloneApp);
     });
   });
 });

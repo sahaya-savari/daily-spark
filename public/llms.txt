@@ -1,0 +1,19 @@
+# Daily Spark
+
+Daily Spark is a free, offline-first habit tracker for Android and the web. It
+helps people track daily habits, check-ins, streaks, notes, and planner tasks
+without an account, ads, or analytics. Habit data stays on the device by
+default; users can create optional backups.
+
+## Pages
+
+- [Overview](https://dailyspark.sahayasavari.dev/)
+- [Features](https://dailyspark.sahayasavari.dev/features/)
+- [Screenshots](https://dailyspark.sahayasavari.dev/screens/)
+- [Downloads](https://dailyspark.sahayasavari.dev/download/)
+- [Privacy](https://dailyspark.sahayasavari.dev/privacy/)
+
+## Project
+
+- [Source code](https://github.com/sahaya-savari/daily-spark)
+- [Releases](https://github.com/sahaya-savari/daily-spark/releases)

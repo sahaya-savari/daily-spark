@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { DitherShader, type DitherShaderProps } from "@/lib/dither";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import type { DitherShaderProps } from "@/lib/dither";
+
+const DitherShader = lazy(() =>
+  import("@/lib/dither").then(({ DitherShader: Shader }) => ({ default: Shader })),
+);
 
 /**
  * GLSL continuous ambient field for the overall Daily Spark background.
@@ -64,6 +68,7 @@ export function SiteDitherBackground({
     if (typeof window === "undefined") return;
 
     const isConstrained =
+      (window.matchMedia?.("(max-width: 767px) and (pointer: coarse)")?.matches ?? false) ||
       (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false) ||
       (typeof navigator !== "undefined" && (navigator.hardwareConcurrency ?? 8) <= 2);
 
@@ -97,30 +102,29 @@ export function SiteDitherBackground({
     [intensity, scale]
   );
 
+  const fallback = (
+    <div
+      className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,color-mix(in_srgb,var(--ember)_8%,transparent),transparent_75%)]"
+      aria-hidden="true"
+    />
+  );
+
   if (!ready) {
-    return (
-      <div
-        className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,color-mix(in_srgb,var(--ember)_8%,transparent),transparent_75%)]"
-        aria-hidden="true"
-      />
-    );
+    return fallback;
   }
 
   return (
-    <DitherShader
-      {...props}
-      field={FIELD}
-      palette={palette}
-      matrix={matrix}
-      stillTime={4.5}
-      uniforms={uniforms}
-      className={className}
-      fallback={
-        <div
-          className="fixed inset-0 pointer-events-none -z-20 bg-[radial-gradient(ellipse_80%_60%_at_80%_15%,color-mix(in_srgb,var(--ember)_8%,transparent),transparent_75%)]"
-          aria-hidden="true"
-        />
-      }
-    />
+    <Suspense fallback={fallback}>
+      <DitherShader
+        {...props}
+        field={FIELD}
+        palette={palette}
+        matrix={matrix}
+        stillTime={4.5}
+        uniforms={uniforms}
+        className={className}
+        fallback={fallback}
+      />
+    </Suspense>
   );
 }

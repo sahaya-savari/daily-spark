@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DailySparkApp } from "@/components/app/DailySparkApp";
+import { StandaloneApp } from "@/components/app/StandaloneApp";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -12,5 +12,5 @@ export const Route = createFileRoute("/app")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: () => <DailySparkApp />,
+  component: () => <StandaloneApp />,
 });
