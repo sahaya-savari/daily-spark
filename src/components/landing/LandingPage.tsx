@@ -211,7 +211,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
 
             <h1 className="font-display text-[clamp(44px,7.5vw,78px)] font-black uppercase tracking-tight leading-[1.02] text-left max-w-full">
               <span className="block text-white animate-rise-1">Show up.{" "}</span>
-              <span className="block text-[#EC894C] drop-shadow-[0_4px_28px_rgba(236,137,76,0.45)] animate-rise-2">Tick it.{" "}</span>
+              <span className="block text-ember drop-shadow-[0_4px_28px_var(--ember-glow)] animate-rise-2">Tick it.{" "}</span>
               <span className="block text-[#9A9A9A] font-bold animate-rise-3">Keep going.</span>
             </h1>
             <p className="mb-5 sm:mb-6 mt-4 sm:mt-6 max-w-[42ch] text-[17px] sm:text-[20px] leading-relaxed text-muted-foreground text-left">
@@ -222,20 +222,20 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             {/* Quick trust & feature pills */}
             <div className="flex flex-wrap items-center gap-2 mb-6 sm:mb-7 text-xs sm:text-[13px] font-semibold text-faint">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
-                <ShieldCheck className="size-3.5 text-[#EC894C]" /> Core tracking works offline
+                <ShieldCheck className="size-3.5 text-ember" /> Core tracking works offline
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
-                <Smartphone className="size-3.5 text-[#EC894C]" /> {SITE.apk.size} APK
+                <Smartphone className="size-3.5 text-ember" /> {SITE.apk.size} APK
               </span>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-surface/70 px-3 py-1 text-foreground/85 whitespace-nowrap">
-                <Lock className="size-3.5 text-[#EC894C]" /> No analytics
+                <Lock className="size-3.5 text-ember" /> No analytics
               </span>
             </div>
 
             {/* Primary actions */}
             <div className="grid w-full max-w-lg grid-cols-1 gap-2.5 sm:grid-cols-2">
               <DownloadApkButton
-                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide text-[#090A0D] shadow-lg active:scale-95 transition-all sm:px-5"
+                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide shadow-lg active:scale-95 transition-all sm:px-5"
               >
                 <span className="flex min-w-0 items-center justify-center gap-2">
                   <Download className="size-4 shrink-0 stroke-[2.5]" />
@@ -248,7 +248,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                 to="/app"
                 className="inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#171A21] px-5 py-3 text-sm font-semibold text-white whitespace-nowrap transition-all hover:border-white/30 hover:bg-[#1E222B] active:scale-95 shadow-sm sm:text-base"
               >
-                <Globe2 className="size-4 text-[#EC894C]" />
+                <Globe2 className="size-4 text-ember" />
                 <span className="whitespace-nowrap">Open Web App</span>
               </Link>
             </div>

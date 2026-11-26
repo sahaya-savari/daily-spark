@@ -16,6 +16,7 @@ import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground"
 import { SITE } from "@/lib/site";
 import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
 import { registerServiceWorker, UpdateToast } from "@/lib/pwa";
+import { WebsiteSplash } from "@/components/landing/WebsiteSplash";
 
 const NotFound = lazy(() =>
   import("@/components/dithercn/not-found").then(({ NotFound: NotFoundView }) => ({
@@ -135,6 +136,7 @@ function RootComponent() {
 
   return (
     <>
+      <WebsiteSplash />
       <SiteDitherBackground />
       <Outlet />
       <UpdateToast />

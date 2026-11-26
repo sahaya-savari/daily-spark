@@ -11,7 +11,7 @@ interface PlatformDownloadGridProps {
 
 export function PlatformDownloadGrid({ compact = false, className }: PlatformDownloadGridProps) {
   const cardBase =
-    "group flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-[#111318] p-6 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_20px_40px_-20px_rgba(0,0,0,0.7)] transition-all duration-200 hover:-translate-y-1 hover:border-ember/40 hover:bg-[#171A21] hover:shadow-[0_24px_48px_-20px_rgba(0,0,0,0.8),0_0_24px_-8px_rgba(236,137,76,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
+    "group flex h-full flex-col justify-between rounded-2xl border border-white/10 bg-[#111318] p-6 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_20px_40px_-20px_rgba(0,0,0,0.7)] transition-all duration-200 hover:-translate-y-1 hover:border-ember/40 hover:bg-[#171A21] hover:shadow-[0_24px_48px_-20px_rgba(0,0,0,0.8),0_0_24px_-8px_var(--ember-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
 
   return (
     <div

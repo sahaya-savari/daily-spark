@@ -85,8 +85,8 @@ function Scaled({ width, children }: { width: number; children: React.ReactNode 
   return (
     <div className="relative overflow-hidden" style={{ width, height: H * s, borderRadius: 37 * (width / 310) }}>
       <div
-        className="absolute left-0 top-0 origin-top-left"
-        style={{ width: W, height: H, transform: `scale(${s})`, ...({ "--phone-scale": s } as React.CSSProperties) }}
+        className="h-full w-full"
+        style={{ width: W, height: H, zoom: s, ...({ "--phone-scale": s } as React.CSSProperties) }}
       >
         {children}
       </div>

@@ -633,7 +633,7 @@ function GalleryShot({
   return (
     <figure
       ref={ref}
-      className="group w-[198px] flex-none snap-center sm:w-[225px]"
+      className="group w-[220px] flex-none snap-center sm:w-[250px]"
     >
       <div className="relative">
         <MiniPhone>
@@ -747,7 +747,7 @@ export function ScreensGallery({
               {SHOTS.map(([label, screen]) => (
                 <figure
                   key={`loop-${label}`}
-                  className="w-[198px] flex-none sm:w-[225px]"
+                  className="w-[220px] flex-none sm:w-[250px]"
                 >
                   <MiniPhone>
                     <Suspense fallback={null}>{screen}</Suspense>
