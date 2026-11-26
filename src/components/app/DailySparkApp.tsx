@@ -2005,19 +2005,19 @@ export function DailySparkApp({
               <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <span className="size-3 rounded bg-surface-2 border border-border/40" />
-                  <span>0/x — No completions</span>
+                  <span>0/x - No completions</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="size-3 rounded bg-heat-1 border border-border/30" />
-                  <span>1–2/x — Few completions</span>
+                  <span>1–2/x - Few completions</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="size-3 rounded bg-heat-3 border border-border/30" />
-                  <span>3–4/x — Most completions</span>
+                  <span>3–4/x - Most completions</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="size-3 rounded bg-primary" />
-                  <span>x/x — All completed</span>
+                  <span>x/x - All completed</span>
                 </div>
                 <div className="flex items-center gap-2 col-span-2">
                   <span className="size-3 rounded ring-2 ring-ember bg-transparent" />
@@ -2205,7 +2205,7 @@ export function DailySparkApp({
               {onboardingStep === 0 ? <PixelCheck className="size-7" /> : onboardingStep === 1 ? <PixelArchive className="size-7" /> : <PixelShieldCheck className="size-7" />}
             </div>
             <p className="mt-4 text-center text-sm font-semibold">
-              {onboardingStep === 0 ? "Start small. Consistency comes next." : onboardingStep === 1 ? "Habits, routines, and notes—one + button." : "No account required. No forced cloud."}
+              {onboardingStep === 0 ? "Start small. Consistency comes next." : onboardingStep === 1 ? "Habits, routines, and notes - one + button." : "No account required. No forced cloud."}
             </p>
           </div>
           <DialogFooter className="flex-row items-center justify-between gap-2 sm:justify-between">

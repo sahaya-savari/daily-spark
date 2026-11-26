@@ -14,7 +14,7 @@ import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import type { Habit } from "@/lib/habits/types";
 
-describe("Milestone 1 — Shell & Navigation Tests", () => {
+describe("Milestone 1 - Shell & Navigation Tests", () => {
   // =========================================================================
   // Feature 1: Mobile Bottom Navigation & Safe-Area Padding
   // =========================================================================

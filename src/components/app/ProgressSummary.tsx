@@ -80,7 +80,7 @@ export function ProgressSummary({ habits, collections, today, onOpenDay }: {
               className={cn("min-h-11 min-w-11 rounded-lg border border-border px-2 py-1 text-xs", done > 0 && "bg-ember/15 text-ember", index === selectedBucket && "ring-2 ring-ember")}
               onClick={() => { if (first === last) openDay(first); else setSelectedBucket(index); }}>
               <span className="block">{label(first)}</span>
-              <span className="block">{total ? `${done}/${total}` : "—"}</span>
+              <span className="block">{total ? `${done}/${total}` : "-"}</span>
             </button>
           );
         })}

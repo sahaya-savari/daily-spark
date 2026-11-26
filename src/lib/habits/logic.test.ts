@@ -552,7 +552,7 @@ describe("Phase 3: Flexible Frequencies, Milestones & Data Freedom", () => {
       pinned: true,
     };
     const md = exportToMarkdown([h], [note]);
-    expect(md).toContain("# 🌱 Daily Spark — Habit & Journal Export");
+    expect(md).toContain("# 🌱 Daily Spark - Habit & Journal Export");
     expect(md).toContain("### 🧘 Morning Meditation");
     expect(md).toContain("Focus on breath");
     expect(md).toContain("### 📌 Mindfulness Log");

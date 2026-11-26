@@ -847,7 +847,7 @@ export function ScreensGallery({
             </DesktopHeading>
             <p className="mt-2 max-w-[66ch] text-sm text-muted-foreground sm:text-base">
               The Web App and Windows/Linux desktop packages use a full desktop
-              workspace with navigation and side panels—not a stretched phone
+              workspace with navigation and side panels - not a stretched phone
               layout. Desktop packages are {SITE.desktop.version}; macOS is not
               yet available.
             </p>

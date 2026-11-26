@@ -384,7 +384,7 @@ export function SiteFooter() {
             </Link>
 
             <p className="mt-3.5 max-w-[34ch] text-[14px] leading-relaxed text-[#8A92A3]">
-              A privacy-first, local-first habit tracker. One small action a day, per habit — zero accounts, zero analytics, zero pressure.
+              A privacy-first, local-first habit tracker. One small action a day, per habit - zero accounts, zero analytics, zero pressure.
             </p>
 
             {/* Theme Accent Switcher (Orange / Saved Blue / Solar) */}

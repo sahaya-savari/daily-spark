@@ -1173,7 +1173,7 @@ export function applyGrace(habit: Habit, type: "weekly" | "monthly", today: stri
 export function exportToMarkdown(habits: Habit[], notes: StandaloneNote[] = []): string {
   const dateStr = new Date().toISOString().slice(0, 10);
   const lines: string[] = [
-    `# 🌱 Daily Spark — Habit & Journal Export`,
+    `# 🌱 Daily Spark - Habit & Journal Export`,
     ``,
     `> **Exported on:** ${dateStr}  `,
     `> **Philosophy:** Offline-first, calm consistency, zero telemetry.`,

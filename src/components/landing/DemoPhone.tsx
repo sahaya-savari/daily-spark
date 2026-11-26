@@ -712,19 +712,19 @@ export function ProgressScreen({
             <div className="grid grid-cols-2 gap-2 text-[11px] text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded bg-surface-2 border border-border/40" />
-                <span>0/x — No completions</span>
+                <span>0/x - No completions</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded bg-heat-1 border border-border/30" />
-                <span>1–2/x — Few completions</span>
+                <span>1–2/x - Few completions</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded bg-heat-3 border border-border/30" />
-                <span>3–4/x — Most completions</span>
+                <span>3–4/x - Most completions</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="size-2.5 rounded bg-primary" />
-                <span>x/x — All completed</span>
+                <span>x/x - All completed</span>
               </div>
               <div className="flex items-center gap-1.5 col-span-2">
                 <span className="size-2.5 rounded ring-2 ring-ember bg-transparent" />

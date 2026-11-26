@@ -8,10 +8,10 @@ import { detectAppLauncher, isStandaloneApp } from "@/lib/launcher";
 import type { Habit } from "@/lib/habits/types";
 
 // =============================================================================
-// Challenger Stress Test Suite: Milestone 1 — Shell & Navigation
+// Challenger Stress Test Suite: Milestone 1 - Shell & Navigation
 // =============================================================================
 
-describe("Empirical Challenger — Milestone 1 Stress Suite", () => {
+describe("Empirical Challenger - Milestone 1 Stress Suite", () => {
   // ---------------------------------------------------------------------------
   // 1. CommandPalette Stress & Edge Cases
   // ---------------------------------------------------------------------------
