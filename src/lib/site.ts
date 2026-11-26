@@ -53,19 +53,19 @@ export const SITE = {
     url: `${basePath}Daily-Spark-v1.0.2.apk`,
     githubReleaseUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2.apk",
     filename: "Daily-Spark-v1.0.2.apk",
-    // Exact release asset size: 4,289,238 bytes (about 4.1 MiB).
-    sizeBytes: 4289238,
-    size: "4.1 MB",
+    // Exact release asset size: 5,017,178 bytes (about 4.8 MiB).
+    sizeBytes: 5017178,
+    size: "4.8 MB",
   },
   desktop: {
-    version: "v1.0.1",
-    windowsZip: `${basePath}Daily-Spark-v1.0.1-windows.zip`,
-    windowsExe: `${basePath}Daily-Spark-v1.0.1-windows.exe`,
-    linuxTarGz: `${basePath}Daily-Spark-v1.0.1-linux.tar.gz`,
-    windowsZipFilename: "Daily-Spark-v1.0.1-windows.zip",
-    linuxTarGzFilename: "Daily-Spark-v1.0.1-linux.tar.gz",
-    githubWindowsUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1-windows.zip",
-    githubLinuxUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.1/Daily-Spark-v1.0.1-linux.tar.gz",
+    version: "v1.0.2",
+    windowsZip: `${basePath}Daily-Spark-v1.0.2-windows.zip`,
+    windowsExe: `${basePath}Daily-Spark-v1.0.2-windows.exe`,
+    linuxTarGz: `${basePath}Daily-Spark-v1.0.2-linux.tar.gz`,
+    windowsZipFilename: "Daily-Spark-v1.0.2-windows.zip",
+    linuxTarGzFilename: "Daily-Spark-v1.0.2-linux.tar.gz",
+    githubWindowsUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2-windows.zip",
+    githubLinuxUrl: "https://github.com/sahaya-savari/daily-spark/releases/download/v1.0.2/Daily-Spark-v1.0.2-linux.tar.gz",
   },
   // The website's own unreleased version. Mirrors "version" in package.json;
   // do not surface it next to the APK download. The download UI must use

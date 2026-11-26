@@ -1,30 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Daily Spark Botanical Sprout & Ember Spark foreground layer (scaled to 72% for adaptive icon safe zone) -->
+    <!-- Daily Spark #6 Cyber Amethyst + Rose + Gold Flame Spark (72% safe zone) -->
     <group android:pivotX="54" android:pivotY="54" android:scaleX="0.72" android:scaleY="0.72">
         <path
-            android:fillColor="@android:color/transparent"
-            android:strokeColor="#BF7245"
-            android:strokeWidth="5.5"
-            android:strokeLineCap="round"
-            android:pathData="M54,94C56,79 52,66 41,55" />
+            android:pathData="M54.6,14.1C69.2,26.3 82.3,40.9 82.3,59.1C82.3,76.6 69.6,90.5 54,90.5C38.4,90.5 25.7,76.6 25.7,59.1C25.7,46.2 32.7,35.8 42.2,27.6C41.1,35.0 43.5,41.1 48.3,44.9C47.3,33.3 49.6,23.0 54.6,14.1Z"
+            android:strokeColor="#57FFFFFF"
+            android:strokeWidth="2.1"
+            android:strokeLineJoin="round">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:startX="13.5"
+                    android:startY="94.5"
+                    android:endX="94.5"
+                    android:endY="13.5"
+                    android:type="linear">
+                    <item android:offset="0" android:color="#E68B5CF6" />
+                    <item android:offset="0.55" android:color="#E6C026D3" />
+                    <item android:offset="1" android:color="#E6EC4899" />
+                </gradient>
+            </aapt:attr>
+        </path>
         <path
-            android:fillColor="#BF7245"
-            android:pathData="M41,55C30,52 23,56 20,66C30,68 38,63 41,55Z" />
+            android:pathData="M54,38.4C63.7,46.0 70.9,54.4 70.9,65.2C70.9,76.4 63.5,84.8 54,84.8C44.5,84.8 37.1,76.4 37.1,65.2C37.1,56.3 42.2,48.5 50.0,43.3L54,38.4Z"
+            android:strokeColor="#47FFFFFF"
+            android:strokeWidth="1.7">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:startX="27"
+                    android:startY="87.8"
+                    android:endX="81"
+                    android:endY="33.8"
+                    android:type="linear">
+                    <item android:offset="0" android:color="#E6EC4899" />
+                    <item android:offset="1" android:color="#738B5CF6" />
+                </gradient>
+            </aapt:attr>
+        </path>
         <path
-            android:fillColor="#BF7245"
-            android:pathData="M48,64C58,60 66,63 70,73C60,76 52,72 48,64Z" />
-        <path
-            android:fillColor="#EC894C"
-            android:pathData="M54,12C56,27 62,33 77,35C62,37 56,43 54,58C52,43 46,37 31,35C46,33 52,27 54,12Z" />
-        <circle
-            android:cx="83"
-            android:cy="24"
-            android:r="4"
-            android:fillColor="#E6B450" />
+            android:pathData="M54,42.6C55.9,53.6 59.5,57.2 70.5,59.1C59.5,61.0 55.9,64.6 54,75.6C52.1,64.6 48.5,61.0 37.5,59.1C48.5,57.2 52.1,53.6 54,42.6Z">
+            <aapt:attr name="android:fillColor">
+                <gradient
+                    android:startX="40.5"
+                    android:startY="37.1"
+                    android:endX="67.5"
+                    android:endY="70.9"
+                    android:type="linear">
+                    <item android:offset="0" android:color="#FFFEF08A" />
+                    <item android:offset="0.55" android:color="#FFFBBF24" />
+                    <item android:offset="1" android:color="#FFF59E0B" />
+                </gradient>
+            </aapt:attr>
+        </path>
     </group>
 </vector>
