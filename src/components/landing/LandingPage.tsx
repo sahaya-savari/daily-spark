@@ -144,16 +144,6 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   }, [renderScreens]);
 
   useEffect(() => {
-    // Landing page always maintains the signature Ember brand palette
-    if (typeof document !== "undefined") {
-      document.documentElement.classList.remove("theme-expressive", "theme-classic");
-      document.documentElement.classList.add("theme-minimal");
-      document.documentElement.style.setProperty("--ember", "#EC894C");
-      document.documentElement.style.setProperty("--ember-glow", "rgba(236, 137, 76, 0.45)");
-    }
-  }, []);
-
-  useEffect(() => {
     const hash = window.location.hash.replace(/^#/, "");
     if (hash === "get") {
       router.navigate({ to: "/download", replace: true });

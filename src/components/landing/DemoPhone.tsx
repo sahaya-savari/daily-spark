@@ -8,7 +8,7 @@ const NotesView = lazy(() =>
   import("@/components/habits/NotesView").then(({ NotesView: View }) => ({ default: View })),
 );
 import { HabitSearchFilter, type StatusFilter } from "@/components/habits/HabitSearchFilter";
-import { THEME_CONFIGS } from "@/lib/habits/appearance";
+import { getStoredTheme, THEME_CONFIGS, type ThemeMode } from "@/lib/habits/appearance";
 import {
   CalendarCheck2,
   CheckSquare,
@@ -1129,8 +1129,24 @@ export function DemoPhone() {
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [activeTab, setActiveTab] = useState(0);
   const [demoHabits, setDemoHabits] = useState(INITIAL);
+  const [theme, setTheme] = useState<ThemeMode>(() => getStoredTheme());
   const ref = useRef<HTMLDivElement>(null);
-  const currentConfig = THEME_CONFIGS.minimal;
+
+  useEffect(() => {
+    const sync = (event: Event) => {
+      const next = (event as CustomEvent<ThemeMode>).detail;
+      setTheme(next || getStoredTheme());
+    };
+    const onStorage = () => setTheme(getStoredTheme());
+    window.addEventListener("dailyspark:theme-change", sync);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("dailyspark:theme-change", sync);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
+  const currentConfig = THEME_CONFIGS[theme] ?? THEME_CONFIGS.minimal;
   const onNav = (tab: number) => setActiveTab(tab);
   const onToggle = (id: string) => {
     setDemoHabits((habits) =>
@@ -1157,12 +1173,24 @@ export function DemoPhone() {
     >
       <Device tilt={tilt}>
         <div
-          className="theme-minimal h-full w-full"
+          className={`theme-${theme} h-full w-full`}
           style={{
             "--ember": currentConfig.accent,
+            "--color-ember": currentConfig.accent,
+            "--ember-text": currentConfig.accent,
+            "--ember-foreground": currentConfig.accentForeground,
             "--primary": currentConfig.accent,
+            "--primary-foreground": currentConfig.accentForeground,
+            "--cta": currentConfig.accent,
             "--ember-soft": currentConfig.soft,
             "--ember-glow": currentConfig.glow,
+            "--surface": currentConfig.surface,
+            "--surface-2": currentConfig.surface2,
+            "--card": currentConfig.surface,
+            "--border": currentConfig.border,
+            "--foreground": currentConfig.fg,
+            "--muted-foreground": currentConfig.muted,
+            "--faint": currentConfig.muted,
             "--heat-0": currentConfig.heat[0],
             "--heat-1": currentConfig.heat[1],
             "--heat-2": currentConfig.heat[2],
