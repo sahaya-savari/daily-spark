@@ -17,3 +17,15 @@ default; users can create optional backups.
 
 - [Source code](https://github.com/sahaya-savari/daily-spark)
 - [Releases](https://github.com/sahaya-savari/daily-spark/releases)
+
+## Guides
+
+- [Documentation](https://dailyspark.sahayasavari.dev/docs/)
+- [Getting started](https://dailyspark.sahayasavari.dev/getting-started/)
+- [Frequently asked questions](https://dailyspark.sahayasavari.dev/faq/)
+- [Backup & restore](https://dailyspark.sahayasavari.dev/backup-restore/)
+- [Design system](https://dailyspark.sahayasavari.dev/design-system/)
+- [About Daily Spark](https://dailyspark.sahayasavari.dev/about/)
+- [Terms of use](https://dailyspark.sahayasavari.dev/terms/)
+- [Security](https://dailyspark.sahayasavari.dev/security/)
+- [MIT License](https://dailyspark.sahayasavari.dev/license/)

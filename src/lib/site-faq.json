@@ -14,5 +14,17 @@
   {
     "question": "Does Daily Spark work offline?",
     "answer": "Core habit tracking works offline after the app is installed or the web app has been loaded. Downloading the app and moving a backup between devices require an internet connection or a transfer method."
+  },
+  {
+    "question": "What happens if I uninstall or clear browser data?",
+    "answer": "Local records can be removed when you uninstall the app or clear its browser storage. Export a portable backup first and keep it somewhere separate from the app."
+  },
+  {
+    "question": "What is the difference between Merge and Replace?",
+    "answer": "Merge combines records from a backup with existing data. Replace replaces the current data with the backup. Review the import preview and export your current records before choosing Replace."
+  },
+  {
+    "question": "Which desktop packages are available?",
+    "answer": "The Download page offers Windows and Linux packages alongside the browser-based Web App. A macOS package is not currently available."
   }
 ]

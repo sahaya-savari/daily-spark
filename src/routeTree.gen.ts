@@ -10,17 +10,32 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as BackupRestoreRouteImport } from './routes/backup-restore'
+import { Route as DesignSystemRouteImport } from './routes/design-system'
+import { Route as DesignsystemsRouteImport } from './routes/designsystems'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DownloadRouteImport } from './routes/download'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GetRouteImport } from './routes/get'
+import { Route as GettingStartedRouteImport } from './routes/getting-started'
+import { Route as LicenseRouteImport } from './routes/license'
 import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ScreensRouteImport } from './routes/screens'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as TermsRouteImport } from './routes/terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -28,9 +43,34 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BackupRestoreRoute = BackupRestoreRouteImport.update({
+  id: '/backup-restore',
+  path: '/backup-restore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignSystemRoute = DesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DesignsystemsRoute = DesignsystemsRouteImport.update({
+  id: '/designsystems',
+  path: '/designsystems',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DownloadRoute = DownloadRouteImport.update({
   id: '/download',
   path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -41,6 +81,16 @@ const FeaturesRoute = FeaturesRouteImport.update({
 const GetRoute = GetRouteImport.update({
   id: '/get',
   path: '/get',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GettingStartedRoute = GettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LicenseRoute = LicenseRouteImport.update({
+  id: '/license',
+  path: '/license',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OfflineRoute = OfflineRouteImport.update({
@@ -58,80 +108,160 @@ const ScreensRoute = ScreensRouteImport.update({
   path: '/screens',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/app': typeof AppRoute
+  '/backup-restore': typeof BackupRestoreRoute
+  '/design-system': typeof DesignSystemRoute
+  '/designsystems': typeof DesignsystemsRoute
+  '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
+  '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/get': typeof GetRoute
+  '/getting-started': typeof GettingStartedRoute
+  '/license': typeof LicenseRoute
   '/offline': typeof OfflineRoute
   '/privacy': typeof PrivacyRoute
   '/screens': typeof ScreensRoute
+  '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/app': typeof AppRoute
+  '/backup-restore': typeof BackupRestoreRoute
+  '/design-system': typeof DesignSystemRoute
+  '/designsystems': typeof DesignsystemsRoute
+  '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
+  '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/get': typeof GetRoute
+  '/getting-started': typeof GettingStartedRoute
+  '/license': typeof LicenseRoute
   '/offline': typeof OfflineRoute
   '/privacy': typeof PrivacyRoute
   '/screens': typeof ScreensRoute
+  '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/app': typeof AppRoute
+  '/backup-restore': typeof BackupRestoreRoute
+  '/design-system': typeof DesignSystemRoute
+  '/designsystems': typeof DesignsystemsRoute
+  '/docs': typeof DocsRoute
   '/download': typeof DownloadRoute
+  '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/get': typeof GetRoute
+  '/getting-started': typeof GettingStartedRoute
+  '/license': typeof LicenseRoute
   '/offline': typeof OfflineRoute
   '/privacy': typeof PrivacyRoute
   '/screens': typeof ScreensRoute
+  '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/app'
+    | '/backup-restore'
+    | '/design-system'
+    | '/designsystems'
+    | '/docs'
     | '/download'
+    | '/faq'
     | '/features'
     | '/get'
+    | '/getting-started'
+    | '/license'
     | '/offline'
     | '/privacy'
     | '/screens'
+    | '/security'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/app'
+    | '/backup-restore'
+    | '/design-system'
+    | '/designsystems'
+    | '/docs'
     | '/download'
+    | '/faq'
     | '/features'
     | '/get'
+    | '/getting-started'
+    | '/license'
     | '/offline'
     | '/privacy'
     | '/screens'
+    | '/security'
+    | '/terms'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/app'
+    | '/backup-restore'
+    | '/design-system'
+    | '/designsystems'
+    | '/docs'
     | '/download'
+    | '/faq'
     | '/features'
     | '/get'
+    | '/getting-started'
+    | '/license'
     | '/offline'
     | '/privacy'
     | '/screens'
+    | '/security'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AppRoute: typeof AppRoute
+  BackupRestoreRoute: typeof BackupRestoreRoute
+  DesignSystemRoute: typeof DesignSystemRoute
+  DesignsystemsRoute: typeof DesignsystemsRoute
+  DocsRoute: typeof DocsRoute
   DownloadRoute: typeof DownloadRoute
+  FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   GetRoute: typeof GetRoute
+  GettingStartedRoute: typeof GettingStartedRoute
+  LicenseRoute: typeof LicenseRoute
   OfflineRoute: typeof OfflineRoute
   PrivacyRoute: typeof PrivacyRoute
   ScreensRoute: typeof ScreensRoute
+  SecurityRoute: typeof SecurityRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -143,6 +273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app': {
       id: '/app'
       path: '/app'
@@ -150,11 +287,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/backup-restore': {
+      id: '/backup-restore'
+      path: '/backup-restore'
+      fullPath: '/backup-restore'
+      preLoaderRoute: typeof BackupRestoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/design-system': {
+      id: '/design-system'
+      path: '/design-system'
+      fullPath: '/design-system'
+      preLoaderRoute: typeof DesignSystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/designsystems': {
+      id: '/designsystems'
+      path: '/designsystems'
+      fullPath: '/designsystems'
+      preLoaderRoute: typeof DesignsystemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/download': {
       id: '/download'
       path: '/download'
       fullPath: '/download'
       preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -169,6 +341,20 @@ declare module '@tanstack/react-router' {
       path: '/get'
       fullPath: '/get'
       preLoaderRoute: typeof GetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/getting-started': {
+      id: '/getting-started'
+      path: '/getting-started'
+      fullPath: '/getting-started'
+      preLoaderRoute: typeof GettingStartedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/license': {
+      id: '/license'
+      path: '/license'
+      fullPath: '/license'
+      preLoaderRoute: typeof LicenseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/offline': {
@@ -192,18 +378,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScreensRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AppRoute: AppRoute,
+  BackupRestoreRoute: BackupRestoreRoute,
+  DesignSystemRoute: DesignSystemRoute,
+  DesignsystemsRoute: DesignsystemsRoute,
+  DocsRoute: DocsRoute,
   DownloadRoute: DownloadRoute,
+  FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   GetRoute: GetRoute,
+  GettingStartedRoute: GettingStartedRoute,
+  LicenseRoute: LicenseRoute,
   OfflineRoute: OfflineRoute,
   PrivacyRoute: PrivacyRoute,
   ScreensRoute: ScreensRoute,
+  SecurityRoute: SecurityRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

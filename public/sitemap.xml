@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Only pages with their own content belong here. /features/ and /screens/ are
-  deep links into the homepage's sections, render the same body as `/`, and
-  therefore carry the homepage's canonical - listing them would ask crawlers to
-  index duplicates.
--->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://dailyspark.sahayasavari.dev/</loc>
-  </url>
-  <url>
-    <loc>https://dailyspark.sahayasavari.dev/download/</loc>
-  </url>
-  <url>
-    <loc>https://dailyspark.sahayasavari.dev/privacy/</loc>
-  </url>
+  <url><loc>https://dailyspark.sahayasavari.dev/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/features/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/screens/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/download/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/privacy/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/docs/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/getting-started/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/faq/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/backup-restore/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/design-system/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/about/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/terms/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/security/</loc></url>
+  <url><loc>https://dailyspark.sahayasavari.dev/license/</loc></url>
 </urlset>

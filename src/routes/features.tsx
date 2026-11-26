@@ -6,11 +6,7 @@ const title = "Features - Daily Spark";
 const description =
   "Explore Daily Spark's daily check-ins, schedules, reminders, streaks, calendar progress, and local-first data storage. Optional encrypted exports help you move a backup between devices.";
 
-// This route is a deep link into the homepage's `#features` section and renders
-// the same body as `/`, so it must not claim a canonical of its own. One body,
-// one canonical owner: point search engines (and og:url) at `/`. Give this route
-// its own content before restoring a self-referencing canonical.
-const canonical = siteUrl("/");
+const canonical = siteUrl("/features");
 
 export const Route = createFileRoute("/features")({
   head: () => ({

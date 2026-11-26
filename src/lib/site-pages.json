@@ -1,0 +1,159 @@
+{
+  "docs": {
+    "path": "/docs",
+    "title": "Documentation",
+    "eyebrow": "Resources",
+    "description": "Learn how to set up Daily Spark, track your habits, and keep a portable copy of your data.",
+    "sections": [
+      {
+        "title": "Start with one habit",
+        "text": "Open the Web App or install an available package. Create a habit, choose a schedule, and check in from Today. Review individual days and longer activity patterns in Progress."
+      },
+      {
+        "title": "Organize your day",
+        "text": "Use collections for routines, notes for reflections, and the optional day planner for tasks alongside your habits. Settings keeps advanced preferences available without crowding Today."
+      },
+      {
+        "title": "Keep your data with you",
+        "text": "Your records stay on this device by default. Export a backup before changing devices, uninstalling, or clearing browser storage. Inspect a backup before choosing Merge or Replace."
+      }
+    ]
+  },
+  "getting-started": {
+    "path": "/getting-started",
+    "title": "Getting started",
+    "eyebrow": "Your first day",
+    "description": "Set up Daily Spark and make your first check-in.",
+    "sections": [
+      {
+        "title": "1. Choose where to use it",
+        "text": "Open the Web App in your browser, download the Android APK, or choose a Windows or Linux package from Download. The download page shows the available versions; macOS packages are not yet available."
+      },
+      {
+        "title": "2. Create a habit",
+        "text": "Use the + action and choose a habit. Give it a name, select an icon, and choose the schedule that fits your week. Start with a small action you can repeat."
+      },
+      {
+        "title": "3. Check in and review",
+        "text": "Mark a habit complete from Today. Open its details to review or edit a day, then use Progress and Calendar to see your activity over time."
+      },
+      {
+        "title": "4. Save a backup",
+        "text": "Open Settings ? Data & Backups and export your records. Keep a copy somewhere you control before uninstalling the app or clearing browser data."
+      },
+      {
+        "title": "Updating Android",
+        "text": "Install the newer APK over the existing app when Android offers Update. Export a backup first. Avoid uninstalling to solve an update problem until you have saved your data."
+      }
+    ]
+  },
+  "faq": {
+    "path": "/faq",
+    "title": "Frequently asked questions",
+    "eyebrow": "A little clarity",
+    "description": "Answers about accounts, offline use, supported devices, and your habit data.",
+    "sections": []
+  },
+  "backup-restore": {
+    "path": "/backup-restore",
+    "title": "Backup & restore",
+    "eyebrow": "Your data",
+    "description": "Save a portable copy of your habits and restore it with a preview before making changes.",
+    "sections": [
+      {
+        "title": "Export a backup",
+        "text": "Open Settings ? Data & Backups and choose an export. Use a full JSON backup to preserve records and history. Keep the file somewhere safe: ordinary backup files can contain your habits, notes, and settings."
+      },
+      {
+        "title": "Inspect before restoring",
+        "text": "Select your backup in the restore flow. Review the preview before confirming. Merge combines the backup with existing records; Replace replaces the current data. Export your current data before using Replace."
+      },
+      {
+        "title": "Encrypted transfers",
+        "text": "Where available, export an encrypted vault with your own passphrase, save or transfer the file, then import it on another device. This is a user-started transfer, rather than automatic cloud syncing. Keep the passphrase safe."
+      },
+      {
+        "title": "Snapshots and folder backups",
+        "text": "Local snapshots stay on the device and do not protect you if its data is removed. Android also offers optional folder backups with daily or weekly scheduling. Keep a separate portable backup before uninstalling or resetting a device."
+      }
+    ]
+  },
+  "design-system": {
+    "path": "/design-system",
+    "title": "Design system",
+    "eyebrow": "The shape of Daily Spark",
+    "description": "Quiet surfaces, warm accents, and clear actions. A visual guide to the product?s colors, typography, and rhythm.",
+    "sections": [
+      {
+        "title": "One clear primary action",
+        "text": "Warm Ember highlights the action that matters now. Secondary controls sit on quiet surfaces, with borders and spacing providing structure."
+      },
+      {
+        "title": "Type with a purpose",
+        "text": "Display type establishes hierarchy, body text keeps instructions readable, and monospaced metrics make counts and dates easy to compare. Each app theme has its own complete type and color system."
+      },
+      {
+        "title": "Space to breathe",
+        "text": "A four-pixel spacing rhythm keeps related items together. Rounded cards group content; generous touch targets and visible keyboard focus make controls easier to use."
+      },
+      {
+        "title": "Motion with restraint",
+        "text": "Animation supports orientation and feedback. The website provides Pause motion, and the screenshot gallery keeps a separate pause control. Reduced-motion preferences are respected."
+      }
+    ]
+  },
+  "about": {
+    "path": "/about",
+    "title": "About Daily Spark",
+    "eyebrow": "Small habits. Brighter days.",
+    "description": "A free, local-first habit tracker built around one small action at a time.",
+    "sections": [
+      {
+        "title": "A quieter daily routine",
+        "text": "Daily Spark brings check-ins, schedules, progress, notes, and optional planning into one place. There are no leaderboards, ads, or required Daily Spark accounts."
+      },
+      {
+        "title": "Local by default",
+        "text": "Your habit records live on your device. Optional exports let you choose when and how to move a backup. The website?s Privacy page explains storage and third-party links."
+      },
+      {
+        "title": "Open source",
+        "text": "Daily Spark is published under the MIT License. Source code, issue discussions, and releases are hosted on GitHub and GitLab; the guides you need to use it are available here on the website."
+      }
+    ]
+  },
+  "terms": {
+    "path": "/terms",
+    "title": "Terms of use",
+    "eyebrow": "Legal",
+    "description": "The project?s terms and conditions for using Daily Spark.",
+    "sections": []
+  },
+  "security": {
+    "path": "/security",
+    "title": "Security",
+    "eyebrow": "Privacy by design",
+    "description": "How to protect your local records and report a security problem responsibly.",
+    "sections": [
+      {
+        "title": "Protect your device and backups",
+        "text": "Daily Spark keeps habit data local by default. Use your device?s security controls, keep the app updated, and store exported files safely. Only restore files you trust. A local snapshot is not a substitute for a separate backup."
+      },
+      {
+        "title": "Report a vulnerability privately",
+        "text": "Use the project?s GitHub Security tab and choose Report a vulnerability if private reporting is available. Include the affected app version, device or browser, impact, and reproduction steps. Do not put exploit details or personal data in a public issue."
+      },
+      {
+        "title": "What is in scope",
+        "text": "Reports concerning the Android app, Web App, local storage, backup and restore, and notification handling are relevant. Reports are reviewed on a best-effort basis; allow time for a fix before public disclosure."
+      }
+    ]
+  },
+  "license": {
+    "path": "/license",
+    "title": "MIT License",
+    "eyebrow": "Open source",
+    "description": "The license that accompanies Daily Spark and its source code.",
+    "sections": []
+  }
+}

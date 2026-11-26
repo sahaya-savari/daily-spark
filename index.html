@@ -12,10 +12,9 @@
       one generic head for every URL. `scripts/postbuild.js` replaces everything
       between these markers with the tags for each route.
 
-      The <title> is deliberately NOT marked `data-ssg-seo`: React 19 adopts an
-      existing <title> and updates its text, so it must survive the pre-mount
-      cleanup below. Every other tag here is marked so the same cleanup removes
-      it, which lets React own the live head without creating duplicates.
+      The pre-mount cleanup removes all static SEO tags (including `<title>`)
+      before React mounts, letting TanStack Router's HeadContent own the live
+      head without creating duplicate `<title>` tags.
     -->
     <!--seo:start-->
     <title>Daily Spark | Free Offline Habit Tracker</title>
@@ -32,7 +31,7 @@
 
     <script>
       // Run before the app module so React never sees the static duplicates.
-      document.querySelectorAll("[data-ssg-seo]:not(title)").forEach(function (el) {
+      document.querySelectorAll("[data-ssg-seo], head > title").forEach(function (el) {
         el.remove();
       });
     </script>

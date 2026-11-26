@@ -111,13 +111,16 @@ export function LandingPage({ targetSection }: LandingPageProps) {
   useReveal();
   const location = useLocation();
   const router = useRouter();
-  const [motionPaused, setMotionPaused] = useState(false);
   const [screensReady, setScreensReady] = useState(
     () => targetSection === "screens" || typeof window === "undefined" || !("IntersectionObserver" in window),
   );
   const [screensLoadedOnDemand, setScreensLoadedOnDemand] = useState(false);
   const screensSectionRef = useRef<HTMLElement>(null);
   const renderScreens = targetSection === "screens" || screensReady;
+  const isHome = !targetSection;
+  const FeaturesHeading = targetSection === "features" ? "h1" : "h2";
+  const FeatureCardHeading = targetSection === "features" ? "h2" : "h3";
+  const ScreensHeading = targetSection === "screens" ? "h1" : "h2";
 
   useEffect(() => {
     if (renderScreens) return;
@@ -165,7 +168,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
       return;
     }
 
-    const target = targetSection || (location.hash ? location.hash.replace(/^#/, "") : "");
+    const target = location.hash ? location.hash.replace(/^#/, "") : "";
     if (target) {
       const timer = setTimeout(() => {
         const el = document.getElementById(target);
@@ -191,6 +194,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
       <SiteHeader sticky={targetSection === "screens"} />
 
       <main id="main" tabIndex={-1} className="w-full max-w-full outline-none">
+        {isHome && <>
         {/* Hero */}
         <section className="relative mx-auto grid max-w-[1100px] grid-cols-[minmax(0,1fr)] items-center gap-10 sm:gap-11 px-4 sm:px-6 pb-8 pt-6 sm:pt-12 md:grid-cols-2 md:gap-14 md:pb-[72px] md:pt-[88px] overflow-hidden">
           {/* dithercn Ember Hero Aura Shader */}
@@ -216,8 +220,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </a>
 
             <h1 className="font-display text-[clamp(44px,7.5vw,78px)] font-black uppercase tracking-tight leading-[1.02] text-left max-w-full">
-              <span className="block text-white animate-rise-1">Show up.</span>
-              <span className="block text-[#EC894C] drop-shadow-[0_4px_28px_rgba(236,137,76,0.45)] animate-rise-2">Tick it.</span>
+              <span className="block text-white animate-rise-1">Show up.{" "}</span>
+              <span className="block text-[#EC894C] drop-shadow-[0_4px_28px_rgba(236,137,76,0.45)] animate-rise-2">Tick it.{" "}</span>
               <span className="block text-[#9A9A9A] font-bold animate-rise-3">Keep going.</span>
             </h1>
             <p className="mb-5 sm:mb-6 mt-4 sm:mt-6 max-w-[42ch] text-[17px] sm:text-[20px] leading-relaxed text-muted-foreground text-left">
@@ -339,6 +343,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           </div>
         </section>
 
+        </>}
+
+        {(isHome || targetSection === "features") && <>
         {/* What it does (Image 2 Upgrade: Bento Capabilities) */}
         <section
           id="features"
@@ -348,9 +355,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             <span className="font-mono text-xs font-bold tracking-wider uppercase text-ember">
               Capabilities
             </span>
-            <h2 className="mt-1 font-display text-[32px] sm:text-[38px] md:text-[44px] font-bold uppercase tracking-wide text-white">
+            <FeaturesHeading className="mt-1 font-display text-[32px] sm:text-[38px] md:text-[44px] font-bold uppercase tracking-wide text-white">
               What it does
-            </h2>
+            </FeaturesHeading>
             <p className="mt-2 text-base sm:text-lg text-[#A0A6B4]">
               Honest, reliable tools designed to build lasting daily momentum.
             </p>
@@ -371,9 +378,9 @@ export function LandingPage({ targetSection }: LandingPageProps) {
                       {tag}
                     </span>
                   </div>
-                  <h3 className="font-display text-[18px] sm:text-[19px] font-bold text-white group-hover:text-ember transition-colors">
+                  <FeatureCardHeading className="font-display text-[18px] sm:text-[19px] font-bold text-white group-hover:text-ember transition-colors">
                     {title}
-                  </h3>
+                  </FeatureCardHeading>
                   <p className="mt-2.5 text-[14px] leading-relaxed text-[#A0A6B4]">
                     {body}
                   </p>
@@ -384,7 +391,10 @@ export function LandingPage({ targetSection }: LandingPageProps) {
         </section>
 
 
-        {/* LOCK B: Screens Carousel Parade */}
+        </>}
+
+        {(isHome || targetSection === "screens") && <>
+        {/* Screens screenshot shelf */}
         <section
           id="screens"
           ref={screensSectionRef}
@@ -397,26 +407,16 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           />
           <div className="reveal mx-auto max-w-[1100px] px-4 sm:px-6">
             <div className="mb-9 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 text-left">
-              <div className="min-w-0 flex-1">
-                <h2 className="mb-3 font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">Screens</h2>
+              <div className="min-w-0 basis-full flex-1 sm:basis-0">
+                <ScreensHeading className="mb-3 font-display text-[32px] sm:text-[38px] md:text-[46px] font-bold">Screens</ScreensHeading>
                 <p className="max-w-[52ch] text-base sm:text-lg text-muted-foreground">
-                  Explore the app with sample habits. Existing screens stay here, with new previews for the optional
-                  planner, schedules, settings categories, backups, transfers, and Android widgets.
-                  On phones, swipe the rail; on wider screens, pause or play it.
+                  A closer look at Today, habits, progress, and the settings that make Daily Spark yours.
                 </p>
                 <p className="mt-2 text-sm text-faint">
-                  These are illustrative previews; optional and in-progress features may differ from the latest released APK.
+                  Illustrative previews. Feature availability varies by app release.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setMotionPaused((paused) => !paused)}
-                aria-pressed={motionPaused}
-                aria-label={motionPaused ? "Play screenshots" : "Pause screenshots"}
-                className="hidden sm:inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-surface/70 px-4 text-[13.5px] font-medium text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-              >
-                <span>{motionPaused ? "Play" : "Pause"}</span>
-              </button>
+              <p className="w-full text-xs font-medium text-muted-foreground sm:w-auto sm:text-sm">Scroll sideways. Tap to enlarge</p>
             </div>
             <p className="sr-only">
               Screenshot gallery of the Daily Spark app, showing Today, the optional planner, habits, schedules,
@@ -427,13 +427,16 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           {renderScreens && (
             <Suspense fallback={null}>
               <ScreensGallery
-                motionPaused={motionPaused}
                 screensLoadedOnDemand={screensLoadedOnDemand}
+                standalone={targetSection === "screens"}
               />
             </Suspense>
           )}
         </section>
 
+        </>}
+
+        {isHome && <>
         {/* Data */}
         <section className="reveal mx-auto max-w-[1100px] px-4 sm:px-6 py-[56px] sm:py-[72px] overflow-hidden [content-visibility:auto] [contain-intrinsic-size:auto_500px]">
           <div className="glass-surface grid grid-cols-[minmax(0,1fr)] gap-6 rounded-[28px] p-4 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] md:gap-14 items-center">
@@ -519,6 +522,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
               </details>
             ))}
           </div>
+          <Link to="/faq" className="mt-5 inline-flex min-h-11 items-center rounded-lg text-sm font-semibold text-ember focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">Visit the FAQ page →</Link>
         </section>
 
         {/* Get it */}
@@ -563,6 +567,7 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </p>
           </div>
         </section>
+        </>}
       </main>
 
       <SiteFooter />

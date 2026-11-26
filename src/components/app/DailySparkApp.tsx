@@ -884,7 +884,7 @@ export function DailySparkApp({
             <div className="flex items-center gap-3 px-2">
               <SparkMark themed className="size-8" />
               <div>
-                <h1 className="font-display text-[17px] font-bold text-foreground">Daily Spark</h1>
+                <span className="block font-display text-[17px] font-bold text-foreground">Daily Spark</span>
                 <p className="text-[11px] text-muted-foreground">Calm &amp; Offline</p>
               </div>
             </div>

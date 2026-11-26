@@ -13,7 +13,6 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -50,23 +49,32 @@ self.addEventListener("fetch", (event) => {
 
   event.respondWith(
     (async () => {
+      if (request.mode === "navigate") {
+        try {
+          const response = await fetch(request);
+          if (response.status === 200 && response.type === "basic") {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, response.clone());
+          }
+          return response;
+        } catch {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          const fallback = await caches.match(new URL("index.html", scopeUrl).href);
+          if (fallback) return fallback;
+          throw new Error("Offline and no cached page available");
+        }
+      }
+
       const cached = await caches.match(request);
       if (cached) return cached;
 
-      try {
-        const response = await fetch(request);
-        if (response.status === 200 && response.type === "basic") {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(request, response.clone());
-        }
-        return response;
-      } catch (error) {
-        if (request.mode === "navigate") {
-          const fallback = await caches.match(new URL("index.html", scopeUrl).href);
-          if (fallback) return fallback;
-        }
-        throw error;
+      const response = await fetch(request);
+      if (response.status === 200 && response.type === "basic") {
+        const cache = await caches.open(CACHE_NAME);
+        await cache.put(request, response.clone());
       }
+      return response;
     })()
   );
 });

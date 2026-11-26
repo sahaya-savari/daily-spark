@@ -21,7 +21,7 @@ import { getStoredTheme, setStoredTheme, type ThemeMode } from "@/lib/habits/app
 
 
 const navLnk =
-  "whitespace-nowrap rounded-full border border-transparent px-4 py-2 text-[14px] sm:text-[15px] font-bold text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center tracking-normal";
+  "whitespace-nowrap rounded-full border border-transparent px-3 py-2 text-[14px] sm:text-[15px] font-bold text-muted-foreground transition-all duration-150 hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember leading-none inline-flex items-center tracking-normal xl:px-4";
 
 const menuItem =
   "flex min-h-11 items-center justify-between gap-3 rounded-xl px-4 py-3 text-[15.5px] font-semibold text-foreground/90 transition-colors hover:bg-white/10 hover:text-foreground active:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember";
@@ -157,6 +157,14 @@ export function SiteHeader({ sticky = true }: { sticky?: boolean } = {}) {
           className="glass-inset hidden items-center gap-1 rounded-full p-1 lg:flex"
         >
           <Link
+            to="/"
+            className={navLnk}
+            activeOptions={{ exact: true }}
+            activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
+          >
+            Home
+          </Link>
+          <Link
             to="/features"
             className={navLnk}
             activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
@@ -251,6 +259,15 @@ export function SiteHeader({ sticky = true }: { sticky?: boolean } = {}) {
             className="mx-auto mt-2 max-h-[calc(100dvh-6rem)] max-w-[1100px] overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-surface/95 p-3 shadow-2xl backdrop-blur-2xl lg:hidden animate-in fade-in slide-in-from-top-2 duration-200"
           >
             <nav className="flex flex-col gap-1.5" aria-label="Mobile navigation">
+              <Link
+                to="/"
+                onClick={() => closeMenu("route")}
+                className={menuItem}
+                activeOptions={{ exact: true }}
+                activeProps={{ className: "text-foreground bg-surface-2 border border-white/10" }}
+              >
+                <span>Home</span>
+              </Link>
               <Link
                 to="/features"
                 onClick={() => closeMenu("route")}
@@ -484,49 +501,29 @@ export function SiteFooter() {
               </h2>
               <ul className="space-y-2.5 text-[14px]">
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark#readme"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    Documentation<NewTabIndicator />
-                  </a>
+                  <Link to="/docs" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Documentation
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark/blob/main/docs/INSTALLATION_GUIDE.md"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    Getting started<NewTabIndicator />
-                  </a>
+                  <Link to="/getting-started" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Getting started
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark/blob/main/FAQ.md"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    FAQ<NewTabIndicator />
-                  </a>
+                  <Link to="/faq" className="text-[#8A92A3] hover:text-white transition-colors">
+                    FAQ
+                  </Link>
                 </li>
                 <li>
-                  <Link to="/privacy" hash="backups" className="text-[#8A92A3] hover:text-white transition-colors">
+                  <Link to="/backup-restore" className="text-[#8A92A3] hover:text-white transition-colors">
                     Backup &amp; Restore
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark/blob/main/DESIGN.md"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    Design system<NewTabIndicator />
-                  </a>
+                  <Link to="/design-system" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Design system
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -584,14 +581,9 @@ export function SiteFooter() {
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark/blob/main/LICENSE"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    MIT License<NewTabIndicator />
-                  </a>
+                  <Link to="/license" className="text-[#8A92A3] hover:text-white transition-colors">
+                    MIT License
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -603,14 +595,9 @@ export function SiteFooter() {
               </h2>
               <ul className="space-y-2.5 text-[14px]">
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark#overview"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    About<NewTabIndicator />
-                  </a>
+                  <Link to="/about" className="text-[#8A92A3] hover:text-white transition-colors">
+                    About
+                  </Link>
                 </li>
                 <li>
                   <Link to="/privacy" className="text-[#8A92A3] hover:text-white transition-colors">
@@ -618,24 +605,14 @@ export function SiteFooter() {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark/blob/main/TERMS.md"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    Terms of Use<NewTabIndicator />
-                  </a>
+                  <Link to="/terms" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Terms of Use
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="https://github.com/sahaya-savari/daily-spark/blob/main/SECURITY.md"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
-                  >
-                    Security<NewTabIndicator />
-                  </a>
+                  <Link to="/security" className="text-[#8A92A3] hover:text-white transition-colors">
+                    Security
+                  </Link>
                 </li>
               </ul>
           </div>

@@ -6,10 +6,7 @@ const title = "Screens & Layouts - Daily Spark";
 const description =
   "Preview Daily Spark's mobile screens and full desktop workspace, plus optional planner and widget previews. Feature availability varies by app release.";
 
-// Same body as `/` (a deep link into its `#screens` section), so it shares the
-// homepage's canonical instead of competing with it. Give this route its own
-// content before restoring a self-referencing canonical.
-const canonical = siteUrl("/");
+const canonical = siteUrl("/screens");
 
 export const Route = createFileRoute("/screens")({
   head: () => ({

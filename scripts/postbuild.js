@@ -38,6 +38,7 @@ const DESKTOP_VERSION = 'v1.0.1';
 const WINDOWS_ZIP_FILENAME = `Daily-Spark-${DESKTOP_VERSION}-windows.zip`;
 const LINUX_TAR_GZ_FILENAME = `Daily-Spark-${DESKTOP_VERSION}-linux.tar.gz`;
 const SITE_FAQS = JSON.parse(fs.readFileSync(faqSourcePath, 'utf8'));
+const RESOURCE_PAGES = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, '../src/lib/site-pages.json'), 'utf8'));
 
 /** HTML-escape text used inside attribute values and <title>. */
 function esc(value) {
@@ -133,19 +134,15 @@ const ROUTES = {
     faqPage: true,
     fallback: homeFallback,
   },
-  // `/features` and `/screens` render the same body as `/` (they are deep links
-  // into its sections), so they share the homepage's canonical rather than
-  // competing as three near-identical pages. Both keep their own `title` and
-  // `description` for browser tabs and unfurls.
+  // Features and Screens have dedicated page bodies and their own canonicals.
   '/features': {
     preload: ['LandingPage'],
     title: 'Features - Daily Spark',
     description:
       "Explore Daily Spark's daily check-ins, schedules, reminders, streaks, calendar progress, and local-first data storage. Optional encrypted exports help you move a backup between devices.",
-    canonical: SITE_URL,
+    canonical: `${SITE_URL}features/`,
     ogType: 'website',
     twitterCard: 'summary_large_image',
-    faqPage: true,
     fallback: featuresFallback,
   },
   '/screens': {
@@ -153,10 +150,9 @@ const ROUTES = {
     title: 'Screens & Layouts - Daily Spark',
     description:
       "Preview Daily Spark's mobile screens and full desktop workspace, plus optional planner and widget previews. Feature availability varies by app release.",
-    canonical: SITE_URL,
+    canonical: `${SITE_URL}screens/`,
     ogType: 'website',
     twitterCard: 'summary_large_image',
-    faqPage: true,
     fallback: screensFallback,
   },
   '/download': {
@@ -207,6 +203,25 @@ const ROUTES = {
     noindex: true,
     fallback: notFoundFallback,
   },
+};
+
+for (const page of Object.values(RESOURCE_PAGES)) {
+  const policyFile = page.path === '/terms' ? 'TERMS.md' : page.path === '/license' ? 'LICENSE' : null;
+  const policy = policyFile ? `<pre style="white-space:pre-wrap;font:inherit">${esc(fs.readFileSync(path.resolve(import.meta.dirname, '..', policyFile), 'utf8'))}</pre>` : '';
+  ROUTES[page.path] = {
+    title: `${page.title} - Daily Spark`,
+    description: page.description,
+    canonical: `${SITE_URL}${page.path.slice(1)}/`,
+    ogType: 'article',
+    twitterCard: 'summary_large_image',
+    faqPage: page.path === '/faq',
+    fallback: fallbackPage(page.title, `<p>${esc(page.description)}</p>${page.sections.map(({ title, text }) => `<section><h2>${esc(title)}</h2><p>${esc(text)}</p></section>`).join('')}${page.path === '/faq' ? faqFallback : ''}${policy}`),
+  };
+}
+ROUTES['/designsystems'] = {
+  title: 'Design system - Daily Spark',
+  noindex: true,
+  fallback: fallbackPage('Design system', `<p><a href="${BASE_PATH}design-system/">Visit the design system</a></p>`),
 };
 
 function seoBlock(route) {
@@ -315,6 +330,8 @@ if (fs.existsSync(ogCardSource)) {
 const template = fs.readFileSync(indexHtmlPath, 'utf8');
 
 const ROUTE_DIRS = {
+  ...Object.fromEntries(Object.values(RESOURCE_PAGES).map(({ path }) => [path, path.slice(1)])),
+  '/designsystems': 'designsystems',
   '/app': 'app',
   '/features': 'features',
   '/screens': 'screens',

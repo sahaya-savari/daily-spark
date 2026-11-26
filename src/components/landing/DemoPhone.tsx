@@ -138,19 +138,23 @@ export function Device({ children, tilt }: { children: React.ReactNode; tilt?: {
 
 /** Small phone for the screens rail. Purely decorative: hidden from AT and inert. */
 export function MiniPhone({ children }: { children: React.ReactNode }) {
+  const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(212);
+
   return (
     <div
       aria-hidden="true"
       inert
-      className="relative w-[208px] rounded-[36px] p-[8px] transition-transform duration-300 group-hover:-translate-y-2"
+      className="relative w-full transition-transform duration-300 group-hover:-translate-y-1"
       style={{
+        padding: "3.85%",
+        borderRadius: innerWidth * 0.184,
         background: "linear-gradient(155deg, #3a3a3a 0%, #121212 26%, #0b0b0b 62%, #2c2c2c 100%)",
         boxShadow: "0 40px 62px -34px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06)",
       }}
     >
-      <span className="absolute left-1/2 top-[9px] z-10 h-[13px] w-[52px] -translate-x-1/2 rounded-[9px] bg-[#000] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" />
-      <div className="overflow-hidden rounded-[29px] bg-[#0A0A0A]">
-        <Scaled width={194}>{children}</Scaled>
+      <span className="absolute left-1/2 z-10 -translate-x-1/2 bg-[#000] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]" style={{ top: innerWidth * 0.0464, height: innerWidth * 0.067, width: innerWidth * 0.268, borderRadius: innerWidth * 0.0464 }} />
+      <div ref={innerRef} className="overflow-hidden bg-[#0A0A0A]" style={{ borderRadius: innerWidth * 0.1495 }}>
+        <Scaled width={innerWidth}>{children}</Scaled>
       </div>
     </div>
   );
