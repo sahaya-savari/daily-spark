@@ -243,92 +243,91 @@ export function LandingPage({ targetSection }: LandingPageProps) {
             </div>
 
             {/* Primary actions */}
-            <div className="grid w-full max-w-md grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="grid w-full max-w-lg grid-cols-1 gap-2.5 sm:grid-cols-2">
               <DownloadApkButton
-                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2.5 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide text-[#090A0D] shadow-lg active:scale-95 transition-all sm:col-span-2 sm:px-6 sm:text-base sm:tracking-wider"
+                className="btn-ember-glow inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold uppercase tracking-wide text-[#090A0D] shadow-lg active:scale-95 transition-all sm:px-5"
               >
                 <span className="flex min-w-0 items-center justify-center gap-2">
                   <Download className="size-4 shrink-0 stroke-[2.5]" />
-                  <span className="sm:hidden">Download APK</span>
-                  <span className="hidden sm:inline">Download Daily Spark APK</span>
-                  <span className="shrink-0 font-mono text-[11px] font-semibold opacity-90 sm:text-xs">({SITE.apk.size})</span>
+                  <span>Download APK</span>
+                  <span className="shrink-0 font-mono text-[11px] font-semibold opacity-90">({SITE.apk.size})</span>
                 </span>
               </DownloadApkButton>
 
               <Link
                 to="/app"
-                className="inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#171A21] px-6 py-3 text-base font-semibold text-white whitespace-nowrap transition-all hover:border-white/30 hover:bg-[#1E222B] active:scale-95 shadow-sm sm:col-span-2"
+                className="inline-flex min-h-[48px] min-w-0 items-center justify-center gap-2 rounded-xl border border-white/15 bg-[#171A21] px-5 py-3 text-sm font-semibold text-white whitespace-nowrap transition-all hover:border-white/30 hover:bg-[#1E222B] active:scale-95 shadow-sm sm:text-base"
               >
                 <Globe2 className="size-4 text-[#EC894C]" />
                 <span className="whitespace-nowrap">Open Web App</span>
               </Link>
             </div>
 
-            <div className="mt-3 w-full max-w-md space-y-2">
+            <div className="mt-3 w-full max-w-lg rounded-2xl border border-white/10 bg-surface/40 p-2.5 space-y-2.5">
               <div
                 role="group"
                 aria-label={`Desktop packages, version ${SITE.desktop.version}`}
                 className="grid grid-cols-2 gap-2"
               >
-                  <a
-                    href={SITE.desktop.windowsZip}
-                    download={SITE.desktop.windowsZipFilename}
-                    className="group flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-surface/60 px-2.5 py-1.5 text-left transition-colors hover:border-ember/40 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <Monitor aria-hidden="true" className="size-3.5 shrink-0 text-ember" />
-                      <span className="min-w-0">
-                        <span className="block truncate text-[11px] font-semibold text-foreground sm:text-xs">Windows ZIP</span>
-                        <span className="block text-[9px] text-faint sm:text-[10px]">{SITE.desktop.version} · Portable</span>
-                      </span>
+                <a
+                  href={SITE.desktop.windowsZip}
+                  download={SITE.desktop.windowsZipFilename}
+                  className="group flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-surface/70 px-3 py-1.5 text-left transition-colors hover:border-ember/40 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Monitor aria-hidden="true" className="size-3.5 shrink-0 text-ember" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-semibold text-foreground">Windows ZIP</span>
+                      <span className="block text-[10px] text-faint">{SITE.desktop.version} · Portable</span>
                     </span>
-                    <Download aria-hidden="true" className="size-3 shrink-0 text-ember/80" />
-                  </a>
-                  <a
-                    href={SITE.desktop.linuxTarGz}
-                    download={SITE.desktop.linuxTarGzFilename}
-                    className="group flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-surface/60 px-2.5 py-1.5 text-left transition-colors hover:border-ember/40 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <Terminal aria-hidden="true" className="size-3.5 shrink-0 text-ember" />
-                      <span className="min-w-0">
-                        <span className="block truncate text-[11px] font-semibold text-foreground sm:text-xs">Linux archive</span>
-                        <span className="block text-[9px] text-faint sm:text-[10px]">{SITE.desktop.version} · .tar.gz</span>
-                      </span>
+                  </span>
+                  <Download aria-hidden="true" className="size-3.5 shrink-0 text-ember/80" />
+                </a>
+                <a
+                  href={SITE.desktop.linuxTarGz}
+                  download={SITE.desktop.linuxTarGzFilename}
+                  className="group flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-surface/70 px-3 py-1.5 text-left transition-colors hover:border-ember/40 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Terminal aria-hidden="true" className="size-3.5 shrink-0 text-ember" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-xs font-semibold text-foreground">Linux archive</span>
+                      <span className="block text-[10px] text-faint">{SITE.desktop.version} · .tar.gz</span>
                     </span>
-                    <Download aria-hidden="true" className="size-3 shrink-0 text-ember/80" />
-                  </a>
+                  </span>
+                  <Download aria-hidden="true" className="size-3.5 shrink-0 text-ember/80" />
+                </a>
               </div>
 
-              <div role="group" aria-label="More project and release links" className="grid grid-cols-3 gap-1.5">
+              <div role="group" aria-label="More project and release links" className="grid grid-cols-3 gap-1.5 border-t border-white/10 pt-2">
                 <a
                   href={SITE.repo}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-white/10 bg-surface/50 px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-white/20 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:text-[11px]"
+                  className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
                   aria-label="View GitHub source code"
                 >
-                  <PixelGithub aria-hidden="true" className="size-3 shrink-0" />
-                  <span className="truncate">GitHub source</span>
+                  <PixelGithub aria-hidden="true" className="size-3.5 shrink-0" />
+                  <span className="truncate">GitHub</span>
                 </a>
                 <a
                   href={SITE.gitlab.releases}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-white/10 bg-surface/50 px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-[#FC6D26]/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:text-[11px]"
+                  className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
                 >
-                  <PixelGitlab aria-hidden="true" className="size-3 shrink-0 text-[#FC6D26]" />
-                  <span className="truncate">GitLab releases</span>
+                  <PixelGitlab aria-hidden="true" className="size-3.5 shrink-0 text-[#FC6D26]" />
+                  <span className="truncate">GitLab</span>
                 </a>
                 <a
                   href={`${SITE.basePath}download#fdroid`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-white/10 bg-surface/50 px-1.5 py-2 text-[10px] font-semibold text-muted-foreground transition-colors hover:border-[#1976D2]/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:text-[11px]"
+                  className="inline-flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
                 >
-                  <PixelFdroid aria-hidden="true" className="size-3 shrink-0 text-[#1976D2]" />
+                  <PixelFdroid aria-hidden="true" className="size-3.5 shrink-0 text-[#1976D2]" />
                   <span className="truncate">F-Droid</span>
-                  <span className="rounded-full border border-[#1976D2]/30 bg-[#1976D2]/15 px-1 py-0.5 text-[8px] font-bold uppercase text-[#64B5F6]">
+                  <span className="rounded-full border border-[#1976D2]/30 bg-[#1976D2]/15 px-1.5 py-0.5 text-[8px] font-bold uppercase text-[#64B5F6]">
                     Pending
                   </span>
                 </a>

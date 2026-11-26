@@ -45,6 +45,7 @@ import {
   PixelQrCode,
 } from "@/components/ui/pixel-icon";
 import { Capacitor } from "@capacitor/core";
+import { SITE } from "@/lib/site";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Share } from "@capacitor/share";
@@ -881,12 +882,25 @@ export function DailySparkApp({
       {!embedded && (
         <aside className="hidden lg:flex w-64 flex-col justify-between border-r border-border/40 bg-surface/80 backdrop-blur-md p-5 shrink-0 min-h-screen sticky top-0 h-screen select-none">
           <div className="space-y-6">
-            <div className="flex items-center gap-3 px-2">
-              <SparkMark themed className="size-8" />
-              <div>
-                <span className="block font-display text-[17px] font-bold text-foreground">Daily Spark</span>
-                <p className="text-[11px] text-muted-foreground">Calm &amp; Offline</p>
+            <div className="flex items-center justify-between gap-2 px-2">
+              <div className="flex items-center gap-3 min-w-0">
+                <SparkMark themed className="size-8 shrink-0" />
+                <div className="min-w-0">
+                  <span className="block font-display text-[17px] font-bold text-foreground truncate">Daily Spark</span>
+                  <p className="text-[11px] text-muted-foreground">Calm &amp; Offline</p>
+                </div>
               </div>
+              {!Capacitor.isNativePlatform() && (
+                <a
+                  href={SITE.basePath}
+                  aria-label="Exit to Home"
+                  title="Return to website home"
+                  className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border/60 bg-surface-2/70 px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-ember/40 hover:bg-surface-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                >
+                  <PixelArrowLeft className="size-3" />
+                  <span>Home</span>
+                </a>
+              )}
             </div>
 
             {/* Command Palette Quick Trigger Button */}
@@ -1056,6 +1070,18 @@ export function DailySparkApp({
                 <PixelFire className="size-3.5 fill-ember/20" />
                 <span>{progressStats.globalStreak}d</span>
               </span>
+            )}
+
+            {!embedded && !Capacitor.isNativePlatform() && (
+              <a
+                href={SITE.basePath}
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-surface-2 px-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                title="Return to website home"
+                aria-label="Exit to Home"
+              >
+                <PixelArrowLeft className="size-3.5" />
+                <span>Home</span>
+              </a>
             )}
 
             <button

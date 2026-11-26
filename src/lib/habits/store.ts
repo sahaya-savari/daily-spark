@@ -31,6 +31,8 @@ import { DEFAULT_SETTINGS, type Habit, type HabitCollection, type HabitSettings,
  * Local-only habit store. Data lives in this browser/device's localStorage under the
  * standard keys the original Daily Spark used, so nothing leaves the device.
  */
+export const CURRENT_SCHEMA_VERSION = 2;
+
 export const STORAGE_KEYS = {
   habits: "streakflame_streaks",
   settings: "streakflame_settings",
@@ -38,6 +40,7 @@ export const STORAGE_KEYS = {
   autoBackupHistory: "streakflame_autobackup_history",
   recoveryStash: "streakflame_recovery_stash",
   collections: "streakflame_collections",
+  schemaVersion: "streakflame_schema_version",
 } as const;
 
 export interface LocalBackupSnapshot {
@@ -96,8 +99,43 @@ function saveRollingBackup(habits: Habit[], settings: HabitSettings, collections
   }
 }
 
+/**
+ * Safely migrate persisted v1 localStorage payloads to the current schema version
+ * without deleting user habits, settings, collections, or rolling backups.
+ */
+export function runStorageMigrations(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const rawVersion = localStorage.getItem(STORAGE_KEYS.schemaVersion);
+    const parsedVersion = rawVersion ? Number.parseInt(rawVersion, 10) : 1;
+    const currentVersion = Number.isFinite(parsedVersion) && parsedVersion >= 1 ? parsedVersion : 1;
+    if (currentVersion >= CURRENT_SCHEMA_VERSION) return;
+
+    // v1 -> v2: Ensure settings object is valid JSON if present and preserve all keys.
+    const rawSettings = localStorage.getItem(STORAGE_KEYS.settings);
+    if (rawSettings) {
+      try {
+        const parsed = JSON.parse(rawSettings);
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          localStorage.setItem(
+            STORAGE_KEYS.settings,
+            JSON.stringify({ ...DEFAULT_SETTINGS, ...parsed }),
+          );
+        }
+      } catch {
+        /* keep original rawSettings untouched for fallback */
+      }
+    }
+
+    localStorage.setItem(STORAGE_KEYS.schemaVersion, String(CURRENT_SCHEMA_VERSION));
+  } catch {
+    /* ignore storage errors during migration */
+  }
+}
+
 function load() {
   if (state.loaded || typeof window === "undefined") return;
+  runStorageMigrations();
   const settings = { ...DEFAULT_SETTINGS, ...readJson<Partial<HabitSettings>>(STORAGE_KEYS.settings, {}) };
   const today = todayKey(new Date(), settings.rolloverHour);
   let raw: unknown = [];

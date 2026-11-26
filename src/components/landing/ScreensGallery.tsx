@@ -633,7 +633,7 @@ function GalleryShot({
   return (
     <figure
       ref={ref}
-      className="group w-[190px] flex-none snap-center sm:w-[230px]"
+      className="group w-[198px] flex-none snap-center sm:w-[225px]"
     >
       <div className="relative">
         <MiniPhone>
@@ -663,45 +663,44 @@ export function ScreensGallery({
   useReveal();
   const DesktopHeading = standalone ? "h2" : "h3";
   const shelfRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const returnFocusRef = useRef<HTMLButtonElement | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
-  const [edges, setEdges] = useState({ start: true, end: false });
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const shelf = shelfRef.current;
-    if (!shelf) return;
-    const sync = () => {
-      const start = shelf.scrollLeft <= 2;
-      const end = shelf.scrollLeft + shelf.clientWidth >= shelf.scrollWidth - 2;
-      setEdges((current) =>
-        current.start === start && current.end === end
-          ? current
-          : { start, end },
-      );
-    };
-    const observer = new ResizeObserver(sync);
-    observer.observe(shelf);
-    shelf.addEventListener("scroll", sync, { passive: true });
-    sync();
-    return () => {
-      observer.disconnect();
-      shelf.removeEventListener("scroll", sync);
-    };
-  }, []);
+    const track = trackRef.current;
+    if (!shelf || !track) return;
 
-  const moveShelf = (direction: number) => {
-    const shelf = shelfRef.current;
-    if (!shelf) return;
-    const step =
-      shelf.querySelector("figure")?.getBoundingClientRect().width ?? 230;
     const reduceMotion =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
       document.documentElement.classList.contains("motion-reduce");
-    shelf.scrollBy({
-      left: direction * (step + 24) * 2,
-      behavior: reduceMotion ? "auto" : "smooth",
-    });
-  };
+    if (reduceMotion || paused || selected !== null) return;
+
+    let rafId = 0;
+    let lastTime = performance.now();
+    let scrollPos = shelf.scrollLeft;
+    const speedPxPerSec = 42;
+
+    const step = (now: number) => {
+      const dt = Math.min(now - lastTime, 64);
+      lastTime = now;
+      const loopWidth = track.scrollWidth / 2;
+      if (loopWidth > 0) {
+        scrollPos += (speedPxPerSec * dt) / 1000;
+        if (scrollPos >= loopWidth) {
+          scrollPos -= loopWidth;
+        }
+        shelf.scrollLeft = scrollPos;
+      }
+      rafId = requestAnimationFrame(step);
+    };
+
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
+  }, [paused, selected]);
+
   const movePreview = (direction: number) =>
     setSelected((current) =>
       current === null
@@ -711,26 +710,55 @@ export function ScreensGallery({
 
   return (
     <>
-      <div className="relative">
+      <div
+        className="relative"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocusCapture={() => setPaused(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setPaused(false);
+          }
+        }}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+      >
         <div
           id="screens-shelf"
           ref={shelfRef}
           role="region"
-          aria-label="Screenshot gallery, scrollable"
+          aria-label="Screenshot gallery, looping"
           tabIndex={0}
-          className="scrollbar-none flex w-full snap-x snap-mandatory gap-6 overflow-x-auto overscroll-x-contain px-[max(1.5rem,calc((100vw-1100px)/2+1.5rem))] pb-8 pt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ember"
+          className="scrollbar-none flex w-full overflow-x-auto overscroll-x-contain pb-8 pt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ember"
         >
-          {SHOTS.map(([label, screen], i) => (
-            <GalleryShot
-              key={label}
-              label={label}
-              screen={screen}
-              onOpen={(trigger) => {
-                returnFocusRef.current = trigger;
-                setSelected(i);
-              }}
-            />
-          ))}
+          <div ref={trackRef} className="flex flex-none gap-6 pr-6">
+            {SHOTS.map(([label, screen], i) => (
+              <GalleryShot
+                key={label}
+                label={label}
+                screen={screen}
+                onOpen={(trigger) => {
+                  returnFocusRef.current = trigger;
+                  setSelected(i);
+                }}
+              />
+            ))}
+            <div aria-hidden="true" inert className="flex flex-none gap-6">
+              {SHOTS.map(([label, screen]) => (
+                <figure
+                  key={`loop-${label}`}
+                  className="w-[198px] flex-none sm:w-[225px]"
+                >
+                  <MiniPhone>
+                    <Suspense fallback={null}>{screen}</Suspense>
+                  </MiniPhone>
+                  <figcaption className="mt-4 text-center text-sm font-semibold text-muted-foreground">
+                    {label}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
         </div>
         <div
           aria-hidden="true"
@@ -740,26 +768,6 @@ export function ScreensGallery({
           aria-hidden="true"
           className="pointer-events-none absolute bottom-12 right-0 top-0 z-10 w-6 bg-gradient-to-l from-background to-transparent sm:w-24"
         />
-        <button
-          type="button"
-          onClick={() => moveShelf(-1)}
-          disabled={edges.start}
-          aria-label="Previous screenshots"
-          aria-controls="screens-shelf"
-          className="absolute left-4 top-[45%] z-20 hidden size-12 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-foreground text-background shadow-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember disabled:pointer-events-none disabled:opacity-0 sm:grid"
-        >
-          <ChevronLeft aria-hidden="true" className="size-5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => moveShelf(1)}
-          disabled={edges.end}
-          aria-label="Next screenshots"
-          aria-controls="screens-shelf"
-          className="absolute right-4 top-[45%] z-20 hidden size-12 -translate-y-1/2 place-items-center rounded-full border border-white/20 bg-foreground text-background shadow-xl transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember disabled:pointer-events-none disabled:opacity-0 sm:grid"
-        >
-          <ChevronRight aria-hidden="true" className="size-5" />
-        </button>
       </div>
       <Dialog
         open={selected !== null}
@@ -810,7 +818,7 @@ export function ScreensGallery({
               <ChevronRight aria-hidden="true" className="size-5" />
             </button>
           </div>
-          <div className="mx-auto w-[min(390px,calc(100vw-5rem),calc((100dvh-12rem)*0.46))]">
+          <div className="mx-auto w-[min(468px,calc(100vw-5rem),calc((100dvh-12rem)*0.46))]">
             {selected !== null && (
               <MiniPhone key={selected}>
                 <Suspense fallback={null}>{SHOTS[selected][1]}</Suspense>

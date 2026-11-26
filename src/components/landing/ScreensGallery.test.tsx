@@ -52,24 +52,16 @@ describe("Screens screenshot shelf", () => {
     await waitFor(() => expect(trigger).toHaveFocus());
   });
 
-  it("scrolls the shelf in either direction from its arrow controls", () => {
+  it("renders a looping gallery shelf without overlay arrow buttons", () => {
     render(<ScreensGallery screensLoadedOnDemand standalone />);
-    const shelf = screen.getByRole("region", {
-      name: "Screenshot gallery, scrollable",
-    });
-    const scrollBy = vi.fn();
-    Object.defineProperties(shelf, {
-      clientWidth: { value: 800 },
-      scrollWidth: { value: 3200 },
-      scrollLeft: { value: 200, writable: true },
-      scrollBy: { value: scrollBy },
-    });
-    fireEvent.scroll(shelf);
-    fireEvent.click(screen.getByRole("button", { name: "Next screenshots" }));
-    expect(scrollBy.mock.calls[0][0].left).toBeGreaterThan(0);
-    fireEvent.click(
-      screen.getByRole("button", { name: "Previous screenshots" }),
-    );
-    expect(scrollBy.mock.calls[1][0].left).toBeLessThan(0);
+    expect(
+      screen.getByRole("region", { name: "Screenshot gallery, looping" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Next screenshots" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Previous screenshots" }),
+    ).not.toBeInTheDocument();
   });
 });

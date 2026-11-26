@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { DeferredToaster } from "@/components/ui/DeferredToaster";
+import { UpdateToast } from "@/lib/pwa";
 
 const DailySparkApp = lazy(() =>
   import("./DailySparkApp").then(({ DailySparkApp: App }) => ({ default: App })),
@@ -9,6 +10,7 @@ export function StandaloneApp() {
   return (
     <>
       <DeferredToaster />
+      <UpdateToast />
       <Suspense
         fallback={
           <main

@@ -118,7 +118,7 @@ export function Device({ children, tilt }: { children: React.ReactNode; tilt?: {
   const [innerRef, innerWidth] = useAutoWidth<HTMLDivElement>(280);
   return (
     <div
-      className="relative w-[285px] sm:w-[320px] md:w-[340px] max-w-[calc(100vw-2rem)] rounded-[46px] p-[10px] transition-transform duration-500 shadow-2xl"
+      className="relative w-[260px] sm:w-[290px] md:w-[310px] max-w-[calc(100vw-2rem)] rounded-[46px] p-[10px] transition-transform duration-500 shadow-2xl"
       style={{
         background: "linear-gradient(155deg, #3a3a3a 0%, #121212 26%, #0b0b0b 62%, #2c2c2c 100%)",
         boxShadow: "0 60px 90px -40px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.06), inset 0 0 0 1px rgba(0,0,0,.6)",

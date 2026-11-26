@@ -15,6 +15,7 @@ import appCss from "../styles.css?url";
 import { SiteDitherBackground } from "@/components/landing/SiteDitherBackground";
 import { SITE } from "@/lib/site";
 import { getStoredTheme, applyThemeToDocument } from "@/lib/habits/appearance";
+import { registerServiceWorker, UpdateToast } from "@/lib/pwa";
 
 const NotFound = lazy(() =>
   import("@/components/dithercn/not-found").then(({ NotFound: NotFoundView }) => ({
@@ -128,10 +129,15 @@ function RootComponent() {
     if (!Capacitor.isNativePlatform() && !onAppRoute) applyThemeToDocument(getStoredTheme());
   }, [onAppRoute]);
 
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
+
   return (
     <>
       <SiteDitherBackground />
       <Outlet />
+      <UpdateToast />
     </>
   );
 }
