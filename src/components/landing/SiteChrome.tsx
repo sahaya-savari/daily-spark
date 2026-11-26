@@ -340,14 +340,64 @@ export function SiteHeader({ sticky = true }: { sticky?: boolean } = {}) {
   );
 }
 
-export function SiteFooter() {
+const THEME_CHANGE_EVENT = "dailyspark:theme-change";
+
+const THEME_OPTIONS: ReadonlyArray<{
+  mode: ThemeMode;
+  label: string;
+  dotColor: string;
+  activeBorder: string;
+}> = [
+  { mode: "minimal", label: "Ember", dotColor: "bg-[#EC894C]", activeBorder: "border-ember/40" },
+  { mode: "classic", label: "Solar", dotColor: "bg-[#F59E0B]", activeBorder: "border-[#F59E0B]/40" },
+  { mode: "expressive", label: "Amethyst", dotColor: "bg-[#8B5CF6]", activeBorder: "border-[#8B5CF6]/40" },
+];
+
+export function ThemeSelector({ className = "" }: { className?: string }) {
   const [currentTheme, setCurrentTheme] = useState<ThemeMode>(() => getStoredTheme());
-  const [motionPaused, setMotionPaused] = useState(false);
+
+  useEffect(() => {
+    const sync = (event: Event) => {
+      const next = (event as CustomEvent<ThemeMode>).detail;
+      if (next) setCurrentTheme(next);
+    };
+    window.addEventListener(THEME_CHANGE_EVENT, sync);
+    return () => window.removeEventListener(THEME_CHANGE_EVENT, sync);
+  }, []);
 
   const handleThemeChange = (mode: ThemeMode) => {
     setCurrentTheme(mode);
     setStoredTheme(mode);
+    window.dispatchEvent(new CustomEvent<ThemeMode>(THEME_CHANGE_EVENT, { detail: mode }));
   };
+
+  return (
+    <div className={`flex flex-wrap items-center justify-center gap-2 ${className}`.trim()}>
+      <span className="text-xs font-mono text-[#737B8C]">Theme:</span>
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-[#262A34] bg-[#111318] p-1">
+        {THEME_OPTIONS.map(({ mode, label, dotColor, activeBorder }) => (
+          <button
+            key={mode}
+            type="button"
+            onClick={() => handleThemeChange(mode)}
+            aria-pressed={currentTheme === mode}
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
+              currentTheme === mode
+                ? `bg-[#1E222B] text-white border ${activeBorder} shadow-sm`
+                : "text-[#8A92A3] hover:text-white border border-transparent"
+            }`}
+          >
+            <span className={`size-2 rounded-full ${dotColor}`} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function SiteFooter() {
+  const [motionPaused, setMotionPaused] = useState(false);
 
   const toggleMotion = () => {
     const next = !motionPaused;
@@ -388,50 +438,7 @@ export function SiteFooter() {
             </p>
 
             {/* Theme Accent Switcher (Orange / Saved Blue / Solar) */}
-            <div className="mt-5 flex items-center gap-2">
-              <span className="text-xs font-mono text-[#737B8C]">Theme:</span>
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-[#262A34] bg-[#111318] p-1">
-                <button
-                  type="button"
-                  onClick={() => handleThemeChange("minimal")}
-                  aria-pressed={currentTheme === "minimal"}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
-                    currentTheme === "minimal"
-                      ? "bg-[#1E222B] text-white border border-ember/40 shadow-sm"
-                      : "text-[#8A92A3] hover:text-white"
-                  }`}
-                >
-                  <span className="size-2 rounded-full bg-[#EC894C]" />
-                  <span>Ember</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleThemeChange("classic")}
-                  aria-pressed={currentTheme === "classic"}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
-                    currentTheme === "classic"
-                      ? "bg-[#1E222B] text-white border border-[#F59E0B]/40 shadow-sm"
-                      : "text-[#8A92A3] hover:text-white"
-                  }`}
-                >
-                  <span className="size-2 rounded-full bg-[#F59E0B]" />
-                  <span>Solar</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleThemeChange("expressive")}
-                  aria-pressed={currentTheme === "expressive"}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-mono font-medium transition-all ${
-                    currentTheme === "expressive"
-                      ? "bg-[#1E222B] text-white border border-[#8B5CF6]/40 shadow-sm"
-                      : "text-[#8A92A3] hover:text-white"
-                  }`}
-                >
-                  <span className="size-2 rounded-full bg-[#8B5CF6]" />
-                  <span>Amethyst</span>
-                </button>
-              </div>
-            </div>
+            <ThemeSelector className="mt-5" />
 
             {/* Pause Motion Button */}
             <button
@@ -563,9 +570,11 @@ export function SiteFooter() {
                     href={SITE.issues}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[#8A92A3] hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 text-[#8A92A3] hover:text-white transition-colors"
                   >
-                    Issue Tracker<NewTabIndicator />
+                    <Bug className="size-3.5 shrink-0 text-ember" aria-hidden="true" />
+                    <span>Issue Tracker</span>
+                    <NewTabIndicator />
                   </a>
                 </li>
                 <li>

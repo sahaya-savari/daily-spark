@@ -20,7 +20,7 @@ import {
   PixelGitlab,
   PixelFdroid,
 } from "@/components/ui/pixel-icon";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
+import { SiteFooter, SiteHeader, ThemeSelector } from "@/components/landing/SiteChrome";
 import { SparkMark } from "@/components/brand/Logo";
 import { DeferredToaster } from "@/components/ui/DeferredToaster";
 import { DownloadApkButton } from "@/components/ui/DownloadApkButton";
@@ -337,7 +337,8 @@ export function LandingPage({ targetSection }: LandingPageProps) {
           </div>
 
           {/* LOCK A: Single Mobile Phone Preview */}
-          <div className="order-2 mt-6 sm:mt-0 flex min-w-0 justify-center md:order-2 w-full max-w-full">
+          <div className="order-2 mt-6 sm:mt-0 flex min-w-0 flex-col items-center gap-4 md:order-2 w-full max-w-full">
+            <ThemeSelector />
             <DemoPhone />
           </div>
         </section>
